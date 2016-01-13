@@ -1,6 +1,9 @@
 #ifndef __MEM_H__
 #define __MEM_H__
 
+#define CMAP_T (1 == 1)
+#define CMAP_F (1 == 0)
+
 typedef struct CMAP_MEM_s CMAP_MEM;
 
 struct CMAP_MEM_s

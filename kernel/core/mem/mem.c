@@ -30,7 +30,7 @@ struct BLOCK_FREE_s
 {
   BLOCK super;
 
-  BLOCK_FREE * ge_, * lt_, * parent_;
+  BLOCK_FREE * ge_, * lt_;
 };
 
 /*******************************************************************************
@@ -171,7 +171,7 @@ static CHUNK * new_chunk(INTERNAL * internal, int alloc_size)
 /*******************************************************************************
 *******************************************************************************/
 
-static BLOCK * find_block_free(INTERNAL * internal, int alloc_size)
+static BLOCK_FREE * find_block_free(INTERNAL * internal, int alloc_size)
 {
   BLOCK_FREE * cur = internal -> block_free_tree_, * result = NULL;
   while(cur != NULL)
@@ -192,34 +192,40 @@ static BLOCK * find_block_free(INTERNAL * internal, int alloc_size)
       cur = cur -> ge_;
     }
   }
-  return (BLOCK *)result;
+  return result;
 }
 
 static void add_block_free(INTERNAL * internal, BLOCK_FREE * block)
 {
-  BLOCK_FREE ** parent = &internal -> block_free_tree_;
-  int size = block_size((BLOCK *)block), size_parent;
+  BLOCK_FREE ** cur_ptr = &internal -> block_free_tree_;
+  int size = block_size((BLOCK *)block);
 
-  while(*parent != NULL)
+  while(*cur_ptr != NULL)
   {
-    size_parent = block_size((BLOCK *)*parent);
-    if(size < size_parent) parent = &((*parent) -> lt_);
-    else if(size > size_parent) parent = &((*parent) -> ge_);
+    int size_cur = block_size((BLOCK *)*cur_ptr);
+    if(size < size_cur) cur_ptr = &((*cur_ptr) -> lt_);
+    else if(size > size_cur) cur_ptr = &((*cur_ptr) -> ge_);
     else
     {
-      /* TOCONTINUE */
+      block -> ge_ = *cur_ptr;
+      *cur_ptr = NULL;
     }
   }
+
+  *cur_ptr = block;
 }
 
 static void set_block_free(INTERNAL * internal, BLOCK * block)
 {
-  block -> free_ = (1 == 1);
+  block -> free_ = CMAP_T;
 
-  add_block_free(internal, (BLOCK_FREE *)block);
+  BLOCK_FREE * block_free = (BLOCK_FREE *)block;
+  block_free -> ge_ = NULL;
+  block_free -> lt_ = NULL;
+  add_block_free(internal, block_free);
 }
 
-static BLOCK * new_block_free(INTERNAL * internal, int alloc_size)
+static BLOCK_FREE * new_block_free(INTERNAL * internal, int alloc_size)
 {
   CHUNK * chunk = new_chunk(internal, alloc_size);
   if(chunk == NULL) return NULL;
@@ -227,7 +233,7 @@ static BLOCK * new_block_free(INTERNAL * internal, int alloc_size)
   BLOCK * block = chunk_block_list(chunk);
   set_block_free(internal, block);
 
-  return block;
+  return (BLOCK_FREE *)block;
 }
 
 /*******************************************************************************
@@ -237,7 +243,7 @@ static void * _alloc(CMAP_MEM * mem, int size)
 {
   INTERNAL * internal = (INTERNAL *)mem -> internal_;
 
-  BLOCK * block = find_block_free(internal, size);
+  BLOCK_FREE * block = find_block_free(internal, size);
   if(block == NULL) block = new_block_free(internal, size);
   if(block == NULL) return NULL;
 
