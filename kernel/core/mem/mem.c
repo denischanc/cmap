@@ -104,9 +104,83 @@ static void init_block(BLOCK * block)
   valid_block(block);
 
   block -> waste_ = 0;
-  block -> free_ = (1 == 0);
+  block -> free_ = CMAP_F;
   block -> prev_ = NULL;
   block -> next_ = NULL;
+}
+
+static void add_block(BLOCK * block, BLOCK * prev)
+{
+  block -> prev_ = prev;
+
+  block -> next_ = prev -> next_;
+  prev -> next_ = block;
+
+  if(block -> next_ != NULL) block -> next_ -> prev_ = block;
+}
+
+static void rm_block(BLOCK * block, BLOCK * prev)
+{
+  prev -> next_ = block -> next_;
+
+  if(prev -> next_ != NULL) prev -> next_ -> prev_ = prev;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static BLOCK_FREE * find_block_free(INTERNAL * internal, int alloc_size)
+{
+  BLOCK_FREE * cur = internal -> block_free_tree_, * result = NULL;
+  while(cur != NULL)
+  {
+    int size_cur = block_size((BLOCK *)cur);
+    if(size_cur == alloc_size)
+    {
+      result = cur;
+      cur = NULL;
+    }
+    else if(size_cur > alloc_size)
+    {
+      result = cur;
+      cur = cur -> lt_;
+    }
+    else
+    {
+      cur = cur -> ge_;
+    }
+  }
+  return result;
+}
+
+static void free_block(INTERNAL * internal, BLOCK * block)
+{
+  block -> free_ = CMAP_T;
+
+  BLOCK_FREE * block_free = (BLOCK_FREE *)block;
+  block_free -> ge_ = NULL;
+  block_free -> lt_ = NULL;
+
+  BLOCK_FREE ** cur_ptr = &internal -> block_free_tree_;
+  int size = block_size(block);
+
+  while(*cur_ptr != NULL)
+  {
+    int size_cur = block_size((BLOCK *)*cur_ptr);
+    if(size < size_cur) cur_ptr = &((*cur_ptr) -> lt_);
+    else if(size > size_cur) cur_ptr = &((*cur_ptr) -> ge_);
+    else
+    {
+      block_free -> ge_ = *cur_ptr;
+      *cur_ptr = NULL;
+    }
+  }
+
+  *cur_ptr = block_free;
+}
+
+static void alloc_block(INTERNAL * internal, BLOCK_FREE * block)
+{
 }
 
 /*******************************************************************************
@@ -133,11 +207,12 @@ static void init_chunk(INTERNAL * internal, CHUNK * chunk, int size)
         * block_tail_list = chunk_block_tail_list(chunk);
   init_block(block_list);
   init_block(block_tail_list);
-  block_list -> next_ = block_tail_list;
-  block_tail_list -> prev_ = block_list;
+
+  add_block(block_tail_list, block_list);
+  free_block(internal, block_list);
 }
 
-static CHUNK * new_chunk(INTERNAL * internal, int alloc_size)
+static CHUNK * create_chunk(INTERNAL * internal, int alloc_size)
 {
   int chunk_size = internal -> chunk_size_;
   alloc_size += 2 * sizeof(BLOCK);
@@ -171,69 +246,12 @@ static CHUNK * new_chunk(INTERNAL * internal, int alloc_size)
 /*******************************************************************************
 *******************************************************************************/
 
-static BLOCK_FREE * find_block_free(INTERNAL * internal, int alloc_size)
+static BLOCK_FREE * create_block_free(INTERNAL * internal, int alloc_size)
 {
-  BLOCK_FREE * cur = internal -> block_free_tree_, * result = NULL;
-  while(cur != NULL)
-  {
-    int size_cur = block_size((BLOCK *)cur);
-    if(size_cur == alloc_size)
-    {
-      result = cur;
-      cur = NULL;
-    }
-    else if(size_cur > alloc_size)
-    {
-      result = cur;
-      cur = cur -> lt_;
-    }
-    else
-    {
-      cur = cur -> ge_;
-    }
-  }
-  return result;
-}
-
-static void add_block_free(INTERNAL * internal, BLOCK_FREE * block)
-{
-  BLOCK_FREE ** cur_ptr = &internal -> block_free_tree_;
-  int size = block_size((BLOCK *)block);
-
-  while(*cur_ptr != NULL)
-  {
-    int size_cur = block_size((BLOCK *)*cur_ptr);
-    if(size < size_cur) cur_ptr = &((*cur_ptr) -> lt_);
-    else if(size > size_cur) cur_ptr = &((*cur_ptr) -> ge_);
-    else
-    {
-      block -> ge_ = *cur_ptr;
-      *cur_ptr = NULL;
-    }
-  }
-
-  *cur_ptr = block;
-}
-
-static void set_block_free(INTERNAL * internal, BLOCK * block)
-{
-  block -> free_ = CMAP_T;
-
-  BLOCK_FREE * block_free = (BLOCK_FREE *)block;
-  block_free -> ge_ = NULL;
-  block_free -> lt_ = NULL;
-  add_block_free(internal, block_free);
-}
-
-static BLOCK_FREE * new_block_free(INTERNAL * internal, int alloc_size)
-{
-  CHUNK * chunk = new_chunk(internal, alloc_size);
+  CHUNK * chunk = create_chunk(internal, alloc_size);
   if(chunk == NULL) return NULL;
 
-  BLOCK * block = chunk_block_list(chunk);
-  set_block_free(internal, block);
-
-  return (BLOCK_FREE *)block;
+  return (BLOCK_FREE *)chunk_block_list(chunk);
 }
 
 /*******************************************************************************
@@ -244,13 +262,29 @@ static void * _alloc(CMAP_MEM * mem, int size)
   INTERNAL * internal = (INTERNAL *)mem -> internal_;
 
   BLOCK_FREE * block = find_block_free(internal, size);
-  if(block == NULL) block = new_block_free(internal, size);
+  if(block == NULL) block = create_block_free(internal, size);
   if(block == NULL) return NULL;
 
-  /* TOCONTINUE
-  alloc_block(block);*/
+  void * ret = ((void *)block) + sizeof(BLOCK);
 
-  return ((void *)block) + sizeof(BLOCK);
+  alloc_block(internal, block);
+
+  int size_waste = block_size((BLOCK *)block) - size;
+  if(size_waste >= sizeof(BLOCK_FREE))
+  {
+    ((BLOCK *)block) -> waste_ = 0;
+
+    BLOCK * new_block = (BLOCK *)(ret + size);
+    valid_block(new_block);
+    add_block(new_block, (BLOCK *)block);
+    free_block(internal, new_block);
+  }
+  else
+  {
+    ((BLOCK *)block) -> waste_ = size_waste;
+  }
+
+  return ret;
 }
 
 /*******************************************************************************
