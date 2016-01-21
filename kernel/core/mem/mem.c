@@ -30,7 +30,7 @@ struct BLOCK_FREE_s
 {
   BLOCK super;
 
-  BLOCK_FREE * ge_, * lt_;
+  BLOCK_FREE * ge_, * lt_, * parent_;
 };
 
 /*******************************************************************************
@@ -161,26 +161,47 @@ static void free_block(INTERNAL * internal, BLOCK * block)
   block_free -> ge_ = NULL;
   block_free -> lt_ = NULL;
 
-  BLOCK_FREE ** cur_ptr = &internal -> block_free_tree_;
+  BLOCK_FREE ** cur_ptr = &internal -> block_free_tree_, * parent = NULL;
   int size = block_size(block);
 
   while(*cur_ptr != NULL)
   {
-    int size_cur = block_size((BLOCK *)*cur_ptr);
-    if(size < size_cur) cur_ptr = &((*cur_ptr) -> lt_);
-    else if(size > size_cur) cur_ptr = &((*cur_ptr) -> ge_);
+    parent = *cur_ptr;
+
+    int size_cur = block_size((BLOCK *)parent);
+    if(size < size_cur) cur_ptr = &(parent -> lt_);
+    else if(size > size_cur) cur_ptr = &(parent -> ge_);
     else
     {
-      block_free -> ge_ = *cur_ptr;
+      block_free -> ge_ = parent;
+      parent = parent -> parent_;
+      block_free -> ge_ -> parent_ = block_free;
       *cur_ptr = NULL;
     }
   }
 
   *cur_ptr = block_free;
+  block_free -> parent_ = parent;
 }
 
 static void alloc_block(INTERNAL * internal, BLOCK_FREE * block)
 {
+  BLOCK_FREE * repl;
+
+  if(block -> ge_ == NULL) repl = block -> lt_;
+  else if(block -> lt_ == NULL) repl = block -> ge_;
+  else
+  {
+    repl = block -> ge_;
+
+    BLOCK_FREE ** cur_ptr = &(repl -> lt_);
+    while(*cur_ptr != NULL) cur_ptr = &((*cur_ptr) -> lt_);
+    *cur_ptr = block -> lt_;
+  }
+
+  if(repl != NULL) repl -> parent_ = block -> parent_;
+  if(block -> parent_ -> ge_ == block) block -> parent_ -> ge_ = repl;
+  else block -> parent_ -> lt_ = repl;
 }
 
 /*******************************************************************************
@@ -292,6 +313,7 @@ static void * _alloc(CMAP_MEM * mem, int size)
 
 static void _free(CMAP_MEM * mem, void * ptr)
 {
+  // TOCONTINUE
 }
 
 /*******************************************************************************
