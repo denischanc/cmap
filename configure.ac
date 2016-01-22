@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([cmap], [0.1.0], [denis.chancogne@free.fr])
-AC_CONFIG_SRCDIR([kernel/core/mem/mem.h])
+AC_CONFIG_SRCDIR([src/kernel/core/mem/mem.h])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 
@@ -23,8 +23,9 @@ LT_INIT([win32-dll])
 
 AC_CONFIG_FILES([ \
   Makefile \
-  kernel/Makefile \
-  kernel/core/Makefile \
-  kernel/core/mem/Makefile \
+  src/Makefile \
+  src/kernel/Makefile \
+  src/kernel/core/Makefile \
+  src/kernel/core/mem/Makefile \
 ])
 AC_OUTPUT
