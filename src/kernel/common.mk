@@ -1,5 +1,5 @@
 
-include ../common.mk
+include $(top_srcdir)/src/common.mk
 
 CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_SRC_PATH) \
