@@ -1,5 +1,6 @@
 
 #include "mem.h"
+#include "mem_test.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,7 +21,7 @@ typedef struct BLOCK_s BLOCK;
 
 struct BLOCK_s
 {
-  char valid1_, valid2_, waste_, free_;
+  char valid1_, valid2_, free_;
 
   BLOCK * prev_, * next_;
 };
@@ -104,7 +105,6 @@ static void init_block(BLOCK * block)
 {
   valid_block(block);
 
-  block -> waste_ = 0;
   block -> free_ = CMAP_F;
   block -> prev_ = NULL;
   block -> next_ = NULL;
@@ -187,7 +187,7 @@ static void free_block(INTERNAL * internal, BLOCK * block)
 
 static void alloc_block(INTERNAL * internal, BLOCK_FREE * block)
 {
-  BLOCK_FREE * repl;
+  BLOCK_FREE * repl, * parent;
 
   if(block -> ge_ == NULL) repl = block -> lt_;
   else if(block -> lt_ == NULL) repl = block -> ge_;
@@ -195,14 +195,25 @@ static void alloc_block(INTERNAL * internal, BLOCK_FREE * block)
   {
     repl = block -> ge_;
 
+    parent = repl;
     BLOCK_FREE ** cur_ptr = &(repl -> lt_);
-    while(*cur_ptr != NULL) cur_ptr = &((*cur_ptr) -> lt_);
+    while(*cur_ptr != NULL)
+    {
+      parent = *cur_ptr;
+      cur_ptr = &parent -> lt_;
+    }
     *cur_ptr = block -> lt_;
+    (*cur_ptr) -> parent_ = parent;
   }
 
-  if(repl != NULL) repl -> parent_ = block -> parent_;
-  if(block -> parent_ -> ge_ == block) block -> parent_ -> ge_ = repl;
-  else block -> parent_ -> lt_ = repl;
+  parent = block -> parent_;
+  if(repl != NULL) repl -> parent_ = parent;
+
+  if(parent == NULL) internal -> block_free_tree_ = repl;
+  else if(parent -> ge_ == block) parent -> ge_ = repl;
+  else parent -> lt_ = repl;
+
+  ((BLOCK *)block) -> free_ = CMAP_F;
 }
 
 /*******************************************************************************
@@ -294,16 +305,10 @@ static void * _alloc(CMAP_MEM * mem, int size)
   int size_waste = block_size((BLOCK *)block) - size;
   if(size_waste >= sizeof(BLOCK_FREE))
   {
-    ((BLOCK *)block) -> waste_ = 0;
-
     BLOCK * new_block = (BLOCK *)(ret + size);
     valid_block(new_block);
     add_block(new_block, (BLOCK *)block);
     free_block(internal, new_block);
-  }
-  else
-  {
-    ((BLOCK *)block) -> waste_ = size_waste;
   }
 
   return ret;
@@ -314,7 +319,29 @@ static void * _alloc(CMAP_MEM * mem, int size)
 
 static void _free(CMAP_MEM * mem, void * ptr)
 {
-  // TOCONTINUE
+  INTERNAL * internal = (INTERNAL *)mem -> internal_;
+
+  BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
+  if(!is_block(block)) error("Invalid block ???");
+
+  BLOCK * next = block -> next_, * prev = block -> prev_;
+
+  if(next -> free_)
+  {
+    alloc_block(internal, (BLOCK_FREE *)next);
+    rm_block(next, block);
+  }
+
+  if((prev == NULL) || !prev -> free_)
+  {
+    free_block(internal, block);
+  }
+  else
+  {
+    rm_block(block, prev);
+    alloc_block(internal, (BLOCK_FREE *)prev);
+    free_block(internal, prev);
+  }
 }
 
 /*******************************************************************************
@@ -328,6 +355,7 @@ static CMAP_MEM * create_mem(int chunk_size) {
     (chunk_size > CHUNK_SIZE_MIN) ? chunk_size : CHUNK_SIZE_MIN;
   internal_.chunk_list_ = NULL;
   internal_.chunk_tail_list_ = NULL;
+  internal_.block_free_tree_ = NULL;
   mem_.internal_ = &internal_;
 
   return &mem_;
@@ -340,4 +368,35 @@ CMAP_MEM_FACTORY * cmap_mem_factory()
 {
   mem_factory_.create = create_mem;
   return &mem_factory_;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+int cmap_mem_test_nb_chunk(CMAP_MEM * mem)
+{
+  INTERNAL * internal = (INTERNAL *)mem -> internal_;
+
+  int nb = 0;
+
+  CHUNK * chunk = internal -> chunk_list_;
+  while(chunk != NULL)
+  {
+    nb++;
+    chunk = chunk -> next_;
+  }
+
+  return nb;
+}
+
+static int nb_block_free(BLOCK_FREE * block)
+{
+  if(block == NULL) return 0;
+  else return nb_block_free(block -> ge_) + 1 + nb_block_free(block -> lt_);
+}
+
+int cmap_mem_test_nb_block_free(CMAP_MEM * mem)
+{
+  INTERNAL * internal = (INTERNAL *)mem -> internal_;
+  return nb_block_free(internal -> block_free_tree_);
 }
