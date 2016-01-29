@@ -11,4 +11,3 @@ void cmap_test_assert(char cond, const char * file, int line,
   const char * msg);
 
 #endif
-
