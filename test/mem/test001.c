@@ -14,7 +14,7 @@
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_factory_create(1024) -> create();
+  CMAP_MEM * mem = cmap_mem_create(1024);
   CMAP_TEST_ASSERT_PTR(mem);
 
   ASSERT_NB_CHUNK(0);

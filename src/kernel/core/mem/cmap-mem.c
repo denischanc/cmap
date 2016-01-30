@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cmap-common.h"
+#include "cmap-kernel.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -12,12 +13,10 @@
 #define VAL_2 0x2a
 
 #define CHUNK_SIZE_MIN (sizeof(BLOCK) + sizeof(BLOCK_FREE))
+#define CHUNK_SIZE_DFT (1 << 20)
 
 /*******************************************************************************
 *******************************************************************************/
-
-static CMAP_MEM_FACTORY mem_factory_;
-static CMAP_MEM_FACTORY * mem_factory_ptr_ = NULL;
 
 static CMAP_MEM mem_;
 static CMAP_MEM * mem_ptr_ = NULL;
@@ -58,7 +57,7 @@ struct CHUNK_s
 /*******************************************************************************
 *******************************************************************************/
 
-static int chunk_size_ = CHUNK_SIZE_MIN;
+static int chunk_size_ = CHUNK_SIZE_DFT;
 
 static CHUNK * chunk_list_ = NULL, * chunk_tail_list_ = NULL;
 
@@ -69,8 +68,8 @@ static BLOCK_FREE * block_free_tree_ = NULL;
 
 static void error(const char * msg)
 {
-  printf("ERROR : %s\n", msg);
-  exit(EXIT_FAILURE);
+  fprintf(stderr, "[ERROR]  %s\n", msg);
+  cmap_kernel() -> fatal();
 }
 
 /*******************************************************************************
@@ -339,31 +338,18 @@ static void _free(void * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM * create_mem()
+CMAP_MEM * cmap_mem_create(int chunk_size)
 {
   if(mem_ptr_ == NULL)
   {
+    chunk_size_ = (chunk_size > CHUNK_SIZE_MIN) ? chunk_size : CHUNK_SIZE_DFT;
+
     mem_.alloc = _alloc;
     mem_.free = _free;
 
     mem_ptr_ = &mem_;
   }
   return mem_ptr_;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_MEM_FACTORY * cmap_mem_factory_create(int chunk_size)
-{
-  if(chunk_size > chunk_size_) chunk_size_ = chunk_size;
-
-  if(mem_factory_ptr_ == NULL)
-  {
-    mem_factory_.create = create_mem;
-    mem_factory_ptr_ = &mem_factory_;
-  }
-  return mem_factory_ptr_;
 }
 
 /*******************************************************************************

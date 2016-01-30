@@ -5,4 +5,9 @@ CMAP_TEST_SRC_PATH = $(top_srcdir)/test
 CMAP_TEST_BUILD_PATH = $(top_builddir)/test
 
 CMAP_TEST_CFLAGS = \
+  $(CMAP_KERNEL_CFLAGS) \
   -I$(CMAP_TEST_SRC_PATH)/util
+
+CMAP_TEST_LDADD = \
+  $(CMAP_BUILD_PATH)/libcmap.la \
+  $(CMAP_TEST_BUILD_PATH)/util/libtest.la

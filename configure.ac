@@ -26,10 +26,11 @@ AC_CONFIG_FILES([ \
   src/Makefile \
   src/kernel/Makefile \
   src/kernel/core/Makefile \
-  src/kernel/core/factory/Makefile \
   src/kernel/core/mem/Makefile \
+  src/kernel/core/map/Makefile \
   test/Makefile \
   test/util/Makefile \
   test/mem/Makefile \
+  test/kernel/Makefile \
 ])
 AC_OUTPUT
