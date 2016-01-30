@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([cmap], [0.1.0], [denis.chancogne@free.fr])
-AC_CONFIG_SRCDIR([src/kernel/core/mem/mem.h])
+AC_CONFIG_SRCDIR([src/kernel/core/mem/cmap-mem.h])
 AM_INIT_AUTOMAKE([subdir-objects])
 AC_CONFIG_HEADERS([config.h])
 
@@ -26,6 +26,7 @@ AC_CONFIG_FILES([ \
   src/Makefile \
   src/kernel/Makefile \
   src/kernel/core/Makefile \
+  src/kernel/core/factory/Makefile \
   src/kernel/core/mem/Makefile \
   test/Makefile \
   test/util/Makefile \

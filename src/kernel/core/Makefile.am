@@ -1,2 +1,2 @@
 
-SUBDIRS = mem
+SUBDIRS = factory mem

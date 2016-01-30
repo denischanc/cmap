@@ -1,5 +1,5 @@
 
-#include "test_assert.h"
+#include "test-assert.h"
 
 #include <stdio.h>
 #include <stdlib.h>
