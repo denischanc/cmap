@@ -10,4 +10,7 @@
 #define CMAP_FREE(ptr) \
   cmap_kernel() -> mem_ -> free((void *)ptr)
 
+#define CMAP_CALL(e, fn) e -> fn(e)
+#define CMAP_CALL_ARGS(e, fn, args) e -> fn(e, args)
+
 #endif

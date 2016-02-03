@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include "cmap-common.h"
 #include "cmap-kernel.h"
+#include "cmap-util-tree.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -62,6 +63,8 @@ static int chunk_size_ = CHUNK_SIZE_DFT;
 static CHUNK * chunk_list_ = NULL, * chunk_tail_list_ = NULL;
 
 static BLOCK_FREE * block_free_tree_ = NULL;
+
+static CMAP_UTIL_TREE_HANDLER tree_handler_;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -125,28 +128,44 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
+static void ** block_free__ge(CMAP_UTIL_TREE_HANDLER * this, void * node)
+{
+  return (void **)&((BLOCK_FREE *)node) -> ge_;
+}
+
+static void ** block_free__lt(CMAP_UTIL_TREE_HANDLER * this, void * node)
+{
+  return (void **)&((BLOCK_FREE *)node) -> lt_;
+}
+
+static void ** block_free__parent(CMAP_UTIL_TREE_HANDLER * this, void * node)
+{
+  return (void **)&((BLOCK_FREE *)node) -> parent_;
+}
+
+int block_free__eval(CMAP_UTIL_TREE_HANDLER * this, void * node)
+{
+  int size = block_size((BLOCK *)node);
+  return (size - *(int *)(this -> internal_));
+}
+
+char block_free__lt_usable(CMAP_UTIL_TREE_HANDLER * this)
+{
+  return CMAP_F;
+}
+
+char block_free__gt_usable(CMAP_UTIL_TREE_HANDLER * this)
+{
+  return CMAP_T;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  BLOCK_FREE * cur = block_free_tree_, * result = NULL;
-  while(cur != NULL)
-  {
-    int size_cur = block_size((BLOCK *)cur);
-    if(size_cur == alloc_size)
-    {
-      result = cur;
-      cur = NULL;
-    }
-    else if(size_cur > alloc_size)
-    {
-      result = cur;
-      cur = cur -> lt_;
-    }
-    else
-    {
-      cur = cur -> ge_;
-    }
-  }
-  return result;
+  tree_handler_.internal_ = &alloc_size;
+  return (BLOCK_FREE *)cmap_util_tree_find(&tree_handler_, block_free_tree_);
 }
 
 static void free_block(BLOCK * block)
@@ -157,56 +176,15 @@ static void free_block(BLOCK * block)
   block_free -> ge_ = NULL;
   block_free -> lt_ = NULL;
 
-  BLOCK_FREE ** cur_ptr = &block_free_tree_, * parent = NULL;
   int size = block_size(block);
-
-  while(*cur_ptr != NULL)
-  {
-    parent = *cur_ptr;
-
-    int size_cur = block_size((BLOCK *)parent);
-    if(size < size_cur) cur_ptr = &(parent -> lt_);
-    else if(size > size_cur) cur_ptr = &(parent -> ge_);
-    else
-    {
-      block_free -> ge_ = parent;
-      parent = parent -> parent_;
-      block_free -> ge_ -> parent_ = block_free;
-      *cur_ptr = NULL;
-    }
-  }
-
-  *cur_ptr = block_free;
-  block_free -> parent_ = parent;
+  tree_handler_.internal_ = &size;
+  cmap_util_tree_add(&tree_handler_, (void **)&block_free_tree_, block);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  BLOCK_FREE * repl, * parent;
-
-  if(block -> ge_ == NULL) repl = block -> lt_;
-  else if(block -> lt_ == NULL) repl = block -> ge_;
-  else
-  {
-    repl = block -> ge_;
-
-    parent = repl;
-    BLOCK_FREE ** cur_ptr = &(repl -> lt_);
-    while(*cur_ptr != NULL)
-    {
-      parent = *cur_ptr;
-      cur_ptr = &parent -> lt_;
-    }
-    *cur_ptr = block -> lt_;
-    (*cur_ptr) -> parent_ = parent;
-  }
-
-  parent = block -> parent_;
-  if(repl != NULL) repl -> parent_ = parent;
-
-  if(parent == NULL) block_free_tree_ = repl;
-  else if(parent -> ge_ == block) parent -> ge_ = repl;
-  else parent -> lt_ = repl;
+  tree_handler_.internal_ = NULL;
+  cmap_util_tree_rm(&tree_handler_, (void **)&block_free_tree_, block);
 
   ((BLOCK *)block) -> free_ = CMAP_F;
 }
@@ -346,6 +324,13 @@ CMAP_MEM * cmap_mem_create(int chunk_size)
 
     mem_.alloc = _alloc;
     mem_.free = _free;
+
+    tree_handler_.ge = block_free__ge;
+    tree_handler_.lt = block_free__lt;
+    tree_handler_.parent = block_free__parent;
+    tree_handler_.eval = block_free__eval;
+    tree_handler_.lt_usable = block_free__lt_usable;
+    tree_handler_.gt_usable = block_free__gt_usable;
 
     mem_ptr_ = &mem_;
   }

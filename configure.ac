@@ -24,6 +24,7 @@ LT_INIT([win32-dll])
 AC_CONFIG_FILES([ \
   Makefile \
   src/Makefile \
+  src/util/Makefile \
   src/kernel/Makefile \
   src/kernel/core/Makefile \
   src/kernel/core/mem/Makefile \
