@@ -1,13 +1,17 @@
 #ifndef __CMAP_MAP_H__
 #define __CMAP_MAP_H__
 
+#include "cmap-root.h"
+
+extern const char * CMAP_MAP_NATURE;
+
 typedef struct CMAP_MAP_s CMAP_MAP;
 
 struct CMAP_MAP_s
 {
-  void * internal_;
+  CMAP_ROOT super;
 
-  void (*delete)(CMAP_MAP * this);
+  void * internal_;
 
   void (*add)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
 };
