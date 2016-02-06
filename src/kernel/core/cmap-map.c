@@ -12,14 +12,28 @@ const char * CMAP_MAP_NATURE = "cmap.nature.map";
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct CMAP_MAP_ENTRY_s CMAP_MAP_ENTRY;
+
+struct CMAP_MAP_ENTRY_s
+{
+  const char * key_;
+  CMAP_MAP * val_;
+
+  CMAP_MAP_ENTRY * ge_, * lt_, * parent_;
+};
+
 typedef struct
 {
+  CMAP_MAP_ENTRY * entry_tree_;
 } CMAP_INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * map__nature(CMAP_ROOT * this)
+/*******************************************************************************
+*******************************************************************************/
+
+static const char * map__nature(CMAP_MAP * this)
 {
   return CMAP_MAP_NATURE;
 }
@@ -27,9 +41,9 @@ static const char * map__nature(CMAP_ROOT * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void map__delete(CMAP_ROOT * this)
+static void map__delete(CMAP_MAP * this)
 {
-  cmap_map_delete((CMAP_MAP *)this);
+  cmap_map_delete(this);
 }
 
 /*******************************************************************************
@@ -51,17 +65,15 @@ CMAP_MAP * cmap_map_create()
 
 void cmap_map_init(CMAP_MAP * map)
 {
-  CMAP_ROOT * root = (CMAP_ROOT *)map;
-  cmap_root_init(root);
-  root -> nature = map__nature;
-  root -> delete = map__delete;
-
   map -> internal_ = CMAP_ALLOC_STRUCT(CMAP_INTERNAL);
+
+  map -> nature = map__nature;
+  map -> delete = map__delete;
   map -> add = map__add;
 }
 
 void cmap_map_delete(CMAP_MAP * map)
 {
   CMAP_FREE(map -> internal_);
-  cmap_root_delete((CMAP_ROOT *)map);
+  CMAP_FREE(map);
 }
