@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "cmap-common.h"
 #include "cmap-kernel.h"
-#include "cmap-util-tree.h"
+#include "cmap-tree.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -64,7 +64,7 @@ static CHUNK * chunk_list_ = NULL, * chunk_tail_list_ = NULL;
 
 static BLOCK_FREE * block_free_tree_ = NULL;
 
-static CMAP_UTIL_TREE_HANDLER tree_handler_;
+static CMAP_TREE_RUNNER tree_runner_;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -128,35 +128,12 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-static void ** block_free__ge(CMAP_UTIL_TREE_HANDLER * this, void * node)
-{
-  return (void **)&((BLOCK_FREE *)node) -> ge_;
-}
+CMAP_TREE_DECLARE_RUNNER(BLOCK_FREE, block_free)
 
-static void ** block_free__lt(CMAP_UTIL_TREE_HANDLER * this, void * node)
-{
-  return (void **)&((BLOCK_FREE *)node) -> lt_;
-}
-
-static void ** block_free__parent(CMAP_UTIL_TREE_HANDLER * this, void * node)
-{
-  return (void **)&((BLOCK_FREE *)node) -> parent_;
-}
-
-int block_free__eval(CMAP_UTIL_TREE_HANDLER * this, void * node)
+int block_free__eval(CMAP_TREE_RUNNER * this, void * node)
 {
   int size = block_size((BLOCK *)node);
   return (size - *(int *)(this -> internal_));
-}
-
-char block_free__lt_usable(CMAP_UTIL_TREE_HANDLER * this)
-{
-  return CMAP_F;
-}
-
-char block_free__gt_usable(CMAP_UTIL_TREE_HANDLER * this)
-{
-  return CMAP_T;
 }
 
 /*******************************************************************************
@@ -164,8 +141,8 @@ char block_free__gt_usable(CMAP_UTIL_TREE_HANDLER * this)
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  tree_handler_.internal_ = &alloc_size;
-  return (BLOCK_FREE *)cmap_util_tree_find(&tree_handler_, block_free_tree_);
+  tree_runner_.internal_ = &alloc_size;
+  return (BLOCK_FREE *)cmap_tree_find(&tree_runner_, block_free_tree_);
 }
 
 static void free_block(BLOCK * block)
@@ -177,14 +154,14 @@ static void free_block(BLOCK * block)
   block_free -> lt_ = NULL;
 
   int size = block_size(block);
-  tree_handler_.internal_ = &size;
-  cmap_util_tree_add(&tree_handler_, (void **)&block_free_tree_, block);
+  tree_runner_.internal_ = &size;
+  cmap_tree_add(&tree_runner_, (void **)&block_free_tree_, block);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  tree_handler_.internal_ = NULL;
-  cmap_util_tree_rm(&tree_handler_, (void **)&block_free_tree_, block);
+  tree_runner_.internal_ = NULL;
+  cmap_tree_rm(&tree_runner_, (void **)&block_free_tree_, block);
 
   ((BLOCK *)block) -> free_ = CMAP_F;
 }
@@ -325,12 +302,8 @@ CMAP_MEM * cmap_mem_create(int chunk_size)
     mem_.alloc = _alloc;
     mem_.free = _free;
 
-    tree_handler_.ge = block_free__ge;
-    tree_handler_.lt = block_free__lt;
-    tree_handler_.parent = block_free__parent;
-    tree_handler_.eval = block_free__eval;
-    tree_handler_.lt_usable = block_free__lt_usable;
-    tree_handler_.gt_usable = block_free__gt_usable;
+    CMAP_TREE_INIT_RUNNER(tree_runner_, block_free, false, true)
+    tree_runner_.eval = block_free__eval;
 
     mem_ptr_ = &mem_;
   }
