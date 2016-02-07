@@ -1,8 +1,10 @@
 
 #include "cmap-map.h"
 
+#include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-common.h"
+#include "cmap-tree.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -30,6 +32,14 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+static int entry__eval(CMAP_TREE_RUNNER * this, void * node)
+{
+  const char * key = (const char *)this -> internal_;
+  return strcmp(key, ((CMAP_MAP_ENTRY *)node) -> key_);
+}
+
+CMAP_TREE_RUNNER(CMAP_MAP_ENTRY, entry, false, false)
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -51,6 +61,18 @@ static void map__delete(CMAP_MAP * this)
 
 static void map__add(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+
+  entry_runner_.internal_ = (void *)key;
+  CMAP_MAP_ENTRY * entry = cmap_tree_find(&entry_runner_,
+    internal -> entry_tree_);
+  if(entry == NULL)
+  {
+    entry = CMAP_ALLOC_STRUCT(CMAP_MAP_ENTRY);
+    entry -> key_ = key;
+    cmap_tree_add(&entry_runner_, (void **)&internal -> entry_tree_, entry);
+  }
+  entry -> val_ = val;
 }
 
 /*******************************************************************************
@@ -65,8 +87,10 @@ CMAP_MAP * cmap_map_create()
 
 void cmap_map_init(CMAP_MAP * map)
 {
-  map -> internal_ = CMAP_ALLOC_STRUCT(CMAP_INTERNAL);
+  CMAP_INTERNAL * internal = CMAP_ALLOC_STRUCT(CMAP_INTERNAL);
+  internal -> entry_tree_ = NULL;
 
+  map -> internal_ = internal;
   map -> nature = map__nature;
   map -> delete = map__delete;
   map -> add = map__add;

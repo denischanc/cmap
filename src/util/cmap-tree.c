@@ -39,6 +39,9 @@ void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree)
 
 void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
 {
+  *CMAP_CALL_ARGS(runner, ge, node) = NULL;
+  *CMAP_CALL_ARGS(runner, lt, node) = NULL;
+
   void * parent = NULL;
 
   while(*tree != NULL)

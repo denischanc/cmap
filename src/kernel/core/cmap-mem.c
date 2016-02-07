@@ -64,8 +64,6 @@ static CHUNK * chunk_list_ = NULL, * chunk_tail_list_ = NULL;
 
 static BLOCK_FREE * block_free_tree_ = NULL;
 
-static CMAP_TREE_RUNNER tree_runner_;
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -128,40 +126,36 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_TREE_DECLARE_RUNNER(BLOCK_FREE, block_free)
-
 int block_free__eval(CMAP_TREE_RUNNER * this, void * node)
 {
   int size = block_size((BLOCK *)node);
   return (size - *(int *)(this -> internal_));
 }
 
+CMAP_TREE_RUNNER(BLOCK_FREE, block_free, false, true)
+
 /*******************************************************************************
 *******************************************************************************/
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  tree_runner_.internal_ = &alloc_size;
-  return (BLOCK_FREE *)cmap_tree_find(&tree_runner_, block_free_tree_);
+  block_free_runner_.internal_ = &alloc_size;
+  return (BLOCK_FREE *)cmap_tree_find(&block_free_runner_, block_free_tree_);
 }
 
 static void free_block(BLOCK * block)
 {
   block -> free_ = CMAP_T;
 
-  BLOCK_FREE * block_free = (BLOCK_FREE *)block;
-  block_free -> ge_ = NULL;
-  block_free -> lt_ = NULL;
-
   int size = block_size(block);
-  tree_runner_.internal_ = &size;
-  cmap_tree_add(&tree_runner_, (void **)&block_free_tree_, block);
+  block_free_runner_.internal_ = &size;
+  cmap_tree_add(&block_free_runner_, (void **)&block_free_tree_, block);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  tree_runner_.internal_ = NULL;
-  cmap_tree_rm(&tree_runner_, (void **)&block_free_tree_, block);
+  block_free_runner_.internal_ = NULL;
+  cmap_tree_rm(&block_free_runner_, (void **)&block_free_tree_, block);
 
   ((BLOCK *)block) -> free_ = CMAP_F;
 }
@@ -301,9 +295,6 @@ CMAP_MEM * cmap_mem_create(int chunk_size)
 
     mem_.alloc = _alloc;
     mem_.free = _free;
-
-    CMAP_TREE_INIT_RUNNER(tree_runner_, block_free, false, true)
-    tree_runner_.eval = block_free__eval;
 
     mem_ptr_ = &mem_;
   }
