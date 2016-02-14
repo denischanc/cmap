@@ -21,7 +21,7 @@ struct CMAP_MAP_ENTRY_s
   const char * key_;
   CMAP_MAP * val_;
 
-  CMAP_MAP_ENTRY * ge_, * lt_, * parent_;
+  CMAP_TREE_STRUCT;
 };
 
 typedef struct

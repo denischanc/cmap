@@ -40,7 +40,7 @@ struct BLOCK_FREE_s
 {
   BLOCK super;
 
-  BLOCK_FREE * ge_, * lt_, * parent_;
+  CMAP_TREE_STRUCT;
 };
 
 /*******************************************************************************
