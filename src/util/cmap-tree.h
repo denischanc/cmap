@@ -26,4 +26,17 @@ void cmap_tree_rm(CMAP_TREE_RUNNER * runner, void ** tree, void * node);
 char cmap_tree_usable_true(CMAP_TREE_RUNNER * this);
 char cmap_tree_usable_false(CMAP_TREE_RUNNER * this);
 
+typedef struct CMAP_TREE_APPLY_s CMAP_TREE_APPLY;
+typedef void (*CMAP_TREE_APPLY_FN)(CMAP_TREE_APPLY * this, void * node);
+
+struct CMAP_TREE_APPLY_s
+{
+  void * internal_;
+
+  CMAP_TREE_APPLY_FN before, between, after;
+};
+
+void cmap_tree_apply(CMAP_TREE_RUNNER * runner, void * tree,
+  CMAP_TREE_APPLY * apply, char ge_first);
+
 #endif
