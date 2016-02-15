@@ -5,8 +5,17 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "test-assert.h"
+
+/*******************************************************************************
+*******************************************************************************/
 
 #define SIZE 10
+#define MAX (1 << 16)
+//#define DEBUG
+
+/*******************************************************************************
+*******************************************************************************/
 
 typedef struct
 {
@@ -22,11 +31,72 @@ static int nb__eval(CMAP_TREE_RUNNER * runner, void * node)
 
 CMAP_TREE_RUNNER(NB, nb, false, false)
 
-static void nb_printf(CMAP_TREE_APPLY * this, void * node)
+/*******************************************************************************
+*******************************************************************************/
+
+typedef struct
 {
-  NB * nb = (NB *)node;
-  printf("%d ", nb -> nb_);
+  int i_;
+  int * list_;
+} TREE2LIST_ARGS;
+
+static void nb_tree2list(CMAP_TREE_APPLY * this, void * node)
+{
+  TREE2LIST_ARGS * args = (TREE2LIST_ARGS *)this -> internal_;
+  int nb = ((NB *)node) -> nb_;
+  args -> list_[args -> i_++] = nb;
+
+#ifdef DEBUG
+  printf("%d ", nb);
+#endif
 }
+
+static void nb_delete(CMAP_TREE_APPLY * this, void * node)
+{
+  CMAP_MEM * mem = (CMAP_MEM *)this -> internal_;
+  mem -> free(node);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char check_sort(char ge_first, TREE2LIST_ARGS * args,
+  CMAP_TREE_APPLY * apply, NB * tree)
+{
+  /********** Fill list */
+  int i;
+  for(i = 0; i < SIZE; i++)
+  {
+    args -> list_[i] = ge_first ? i : SIZE - i - 1;
+  }
+
+  args -> i_ = 0;
+  cmap_tree_apply(&nb_runner_, tree, apply, ge_first);
+#ifdef DEBUG
+  printf("\n");
+#endif
+
+  /********** Check order */
+  int prev = ge_first ? MAX : 0, cur;
+  for(i = 0; i < SIZE; i++)
+  {
+    cur = args -> list_[i];
+    if(ge_first)
+    {
+      if(prev < cur) return CMAP_F;
+    }
+    else
+    {
+      if(prev > cur) return CMAP_F;
+    }
+    prev = cur;
+  }
+
+  return CMAP_T;
+}
+
+/*******************************************************************************
+*******************************************************************************/
 
 int main(int argc, char * argv[])
 {
@@ -34,22 +104,61 @@ int main(int argc, char * argv[])
   CMAP_MEM * mem = cmap_kernel() -> mem_;
   NB * nb_tree = NULL, * tmp;
 
+  /********** Fill tree */
   int i;
   for(i = 0; i < SIZE; i++)
   {
     tmp = (NB *)mem -> alloc(sizeof(NB));
-    tmp -> nb_ = (i + 1);
+    tmp -> nb_ = (random() % MAX);
 
     nb_runner_.internal_ = tmp;
     cmap_tree_add(&nb_runner_, (void **)&nb_tree, tmp);
   }
 
-  CMAP_TREE_APPLY apply;
-  apply.before = NULL;
-  apply.between = nb_printf;
-  apply.after = NULL;
-  cmap_tree_apply(&nb_runner_, nb_tree, &apply, CMAP_T);
-  printf("\n");
+  /********** Check tree */
+  TREE2LIST_ARGS args;
+  args.list_ = (int *)mem -> alloc(SIZE * sizeof(int));
 
-  return EXIT_SUCCESS;
+  CMAP_TREE_APPLY apply;
+  apply.internal_ = &args;
+  apply.before = NULL;
+  apply.between = nb_tree2list;
+  apply.after = NULL;
+
+  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &apply, nb_tree),
+    "Check ge_first sort");
+  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &apply, nb_tree),
+    "Check not ge_first sort");
+
+  /********** Check mem */
+  CMAP_MEM_STATE * mem_state = cmap_mem_state();
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk_ == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_ == SIZE + 3);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free_ == 1);
+#ifdef DEBUG
+  printf("Alloc size = %d\n", mem_state -> size_alloc_);
+#endif
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc_ ==
+    SIZE * (sizeof(NB) + sizeof(int)));
+
+  /********** Free mem */
+  apply.internal_ = mem;
+  apply.before = NULL;
+  apply.between = NULL;
+  apply.after = nb_delete;
+  cmap_tree_apply(&nb_runner_, nb_tree, &apply, CMAP_T);
+  nb_tree = NULL;
+
+  mem -> free(args.list_);
+  args.list_ = NULL;
+
+  /********** Check mem */
+  mem_state = cmap_mem_state();
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk_ == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_ == 2);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free_ == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc_ == 0);
+
+  cmap_kernel() -> exit(EXIT_SUCCESS);
+  return -1;
 }

@@ -9,7 +9,7 @@ int main(int argc, char * argv[])
   cmap_kernel_create(NULL);
 
   CMAP_TEST_ASSERT(cmap_kernel() -> start(argc, argv) == EXIT_SUCCESS,
-    "Bad kernel return value");
+    "Check kernel return value");
 
   return EXIT_SUCCESS;
 }

@@ -3,13 +3,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include "cmap-kernel.h"
 
 void cmap_test_assert(char cond, const char * file, int line,
   const char * msg)
 {
   if(!cond)
   {
-    fprintf(stderr, "[%s:%i][ERROR]  %s\n", file, line, msg);
-    exit(EXIT_FAILURE);
+    printf("[%s:%i][TEST] %s => KO\n", file, line, msg);
+    if(cmap_kernel() != NULL) cmap_kernel() -> exit(EXIT_FAILURE);
+    else exit(EXIT_FAILURE);
+  }
+  else
+  {
+    printf("[%s:%i][TEST] %s => OK\n", file, line, msg);
   }
 }

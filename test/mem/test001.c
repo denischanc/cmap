@@ -6,11 +6,11 @@
 
 #define ASSERT_NB_FREE(nb) \
   CMAP_TEST_ASSERT(cmap_mem_state() -> nb_block_free_ == nb, \
-    "Bad free block number")
+    "Check free block number")
 
 #define ASSERT_NB_CHUNK(nb) \
   CMAP_TEST_ASSERT(cmap_mem_state() -> nb_chunk_ == nb, \
-    "Bad chunk number")
+    "Check chunk number")
 
 int main(int argc, char * argv[])
 {
@@ -35,11 +35,11 @@ int main(int argc, char * argv[])
 
   void * ptr4 = mem -> alloc(200);
   CMAP_TEST_ASSERT_PTR(ptr4);
-  CMAP_TEST_ASSERT(ptr4 > ptr2, "Bad ptr4");
+  CMAP_TEST_ASSERT(ptr4 > ptr2, "Check ptr4");
 
   void * ptr5 = mem -> alloc(100);
   CMAP_TEST_ASSERT_PTR(ptr5);
-  CMAP_TEST_ASSERT(ptr5 == ptr1, "Bad ptr5");
+  CMAP_TEST_ASSERT(ptr5 == ptr1, "Check ptr5");
 
   ASSERT_NB_FREE(1);
   mem -> free(ptr2);
