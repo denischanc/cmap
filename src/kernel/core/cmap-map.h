@@ -13,7 +13,10 @@ struct CMAP_MAP_s
 
   void (*delete)(CMAP_MAP * this);
 
-  void (*add)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
+  void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
+  CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
+
+  CMAP_MAP * (*new)(CMAP_MAP * this);
 };
 
 CMAP_MAP * cmap_map_create();

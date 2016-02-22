@@ -62,7 +62,7 @@ static void map__delete(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void map__add(CMAP_MAP * this, const char * key, CMAP_MAP * val)
+static void map__set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
 
@@ -78,6 +78,46 @@ static void map__add(CMAP_MAP * this, const char * key, CMAP_MAP * val)
     CMAP_TREE_ADDFN(entry, &internal -> entry_tree_, entry);
   }
   entry -> val_ = val;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void entry_delete(CMAP_TREE_APPLY * this, void ** node)
+{
+  CMAP_MEM * mem = (CMAP_MEM *)this -> internal_;
+  CMAP_MAP_ENTRY * entry = (CMAP_MAP_ENTRY *)*node;
+  mem -> free(entry -> key_);
+  mem -> free(entry);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * map__get(CMAP_MAP * this, const char * key)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+
+  CMAP_TREE_RUNNER_INIT(entry, (void *)key)
+  CMAP_MAP_ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree_);
+  if(entry != NULL) return entry -> val_;
+  else
+  {
+    CMAP_MAP * prototype = internal -> prototype_;
+    if(prototype != NULL) return CMAP_CALL_ARGS(prototype, get, key);
+    else return NULL;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * map__new(CMAP_MAP * this)
+{
+  CMAP_MAP * map = cmap_map_create();
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)map -> internal_;
+  internal -> prototype_ = this;
+  return map;
 }
 
 /*******************************************************************************
@@ -100,12 +140,20 @@ void cmap_map_init(CMAP_MAP * map)
   map -> internal_ = internal;
   map -> nature = map__nature;
   map -> delete = map__delete;
-  map -> add = map__add;
+  map -> set = map__set;
+  map -> get = map__get;
+  map -> new = map__new;
 }
 
 void cmap_map_delete(CMAP_MAP * map)
 {
-  // TODO : CMAP_TREE_APPLY
-  CMAP_FREE(map -> internal_);
-  CMAP_FREE(map);
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)map -> internal_;
+  CMAP_MEM * mem = cmap_kernel() -> mem_;
+
+  CMAP_TREE_APPLY apply;
+  CMAP_TREE_APPLY_INIT(apply, mem, NULL, NULL, entry_delete)
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree_, apply, CMAP_T);
+
+  mem -> free(internal);
+  mem -> free(map);
 }
