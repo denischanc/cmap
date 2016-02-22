@@ -16,4 +16,11 @@ static CMAP_TREE_RUNNER prefix##_runner_ = \
   .gt_usable = cmap_tree_usable_##_gt_usable \
 };
 
+#define CMAP_TREE_APPLY_INIT(apply, internal, \
+  before_fn, between_fn, after_fn) \
+apply.internal_ = internal; \
+apply.before = before_fn; \
+apply.between = between_fn; \
+apply.after = after_fn;
+
 #endif

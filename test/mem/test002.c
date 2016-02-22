@@ -40,10 +40,10 @@ typedef struct
   int * list_;
 } TREE2LIST_ARGS;
 
-static void nb_tree2list(CMAP_TREE_APPLY * this, void * node)
+static void nb_tree2list(CMAP_TREE_APPLY * this, void ** node)
 {
   TREE2LIST_ARGS * args = (TREE2LIST_ARGS *)this -> internal_;
-  int nb = ((NB *)node) -> nb_;
+  int nb = ((NB *)(*node)) -> nb_;
   args -> list_[args -> i_++] = nb;
 
 #ifdef DEBUG
@@ -51,17 +51,18 @@ static void nb_tree2list(CMAP_TREE_APPLY * this, void * node)
 #endif
 }
 
-static void nb_delete(CMAP_TREE_APPLY * this, void * node)
+static void nb_delete(CMAP_TREE_APPLY * this, void ** node)
 {
   CMAP_MEM * mem = (CMAP_MEM *)this -> internal_;
-  mem -> free(node);
+  mem -> free(*node);
+  *node = NULL;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
 static char check_sort(char ge_first, TREE2LIST_ARGS * args,
-  CMAP_TREE_APPLY * apply, NB * tree)
+  CMAP_TREE_APPLY * apply, NB ** tree)
 {
   /********** Fill list */
   int i;
@@ -71,7 +72,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
   }
 
   args -> i_ = 0;
-  cmap_tree_apply(&nb_runner_, tree, apply, ge_first);
+  cmap_tree_apply(&nb_runner_, (void **)tree, apply, ge_first);
 #ifdef DEBUG
   printf("\n");
 #endif
@@ -120,14 +121,11 @@ int main(int argc, char * argv[])
   args.list_ = (int *)mem -> alloc(SIZE * sizeof(int));
 
   CMAP_TREE_APPLY apply;
-  apply.internal_ = &args;
-  apply.before = NULL;
-  apply.between = nb_tree2list;
-  apply.after = NULL;
+  CMAP_TREE_APPLY_INIT(apply, &args, NULL, nb_tree2list, NULL)
 
-  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &apply, nb_tree),
+  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &apply, &nb_tree),
     "Check ge_first sort");
-  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &apply, nb_tree),
+  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &apply, &nb_tree),
     "Check not ge_first sort");
 
   /********** Check mem */
@@ -142,12 +140,9 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  apply.internal_ = mem;
-  apply.before = NULL;
-  apply.between = NULL;
-  apply.after = nb_delete;
-  cmap_tree_apply(&nb_runner_, nb_tree, &apply, CMAP_T);
-  nb_tree = NULL;
+  CMAP_TREE_APPLY_INIT(apply, mem, NULL, NULL, nb_delete)
+  cmap_tree_apply(&nb_runner_, (void **)&nb_tree, &apply, CMAP_T);
+  CMAP_TEST_ASSERT_NOMSG(nb_tree == NULL);
 
   mem -> free(args.list_);
   args.list_ = NULL;

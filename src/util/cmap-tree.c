@@ -120,21 +120,21 @@ char cmap_tree_usable_false(CMAP_TREE_RUNNER * this)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_tree_apply(CMAP_TREE_RUNNER * runner, void * tree,
+void cmap_tree_apply(CMAP_TREE_RUNNER * runner, void ** tree,
   CMAP_TREE_APPLY * apply, char ge_first)
 {
-  if(tree != NULL)
+  if((*tree) != NULL)
   {
     if(apply -> before != NULL) CMAP_CALL_ARGS(apply, before, tree);
 
     void ** ge = CMAP_CALL_ARGS(runner, ge, tree);
     void ** lt = CMAP_CALL_ARGS(runner, lt, tree);
-    void * next = ge_first ? *ge : *lt;
+    void ** next = ge_first ? ge : lt;
     cmap_tree_apply(runner, next, apply, ge_first);
 
     if(apply -> between != NULL) CMAP_CALL_ARGS(apply, between, tree);
 
-    next = ge_first ? *lt : *ge;
+    next = ge_first ? lt : ge;
     cmap_tree_apply(runner, next, apply, ge_first);
 
     if(apply -> after != NULL) CMAP_CALL_ARGS(apply, after, tree);
