@@ -2,6 +2,7 @@
 #include "cmap-map.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-common.h"
 #include "cmap-tree.h"
@@ -18,7 +19,7 @@ typedef struct CMAP_MAP_ENTRY_s CMAP_MAP_ENTRY;
 
 struct CMAP_MAP_ENTRY_s
 {
-  const char * key_;
+  char * key_;
   CMAP_MAP * val_;
 
   CMAP_TREE_STRUCT;
@@ -27,15 +28,17 @@ struct CMAP_MAP_ENTRY_s
 typedef struct
 {
   CMAP_MAP_ENTRY * entry_tree_;
+
+  CMAP_MAP * prototype_, * next_;
 } CMAP_INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int entry__eval(CMAP_TREE_RUNNER * this, void * node)
+static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node)
 {
   const char * key = (const char *)this -> internal_;
-  return strcmp(key, ((CMAP_MAP_ENTRY *)node) -> key_);
+  return strcmp(((CMAP_MAP_ENTRY *)node) -> key_, key);
 }
 
 CMAP_TREE_RUNNER(CMAP_MAP_ENTRY, entry, false, false)
@@ -63,14 +66,16 @@ static void map__add(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
 
-  entry_runner_.internal_ = (void *)key;
-  CMAP_MAP_ENTRY * entry = cmap_tree_find(&entry_runner_,
-    internal -> entry_tree_);
+  CMAP_TREE_RUNNER_INIT(entry, (void *)key)
+  CMAP_MAP_ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree_);
   if(entry == NULL)
   {
-    entry = CMAP_ALLOC_STRUCT(CMAP_MAP_ENTRY);
-    entry -> key_ = key;
-    cmap_tree_add(&entry_runner_, (void **)&internal -> entry_tree_, entry);
+    CMAP_MEM * mem = cmap_kernel() -> mem_;
+    entry = (CMAP_MAP_ENTRY *)mem -> alloc(sizeof(CMAP_MAP_ENTRY));
+    entry -> key_ = (char *)mem -> alloc((strlen(key) + 1) * sizeof(char));
+    strcpy(entry -> key_, key);
+
+    CMAP_TREE_ADDFN(entry, &internal -> entry_tree_, entry);
   }
   entry -> val_ = val;
 }
@@ -89,6 +94,8 @@ void cmap_map_init(CMAP_MAP * map)
 {
   CMAP_INTERNAL * internal = CMAP_ALLOC_STRUCT(CMAP_INTERNAL);
   internal -> entry_tree_ = NULL;
+  internal -> prototype_ = NULL;
+  internal -> next_ = NULL;
 
   map -> internal_ = internal;
   map -> nature = map__nature;
@@ -98,6 +105,7 @@ void cmap_map_init(CMAP_MAP * map)
 
 void cmap_map_delete(CMAP_MAP * map)
 {
+  // TODO : CMAP_TREE_APPLY
   CMAP_FREE(map -> internal_);
   CMAP_FREE(map);
 }

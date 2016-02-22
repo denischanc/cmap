@@ -12,7 +12,8 @@ typedef struct
 {
   CMAP_MEM * mem_;
 
-  int (*start)(int argc, char * argv[]);
+  int (*main)(int argc, char * argv[]);
+
   void (*exit)(int ret);
   void (*fatal)();
 } CMAP_KERNEL;

@@ -12,7 +12,7 @@ static CMAP_KERNEL * kernel_ptr_ = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static int kernel_start(int argc, char * argv[])
+static int kernel_main(int argc, char * argv[])
 {
   return EXIT_SUCCESS;
 }
@@ -48,7 +48,7 @@ void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
   upd_cfg(cfg);
 
   kernel_.mem_ = cfg -> mem_;
-  kernel_.start = kernel_start;
+  kernel_.main = kernel_main;
   kernel_.exit = kernel_exit;
   kernel_.fatal = kernel_fatal;
 

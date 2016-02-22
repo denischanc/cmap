@@ -23,7 +23,7 @@ typedef struct
   CMAP_TREE_STRUCT;
 } NB;
 
-static int nb__eval(CMAP_TREE_RUNNER * runner, void * node)
+static int CMAP_TREE_EVALFN_NAME(nb)(CMAP_TREE_RUNNER * runner, void * node)
 {
   NB * nb = (NB *)runner -> internal_;
   return (((NB *)node) -> nb_ - nb -> nb_);
@@ -72,7 +72,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
   }
 
   args -> i_ = 0;
-  cmap_tree_apply(&nb_runner_, (void **)tree, apply, ge_first);
+  CMAP_TREE_APPLYFN(nb, tree, *apply, ge_first);
 #ifdef DEBUG
   printf("\n");
 #endif
@@ -112,8 +112,8 @@ int main(int argc, char * argv[])
     tmp = (NB *)mem -> alloc(sizeof(NB));
     tmp -> nb_ = (random() % MAX);
 
-    nb_runner_.internal_ = tmp;
-    cmap_tree_add(&nb_runner_, (void **)&nb_tree, tmp);
+    CMAP_TREE_RUNNER_INIT(nb, tmp)
+    CMAP_TREE_ADDFN(nb, &nb_tree, tmp);
   }
 
   /********** Check tree */
@@ -141,7 +141,7 @@ int main(int argc, char * argv[])
 
   /********** Free mem */
   CMAP_TREE_APPLY_INIT(apply, mem, NULL, NULL, nb_delete)
-  cmap_tree_apply(&nb_runner_, (void **)&nb_tree, &apply, CMAP_T);
+  CMAP_TREE_APPLYFN(nb, &nb_tree, apply, CMAP_T);
   CMAP_TEST_ASSERT_NOMSG(nb_tree == NULL);
 
   mem -> free(args.list_);

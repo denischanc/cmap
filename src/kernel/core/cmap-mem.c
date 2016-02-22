@@ -126,7 +126,7 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-int block_free__eval(CMAP_TREE_RUNNER * this, void * node)
+int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this, void * node)
 {
   int size = block_size((BLOCK *)node);
   return (size - *(int *)(this -> internal_));
@@ -139,8 +139,8 @@ CMAP_TREE_RUNNER(BLOCK_FREE, block_free, false, true)
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  block_free_runner_.internal_ = &alloc_size;
-  return (BLOCK_FREE *)cmap_tree_find(&block_free_runner_, block_free_tree_);
+  CMAP_TREE_RUNNER_INIT(block_free, &alloc_size)
+  return (BLOCK_FREE *)CMAP_TREE_FINDFN(block_free, block_free_tree_);
 }
 
 static void free_block(BLOCK * block)
@@ -148,14 +148,14 @@ static void free_block(BLOCK * block)
   block -> free_ = CMAP_T;
 
   int size = block_size(block);
-  block_free_runner_.internal_ = &size;
-  cmap_tree_add(&block_free_runner_, (void **)&block_free_tree_, block);
+  CMAP_TREE_RUNNER_INIT(block_free, &size)
+  CMAP_TREE_ADDFN(block_free, &block_free_tree_, block);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  block_free_runner_.internal_ = NULL;
-  cmap_tree_rm(&block_free_runner_, (void **)&block_free_tree_, block);
+  CMAP_TREE_RUNNER_INIT(block_free, NULL)
+  CMAP_TREE_RMFN(block_free, &block_free_tree_, block);
 
   ((BLOCK *)block) -> free_ = CMAP_F;
 }
