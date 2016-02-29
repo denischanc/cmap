@@ -6,7 +6,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KERNEL kernel_;
+static CMAP_KERNEL kernel_ = {0};
 static CMAP_KERNEL * kernel_ptr_ = NULL;
 
 /*******************************************************************************
@@ -22,6 +22,8 @@ static int kernel_main(int argc, char * argv[])
 
 static void kernel_exit(int ret)
 {
+  cmap_kernel_prototype_delete(&kernel_.prototype_);
+
   exit(ret);
 }
 
@@ -53,6 +55,8 @@ void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
   kernel_.fatal = kernel_fatal;
 
   kernel_ptr_ = &kernel_;
+
+  cmap_kernel_prototype_create(&kernel_.prototype_);
 }
 
 /*******************************************************************************

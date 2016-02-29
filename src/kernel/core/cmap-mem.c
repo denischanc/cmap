@@ -261,6 +261,8 @@ static void * _alloc(int size)
 
 static void _free(void * ptr)
 {
+  if(ptr == NULL) return;
+
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
   if(!is_block(block)) error("Invalid block ???");
 

@@ -1,5 +1,5 @@
 
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-tree.h"
 #include "cmap-common.h"
 
@@ -101,8 +101,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
 
 int main(int argc, char * argv[])
 {
-  cmap_kernel_create(NULL);
-  CMAP_MEM * mem = cmap_kernel() -> mem_;
+  CMAP_MEM * mem = cmap_mem_create(0);
   NB * nb_tree = NULL, * tmp;
 
   /********** Fill tree */
@@ -154,6 +153,5 @@ int main(int argc, char * argv[])
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free_ == 1);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc_ == 0);
 
-  cmap_kernel() -> exit(EXIT_SUCCESS);
-  return -1;
+  return EXIT_SUCCESS;
 }
