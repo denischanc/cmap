@@ -1,12 +1,14 @@
 
 #include "cmap-list.h"
 
+#include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
+#define SIZE_INC_MIN 2
 #define SIZE_INC_DFT (1 << 6)
 
 /*******************************************************************************
@@ -19,7 +21,8 @@ const char * CMAP_LIST_NATURE = "cmap.nature.list";
 
 typedef struct
 {
-  int size_inc_, size_, i_start_, i_stop_;
+  int size_inc_, size_max_, i_start_, i_stop_;
+  char full_;
   CMAP_MAP ** list_;
 } CMAP_INTERNAL;
 
@@ -42,8 +45,33 @@ static void list__delete(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static int list_size(CMAP_LIST * this)
+int cmap_list__size(CMAP_LIST * this)
 {
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+  int i_start = internal -> i_start_, i_stop = internal -> i_stop_;
+  if(i_start == i_stop)
+  {
+    if(internal -> full_) return internal -> size_max_;
+    else return 0;
+  }
+  else
+  {
+    if(i_start < i_stop) return i_stop - i_start;
+    else return (internal -> size_max_ - (i_start - i_stop));
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int list_offset(CMAP_INTERNAL * internal, int i)
+{
+  i += internal -> i_start_;
+
+  int size_max = internal -> size_max_;
+  if(i >= size_max) i -= size_max;
+
+  return i;
 }
 
 /*******************************************************************************
@@ -51,10 +79,69 @@ static int list_size(CMAP_LIST * this)
 
 void cmap_list__set(CMAP_LIST * this, int i, CMAP_MAP * val)
 {
+  int size = CMAP_CALL(this, size);
+  if((i > 0) && (i < size))
+  {
+    CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+    internal -> list_[list_offset(internal, i)] = val;
+  }
 }
 
 CMAP_MAP * cmap_list__get(CMAP_LIST * this, int i)
 {
+  int size = CMAP_CALL(this, size);
+  if((i > 0) && (i < size))
+  {
+    CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+    return internal -> list_[list_offset(internal, i)];
+  }
+  else return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void inc_i_stop(CMAP_INTERNAL * internal)
+{
+  internal -> i_stop_++;
+
+  int size_max = internal -> size_max_;
+  if(internal -> i_stop_ >= size_max) internal -> i_stop_ -= size_max;
+
+  if(internal -> i_start_ == internal -> i_stop_) internal -> full_ = CMAP_T;
+}
+
+static void dec_i_start(CMAP_INTERNAL * internal)
+{
+  internal -> i_start_--;
+
+  int size_max = internal -> size_max_;
+  if(internal -> i_start_ < 0) internal -> i_start_ += size_max;
+
+  if(internal -> i_start_ == internal -> i_stop_) internal -> full_ = CMAP_T;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void add_on_full(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
+{
+}
+
+static void add_on_begin(CMAP_INTERNAL * internal, CMAP_MAP * val)
+{
+  dec_i_start(internal);
+  internal -> list_[internal -> i_start_] = val;
+}
+
+static void add_on_middle(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
+{
+}
+
+static void add_on_end(CMAP_INTERNAL * internal, CMAP_MAP * val)
+{
+  internal -> list_[internal -> i_stop_] = val;
+  inc_i_stop(internal);
 }
 
 /*******************************************************************************
@@ -62,7 +149,32 @@ CMAP_MAP * cmap_list__get(CMAP_LIST * this, int i)
 
 void cmap_list__add(CMAP_LIST * this, int i, CMAP_MAP * val)
 {
+  if(i >= 0)
+  {
+    CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+    if(internal -> i_start_ == internal -> i_stop_)
+    {
+      if(!internal -> full_)
+      {
+        if(i == 0) add_on_end(internal, val);
+      }
+      else
+      {
+        if(i <= internal -> size_max_) add_on_full(internal, i, val);
+      }
+    }
+    else
+    {
+      int size = CMAP_CALL(this, size);
+      if(i == 0) add_on_begin(internal, val);
+      else if(i < size) add_on_middle(internal, i, val);
+      else if(i == size) add_on_end(internal, val);
+    }
+  }
 }
+
+/*******************************************************************************
+*******************************************************************************/
 
 CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i)
 {
@@ -73,12 +185,12 @@ CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i)
 
 void cmap_list__push(CMAP_LIST * this, CMAP_MAP * val)
 {
-  CMAP_CALL_ARGS(this, add, list_size(this), val);
+  CMAP_CALL_ARGS(this, add, CMAP_CALL(this, size), val);
 }
 
 CMAP_MAP * cmap_list__pop(CMAP_LIST * this)
 {
-  return CMAP_CALL_ARGS(this, rm, list_size(this));
+  return CMAP_CALL_ARGS(this, rm, CMAP_CALL(this, size));
 }
 
 /*******************************************************************************
@@ -114,14 +226,16 @@ void cmap_list_init(CMAP_LIST * list, int size_inc)
 
   CMAP_MEM * mem = cmap_kernel() -> mem_;
   CMAP_ALLOC_PTR(internal, CMAP_INTERNAL, mem);
-  if(size_inc <= 1) size_inc = SIZE_INC_DFT;
+  if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size_inc_ = size_inc;
-  internal -> size_ = size_inc;
+  internal -> size_max_ = size_inc;
   internal -> i_start_ = 0;
-  internal -> i_stop_ = 1;
+  internal -> i_stop_ = 0;
+  internal -> full_ = CMAP_F;
   internal -> list_ = (CMAP_MAP **)mem -> alloc(size_inc * sizeof(CMAP_MAP *));
 
   list -> internal_ = internal;
+  list -> size = cmap_list__size;
   list -> set = cmap_list__set;
   list -> get = cmap_list__get;
   list -> add = cmap_list__add;

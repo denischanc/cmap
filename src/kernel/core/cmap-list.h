@@ -13,6 +13,8 @@ struct CMAP_LIST_s
 
   void * internal_;
 
+  int (*size)(CMAP_LIST * this);
+
   void (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_LIST * this, int i);
 
@@ -25,6 +27,8 @@ struct CMAP_LIST_s
   void (*shift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*unshift)(CMAP_LIST * this);
 };
+
+int cmap_list__size(CMAP_LIST * this);
 
 void cmap_list__set(CMAP_LIST * this, int i, CMAP_MAP * val);
 CMAP_MAP * cmap_list__get(CMAP_LIST * this, int i);
