@@ -2,6 +2,7 @@
 #include "cmap-list.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-common.h"
 
@@ -124,8 +125,42 @@ static void dec_i_start(CMAP_INTERNAL * internal)
 /*******************************************************************************
 *******************************************************************************/
 
+static void list_mv(CMAP_MAP ** dst, int dst_i_start,
+  CMAP_MAP ** src, int src_i_start, int src_i_stop, int size_max)
+{
+  if(src_i_start <= src_i_stop)
+  {
+    memcpy(dst + dst_i_start, src + src_i_start,
+      (src_i_stop - src_i_start) * sizeof(CMAP_MAP *));
+  }
+  else
+  {
+    list_mv(dst, dst_i_start, src, src_i_start, size_max, size_max);
+    list_mv(dst, dst_i_start + (size_max - src_i_start), src, 0, src_i_stop,
+      size_max);
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void add_on_full(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
 {
+  CMAP_MEM * mem = cmap_kernel() -> mem_;
+  int off = list_offset(internal, i);
+
+  internal -> size_max_ += internal -> size_inc_;
+  CMAP_MAP ** new_list = (CMAP_MAP **)mem -> alloc(
+    internal -> size_max_ * sizeof(CMAP_MAP *));
+
+  CMAP_MAP ** old_list = internal -> list_;
+  int size_max = internal -> size_max_;
+  list_mv(new_list, 0, old_list, internal -> i_start_, off, size_max);
+  new_list[i] = val;
+  list_mv(new_list, off + 1, old_list, off, internal -> i_stop_, size_max);
+
+  CMAP_FREE(internal -> list_, mem);
+  internal -> list_ = new_list;
 }
 
 static void add_on_begin(CMAP_INTERNAL * internal, CMAP_MAP * val)
