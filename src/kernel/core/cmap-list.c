@@ -128,17 +128,55 @@ static void dec_i_start(CMAP_INTERNAL * internal)
 static void list_mv_block(CMAP_MAP ** dst, int dst_i_start,
   CMAP_MAP ** src, int src_i_start, int src_i_stop, int src_size_max)
 {
-  if(src_i_start <= src_i_stop)
+  if(src_i_start < src_i_stop)
   {
     memcpy(dst + dst_i_start, src + src_i_start,
       (src_i_stop - src_i_start) * sizeof(CMAP_MAP *));
   }
-  else
+  else if(src_i_start > src_i_stop)
   {
     list_mv_block(dst, dst_i_start, src, src_i_start, src_size_max,
       src_size_max);
     list_mv_block(dst, dst_i_start + (src_size_max - src_i_start), src, 0,
       src_i_stop, src_size_max);
+  }
+}
+
+static void list_mv_dec(CMAP_MAP ** list, int i_start, int i_stop,
+  int size_max)
+{
+  if(i_start < i_stop)
+  {
+    if(i_start == 0)
+    {
+      list[size_max - 1] = list[0];
+      i_start = 1;
+    }
+    for(int i = i_start; i < i_stop; i++) list[i - 1] = list[i];
+  }
+  else if(i_start > i_stop)
+  {
+    list_mv_dec(list, i_start, size_max, size_max);
+    list_mv_dec(list, 0, i_stop, size_max);
+  }
+}
+
+static void list_mv_inc(CMAP_MAP ** list, int i_start, int i_stop,
+  int size_max)
+{
+  if(i_start < i_stop)
+  {
+    if(i_stop == size_max)
+    {
+      list[0] = list[size_max - 1];
+      i_stop = (size_max - 1);
+    }
+    for(int i = i_stop; i > i_start; i--) list[i] = list[i - 1];
+  }
+  else if(i_start > i_stop)
+  {
+    list_mv_inc(list, 0, i_stop, size_max);
+    list_mv_inc(list, i_start, size_max, size_max);
   }
 }
 
@@ -148,16 +186,16 @@ static void list_mv_block(CMAP_MAP ** dst, int dst_i_start,
 static void add_on_full(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
 {
   CMAP_MEM * mem = cmap_kernel() -> mem_;
+
   int off = list_offset(internal, i), old_size_max = internal -> size_max_,
     new_size_max = old_size_max + internal -> size_inc_;
-
   CMAP_MAP ** new_list = (CMAP_MAP **)mem -> alloc(
     new_size_max * sizeof(CMAP_MAP *));
   CMAP_MAP ** old_list = internal -> list_;
   list_mv_block(new_list, 0, old_list, internal -> i_start_, off,
     old_size_max);
   new_list[i] = val;
-  list_mv_block(new_list, off + 1, old_list, off, internal -> i_stop_,
+  list_mv_block(new_list, i + 1, old_list, off, internal -> i_stop_,
     old_size_max);
 
   internal -> size_max_ = new_size_max;
@@ -177,6 +215,25 @@ static void add_on_begin(CMAP_INTERNAL * internal, CMAP_MAP * val)
 
 static void add_on_middle(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
 {
+  int off = list_offset(internal, i), i_start = internal -> i_start_,
+    i_stop = internal -> i_stop_, size_max = internal -> size_max_,
+    size_inc = (i_stop - off), size_dec = (off + 1 - i_start);
+
+  if(size_inc < 0) size_inc += size_max;
+  if(size_dec < 0) size_dec += size_max;
+
+  if(size_dec < size_inc)
+  {
+    int off_stop = off + 1;
+    if(off_stop == size_max) off_stop = 0;
+    list_mv_dec(internal -> list_, i_start, off_stop, size_max);
+    dec_i_start(internal);
+  }
+  else
+  {
+    list_mv_inc(internal -> list_, off, i_stop, size_max);
+    inc_i_stop(internal);
+  }
 }
 
 static void add_on_end(CMAP_INTERNAL * internal, CMAP_MAP * val)
