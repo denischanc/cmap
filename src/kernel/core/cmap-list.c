@@ -133,7 +133,7 @@ static void list_mv_block(CMAP_MAP ** dst, int dst_i_start,
     memcpy(dst + dst_i_start, src + src_i_start,
       (src_i_stop - src_i_start) * sizeof(CMAP_MAP *));
   }
-  else if(src_i_start >= src_i_stop)
+  else
   {
     list_mv_block(dst, dst_i_start, src, src_i_start, src_size_max,
       src_size_max);
@@ -160,7 +160,7 @@ static void list_mv_dec(CMAP_MAP ** list, int i_start, int i_stop,
   else if(i_start > i_stop)
   {
     list_mv_dec(list, i_start, size_max, size_max);
-    if(i_stop != 0) list_mv_dec(list, 0, i_stop, size_max);
+    list_mv_dec(list, 0, i_stop, size_max);
   }
 }
 
@@ -179,7 +179,7 @@ static void list_mv_inc(CMAP_MAP ** list, int i_start, int i_stop,
   }
   else if(i_start > i_stop)
   {
-    if(i_stop != 0) list_mv_inc(list, 0, i_stop, size_max);
+    list_mv_inc(list, 0, i_stop, size_max);
     list_mv_inc(list, i_start, size_max, size_max);
   }
 }
@@ -238,6 +238,8 @@ static void add_on_middle(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
     list_mv_inc(internal -> list_, off, i_stop, size_max);
     inc_i_stop(internal);
   }
+
+  internal -> list_[off] = val;
 }
 
 static void add_on_end(CMAP_INTERNAL * internal, CMAP_MAP * val)
