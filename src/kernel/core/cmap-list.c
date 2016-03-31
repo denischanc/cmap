@@ -337,9 +337,9 @@ CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i)
     if(i == size) val = rm_on_end(internal);
     else if(i == 0) val = rm_on_begin(internal);
     else val = rm_on_middle(internal, i);
-  }
 
-  internal -> size_--;
+    internal -> size_--;
+  }
 
   return val;
 }
@@ -354,7 +354,7 @@ void cmap_list__push(CMAP_LIST * this, CMAP_MAP * val)
 
 CMAP_MAP * cmap_list__pop(CMAP_LIST * this)
 {
-  return CMAP_CALL_ARGS(this, rm, CMAP_CALL(this, size));
+  return CMAP_CALL_ARGS(this, rm, CMAP_CALL(this, size) - 1);
 }
 
 /*******************************************************************************

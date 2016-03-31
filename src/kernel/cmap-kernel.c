@@ -14,6 +14,7 @@ static CMAP_KERNEL * kernel_ptr_ = NULL;
 
 static int kernel_main(int argc, char * argv[])
 {
+  cmap_kernel() -> exit(EXIT_SUCCESS);
   return EXIT_SUCCESS;
 }
 

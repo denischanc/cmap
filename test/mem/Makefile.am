@@ -1,7 +1,9 @@
 
 include $(top_srcdir)/test/common.mk
 
-noinst_PROGRAMS = test001 test002
+noinst_PROGRAMS = \
+  test001 \
+  test002
 
 AM_CFLAGS = $(CMAP_TEST_CFLAGS)
 LDADD = $(CMAP_TEST_LDADD)

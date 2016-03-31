@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap-common.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -14,7 +15,7 @@
   macro(string, prototype_s)
 
 #define CMAP_KERNEL_PROTOTYPE_CREATE(name, prototype_s) \
-  prototype_s -> name##_ = cmap_map_create();
+  prototype_s -> name##_ = _M_();
 
 #define CMAP_KERNEL_PROTOTYPE_DELETE(name, prototype_s) \
   CMAP_MAP * prototype_##name = prototype_s -> name##_; \

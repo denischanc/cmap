@@ -1,7 +1,9 @@
 
 SUBDIRS = util kernel
 
-include_HEADERS = cmap-common.h
+include_HEADERS = \
+  cmap-common.h \
+  cmap-fw.h
 lib_LTLIBRARIES = libcmap.la
 
 libcmap_la_SOURCES =
