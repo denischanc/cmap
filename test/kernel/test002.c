@@ -65,5 +65,20 @@ int main(int argc, char * argv[])
   for(i = 1; i <= NB_ELMTS_1; i++) CMAP_TEST_ASSERT_NOMSG(
     CMAP_CALL_ARGS(list, get, i) == elmts + (NB_ELMTS_1 - i));
 
+  for(i = 0; i < NB_ELMTS_1; i++) CMAP_CALL_ARGS(list, rm, 2);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == NB_ELMTS_1);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL_ARGS(list, get, 0) == elmts);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL_ARGS(list, get, 1) == elmts + 2);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL_ARGS(list, get, 2) == elmts + 2);
+
+  CMAP_CALL_ARGS(list, set, 1, elmts + 1);
+  for(i = 0; i < NB_ELMTS_1; i++)
+    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL_ARGS(list, get, i) == elmts + i);
+  for(i = 0; i < NB_ELMTS_1; i++)
+    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, unshift) == elmts + i);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
+
+  CMAP_CALL(((CMAP_MAP *)list), delete);
+
   return cmap_kernel() -> main(argc, argv);
 }
