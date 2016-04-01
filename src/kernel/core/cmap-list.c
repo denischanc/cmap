@@ -239,17 +239,17 @@ static void add_on_middle(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
 {
   int off = list_offset(internal, i), i_start = internal -> i_start_,
     i_stop = internal -> i_stop_, size_max = internal -> size_max_,
-    size_inc = (i_stop - off), size_dec = (off + 1 - i_start);
+    size_inc = (i_stop - off), size_dec = (off - i_start);
 
   if(size_inc < 0) size_inc += size_max;
-  if(size_dec < 0) size_dec += size_max;
+  else if(size_dec < 0) size_dec += size_max;
 
   if(size_dec < size_inc)
   {
-    int off_stop = off + 1;
-    if(off_stop == size_max) off_stop = 0;
-    list_mv_dec(internal -> list_, i_start, off_stop, size_max);
+    list_mv_dec(internal -> list_, i_start, off, size_max);
     dec_i_start(internal);
+
+    dec_i(&off, internal);
   }
   else
   {
@@ -269,13 +269,13 @@ static CMAP_MAP * rm_on_middle(CMAP_INTERNAL * internal, int i)
   CMAP_MAP * val = internal -> list_[off];
 
   if(size_inc < 0) size_inc += size_max;
-  if(size_dec < 0) size_dec += size_max;
+  else if(size_dec < 0) size_dec += size_max;
 
   if(size_dec < size_inc)
   {
-    int off_stop = off + 1;
-    if(off_stop == size_max) off_stop = 0;
-    list_mv_dec(internal -> list_, off_stop, i_stop, size_max);
+    inc_i(&off, internal);
+
+    list_mv_dec(internal -> list_, off, i_stop, size_max);
     dec_i_stop(internal);
   }
   else
