@@ -1,6 +1,9 @@
 #ifndef __CMAP_COMMON_H__
 #define __CMAP_COMMON_H__
 
+#include "cmap-mem.h"
+#include "cmap-kernel.h"
+
 #define CMAP_T (1 == 1)
 #define CMAP_F (1 == 0)
 
@@ -16,5 +19,8 @@
 
 #define CMAP_CALL(e, fn) e -> fn(e)
 #define CMAP_CALL_ARGS(e, fn, args...) e -> fn(e, args)
+
+#define CMAP_NEW_MAP(prototype) \
+  (CMAP_MAP *)CMAP_CALL_ARGS(prototype, new, sizeof(CMAP_MAP))
 
 #endif

@@ -21,6 +21,7 @@ struct CMAP_MAP_s
 
 void cmap_map__set(CMAP_MAP * this, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_map__get(CMAP_MAP * this, const char * key);
+
 void * cmap_map__new(CMAP_MAP * this, int size);
 
 CMAP_MAP * cmap_map_create();

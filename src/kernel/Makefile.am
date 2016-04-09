@@ -1,5 +1,5 @@
 
-include common.mk
+include $(top_srcdir)/src/common.mk
 
 SUBDIRS = core
 

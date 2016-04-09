@@ -139,7 +139,7 @@ CMAP_MAP * cmap_map_create()
   }
   else
   {
-    map = (CMAP_MAP *)CMAP_CALL_ARGS(prototype_map, new, sizeof(CMAP_MAP));
+    map = CMAP_NEW_MAP(prototype_map);
   }
   return map;
 }

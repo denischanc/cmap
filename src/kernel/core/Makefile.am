@@ -1,5 +1,5 @@
 
-include $(top_srcdir)/src/kernel/common.mk
+include $(top_srcdir)/src/common.mk
 
 include_HEADERS = \
   cmap-mem.h \
