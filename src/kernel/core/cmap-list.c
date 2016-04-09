@@ -202,11 +202,11 @@ static void add_on_full(CMAP_INTERNAL * internal, int i, CMAP_MAP * val)
   CMAP_MAP ** new_list = (CMAP_MAP **)mem -> alloc(
     new_size_max * sizeof(CMAP_MAP *));
   CMAP_MAP ** old_list = internal -> list_;
-  list_mv_block(new_list, 0, old_list, internal -> i_start_, off,
+  if(i != 0) list_mv_block(new_list, 0, old_list, internal -> i_start_, off,
     old_size_max);
   new_list[i] = val;
-  list_mv_block(new_list, i + 1, old_list, off, internal -> i_stop_,
-    old_size_max);
+  if(i != old_size_max) list_mv_block(new_list, i + 1, old_list, off,
+    internal -> i_stop_, old_size_max);
 
   internal -> size_max_ = new_size_max;
   internal -> i_start_ = 0;
@@ -334,7 +334,7 @@ CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i)
   int size = internal -> size_;
   if((i >= 0) && (i < size))
   {
-    if(i == size) val = rm_on_end(internal);
+    if(i == (size - 1)) val = rm_on_end(internal);
     else if(i == 0) val = rm_on_begin(internal);
     else val = rm_on_middle(internal, i);
 
