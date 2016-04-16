@@ -17,10 +17,10 @@
 #define CMAP_FREE(ptr, mem) mem -> free((void *)ptr)
 #define CMAP_KERNEL_FREE(ptr) CMAP_FREE(ptr, cmap_kernel() -> mem_)
 
-#define CMAP_CALL(e, fn) e -> fn(e)
-#define CMAP_CALL_ARGS(e, fn, args...) e -> fn(e, args)
+#define CMAP_CALL(e, fn) (e) -> fn(e)
+#define CMAP_CALL_ARGS(e, fn, args...) (e) -> fn(e, args)
 
 #define CMAP_NEW_MAP(prototype) \
-  (CMAP_MAP *)CMAP_CALL_ARGS(prototype, new, sizeof(CMAP_MAP))
+  (CMAP_MAP *)CMAP_CALL_ARGS((CMAP_MAP *)prototype, new, sizeof(CMAP_MAP))
 
 #endif

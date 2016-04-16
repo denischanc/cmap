@@ -7,7 +7,8 @@ TESTS_MEM = \
 
 TESTS_KERNEL = \
   kernel/test001 \
-  kernel/test002
+  kernel/test002 \
+  kernel/test003
 
 TESTS = \
   $(TESTS_MEM) \

@@ -25,6 +25,7 @@ CMAP_MAP * cmap_map__get(CMAP_MAP * this, const char * key);
 void * cmap_map__new(CMAP_MAP * this, int size);
 
 CMAP_MAP * cmap_map_create();
+CMAP_MAP * cmap_root_map_create();
 void cmap_map_delete(CMAP_MAP * map);
 
 #endif

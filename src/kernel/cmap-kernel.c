@@ -2,6 +2,7 @@
 #include "cmap-kernel.h"
 
 #include <stdlib.h>
+#include "cmap-global-env.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,6 +25,7 @@ static int kernel_main(int argc, char * argv[])
 static void kernel_exit(int ret)
 {
   cmap_kernel_prototype_delete(&kernel_.prototype_);
+  cmap_global_env_delete();
 
   exit(ret);
 }
@@ -58,6 +60,7 @@ void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
   kernel_ptr_ = &kernel_;
 
   cmap_kernel_prototype_create(&kernel_.prototype_);
+  cmap_global_env_create();
 }
 
 /*******************************************************************************

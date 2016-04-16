@@ -1,0 +1,17 @@
+
+CMAP_MAP * m = _CMAP_M_();
+CMAP_LIST * l = _CMAP_L_(0);
+CMAP_FN * f = _CMAP_F_(p);
+CMAP_STRING * s = _CMAP_S_("toto");
+
+_CMAP_SET_(m, "param1.param11", l);
+_CMAP_GET_(m, "param1");
+
+_CMAP_SET_L_(l, 0, f);
+_CMAP_GET_L_(l, 0);
+
+_CMAP_SET_G_("m1.m11", m);
+_CMAP_GET_G_("cmap.console");
+
+_CMAP_CALL_(m, "fn1", arg1, arg2);
+_CMAP_CALL_G_("cmap.console.info", arg1, arg2);

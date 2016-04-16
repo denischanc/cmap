@@ -2,6 +2,7 @@
 #define __CMAP_KERNEL_H__
 
 #include "cmap-mem.h"
+#include "cmap-map.h"
 #include "cmap-kernel-prototype.h"
 
 typedef struct
@@ -14,6 +15,8 @@ typedef struct
   CMAP_MEM * mem_;
 
   CMAP_KERNEL_PROTOTYPE prototype_;
+
+  CMAP_MAP * global_env_;
 
   int (*main)(int argc, char * argv[]);
 

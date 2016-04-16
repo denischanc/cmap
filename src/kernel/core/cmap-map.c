@@ -131,16 +131,15 @@ void * cmap_map__new(CMAP_MAP * this, int size)
 
 CMAP_MAP * cmap_map_create()
 {
-  CMAP_MAP * prototype_map = cmap_kernel() -> prototype_.map_, * map;
-  if(prototype_map == NULL)
-  {
-    map = CMAP_KERNEL_ALLOC(CMAP_MAP);
-    map_init(map);
-  }
-  else
-  {
-    map = CMAP_NEW_MAP(prototype_map);
-  }
+  CMAP_MAP * prototype_map = cmap_kernel() -> prototype_.map_;
+  if(prototype_map == NULL) return cmap_root_map_create();
+  else return CMAP_NEW_MAP(prototype_map);
+}
+
+CMAP_MAP * cmap_root_map_create()
+{
+  CMAP_KERNEL_ALLOC_PTR(map, CMAP_MAP);
+  map_init(map);
   return map;
 }
 
