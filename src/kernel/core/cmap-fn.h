@@ -1,12 +1,10 @@
 #ifndef __CMAP_FN_H__
 #define __CMAP_FN_H__
 
+#include "cmap-core.h"
 #include "cmap-map.h"
-#include "cmap-list.h"
 
 extern const char * CMAP_FN_NATURE;
-
-typedef struct CMAP_FN_s CMAP_FN;
 
 struct CMAP_FN_s
 {
