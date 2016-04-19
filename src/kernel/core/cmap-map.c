@@ -129,6 +129,35 @@ void * cmap_map__new(CMAP_MAP * this, int size)
 /*******************************************************************************
 *******************************************************************************/
 
+char cmap_map__is_key(CMAP_MAP * this, const char * key)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+
+  CMAP_TREE_RUNNER_INIT(entry, (void *)key)
+  return (CMAP_TREE_FINDFN(entry, internal -> entry_tree_) != NULL);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void add_key(CMAP_TREE_APPLY * this, void ** node)
+{
+  CMAP_LIST * keys = (CMAP_LIST *)this -> internal_;
+  /*CMAP_CALL_ARGS(keys, add, 0, ((CMAP_MAP_ENTRY *)*node) -> key_);*/
+}
+
+void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+
+  CMAP_TREE_APPLY apply;
+  CMAP_TREE_APPLY_INIT(apply, (void *)keys, NULL, add_key, NULL)
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree_, apply, CMAP_T);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_MAP * cmap_map_create()
 {
   CMAP_MAP * prototype_map = cmap_kernel() -> prototype_.map_;
@@ -156,6 +185,8 @@ static void map_init(CMAP_MAP * map)
   map -> set = cmap_map__set;
   map -> get = cmap_map__get;
   map -> new = cmap_map__new;
+  map -> is_key = cmap_map__is_key;
+  map -> keys = cmap_map__keys;
 }
 
 void cmap_map_delete(CMAP_MAP * map)

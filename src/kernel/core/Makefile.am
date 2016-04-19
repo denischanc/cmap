@@ -3,6 +3,7 @@ include $(top_srcdir)/src/common.mk
 
 include_HEADERS = \
   cmap-mem.h \
+  cmap-core.h \
   cmap-map.h \
   cmap-list.h \
   cmap-fn.h

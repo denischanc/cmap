@@ -1,11 +1,10 @@
 #ifndef __CMAP_LIST_H__
 #define __CMAP_LIST_H__
 
+#include "cmap-core.h"
 #include "cmap-map.h"
 
 extern const char * CMAP_LIST_NATURE;
-
-typedef struct CMAP_LIST_s CMAP_LIST;
 
 struct CMAP_LIST_s
 {

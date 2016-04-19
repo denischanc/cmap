@@ -13,6 +13,24 @@ static CMAP_KERNEL * kernel_ptr_ = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
+static void create_all()
+{
+  cmap_kernel_prototype_create();
+  cmap_global_env_create();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void delete_all()
+{
+  cmap_kernel_prototype_delete();
+  cmap_global_env_delete();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static int kernel_main(int argc, char * argv[])
 {
   cmap_kernel() -> exit(EXIT_SUCCESS);
@@ -24,8 +42,7 @@ static int kernel_main(int argc, char * argv[])
 
 static void kernel_exit(int ret)
 {
-  cmap_kernel_prototype_delete(&kernel_.prototype_);
-  cmap_global_env_delete();
+  delete_all();
 
   exit(ret);
 }
@@ -59,8 +76,7 @@ void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
 
   kernel_ptr_ = &kernel_;
 
-  cmap_kernel_prototype_create(&kernel_.prototype_);
-  cmap_global_env_create();
+  create_all();
 }
 
 /*******************************************************************************

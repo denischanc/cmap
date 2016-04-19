@@ -28,15 +28,17 @@
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_kernel_prototype_create(CMAP_KERNEL_PROTOTYPE * prototype)
+void cmap_kernel_prototype_create()
 {
+  CMAP_KERNEL_PROTOTYPE * prototype = &cmap_kernel() -> prototype_;
   CMAP_KERNEL_PROTOTYPE_APPLY(CMAP_KERNEL_PROTOTYPE_CREATE, prototype)
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_kernel_prototype_delete(CMAP_KERNEL_PROTOTYPE * prototype)
+void cmap_kernel_prototype_delete()
 {
+  CMAP_KERNEL_PROTOTYPE * prototype = &cmap_kernel() -> prototype_;
   CMAP_KERNEL_PROTOTYPE_APPLY(CMAP_KERNEL_PROTOTYPE_DELETE, prototype)
 }
