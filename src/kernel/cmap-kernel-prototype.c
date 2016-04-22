@@ -12,7 +12,8 @@
   macro(map, prototype_s) \
   macro(list, prototype_s) \
   macro(fn, prototype_s) \
-  macro(string, prototype_s)
+  macro(string, prototype_s) \
+  macro(int, prototype_s)
 
 #define CMAP_KERNEL_PROTOTYPE_CREATE(name, prototype_s) \
   prototype_s -> name##_ = _M_();
