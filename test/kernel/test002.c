@@ -37,7 +37,7 @@ static void test_list(int size)
   CMAP_TEST_ASSERT_NOMSG(size >= NB_MIN);
   CMAP_TEST_ASSERT_NOMSG(size <= NB_MAX);
 
-  CMAP_LIST * list = _L_(size);
+  CMAP_LIST * list = CMAP_LIST(size);
 
   static CMAP_MAP elmts[NB_MAX] = {0};
   int i = 0;

@@ -15,8 +15,7 @@ void cmap_global_env_create()
   CMAP_MAP * global_env = cmap_root_map_create();
   cmap_kernel() -> global_env_ = global_env;
 
-  CMAP_MAP * cmap = _M_();
-  CMAP_CALL_ARGS(global_env, set, "cmap", cmap);
+  CMAP_SET(global_env, "cmap", CMAP_MAP());
 
   cmap_console_create();
 }
@@ -29,7 +28,7 @@ void cmap_global_env_delete()
   CMAP_MAP * global_env = cmap_kernel() -> global_env_;
   if(global_env != NULL)
   {
-    CMAP_MAP * cmap = CMAP_CALL_ARGS(global_env, get, "cmap");
+    CMAP_MAP * cmap = CMAP_GET(global_env, "cmap");
     if(cmap != NULL)
     {
       cmap_console_delete();

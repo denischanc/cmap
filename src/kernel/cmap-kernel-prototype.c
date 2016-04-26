@@ -16,7 +16,7 @@
   macro(int, prototype_s)
 
 #define CMAP_KERNEL_PROTOTYPE_CREATE(name, prototype_s) \
-  prototype_s -> name##_ = _M_();
+  prototype_s -> name##_ = CMAP_MAP();
 
 #define CMAP_KERNEL_PROTOTYPE_DELETE(name, prototype_s) \
   CMAP_MAP * prototype_##name = prototype_s -> name##_; \

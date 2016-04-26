@@ -6,6 +6,7 @@
 #include "cmap-kernel.h"
 #include "cmap-common.h"
 #include "cmap-tree.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -143,7 +144,8 @@ char cmap_map__is_key(CMAP_MAP * this, const char * key)
 static void add_key(CMAP_TREE_APPLY * this, void ** node)
 {
   CMAP_LIST * keys = (CMAP_LIST *)this -> internal_;
-  /*CMAP_CALL_ARGS(keys, add, 0, ((CMAP_MAP_ENTRY *)*node) -> key_);*/
+  CMAP_STRING * key = CMAP_STRING(((CMAP_MAP_ENTRY *)*node) -> key_, 0);
+  CMAP_CALL_ARGS(keys, add, 0, (CMAP_MAP *)key);
 }
 
 void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys)
