@@ -1,6 +1,7 @@
 
 #include "cmap-fn.h"
 
+#include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-common.h"
 
@@ -28,9 +29,9 @@ static const char * fn__nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void fn__delete(CMAP_MAP * this)
+static CMAP_MAP * fn__delete(CMAP_MAP * this)
 {
-  cmap_fn_delete((CMAP_FN *)this);
+  return cmap_fn_delete((CMAP_FN *)this);
 }
 
 /*******************************************************************************
@@ -45,9 +46,9 @@ CMAP_MAP * cmap_fn__process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args)
+CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 {
-  CMAP_MAP * map = CMAP_NEW_MAP(this);
+  CMAP_MAP * map = CMAP_NEW_MAP(this, aisle);
   CMAP_CALL_ARGS(this, process, map, args);
   return map;
 }
@@ -55,11 +56,11 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_FN * cmap_fn_create(CMAP_FN_TPL process)
+CMAP_FN * cmap_fn_create(CMAP_FN_TPL process, const char * aisle)
 {
   CMAP_MAP * prototype_fn = cmap_kernel() -> prototype_.fn_;
   CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
-    sizeof(CMAP_FN));
+    sizeof(CMAP_FN), aisle);
   cmap_fn_init(fn, process);
   return fn;
 }
@@ -74,16 +75,16 @@ void cmap_fn_init(CMAP_FN * fn, CMAP_FN_TPL process)
   internal -> process_ = process;
 
   fn -> internal_ = internal;
-  fn -> features_ = cmap_root_map_create();
+  fn -> features_ = cmap_root_map_create(NULL);
   fn -> process = cmap_fn__process;
   fn -> new = cmap_fn__new;
 }
 
-void cmap_fn_delete(CMAP_FN * fn)
+CMAP_MAP * cmap_fn_delete(CMAP_FN * fn)
 {
   CMAP_KERNEL_FREE(fn -> internal_);
 
   CMAP_CALL(fn -> features_, delete);
 
-  cmap_map_delete((CMAP_MAP *)fn);
+  return cmap_map_delete((CMAP_MAP *)fn);
 }

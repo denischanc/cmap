@@ -14,7 +14,7 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
   if(map == NULL) map = cmap_kernel() -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0);
+  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, keys, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
@@ -42,7 +42,7 @@ CMAP_MAP * cmap_fw_get_split(CMAP_MAP * map, const char * keys)
 {
   if(map == NULL) map = cmap_kernel() -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0);
+  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, keys, '.');
 
   CMAP_STRING * key;
@@ -64,7 +64,7 @@ CMAP_MAP * cmap_fw_get_split(CMAP_MAP * map, const char * keys)
 
 CMAP_MAP * cmap_fw_vproc(CMAP_MAP * map, const char * fn_name, va_list args)
 {
-  CMAP_LIST * args_list = CMAP_LIST(0);
+  CMAP_LIST * args_list = CMAP_LIST(0, "TODO");
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
@@ -101,7 +101,7 @@ CMAP_MAP * cmap_fw_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 
   if(map == NULL) map = cmap_kernel() -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0);
+  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, fn_names, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);

@@ -28,9 +28,9 @@ static const char * int__nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void int__delete(CMAP_MAP * this)
+static CMAP_MAP * int__delete(CMAP_MAP * this)
 {
-  cmap_int_delete((CMAP_INT *)this);
+  return cmap_int_delete((CMAP_INT *)this);
 }
 
 /*******************************************************************************
@@ -54,11 +54,11 @@ void cmap_int__set(CMAP_INT * this, int64_t val)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_INT * cmap_int_create()
+CMAP_INT * cmap_int_create(const char * aisle)
 {
   CMAP_MAP * prototype_int = cmap_kernel() -> prototype_.int_;
   CMAP_INT * _int = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
-    sizeof(CMAP_INT));
+    sizeof(CMAP_INT), aisle);
   cmap_int_init(_int);
   return _int;
 }
@@ -77,9 +77,9 @@ void cmap_int_init(CMAP_INT * _int)
   _int -> set = cmap_int__set;
 }
 
-void cmap_int_delete(CMAP_INT * _int)
+CMAP_MAP * cmap_int_delete(CMAP_INT * _int)
 {
   CMAP_KERNEL_FREE(_int -> internal_);
 
-  cmap_map_delete((CMAP_MAP *)_int);
+  return cmap_map_delete((CMAP_MAP *)_int);
 }

@@ -11,27 +11,28 @@ struct CMAP_MAP_s
 
   const char * (*nature)(CMAP_MAP * this);
 
-  void (*delete)(CMAP_MAP * this);
+  CMAP_MAP * (*delete)(CMAP_MAP * this);
 
   void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
-  void * (*new)(CMAP_MAP * this, int size);
+  void * (*new)(CMAP_MAP * this, int size, const char * aisle);
 
   char (*is_key)(CMAP_MAP * this, const char * key);
-  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys);
+  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
 };
 
 void cmap_map__set(CMAP_MAP * this, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_map__get(CMAP_MAP * this, const char * key);
 
-void * cmap_map__new(CMAP_MAP * this, int size);
+void * cmap_map__new(CMAP_MAP * this, int size, const char * aisle);
 
 char cmap_map__is_key(CMAP_MAP * this, const char * key);
-void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys);
+void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
 
-CMAP_MAP * cmap_map_create();
-CMAP_MAP * cmap_root_map_create();
-void cmap_map_delete(CMAP_MAP * map);
+CMAP_MAP * cmap_map_create(const char * aisle);
+CMAP_MAP * cmap_root_map_create(const char * aisle);
+void cmap_map_init(CMAP_MAP * map);
+CMAP_MAP * cmap_map_delete(CMAP_MAP * map);
 
 #endif

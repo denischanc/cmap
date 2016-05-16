@@ -37,9 +37,9 @@ static const char * list__nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void list__delete(CMAP_MAP * this)
+static CMAP_MAP * list__delete(CMAP_MAP * this)
 {
-  cmap_list_delete((CMAP_LIST *)this);
+  return cmap_list_delete((CMAP_LIST *)this);
 }
 
 /*******************************************************************************
@@ -373,11 +373,11 @@ CMAP_MAP * cmap_list__unshift(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_list_create(int size_inc)
+CMAP_LIST * cmap_list_create(int size_inc, const char * aisle)
 {
   CMAP_MAP * prototype_list = cmap_kernel() -> prototype_.list_;
   CMAP_LIST * list = (CMAP_LIST *)CMAP_CALL_ARGS(prototype_list, new,
-    sizeof(CMAP_LIST));
+    sizeof(CMAP_LIST), aisle);
   cmap_list_init(list, size_inc);
   return list;
 }
@@ -410,12 +410,12 @@ void cmap_list_init(CMAP_LIST * list, int size_inc)
   list -> unshift = cmap_list__unshift;
 }
 
-void cmap_list_delete(CMAP_LIST * list)
+CMAP_MAP * cmap_list_delete(CMAP_LIST * list)
 {
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)list -> internal_;
   CMAP_MEM * mem = cmap_kernel() -> mem_;
   CMAP_FREE(internal -> list_, mem);
   CMAP_FREE(internal, mem);
 
-  cmap_map_delete((CMAP_MAP *)list);
+  return cmap_map_delete((CMAP_MAP *)list);
 }

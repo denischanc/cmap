@@ -13,8 +13,10 @@
 #define VAL_1 0x55
 #define VAL_2 0x2a
 
-#define CHUNK_SIZE_MIN (sizeof(BLOCK) + sizeof(BLOCK_FREE))
+#define CHUNK_SIZE_MIN (sizeof(BLOCK_FREE) + sizeof(BLOCK))
 #define CHUNK_SIZE_DFT (1 << 20)
+
+#define BLOCK_SIZE_MIN (sizeof(BLOCK_FREE) - sizeof(BLOCK))
 
 /*******************************************************************************
 *******************************************************************************/
@@ -34,14 +36,12 @@ struct BLOCK_s
   BLOCK * prev_, * next_;
 };
 
-typedef struct BLOCK_FREE_s BLOCK_FREE;
-
-struct BLOCK_FREE_s
+typedef struct
 {
   BLOCK super;
 
   CMAP_TREE_STRUCT;
-};
+} BLOCK_FREE;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -126,21 +126,22 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this, void * node)
+static int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this,
+  void * node, void * data)
 {
   int size = block_size((BLOCK *)node);
-  return (size - *(int *)(this -> internal_));
+  return (size - *(int *)data);
 }
 
-CMAP_TREE_RUNNER(BLOCK_FREE, block_free, false, true)
+CMAP_TREE_RUNNER(BLOCK_FREE, block_free, NULL, false, true)
 
 /*******************************************************************************
 *******************************************************************************/
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  CMAP_TREE_RUNNER_INIT(block_free, &alloc_size)
-  return (BLOCK_FREE *)CMAP_TREE_FINDFN(block_free, block_free_tree_);
+  return (BLOCK_FREE *)CMAP_TREE_FINDFN(block_free, block_free_tree_,
+    &alloc_size);
 }
 
 static void free_block(BLOCK * block)
@@ -148,13 +149,11 @@ static void free_block(BLOCK * block)
   block -> free_ = CMAP_T;
 
   int size = block_size(block);
-  CMAP_TREE_RUNNER_INIT(block_free, &size)
-  CMAP_TREE_ADDFN(block_free, &block_free_tree_, block);
+  CMAP_TREE_ADDFN(block_free, &block_free_tree_, block, &size);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  CMAP_TREE_RUNNER_INIT(block_free, NULL)
   CMAP_TREE_RMFN(block_free, &block_free_tree_, block);
 
   ((BLOCK *)block) -> free_ = CMAP_F;
@@ -244,10 +243,12 @@ static void * _alloc(int size)
 
   alloc_block(block);
 
-  int size_waste = block_size((BLOCK *)block) - size;
-  if(size_waste >= sizeof(BLOCK_FREE))
+  int size_real = size;
+  if(size_real < BLOCK_SIZE_MIN) size_real = BLOCK_SIZE_MIN;
+  int size_free = block_size((BLOCK *)block) - size_real;
+  if(size_free >= sizeof(BLOCK_FREE))
   {
-    BLOCK * new_block = (BLOCK *)(ret + size);
+    BLOCK * new_block = (BLOCK *)(ret + size_real);
     valid_block(new_block);
     add_block(new_block, (BLOCK *)block);
     free_block(new_block);

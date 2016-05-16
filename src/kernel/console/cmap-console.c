@@ -12,7 +12,7 @@
 
 static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_STRING * line = CMAP_STRING("", 0);
+  CMAP_STRING * line = CMAP_STRING("", 0, "TODO");
 
   if(args != NULL)
   {
@@ -46,9 +46,9 @@ static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 
 void cmap_console_create()
 {
-  CMAP_MAP * console = CMAP_MAP();
-  CMAP_SET(console, "info", CMAP_FN(info));
-  CMAP_SET(console, "error", CMAP_FN(error));
+  CMAP_MAP * console = CMAP_MAP("TODO");
+  CMAP_SET(console, "info", CMAP_FN(info, "TODO"));
+  CMAP_SET(console, "error", CMAP_FN(error, "TODO"));
 
   CMAP_SET_GLOBAL("cmap.console", console);
 }

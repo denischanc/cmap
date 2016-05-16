@@ -41,8 +41,8 @@ CMAP_MAP * cmap_list__pop(CMAP_LIST * this);
 void cmap_list__shift(CMAP_LIST * this, CMAP_MAP * val);
 CMAP_MAP * cmap_list__unshift(CMAP_LIST * this);
 
-CMAP_LIST * cmap_list_create(int size_inc);
+CMAP_LIST * cmap_list_create(int size_inc, const char * aisle);
 void cmap_list_init(CMAP_LIST * list, int size_inc);
-void cmap_list_delete(CMAP_LIST * list);
+CMAP_MAP * cmap_list_delete(CMAP_LIST * list);
 
 #endif

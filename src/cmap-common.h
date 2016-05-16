@@ -25,7 +25,8 @@
 #define CMAP_CALL(e, fn) (e) -> fn(e)
 #define CMAP_CALL_ARGS(e, fn, args...) (e) -> fn(e, args)
 
-#define CMAP_NEW_MAP(prototype) \
-  (CMAP_MAP *)CMAP_CALL_ARGS((CMAP_MAP *)prototype, new, sizeof(CMAP_MAP))
+#define CMAP_NEW_MAP(prototype, aisle) \
+  (CMAP_MAP *)CMAP_CALL_ARGS( \
+    (CMAP_MAP *)prototype, new, sizeof(CMAP_MAP), aisle)
 
 #endif

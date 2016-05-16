@@ -8,11 +8,12 @@
 #include "cmap-string.h"
 #include "cmap-int.h"
 
-#define CMAP_MAP() cmap_map_create()
-#define CMAP_LIST(size_inc) cmap_list_create(size_inc)
-#define CMAP_FN(process) cmap_fn_create(process)
-#define CMAP_STRING(val, size_inc) cmap_string_create(val, size_inc)
-#define CMAP_INT() cmap_int_create()
+#define CMAP_MAP(aisle) cmap_map_create(aisle)
+#define CMAP_LIST(size_inc, aisle) cmap_list_create(size_inc, aisle)
+#define CMAP_FN(process, aisle) cmap_fn_create(process, aisle)
+#define CMAP_STRING(val, size_inc, aisle) \
+  cmap_string_create(val, size_inc, aisle)
+#define CMAP_INT(aisle) cmap_int_create(aisle)
 
 #define CMAP_SET(map, key, val) \
   CMAP_CALL_ARGS(map, set, key, (CMAP_MAP *)(val))

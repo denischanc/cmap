@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap-global-env.h"
+#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -15,6 +16,8 @@ static CMAP_KERNEL * kernel_ptr_ = NULL;
 
 static void create_all()
 {
+  kernel_.warehouse_ = cmap_warehouse_create();
+
   cmap_kernel_prototype_create();
   cmap_global_env_create();
 }
@@ -24,8 +27,11 @@ static void create_all()
 
 static void delete_all()
 {
-  cmap_kernel_prototype_delete();
-  cmap_global_env_delete();
+  /* TODO */
+  /*cmap_kernel_prototype_delete();*/
+  /*cmap_global_env_delete();*/
+  /* TODO */
+  CMAP_CALL((CMAP_MAP *)kernel_.warehouse_, delete);
 }
 
 /*******************************************************************************

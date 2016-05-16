@@ -7,13 +7,13 @@
 /*******************************************************************************
 *******************************************************************************/
 
-void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree)
+void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
 {
   void * result = NULL;
 
   while(tree != NULL)
   {
-    int v = CMAP_CALL_ARGS(runner, eval, tree);
+    int v = CMAP_CALL_ARGS(runner, eval, tree, data);
     if(v == 0)
     {
       result = tree;
@@ -37,7 +37,8 @@ void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
+void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
+  void * data)
 {
   *CMAP_CALL_ARGS(runner, ge, node) = NULL;
   *CMAP_CALL_ARGS(runner, lt, node) = NULL;
@@ -48,7 +49,7 @@ void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
   {
     parent = *tree;
 
-    int v = CMAP_CALL_ARGS(runner, eval, parent);
+    int v = CMAP_CALL_ARGS(runner, eval, parent, data);
     if(v > 0) tree = CMAP_CALL_ARGS(runner, lt, parent);
     else if(v < 0) tree = CMAP_CALL_ARGS(runner, ge, parent);
     else
@@ -121,23 +122,23 @@ char cmap_tree_usable_false(CMAP_TREE_RUNNER * this)
 *******************************************************************************/
 
 void cmap_tree_apply(CMAP_TREE_RUNNER * runner, void ** tree,
-  CMAP_TREE_APPLY * apply, char ge_first)
+  CMAP_TREE_APPLY * apply, char ge_first, void * data)
 {
   void * _tree = *tree;
   if(_tree != NULL)
   {
-    if(apply -> before != NULL) CMAP_CALL_ARGS(apply, before, tree);
+    if(apply -> before != NULL) CMAP_CALL_ARGS(apply, before, tree, data);
 
     void ** ge = CMAP_CALL_ARGS(runner, ge, _tree);
     void ** lt = CMAP_CALL_ARGS(runner, lt, _tree);
     void ** next = ge_first ? ge : lt;
-    cmap_tree_apply(runner, next, apply, ge_first);
+    cmap_tree_apply(runner, next, apply, ge_first, data);
 
-    if(apply -> between != NULL) CMAP_CALL_ARGS(apply, between, tree);
+    if(apply -> between != NULL) CMAP_CALL_ARGS(apply, between, tree, data);
 
     next = ge_first ? lt : ge;
-    cmap_tree_apply(runner, next, apply, ge_first);
+    cmap_tree_apply(runner, next, apply, ge_first, data);
 
-    if(apply -> after != NULL) CMAP_CALL_ARGS(apply, after, tree);
+    if(apply -> after != NULL) CMAP_CALL_ARGS(apply, after, tree, data);
   }
 }

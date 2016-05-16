@@ -25,8 +25,9 @@ void cmap_string__append(CMAP_STRING * this, const char * val);
 void cmap_string__append_sub(CMAP_STRING * this, const char * val,
   int off_start, int off_stop);
 
-CMAP_STRING * cmap_string_create(const char * val, int size_inc);
+CMAP_STRING * cmap_string_create(const char * val, int size_inc,
+  const char * aisle);
 void cmap_string_init(CMAP_STRING * string, const char * val, int size_inc);
-void cmap_string_delete(CMAP_STRING * string);
+CMAP_MAP * cmap_string_delete(CMAP_STRING * string);
 
 #endif

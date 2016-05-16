@@ -36,9 +36,9 @@ static const char * string__nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void string__delete(CMAP_MAP * this)
+static CMAP_MAP * string__delete(CMAP_MAP * this)
 {
-  cmap_string_delete((CMAP_STRING *)this);
+  return cmap_string_delete((CMAP_STRING *)this);
 }
 
 /*******************************************************************************
@@ -112,11 +112,12 @@ void cmap_string__append_sub(CMAP_STRING * this, const char * val,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_STRING * cmap_string_create(const char * val, int size_inc)
+CMAP_STRING * cmap_string_create(const char * val, int size_inc,
+  const char * aisle)
 {
   CMAP_MAP * prototype_string = cmap_kernel() -> prototype_.string_;
   CMAP_STRING * string = (CMAP_STRING *)CMAP_CALL_ARGS(prototype_string, new,
-    sizeof(CMAP_STRING));
+    sizeof(CMAP_STRING), aisle);
   cmap_string_init(string, val, size_inc);
   return string;
 }
@@ -142,12 +143,12 @@ void cmap_string_init(CMAP_STRING * string, const char * val, int size_inc)
   string -> append_sub = cmap_string__append_sub;
 }
 
-void cmap_string_delete(CMAP_STRING * string)
+CMAP_MAP * cmap_string_delete(CMAP_STRING * string)
 {
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)string -> internal_;
   CMAP_MEM * mem = cmap_kernel() -> mem_;
   CMAP_FREE(internal -> val_, mem);
   CMAP_FREE(internal, mem);
 
-  cmap_map_delete((CMAP_MAP *)string);
+  return cmap_map_delete((CMAP_MAP *)string);
 }

@@ -20,8 +20,8 @@ struct CMAP_INT_s
 int64_t cmap_int__get(CMAP_INT * this);
 void cmap_int__set(CMAP_INT * this, int64_t val);
 
-CMAP_INT * cmap_int_create();
+CMAP_INT * cmap_int_create(const char * aisle);
 void cmap_int_init(CMAP_INT * _int);
-void cmap_int_delete(CMAP_INT * _int);
+CMAP_MAP * cmap_int_delete(CMAP_INT * _int);
 
 #endif

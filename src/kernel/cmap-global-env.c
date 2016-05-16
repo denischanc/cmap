@@ -12,10 +12,10 @@
 
 void cmap_global_env_create()
 {
-  CMAP_MAP * global_env = cmap_root_map_create();
+  CMAP_MAP * global_env = cmap_root_map_create("TODO");
   cmap_kernel() -> global_env_ = global_env;
 
-  CMAP_SET(global_env, "cmap", CMAP_MAP());
+  CMAP_SET(global_env, "cmap", CMAP_MAP("TODO"));
 
   cmap_console_create();
 }
