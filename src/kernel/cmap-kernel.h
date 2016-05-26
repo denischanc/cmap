@@ -5,6 +5,7 @@
 #include "cmap-map.h"
 #include "cmap-kernel-prototype.h"
 #include "cmap-warehouse.h"
+#include "cmap-log.h"
 
 typedef struct
 {
@@ -14,6 +15,8 @@ typedef struct
 typedef struct
 {
   CMAP_MEM * mem_;
+
+  CMAP_LOG log_;
 
   CMAP_KERNEL_PROTOTYPE prototype_;
 

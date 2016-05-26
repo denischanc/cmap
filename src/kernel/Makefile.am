@@ -6,7 +6,9 @@ SUBDIRS = core console
 include_HEADERS = \
   cmap-kernel.h \
   cmap-kernel-prototype.h \
-  cmap-warehouse.h
+  cmap-warehouse.h \
+  cmap-aisle.h \
+  cmap-log.h
 
 noinst_HEADERS = \
   cmap-global-env.h
@@ -17,7 +19,9 @@ libkernel_la_SOURCES = \
   cmap-kernel.c \
   cmap-kernel-prototype.c \
   cmap-global-env.c \
-  cmap-warehouse.c
+  cmap-warehouse.c \
+  cmap-aisle.c \
+  cmap-log.c
 libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
 libkernel_la_LIBADD = \
   core/libcore.la \

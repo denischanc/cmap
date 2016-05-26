@@ -11,6 +11,8 @@
 static CMAP_KERNEL kernel_ = {0};
 static CMAP_KERNEL * kernel_ptr_ = NULL;
 
+static char exiting_ = CMAP_F;
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -37,6 +39,15 @@ static void delete_all()
 /*******************************************************************************
 *******************************************************************************/
 
+static void checkup()
+{
+  kernel_.log_.debug("Allocated memory size : [%d].",
+    cmap_mem_state() -> size_alloc_);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static int kernel_main(int argc, char * argv[])
 {
   cmap_kernel() -> exit(EXIT_SUCCESS);
@@ -48,9 +59,17 @@ static int kernel_main(int argc, char * argv[])
 
 static void kernel_exit(int ret)
 {
-  delete_all();
+  if(!exiting_)
+  {
+    exiting_ = CMAP_T;
 
-  exit(ret);
+    delete_all();
+
+    checkup();
+
+    kernel_.log_.debug("Exit kernel (%d).", ret);
+    exit(ret);
+  }
 }
 
 static void kernel_fatal()
@@ -71,6 +90,11 @@ static void upd_cfg(CMAP_KERNEL_CFG * cfg)
 
 void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
 {
+  kernel_ptr_ = &kernel_;
+
+  cmap_log_init();
+  kernel_.log_.debug("Create kernel.");
+
   CMAP_KERNEL_CFG cfg_dft = {0};
   if(cfg == NULL) cfg = &cfg_dft;
   upd_cfg(cfg);
@@ -79,8 +103,6 @@ void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
   kernel_.main = kernel_main;
   kernel_.exit = kernel_exit;
   kernel_.fatal = kernel_fatal;
-
-  kernel_ptr_ = &kernel_;
 
   create_all();
 }
