@@ -10,6 +10,7 @@
 typedef struct
 {
   CMAP_MEM * mem_;
+  char nofailure_on_allocmem_;
 } CMAP_KERNEL_CFG;
 
 typedef struct

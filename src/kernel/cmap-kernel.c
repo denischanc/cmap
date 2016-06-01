@@ -39,7 +39,7 @@ static void delete_all()
 /*******************************************************************************
 *******************************************************************************/
 
-static void checkup()
+static void checkup(int * ret)
 {
   kernel_.log_.debug("Allocated memory size : [%d].",
     cmap_mem_state() -> size_alloc_);
@@ -65,7 +65,7 @@ static void kernel_exit(int ret)
 
     delete_all();
 
-    checkup();
+    checkup(&ret);
 
     kernel_.log_.debug("Exit kernel (%d).", ret);
     exit(ret);
