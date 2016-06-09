@@ -1,7 +1,8 @@
 #ifndef __CMAP_GLOBAL_ENV_H__
 #define __CMAP_GLOBAL_ENV_H__
 
-void cmap_global_env_create();
-void cmap_global_env_delete();
+#include "cmap-map.h"
+
+CMAP_MAP * cmap_global_env_create();
 
 #endif

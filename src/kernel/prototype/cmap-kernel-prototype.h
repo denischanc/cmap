@@ -8,7 +8,6 @@ typedef struct
   CMAP_MAP * map_, * list_, * fn_, * string_, * int_;
 } CMAP_KERNEL_PROTOTYPE;
 
-void cmap_kernel_prototype_create();
-void cmap_kernel_prototype_delete();
+void cmap_prototype_init(CMAP_KERNEL_PROTOTYPE * prototype);
 
 #endif

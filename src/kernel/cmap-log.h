@@ -16,10 +16,11 @@ typedef struct
   void (*warn)(const char * msg, ...);
   void (*error)(const char * msg, ...);
   void (*fatal)(const char * msg, ...);
+
   void (*log)(const char * level, const char * msg, ...);
   void (*vlog)(const char * level, const char * msg, va_list ap);
 } CMAP_LOG;
 
-void cmap_log_init();
+void cmap_log_init(CMAP_LOG * log);
 
 #endif

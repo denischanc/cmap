@@ -1,11 +1,10 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = core console
+SUBDIRS = core prototype console
 
 include_HEADERS = \
   cmap-kernel.h \
-  cmap-kernel-prototype.h \
   cmap-warehouse.h \
   cmap-aisle.h \
   cmap-log.h
@@ -17,7 +16,6 @@ noinst_LTLIBRARIES = libkernel.la
 
 libkernel_la_SOURCES = \
   cmap-kernel.c \
-  cmap-kernel-prototype.c \
   cmap-global-env.c \
   cmap-warehouse.c \
   cmap-aisle.c \
@@ -25,4 +23,5 @@ libkernel_la_SOURCES = \
 libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
 libkernel_la_LIBADD = \
   core/libcore.la \
+  prototype/libprototype.la \
   console/libconsole.la

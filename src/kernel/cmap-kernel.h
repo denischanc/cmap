@@ -10,14 +10,17 @@
 typedef struct
 {
   CMAP_MEM * mem_;
-  char nofailure_on_allocmem_;
+
+  char failure_on_allocmem_;
 } CMAP_KERNEL_CFG;
 
 typedef struct
 {
-  CMAP_MEM * mem_;
-
   CMAP_LOG log_;
+
+  CMAP_KERNEL_CFG * cfg_;
+
+  CMAP_MEM * mem_;
 
   CMAP_KERNEL_PROTOTYPE prototype_;
 
@@ -31,7 +34,7 @@ typedef struct
   void (*fatal)();
 } CMAP_KERNEL;
 
-void cmap_kernel_create(CMAP_KERNEL_CFG * cfg);
+void cmap_kernel_init(CMAP_KERNEL_CFG * cfg);
 CMAP_KERNEL * cmap_kernel();
 
 #endif

@@ -8,6 +8,6 @@
 
 int main(int argc, char * argv[])
 {
-  cmap_kernel_create(NULL);
+  cmap_kernel_init(NULL);
   return cmap_kernel() -> main(argc, argv);
 }

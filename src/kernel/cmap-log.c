@@ -71,10 +71,8 @@ LOOP(FN)
 #define SET(name, level) \
   log -> name = name;
 
-void cmap_log_init()
+void cmap_log_init(CMAP_LOG * log)
 {
-  CMAP_LOG * log = &cmap_kernel() -> log_;
-
   LOOP(SET)
   log -> log = _log;
   log -> vlog = vlog;

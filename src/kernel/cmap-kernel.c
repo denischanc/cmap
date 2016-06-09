@@ -11,17 +11,19 @@
 static CMAP_KERNEL kernel_ = {0};
 static CMAP_KERNEL * kernel_ptr_ = NULL;
 
+static CMAP_KERNEL_CFG cfg_ = {0};
+
 static char exiting_ = CMAP_F;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void create_all()
+static void create_or_init_others()
 {
   kernel_.warehouse_ = cmap_warehouse_create();
 
-  cmap_kernel_prototype_create();
-  cmap_global_env_create();
+  cmap_prototype_init(&kernel_.prototype_);
+  kernel_.global_env_ = cmap_global_env_create();
 }
 
 /*******************************************************************************
@@ -29,29 +31,25 @@ static void create_all()
 
 static void delete_all()
 {
-  /* TODO */
-  /*cmap_kernel_prototype_delete();*/
-  /*cmap_global_env_delete();*/
-  /* TODO */
   CMAP_CALL((CMAP_MAP *)kernel_.warehouse_, delete);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void checkup(int * ret)
+static void check_mem(int * ret)
 {
-  kernel_.log_.debug("Allocated memory size : [%d].",
-    cmap_mem_state() -> size_alloc_);
+  if(cmap_mem_is_this(kernel_.mem_))
+  {
+    int s = cmap_mem_state() -> size_alloc_;
+    kernel_.log_.debug("Allocated memory size : [%d].", s);
+    if((s != 0) && kernel_.cfg_ -> failure_on_allocmem_) *ret = EXIT_FAILURE;
+  }
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static int kernel_main(int argc, char * argv[])
+static void check_all(int * ret)
 {
-  cmap_kernel() -> exit(EXIT_SUCCESS);
-  return EXIT_SUCCESS;
+  check_mem(ret);
 }
 
 /*******************************************************************************
@@ -65,7 +63,7 @@ static void kernel_exit(int ret)
 
     delete_all();
 
-    checkup(&ret);
+    check_all(&ret);
 
     kernel_.log_.debug("Exit kernel (%d).", ret);
     exit(ret);
@@ -80,31 +78,54 @@ static void kernel_fatal()
 /*******************************************************************************
 *******************************************************************************/
 
-static void upd_cfg(CMAP_KERNEL_CFG * cfg)
+static int kernel_main(int argc, char * argv[])
 {
-  if(cfg -> mem_ == NULL) cfg -> mem_ = cmap_mem_create(0);
+  kernel_exit(EXIT_SUCCESS);
+  return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_kernel_create(CMAP_KERNEL_CFG * cfg)
+static void cfg_init(CMAP_KERNEL_CFG * cfg)
+{
+  cfg -> mem_ = NULL;
+  cfg -> failure_on_allocmem_ = CMAP_T;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+inline CMAP_MEM * get_mem(CMAP_KERNEL_CFG * cfg)
+{
+  CMAP_MEM * mem = cfg -> mem_;
+  if(mem == NULL) mem = cmap_mem_create(0);
+  return mem;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_kernel_init(CMAP_KERNEL_CFG * cfg)
 {
   kernel_ptr_ = &kernel_;
 
-  cmap_log_init();
+  cmap_log_init(&kernel_.log_);
   kernel_.log_.debug("Create kernel.");
 
-  CMAP_KERNEL_CFG cfg_dft = {0};
-  if(cfg == NULL) cfg = &cfg_dft;
-  upd_cfg(cfg);
+  if(cfg == NULL)
+  {
+    cfg = &cfg_;
+    cfg_init(cfg);
+  }
+  kernel_.cfg_ = cfg;
 
-  kernel_.mem_ = cfg -> mem_;
+  kernel_.mem_ = get_mem(cfg);
   kernel_.main = kernel_main;
   kernel_.exit = kernel_exit;
   kernel_.fatal = kernel_fatal;
 
-  create_all();
+  create_or_init_others();
 }
 
 /*******************************************************************************

@@ -37,6 +37,7 @@ AC_CONFIG_FILES([ \
   src/fw/Makefile \
   src/kernel/Makefile \
   src/kernel/core/Makefile \
+  src/kernel/prototype/Makefile \
   src/kernel/console/Makefile \
   test/Makefile \
   test/util/Makefile \

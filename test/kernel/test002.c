@@ -100,7 +100,7 @@ static void test_list(int size)
 
 int main(int argc, char * argv[])
 {
-  cmap_kernel_create(NULL);
+  cmap_kernel_init(NULL);
 
   test_list(3);
   test_list(4);

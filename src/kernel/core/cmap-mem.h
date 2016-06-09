@@ -17,4 +17,6 @@ CMAP_MEM * cmap_mem_create(int chunk_size);
 
 CMAP_MEM_STATE * cmap_mem_state();
 
+char cmap_mem_is_this(CMAP_MEM * mem);
+
 #endif

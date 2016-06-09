@@ -7,6 +7,7 @@
 #include "cmap-fn.h"
 #include "cmap-string.h"
 #include "cmap-int.h"
+#include "cmap-common.h"
 
 #define CMAP_MAP(aisle) cmap_map_create(aisle)
 #define CMAP_LIST(size_inc, aisle) cmap_list_create(size_inc, aisle)
