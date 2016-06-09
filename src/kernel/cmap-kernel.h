@@ -3,7 +3,7 @@
 
 #include "cmap-mem.h"
 #include "cmap-map.h"
-#include "cmap-kernel-prototype.h"
+#include "cmap-prototype.h"
 #include "cmap-warehouse.h"
 #include "cmap-log.h"
 
@@ -22,7 +22,7 @@ typedef struct
 
   CMAP_MEM * mem_;
 
-  CMAP_KERNEL_PROTOTYPE prototype_;
+  CMAP_PROTOTYPE prototype_;
 
   CMAP_MAP * global_env_;
 
