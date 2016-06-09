@@ -4,6 +4,7 @@ include $(top_srcdir)/src/common.mk
 include_HEADERS = \
   cmap-tree.h \
   cmap-tree-define.h \
+  cmap-tree-internal.h \
   cmap-util-string.h
 
 noinst_LTLIBRARIES = libutil.la
