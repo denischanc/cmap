@@ -180,6 +180,37 @@ void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct
+{
+  CMAP_MAP_ENTRY_FN fn_;
+  void * fn_data_;
+} APPLY_DATA;
+
+static void apply_fn(CMAP_TREE_APPLY * this, void ** node, void * data)
+{
+  CMAP_MAP_ENTRY * entry = (CMAP_MAP_ENTRY *)*node;
+  APPLY_DATA * apply_data = (APPLY_DATA *)data;
+
+  apply_data -> fn_(entry -> key_, entry -> val_, apply_data -> fn_data_);
+}
+
+void cmap_map__apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+
+  APPLY_DATA apply_data;
+  apply_data.fn_ = fn;
+  apply_data.fn_data_ = data;
+
+  CMAP_TREE_APPLY apply;
+  CMAP_TREE_APPLY_INIT(apply, NULL, NULL, apply_fn, NULL)
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree_, apply, CMAP_T,
+    &apply_data);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_MAP * cmap_map_create(const char * aisle)
 {
   CMAP_MAP * prototype_map = cmap_kernel() -> prototype_.map_;
@@ -210,6 +241,7 @@ void cmap_map_init(CMAP_MAP * map)
   map -> new = cmap_map__new;
   map -> is_key = cmap_map__is_key;
   map -> keys = cmap_map__keys;
+  map -> apply = cmap_map__apply;
 }
 
 CMAP_MAP * cmap_map_delete(CMAP_MAP * map)

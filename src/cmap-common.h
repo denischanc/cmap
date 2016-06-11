@@ -3,6 +3,7 @@
 
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
+#include "cmap-map.h"
 
 #define CMAP_T (1 == 1)
 #define CMAP_F (1 == 0)
@@ -28,5 +29,16 @@
 #define CMAP_NEW_MAP(prototype, aisle) \
   (CMAP_MAP *)CMAP_CALL_ARGS( \
     (CMAP_MAP *)prototype, new, sizeof(CMAP_MAP), aisle)
+
+#define CMAP_PUSH(list, val) \
+  CMAP_CALL_ARGS(list, push, (CMAP_MAP *)val)
+#define CMAP_SHIFT(list, val) \
+  CMAP_CALL_ARGS(list, shift, (CMAP_MAP *)val)
+
+#define CMAP_NATURE(map) \
+  CMAP_CALL(map, nature)
+
+#define CMAP_DELETE(map) \
+  CMAP_CALL((CMAP_MAP *)map, delete)
 
 #endif

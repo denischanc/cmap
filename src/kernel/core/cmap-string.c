@@ -112,6 +112,16 @@ void cmap_string__append_sub(CMAP_STRING * this, const char * val,
 /*******************************************************************************
 *******************************************************************************/
 
+void cmap_string__clear(CMAP_STRING * this)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+  internal -> val_[0] = 0;
+  internal -> size_ = 1;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_STRING * cmap_string_create(const char * val, int size_inc,
   const char * aisle)
 {
@@ -141,6 +151,7 @@ void cmap_string_init(CMAP_STRING * string, const char * val, int size_inc)
   string -> val = cmap_string__val;
   string -> append = cmap_string__append;
   string -> append_sub = cmap_string__append_sub;
+  string -> clear = cmap_string__clear;
 }
 
 CMAP_MAP * cmap_string_delete(CMAP_STRING * string)

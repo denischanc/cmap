@@ -25,6 +25,8 @@ struct CMAP_LIST_s
 
   void (*shift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*unshift)(CMAP_LIST * this);
+
+  void (*clear)(CMAP_LIST * this);
 };
 
 int cmap_list__size(CMAP_LIST * this);
@@ -40,6 +42,8 @@ CMAP_MAP * cmap_list__pop(CMAP_LIST * this);
 
 void cmap_list__shift(CMAP_LIST * this, CMAP_MAP * val);
 CMAP_MAP * cmap_list__unshift(CMAP_LIST * this);
+
+void cmap_list__clear(CMAP_LIST * this);
 
 CMAP_LIST * cmap_list_create(int size_inc, const char * aisle);
 void cmap_list_init(CMAP_LIST * list, int size_inc);

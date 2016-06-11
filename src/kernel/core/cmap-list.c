@@ -373,6 +373,17 @@ CMAP_MAP * cmap_list__unshift(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
+void cmap_list__clear(CMAP_LIST * this)
+{
+  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
+  internal -> size_ = 0;
+  internal -> i_start_ = 0;
+  internal -> i_stop_ = 0;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_LIST * cmap_list_create(int size_inc, const char * aisle)
 {
   CMAP_MAP * prototype_list = cmap_kernel() -> prototype_.list_;
@@ -408,6 +419,7 @@ void cmap_list_init(CMAP_LIST * list, int size_inc)
   list -> pop = cmap_list__pop;
   list -> shift = cmap_list__shift;
   list -> unshift = cmap_list__unshift;
+  list -> clear = cmap_list__clear;
 }
 
 CMAP_MAP * cmap_list_delete(CMAP_LIST * list)
