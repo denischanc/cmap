@@ -1,7 +1,6 @@
 
 #include "cmap-util-string.h"
 
-#include "cmap-common.h"
 #include "cmap-fw.h"
 
 /*******************************************************************************

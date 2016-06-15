@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 #include "cmap-tree.h"
 #include "cmap-fw.h"
 
@@ -191,7 +190,7 @@ static void apply_fn(CMAP_TREE_APPLY * this, void ** node, void * data)
   CMAP_MAP_ENTRY * entry = (CMAP_MAP_ENTRY *)*node;
   APPLY_DATA * apply_data = (APPLY_DATA *)data;
 
-  apply_data -> fn_(entry -> key_, entry -> val_, apply_data -> fn_data_);
+  apply_data -> fn_(entry -> key_, &entry -> val_, apply_data -> fn_data_);
 }
 
 void cmap_map__apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)

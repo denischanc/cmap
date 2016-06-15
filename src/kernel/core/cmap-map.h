@@ -5,7 +5,7 @@
 
 extern const char * CMAP_MAP_NATURE;
 
-typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP * val,
+typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP ** val,
   void * data);
 
 struct CMAP_MAP_s

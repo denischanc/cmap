@@ -1,7 +1,6 @@
 
 #include "cmap-warehouse.h"
 
-#include "cmap-common.h"
 #include "cmap-fw.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
@@ -11,31 +10,33 @@
 
 static void warehouse__delete_aisle(CMAP_WAREHOUSE * this, const char * aisle)
 {
-  CMAP_MAP * map = CMAP_CALL_ARGS((CMAP_MAP *)this, get, aisle);
+  CMAP_MAP * map = CMAP_GET(this, aisle);
   while(map != NULL)
   {
-    map = CMAP_CALL(map, delete);
+    map = CMAP_DELETE(map);
   }
 
-  CMAP_CALL_ARGS((CMAP_MAP *)this, set, aisle, NULL);
+  CMAP_SET(this, aisle, NULL);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * warehouse__delete(CMAP_MAP * this)
+static void delete_aisle_apply_fn(const char * key, CMAP_MAP ** val,
+  void * data)
 {
-  CMAP_LIST * keys = CMAP_LIST(0, NULL);
-  CMAP_CALL_ARGS(this, keys, keys, NULL);
-
-  CMAP_STRING * key;
-  while((key = (CMAP_STRING *)CMAP_CALL(keys, unshift)) != NULL)
+  CMAP_MAP * map = *val;
+  while(map != NULL)
   {
-    warehouse__delete_aisle((CMAP_WAREHOUSE *)this, CMAP_CALL(key, val));
-    CMAP_CALL((CMAP_MAP *)key, delete);
+    map = CMAP_DELETE(map);
   }
 
-  CMAP_CALL((CMAP_MAP *)keys, delete);
+  *val = NULL;
+}
+
+static CMAP_MAP * warehouse__delete(CMAP_MAP * this)
+{
+  CMAP_CALL_ARGS(this, apply, delete_aisle_apply_fn, NULL);
 
   return cmap_map_delete(this);
 }

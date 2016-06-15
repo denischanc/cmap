@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 
+#include "cmap-common.h"
 #include "cmap-fw-define.h"
 
 void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val);

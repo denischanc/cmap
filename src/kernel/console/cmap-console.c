@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 #include "cmap-fw.h"
 
 /*******************************************************************************

@@ -2,7 +2,6 @@
 #include "cmap-prototype-map.h"
 
 #include "cmap-fw.h"
-#include "cmap-common.h"
 #include "cmap-aisle.h"
 
 /*******************************************************************************
@@ -22,7 +21,7 @@ typedef struct
   CMAP_LIST * args_;
 } MAP_ENTRY_DATA;
 
-static void map_entry_apply_fn(const char * key, CMAP_MAP * val, void * data)
+static void map_entry_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
   MAP_ENTRY_DATA * _data = (MAP_ENTRY_DATA *)data;
 
@@ -33,7 +32,7 @@ static void map_entry_apply_fn(const char * key, CMAP_MAP * val, void * data)
   CMAP_LIST * args = _data -> args_;
   CMAP_CALL(args, clear);
   CMAP_PUSH(args, _key);
-  CMAP_PUSH(args, val);
+  CMAP_PUSH(args, *val);
 
   CMAP_FN * fn = _data -> fn_;
   CMAP_CALL_ARGS(fn, process, _data -> map_, args);

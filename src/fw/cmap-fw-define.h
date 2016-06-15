@@ -7,7 +7,6 @@
 #include "cmap-fn.h"
 #include "cmap-string.h"
 #include "cmap-int.h"
-#include "cmap-common.h"
 
 #define CMAP_MAP(aisle) cmap_map_create(aisle)
 #define CMAP_LIST(size_inc, aisle) cmap_list_create(size_inc, aisle)
@@ -15,11 +14,6 @@
 #define CMAP_STRING(val, size_inc, aisle) \
   cmap_string_create(val, size_inc, aisle)
 #define CMAP_INT(aisle) cmap_int_create(aisle)
-
-#define CMAP_SET(map, key, val) \
-  CMAP_CALL_ARGS(map, set, key, (CMAP_MAP *)(val))
-#define CMAP_GET(map, key) \
-  CMAP_CALL_ARGS(map, get, key)
 
 #define CMAP_SET_GLOBAL(keys, val) CMAP_SET_SPLIT(NULL, keys, val)
 #define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)
