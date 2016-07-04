@@ -21,7 +21,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM mem_ = {0};
+static CMAP_MEM mem_ = {};
 static CMAP_MEM * mem_ptr_ = NULL;
 
 /*******************************************************************************
@@ -87,7 +87,7 @@ static int is_block(BLOCK * block)
   return ((block -> valid1_ == VAL_1) && (block -> valid2_ == VAL_2));
 }
 
-static inline block_size(BLOCK * block)
+static inline int block_size(BLOCK * block)
 {
   if(block -> next_ == NULL) return 0;
   else

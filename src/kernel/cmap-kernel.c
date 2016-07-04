@@ -8,10 +8,10 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KERNEL kernel_ = {0};
+static CMAP_KERNEL kernel_ = {};
 static CMAP_KERNEL * kernel_ptr_ = NULL;
 
-static CMAP_KERNEL_CFG cfg_ = {0};
+static CMAP_KERNEL_CFG cfg_ = {};
 
 static char exiting_ = CMAP_F;
 

@@ -39,7 +39,7 @@ static void test_list(int size)
 
   CMAP_LIST * list = CMAP_LIST(size, NULL);
 
-  static CMAP_MAP elmts[NB_MAX] = {0};
+  static CMAP_MAP elmts[NB_MAX] = {};
   int i = 0;
 
   /********** push/unshift */

@@ -66,7 +66,7 @@ static char apply_ana_args(CMAP_LIST * args, MAP_ENTRY_DATA * data)
 static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  MAP_ENTRY_DATA data = {0};
+  MAP_ENTRY_DATA data = {};
   if(apply_ana_args(args, &data))
   {
     CMAP_STRING * key = CMAP_STRING("", 0, NULL);
@@ -79,6 +79,7 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
     CMAP_DELETE(key);
     CMAP_DELETE(args);
   }
+  return NULL;
 }
 
 /*******************************************************************************
