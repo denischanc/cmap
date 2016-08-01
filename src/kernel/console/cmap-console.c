@@ -3,15 +3,15 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "cmap-kernel.h"
 #include "cmap-fw.h"
+#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+static void display(FILE * f, CMAP_LIST * args)
 {
-  CMAP_STRING * line = CMAP_STRING("", 0, "TODO");
+  CMAP_STRING * line = CMAP_STRING("", 0, CMAP_AISLE_LOCAL);
 
   if(args != NULL)
   {
@@ -26,8 +26,15 @@ static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
     }
   }
 
-  fprintf(stdout, "%s\n", CMAP_CALL(line, val));
+  fprintf(f, "%s\n", CMAP_CALL(line, val));
+}
 
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+{
+  display(stdout, args);
   return NULL;
 }
 
@@ -36,25 +43,19 @@ static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 
 static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
-  fprintf(stderr, "console error !!!\n");
+  display(stderr, args);
   return NULL;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_console_create()
+CMAP_MAP * cmap_console_create()
 {
-  CMAP_MAP * console = CMAP_MAP("TODO");
-  CMAP_SET(console, "info", CMAP_FN(info, "TODO"));
-  CMAP_SET(console, "error", CMAP_FN(error, "TODO"));
+  CMAP_MAP * console = CMAP_MAP(CMAP_AISLE_KERNEL);
 
-  CMAP_SET_GLOBAL("cmap.console", console);
-}
+  CMAP_SET(console, "info", CMAP_FN(info, CMAP_AISLE_KERNEL));
+  CMAP_SET(console, "error", CMAP_FN(error, CMAP_AISLE_KERNEL));
 
-/*******************************************************************************
-*******************************************************************************/
-
-void cmap_console_delete()
-{
+  return console;
 }
