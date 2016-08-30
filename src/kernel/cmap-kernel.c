@@ -15,6 +15,8 @@ static CMAP_KERNEL_CFG cfg_ = {};
 
 static char exiting_ = CMAP_F;
 
+static int state_ = CMAP_KERNEL_S_UNKNOWN;
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -57,6 +59,8 @@ static void check_all(int * ret)
 
 static void kernel_exit(int ret)
 {
+  state_ = CMAP_KERNEL_S_EXITING;
+
   if(!exiting_)
   {
     exiting_ = CMAP_T;
@@ -87,6 +91,14 @@ static int kernel_main(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
+static int kernel_state()
+{
+  return state_;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void cfg_init(CMAP_KERNEL_CFG * cfg)
 {
   cfg -> mem_ = NULL;
@@ -109,9 +121,10 @@ inline CMAP_MEM * get_mem(CMAP_KERNEL_CFG * cfg)
 void cmap_kernel_init(CMAP_KERNEL_CFG * cfg)
 {
   kernel_ptr_ = &kernel_;
+  state_ = CMAP_KERNEL_S_INIT;
 
   cmap_log_init(&kernel_.log_);
-  kernel_.log_.debug("Create kernel.");
+  kernel_.log_.debug("Init kernel.");
 
   if(cfg == NULL)
   {
@@ -121,11 +134,15 @@ void cmap_kernel_init(CMAP_KERNEL_CFG * cfg)
   kernel_.cfg_ = cfg;
 
   kernel_.mem_ = get_mem(cfg);
+
   kernel_.main = kernel_main;
   kernel_.exit = kernel_exit;
   kernel_.fatal = kernel_fatal;
+  kernel_.state = kernel_state;
 
   create_or_init_others();
+
+  state_ = CMAP_KERNEL_S_ALIVE;
 }
 
 /*******************************************************************************

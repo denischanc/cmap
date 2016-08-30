@@ -7,6 +7,11 @@
 #include "cmap-warehouse.h"
 #include "cmap-log.h"
 
+#define CMAP_KERNEL_S_UNKNOWN 0
+#define CMAP_KERNEL_S_INIT 1
+#define CMAP_KERNEL_S_ALIVE 2
+#define CMAP_KERNEL_S_EXITING 3
+
 typedef struct
 {
   CMAP_MEM * mem_;
@@ -32,6 +37,8 @@ typedef struct
 
   void (*exit)(int ret);
   void (*fatal)();
+
+  int (*state)();
 } CMAP_KERNEL;
 
 void cmap_kernel_init(CMAP_KERNEL_CFG * cfg);
