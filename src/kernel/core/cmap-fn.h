@@ -4,7 +4,7 @@
 #include "cmap-core.h"
 #include "cmap-map.h"
 
-extern const char * CMAP_FN_NATURE;
+extern const char * CMAP_FN_NATURE, * CMAP_FN_PROTOTYPE_NAME;
 
 struct CMAP_FN_s
 {

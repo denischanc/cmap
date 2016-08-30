@@ -8,7 +8,8 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_FN_NATURE = "cmap.nature.fn";
+const char * CMAP_FN_NATURE = "cmap.nature.fn",
+  * CMAP_FN_PROTOTYPE_NAME = "prototype";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -48,8 +49,14 @@ CMAP_MAP * cmap_fn__process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
 
 CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 {
-  CMAP_MAP * map = CMAP_NEW_MAP(this, aisle);
+  CMAP_MAP * map = NULL;
+
+  CMAP_MAP * prototype = CMAP_GET(this, CMAP_FN_PROTOTYPE_NAME);
+  if(prototype != NULL) map = CMAP_NEW_MAP(prototype, aisle);
+  else map = cmap_map_create(aisle);
+
   CMAP_CALL_ARGS(this, process, map, args);
+
   return map;
 }
 
