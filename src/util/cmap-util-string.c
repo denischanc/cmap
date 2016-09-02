@@ -15,12 +15,12 @@ void cmap_split(CMAP_LIST * list, const char * line, char sep)
     {
       CMAP_STRING * sub = CMAP_STRING("", 0, "TODO");
       CMAP_CALL_ARGS(sub, append_sub, line, off, i);
-      CMAP_CALL_ARGS(list, push, (CMAP_MAP *)sub);
+      CMAP_PUSH(list, sub);
+
+      if(line[i] == 0) return;
 
       off = i + 1;
     }
-
-    if(line[i] == 0) return;
 
     i++;
   }

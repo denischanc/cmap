@@ -20,7 +20,7 @@ static int state_ = CMAP_KERNEL_S_UNKNOWN;
 /*******************************************************************************
 *******************************************************************************/
 
-static void create_or_init_others()
+static void init_fw_env()
 {
   kernel_.warehouse_ = cmap_warehouse_create();
 
@@ -140,7 +140,7 @@ void cmap_kernel_init(CMAP_KERNEL_CFG * cfg)
   kernel_.fatal = kernel_fatal;
   kernel_.state = kernel_state;
 
-  create_or_init_others();
+  init_fw_env();
 
   state_ = CMAP_KERNEL_S_ALIVE;
 }

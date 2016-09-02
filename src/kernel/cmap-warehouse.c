@@ -1,7 +1,8 @@
 
 #include "cmap-warehouse.h"
 
-#include "cmap-fw.h"
+#include <stdlib.h>
+#include "cmap-common.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
 

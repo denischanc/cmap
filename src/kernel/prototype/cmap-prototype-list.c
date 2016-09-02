@@ -18,17 +18,17 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
     CMAP_PROTOTYPE_MAP_FN map_fn = {};
     if(cmap_prototype_args_map_fn(&map_fn, args))
     {
-      CMAP_LIST * args = CMAP_LIST(0, NULL);
+      CMAP_LIST * args_list_i = CMAP_LIST(0, NULL);
 
       int size = CMAP_CALL(list, size), i;
       for(i = 0; i < size; i++)
       {
-        CMAP_CALL(args, clear);
-        CMAP_PUSH(args, CMAP_CALL_ARGS(list, get, i));
-        CMAP_CALL_ARGS(map_fn.fn_, process, map_fn.map_, args);
+        CMAP_CALL(args_list_i, clear);
+        CMAP_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
+        CMAP_CALL_ARGS(map_fn.fn_, process, map_fn.map_, args_list_i);
       }
 
-      CMAP_DELETE(args);
+      CMAP_DELETE(args_list_i);
     }
   }
   return NULL;

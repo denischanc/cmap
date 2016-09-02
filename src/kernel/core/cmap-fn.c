@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap-kernel.h"
-#include "cmap-common.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -53,7 +53,7 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 
   CMAP_MAP * prototype = CMAP_GET(this, CMAP_FN_PROTOTYPE_NAME);
   if(prototype != NULL) map = CMAP_NEW_MAP(prototype, aisle);
-  else map = cmap_map_create(aisle);
+  else map = CMAP_MAP(aisle);
 
   CMAP_CALL_ARGS(this, process, map, args);
 

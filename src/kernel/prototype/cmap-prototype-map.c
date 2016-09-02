@@ -39,14 +39,14 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
   if(cmap_prototype_args_map_fn(&data.map_fn_, args))
   {
     CMAP_STRING * key = CMAP_STRING("", 0, NULL);
-    CMAP_LIST * args = CMAP_LIST(0, NULL);
+    CMAP_LIST * args_map_kv = CMAP_LIST(0, NULL);
 
     data.key_ = key;
-    data.args_ = args;
+    data.args_ = args_map_kv;
     CMAP_CALL_ARGS(map, apply, map_entry_apply_fn, &data);
 
     CMAP_DELETE(key);
-    CMAP_DELETE(args);
+    CMAP_DELETE(args_map_kv);
   }
   return NULL;
 }
