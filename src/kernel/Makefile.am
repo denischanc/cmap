@@ -20,6 +20,8 @@ libkernel_la_SOURCES = \
   cmap-global-env.c \
   cmap-warehouse.c \
   cmap-pool.c \
+  cmap-pool-handlers.c \
+  cmap-pool-handlers.h \
   cmap-aisle.c \
   cmap-log.c
 libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)

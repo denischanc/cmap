@@ -2,6 +2,7 @@
 #include "cmap-pool.h"
 
 #include "cmap-pool-handlers.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -30,15 +31,15 @@ static void pool_##lower_name##__delete(CMAP_POOL_##name * this) \
 static _struct * pool_##lower_name##__take(CMAP_POOL_##name * this) \
 { \
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_; \
-  CMAP_LIST * list_i = internal -> list_; \
+  CMAP_LIST * _list = internal -> list_; \
  \
-  if(CMAP_CALL(list_i, size) <= 0) \
+  if(CMAP_CALL(_list, size) <= 0) \
   { \
     return handler -> create(); \
   } \
   else \
   { \
-    return (_struct *)CMAP_CALL(list, pop); \
+    return (_struct *)CMAP_CALL(_list, pop); \
   } \
 } \
  \
@@ -46,12 +47,12 @@ static void pool_##lower_name##__release(CMAP_POOL_##name * this, \
   _struct * name_s) \
 { \
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_; \
-  CMAP_LIST * list_i = internal -> list_; \
+  CMAP_LIST * _list = internal -> list_; \
  \
-  if(CMAP_CALL(list_i, size) < internal -> size_) \
+  if(CMAP_CALL(_list, size) < internal -> size_) \
   { \
     handler -> clean(name_s); \
-    CMAP_PUSH(list, map); \
+    CMAP_PUSH(_list, name_s); \
   } \
   else \
   { \
@@ -66,13 +67,12 @@ CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size) \
  \
   CMAP_ALLOC_PTR(internal, CMAP_INTERNAL, mem); \
   internal -> size_ = size; \
-  internal -> list_ = CMAP_LIST(size, CMAP_AISLE_KERNEL); \
+  internal -> list_ = CMAP_LIST(size, NULL); \
  \
   pool -> internal_ = internal; \
-  pool -> delete = pool__delete; \
-  pool -> take = pool__take; \
-  pool -> release = pool__release; \
-  pool -> handler = pool__handler; \
+  pool -> delete = pool_##lower_name##__delete; \
+  pool -> take = pool_##lower_name##__take; \
+  pool -> release = pool_##lower_name##__release; \
  \
   return pool; \
 }
@@ -80,4 +80,4 @@ CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size) \
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_POOL_IMPL(LIST, list, CMAP_LIST, list)
+CMAP_POOL_IMPL(LIST, list, CMAP_LIST, list, cmap_pool_list_handler)

@@ -1,6 +1,8 @@
 #ifndef __CMAP_POOL_HANDLERS_H__
 #define __CMAP_POOL_HANDLERS_H__
 
+#include "cmap-list.h"
+
 typedef struct
 {
   CMAP_LIST * (*create)();
