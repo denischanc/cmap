@@ -65,7 +65,7 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 
 CMAP_FN * cmap_fn_create(CMAP_FN_TPL process, const char * aisle)
 {
-  CMAP_MAP * prototype_fn = cmap_kernel() -> prototype_.fn_;
+  CMAP_MAP * prototype_fn = cmap_kernel() -> fw_.prototype_.fn_;
   CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
     sizeof(CMAP_FN), aisle);
   cmap_fn_init(fn, process);

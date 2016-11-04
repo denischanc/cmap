@@ -49,7 +49,7 @@ CMAP_TREE_RUNNER(CMAP_MAP_ENTRY, entry, NULL, false, false)
 
 static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
-  CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel() -> warehouse_;
+  CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel() -> fw_.warehouse_;
 
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)map -> internal_;
   internal -> next_ = CMAP_CALL_ARGS(wh, get, aisle);
@@ -212,7 +212,7 @@ void cmap_map__apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 
 CMAP_MAP * cmap_map_create(const char * aisle)
 {
-  CMAP_MAP * prototype_map = cmap_kernel() -> prototype_.map_;
+  CMAP_MAP * prototype_map = cmap_kernel() -> fw_.prototype_.map_;
   if(prototype_map == NULL) return cmap_root_map_create(aisle);
   else return CMAP_NEW_MAP(prototype_map, aisle);
 }

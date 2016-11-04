@@ -69,8 +69,9 @@ static BLOCK_FREE * block_free_tree_ = NULL;
 
 static void error(const char * msg)
 {
-  fprintf(stderr, "[ERROR]  %s\n", msg);
-  cmap_kernel() -> fatal();
+  CMAP_KERNEL * kernel = cmap_kernel();
+  kernel -> log_.error("%s", msg);
+  kernel -> fatal();
 }
 
 /*******************************************************************************

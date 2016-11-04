@@ -11,7 +11,7 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
 
-  if(map == NULL) map = cmap_kernel() -> global_env_;
+  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
 
   CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, keys, '.');
@@ -39,7 +39,7 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_fw_get_split(CMAP_MAP * map, const char * keys)
 {
-  if(map == NULL) map = cmap_kernel() -> global_env_;
+  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
 
   CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, keys, '.');
@@ -98,7 +98,7 @@ CMAP_MAP * cmap_fw_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 {
   CMAP_STRING * fn_name;
 
-  if(map == NULL) map = cmap_kernel() -> global_env_;
+  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
 
   CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
   cmap_split(keys_split, fn_names, '.');

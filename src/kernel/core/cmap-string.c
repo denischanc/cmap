@@ -125,7 +125,7 @@ void cmap_string__clear(CMAP_STRING * this)
 CMAP_STRING * cmap_string_create(const char * val, int size_inc,
   const char * aisle)
 {
-  CMAP_MAP * prototype_string = cmap_kernel() -> prototype_.string_;
+  CMAP_MAP * prototype_string = cmap_kernel() -> fw_.prototype_.string_;
   CMAP_STRING * string = (CMAP_STRING *)CMAP_CALL_ARGS(prototype_string, new,
     sizeof(CMAP_STRING), aisle);
   cmap_string_init(string, val, size_inc);

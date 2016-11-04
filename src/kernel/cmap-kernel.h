@@ -6,6 +6,7 @@
 #include "cmap-prototype.h"
 #include "cmap-warehouse.h"
 #include "cmap-log.h"
+#include "cmap-pool.h"
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1
@@ -21,17 +22,24 @@ typedef struct
 
 typedef struct
 {
+  CMAP_PROTOTYPE prototype_;
+
+  CMAP_MAP * global_env_;
+
+  CMAP_WAREHOUSE * warehouse_;
+
+  CMAP_POOL_LIST * pool_list_;
+} CMAP_KERNEL_FW;
+
+typedef struct
+{
   CMAP_LOG log_;
 
   CMAP_KERNEL_CFG * cfg_;
 
   CMAP_MEM * mem_;
 
-  CMAP_PROTOTYPE prototype_;
-
-  CMAP_MAP * global_env_;
-
-  CMAP_WAREHOUSE * warehouse_;
+  CMAP_KERNEL_FW fw_;
 
   int (*main)(int argc, char * argv[]);
 

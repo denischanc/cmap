@@ -386,7 +386,7 @@ void cmap_list__clear(CMAP_LIST * this)
 
 CMAP_LIST * cmap_list_create(int size_inc, const char * aisle)
 {
-  CMAP_MAP * prototype_list = cmap_kernel() -> prototype_.list_;
+  CMAP_MAP * prototype_list = cmap_kernel() -> fw_.prototype_.list_;
   CMAP_LIST * list = (CMAP_LIST *)CMAP_CALL_ARGS(prototype_list, new,
     sizeof(CMAP_LIST), aisle);
   cmap_list_init(list, size_inc);

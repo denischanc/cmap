@@ -56,7 +56,7 @@ void cmap_int__set(CMAP_INT * this, int64_t val)
 
 CMAP_INT * cmap_int_create(const char * aisle)
 {
-  CMAP_MAP * prototype_int = cmap_kernel() -> prototype_.int_;
+  CMAP_MAP * prototype_int = cmap_kernel() -> fw_.prototype_.int_;
   CMAP_INT * _int = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
     sizeof(CMAP_INT), aisle);
   cmap_int_init(_int);

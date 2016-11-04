@@ -22,10 +22,12 @@ static int state_ = CMAP_KERNEL_S_UNKNOWN;
 
 static void init_fw_env()
 {
-  kernel_.warehouse_ = cmap_warehouse_create();
+  kernel_.fw_.warehouse_ = cmap_warehouse_create();
 
-  cmap_prototype_init(&kernel_.prototype_);
-  kernel_.global_env_ = cmap_global_env_create();
+  cmap_prototype_init(&kernel_.fw_.prototype_);
+  kernel_.fw_.pool_list_ = cmap_pool_list_create(20);
+
+  kernel_.fw_.global_env_ = cmap_global_env_create();
 }
 
 /*******************************************************************************
@@ -33,7 +35,8 @@ static void init_fw_env()
 
 static void delete_all()
 {
-  CMAP_CALL((CMAP_MAP *)kernel_.warehouse_, delete);
+  CMAP_CALL(kernel_.fw_.pool_list_, delete);
+  CMAP_CALL((CMAP_MAP *)kernel_.fw_.warehouse_, delete);
 }
 
 /*******************************************************************************
