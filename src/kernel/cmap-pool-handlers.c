@@ -13,7 +13,7 @@ static CMAP_LIST * list_handler__create()
 
 static void list_handler__delete(CMAP_LIST * list)
 {
-  CMAP_CALL(list, delete);
+  CMAP_DELETE(list);
 }
 
 static void list_handler__clean(CMAP_LIST * list)
@@ -21,7 +21,7 @@ static void list_handler__clean(CMAP_LIST * list)
   CMAP_CALL(list, clear);
 }
 
-CMAP_POOL_LIST_HANDLER cmap_pool_list_handler_ =
+static CMAP_POOL_LIST_HANDLER cmap_pool_list_handler_ =
 {
   .create = list_handler__create,
   .delete = list_handler__delete,

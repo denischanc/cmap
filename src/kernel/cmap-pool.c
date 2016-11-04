@@ -24,15 +24,15 @@ static void pool_##lower_name##__delete(CMAP_POOL_##name * this) \
   CMAP_MEM * mem = cmap_kernel() -> mem_; \
  \
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_; \
-  CMAP_LIST * list_i = internal -> list_; \
+  CMAP_LIST * _list = internal -> list_; \
    \
   _struct * name_s; \
-  while((name_s = (_struct *)CMAP_CALL(list_i, pop)) != NULL) \
+  while((name_s = (_struct *)CMAP_CALL(_list, pop)) != NULL) \
   { \
     handler -> delete(name_s); \
   } \
    \
-  CMAP_DELETE(list_i); \
+  CMAP_DELETE(_list); \
   CMAP_FREE(internal, mem); \
  \
   CMAP_FREE(this, mem); \
@@ -41,15 +41,15 @@ static void pool_##lower_name##__delete(CMAP_POOL_##name * this) \
 static _struct * pool_##lower_name##__take(CMAP_POOL_##name * this) \
 { \
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_; \
-  CMAP_LIST * list_i = internal -> list_; \
+  CMAP_LIST * _list = internal -> list_; \
  \
-  if(CMAP_CALL(list_i, size) <= 0) \
+  if(CMAP_CALL(_list, size) <= 0) \
   { \
     return handler -> create(); \
   } \
   else \
   { \
-    return (_struct *)CMAP_CALL(list_i, pop); \
+    return (_struct *)CMAP_CALL(_list, pop); \
   } \
 } \
  \
@@ -57,12 +57,12 @@ static void pool_##lower_name##__release(CMAP_POOL_##name * this, \
   _struct * name_s) \
 { \
   CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_; \
-  CMAP_LIST * list_i = internal -> list_; \
+  CMAP_LIST * _list = internal -> list_; \
  \
-  if(CMAP_CALL(list_i, size) < internal -> size_) \
+  if(CMAP_CALL(_list, size) < internal -> size_) \
   { \
     handler -> clean(name_s); \
-    CMAP_PUSH(list_i, name_s); \
+    CMAP_PUSH(_list, name_s); \
   } \
   else \
   { \
