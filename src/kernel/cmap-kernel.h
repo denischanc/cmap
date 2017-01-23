@@ -29,6 +29,7 @@ typedef struct
   CMAP_WAREHOUSE * warehouse_;
 
   CMAP_POOL_LIST * pool_list_;
+  CMAP_POOL_STRING * pool_string_;
 } CMAP_KERNEL_FW;
 
 typedef struct

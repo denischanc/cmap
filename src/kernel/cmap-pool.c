@@ -91,3 +91,4 @@ CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size) \
 *******************************************************************************/
 
 CMAP_POOL_IMPL(LIST, list, CMAP_LIST, list, cmap_pool_list_handler)
+CMAP_POOL_IMPL(STRING, string, CMAP_STRING, string, cmap_pool_string_handler)

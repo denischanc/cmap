@@ -10,10 +10,12 @@
 void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
+  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_POOL_LIST * pool = &(fw -> pool_list_);
 
-  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
+  if(map == NULL) map = fw -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
+  CMAP_LIST * keys_split = CMAP_CALL(pool, take); /* TODO : release */
   cmap_split(keys_split, keys, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);

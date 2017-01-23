@@ -28,4 +28,33 @@ static CMAP_POOL_LIST_HANDLER cmap_pool_list_handler_ =
   .clean = list_handler__clean
 };
 
-CMAP_POOL_LIST_HANDLER * cmap_pool_list_handler = &cmap_pool_list_handler_;
+CMAP_POOL_LIST_HANDLER * cmap_pool_list_handler =
+  &cmap_pool_list_handler_;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_STRING * string_handler__create()
+{
+  return CMAP_STRING("", 0, NULL);
+}
+
+static void string_handler__delete(CMAP_STRING * string)
+{
+  CMAP_DELETE(string);
+}
+
+static void string_handler__clean(CMAP_STRING * string)
+{
+  CMAP_CALL(string, clear);
+}
+
+static CMAP_POOL_STRING_HANDLER cmap_pool_string_handler_ =
+{
+  .create = string_handler__create,
+  .delete = string_handler__delete,
+  .clean = string_handler__clean
+};
+
+CMAP_POOL_STRING_HANDLER * cmap_pool_string_handler =
+  &cmap_pool_string_handler_;

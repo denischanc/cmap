@@ -2,6 +2,7 @@
 #define __CMAP_POOL_H__
 
 #include "cmap-list.h"
+#include "cmap-string.h"
 
 #define CMAP_POOL_DECL(name, lower_name, _struct, name_s) \
   typedef struct CMAP_POOL_##name##_s CMAP_POOL_##name; \
@@ -19,5 +20,6 @@
   CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size);
 
 CMAP_POOL_DECL(LIST, list, CMAP_LIST, list)
+CMAP_POOL_DECL(STRING, string, CMAP_STRING, string)
 
 #endif
