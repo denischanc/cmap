@@ -39,6 +39,7 @@ static CMAP_STRING * create_handler_from_aisle(void * data)
 static CMAP_STRING * create_handler_from_pool(void * data)
 {
   /* TO CONTINUE */
+  return NULL;
 }
 
 /*******************************************************************************

@@ -11,7 +11,7 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
   CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
-  CMAP_POOL_LIST * pool = &(fw -> pool_list_);
+  CMAP_POOL_LIST * pool = fw -> pool_list_;
 
   if(map == NULL) map = fw -> global_env_;
 
