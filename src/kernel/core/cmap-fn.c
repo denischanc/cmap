@@ -55,7 +55,7 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
   if(prototype != NULL) map = CMAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
-  CMAP_CALL_ARGS(this, process, map, args);
+  CMAP_DO_PROCESS(this, map, args);
 
   return map;
 }

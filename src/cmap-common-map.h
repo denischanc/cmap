@@ -4,7 +4,7 @@
 #include "cmap-map.h"
 
 #define CMAP_NATURE(map) \
-  CMAP_CALL(map, nature)
+  CMAP_CALL((CMAP_MAP *)map, nature)
 
 #define CMAP_DELETE(map) \
   CMAP_CALL((CMAP_MAP *)map, delete)

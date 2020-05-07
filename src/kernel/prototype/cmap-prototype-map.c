@@ -29,7 +29,7 @@ static void map_entry_apply_fn(const char * key, CMAP_MAP ** val, void * data)
   CMAP_PUSH(args, *val);
 
   CMAP_FN * fn = _data -> map_fn_.fn_;
-  CMAP_CALL_ARGS(fn, process, _data -> map_fn_.map_, args);
+  CMAP_DO_PROCESS(fn, _data -> map_fn_.map_, args);
 }
 
 static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,

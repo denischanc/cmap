@@ -349,7 +349,7 @@ CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i)
 
 void cmap_list__push(CMAP_LIST * this, CMAP_MAP * val)
 {
-  CMAP_CALL_ARGS(this, add, CMAP_CALL(this, size), val);
+  CMAP_ADD(this, CMAP_CALL(this, size), val);
 }
 
 CMAP_MAP * cmap_list__pop(CMAP_LIST * this)
@@ -362,7 +362,7 @@ CMAP_MAP * cmap_list__pop(CMAP_LIST * this)
 
 void cmap_list__shift(CMAP_LIST * this, CMAP_MAP * val)
 {
-  CMAP_CALL_ARGS(this, add, 0, val);
+  CMAP_ADD(this, 0, val);
 }
 
 CMAP_MAP * cmap_list__unshift(CMAP_LIST * this)

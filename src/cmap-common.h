@@ -4,6 +4,7 @@
 #include "cmap-common-mem.h"
 #include "cmap-common-map.h"
 #include "cmap-common-list.h"
+#include "cmap-common-fn.h"
 #include "cmap-common-kernel.h"
 
 #define CMAP_T (1 == 1)

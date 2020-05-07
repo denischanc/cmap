@@ -118,7 +118,7 @@ CMAP_MAP * cmap_map__get(CMAP_MAP * this, const char * key)
   else
   {
     CMAP_MAP * prototype = internal -> prototype_;
-    if(prototype != NULL) return CMAP_CALL_ARGS(prototype, get, key);
+    if(prototype != NULL) return CMAP_GET(prototype, key);
     else return NULL;
   }
 }
@@ -160,7 +160,7 @@ static void add_key(CMAP_TREE_APPLY * this, void ** node, void * data)
   KEYS_DATA * _data = (KEYS_DATA *)data;
   CMAP_STRING * key =
     CMAP_STRING(((CMAP_MAP_ENTRY *)*node) -> key_, 0, _data -> aisle_);
-  CMAP_CALL_ARGS(_data -> keys_, add, 0, (CMAP_MAP *)key);
+  CMAP_ADD(_data -> keys_, 0, (CMAP_MAP *)key);
 }
 
 void cmap_map__keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)

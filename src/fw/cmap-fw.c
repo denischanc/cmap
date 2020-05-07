@@ -3,6 +3,7 @@
 
 #include "cmap-kernel.h"
 #include "cmap-util-string.h"
+#include "cmap-util-pool.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -11,29 +12,28 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
   CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
-  CMAP_POOL_LIST * pool = fw -> pool_list_;
+  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
   if(map == NULL) map = fw -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_CALL(pool, take); /* TODO : release */
-  cmap_split(keys_split, keys, '.');
+  CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
-  for(; i < i_stop; i++)
+  for(; (i < i_stop) && (map != NULL); i++)
   {
-    if(map == NULL) return;
-    else
-    {
-      key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
-      map = CMAP_GET(map, CMAP_CALL(key, val));
-    }
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    map = CMAP_GET(map, CMAP_CALL(key, val));
+    CMAP_CALL_ARGS(pool_string, release, key);
   }
 
   if(map != NULL)
   {
     key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
     CMAP_SET(map, CMAP_CALL(key, val), val);
+    CMAP_CALL_ARGS(pool_string, release, key);
   }
+
+  cmap_release_list_n_strings(keys_split);
 }
 
 /*******************************************************************************
@@ -41,22 +41,24 @@ void cmap_fw_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_fw_get_split(CMAP_MAP * map, const char * keys)
 {
-  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
+  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
-  cmap_split(keys_split, keys, '.');
+  if(map == NULL) map = fw -> global_env_;
+
+  CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
 
   CMAP_STRING * key;
   int i = 0, i_stop = CMAP_CALL(keys_split, size);
-  for(; i < i_stop; i++)
+  for(; (i < i_stop) && (map != NULL); i++)
   {
-    if(map == NULL) return NULL;
-    else
-    {
-      key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
-      map = CMAP_GET(map, CMAP_CALL(key, val));
-    }
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    map = CMAP_GET(map, CMAP_CALL(key, val));
+    CMAP_CALL_ARGS(pool_string, release, key);
   }
+
+  cmap_release_list_n_strings(keys_split);
+
   return map;
 }
 
@@ -69,14 +71,14 @@ CMAP_MAP * cmap_fw_vproc(CMAP_MAP * map, const char * fn_name, va_list args)
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
-    CMAP_CALL_ARGS(args_list, push, arg);
+    CMAP_PUSH(args_list, arg);
   }
 
   CMAP_MAP * fn_tmp = CMAP_GET(map, fn_name);
   if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == CMAP_FN_NATURE))
   {
     CMAP_FN * fn = (CMAP_FN *)fn_tmp;
-    return CMAP_CALL_ARGS(fn, process, map, args_list);
+    return CMAP_DO_PROCESS(fn, map, args_list);
   }
   else return NULL;
 }
@@ -99,32 +101,34 @@ CMAP_MAP * cmap_fw_proc(CMAP_MAP * map, const char * fn_name, ...)
 CMAP_MAP * cmap_fw_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 {
   CMAP_STRING * fn_name;
+  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
-  if(map == NULL) map = cmap_kernel() -> fw_.global_env_;
+  if(map == NULL) map = fw -> global_env_;
 
-  CMAP_LIST * keys_split = CMAP_LIST(0, "TODO");
-  cmap_split(keys_split, fn_names, '.');
+  CMAP_LIST * keys_split = cmap_split_w_pool(fn_names, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
-  for(; i < i_stop; i++)
+  for(; (i < i_stop) && (map != NULL); i++)
   {
-    if(map == NULL) return NULL;
-    else
-    {
-      fn_name = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
-      map = CMAP_GET(map, CMAP_CALL(fn_name, val));
-    }
+    fn_name = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    map = CMAP_GET(map, CMAP_CALL(fn_name, val));
+    CMAP_CALL_ARGS(pool_string, release, fn_name);
   }
 
-  if(map == NULL) return NULL;
-  else
+  if(map != NULL)
   {
     fn_name = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
 
     va_list args;
     va_start(args, fn_names);
-    CMAP_MAP * result = cmap_fw_vproc(map, CMAP_CALL(fn_name, val), args);
+    map = cmap_fw_vproc(map, CMAP_CALL(fn_name, val), args);
     va_end(args);
-    return result;
+
+    CMAP_CALL_ARGS(pool_string, release, fn_name);
   }
+
+  cmap_release_list_n_strings(keys_split);
+
+  return map;
 }

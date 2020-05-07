@@ -3,6 +3,7 @@
 
 #include "cmap-list.h"
 
-void cmap_split(CMAP_LIST * list, const char * line, char sep);
+CMAP_LIST * cmap_split_w_aisle(const char * line, char sep, const char * aisle);
+CMAP_LIST * cmap_split_w_pool(const char * line, char sep);
 
 #endif
