@@ -6,6 +6,8 @@
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
 #include "cmap-fw.h"
+#include "cmap-aisle.h"
+#include "cmap-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -51,10 +53,18 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
   CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel() -> fw_.warehouse_;
 
-  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)map -> internal_;
-  internal -> next_ = CMAP_CALL_ARGS(wh, get, aisle);
+  if(!strcmp(aisle, CMAP_AISLE_LOCAL))
+  {
+    CMAP_LIST * stack_local = (CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK);
+    CMAP_PUSH(stack_local, map);
+  }
+  else
+  {
+    CMAP_INTERNAL * internal = (CMAP_INTERNAL *)map -> internal_;
+    internal -> next_ = CMAP_GET(wh, aisle);
 
-  CMAP_CALL_ARGS(wh, set, aisle, map);
+    CMAP_SET(wh, aisle, map);
+  }
 }
 
 /*******************************************************************************

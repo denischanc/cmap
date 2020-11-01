@@ -4,6 +4,8 @@
 #include "cmap-kernel.h"
 #include "cmap-util-string.h"
 #include "cmap-util-pool.h"
+#include "cmap-aisle.h"
+#include "cmap-util-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -67,20 +69,29 @@ CMAP_MAP * cmap_fw_get_split(CMAP_MAP * map, const char * keys)
 
 CMAP_MAP * cmap_fw_vproc(CMAP_MAP * map, const char * fn_name, va_list args)
 {
-  CMAP_LIST * args_list = CMAP_LIST(0, "TODO");
+  CMAP_LIST * stack_local = CMAP_LIST(0, CMAP_AISLE_STACK);
+
+  CMAP_LIST * args_list = CMAP_LIST(0, CMAP_AISLE_LOCAL);
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
     CMAP_PUSH(args_list, arg);
   }
 
+  CMAP_MAP * ret = NULL;
+
   CMAP_MAP * fn_tmp = CMAP_GET(map, fn_name);
   if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == CMAP_FN_NATURE))
   {
     CMAP_FN * fn = (CMAP_FN *)fn_tmp;
-    return CMAP_DO_PROCESS(fn, map, args_list);
+    ret = CMAP_DO_PROCESS(fn, map, args_list);
   }
-  else return NULL;
+
+  cmap_delete_list_vals(stack_local);
+  CMAP_WAREHOUSE * wh = cmap_kernel() -> fw_.warehouse_;
+  CMAP_CALL_ARGS(wh, delete_last, CMAP_AISLE_STACK);
+
+  return ret;
 }
 
 /*******************************************************************************

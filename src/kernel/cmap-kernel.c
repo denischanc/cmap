@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include "cmap-global-env.h"
 #include "cmap-common.h"
+#include "cmap-fw.h"
+#include "cmap-aisle.h"
+#include "cmap-util-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -28,6 +31,8 @@ static void init_fw_env()
   kernel_.fw_.pool_list_ = cmap_pool_list_create(20);
   kernel_.fw_.pool_string_ = cmap_pool_string_create(20);
 
+  CMAP_LIST(0, CMAP_AISLE_STACK);
+
   kernel_.fw_.global_env_ = cmap_global_env_create();
 }
 
@@ -36,9 +41,12 @@ static void init_fw_env()
 
 static void delete_all()
 {
+  CMAP_WAREHOUSE * wh = kernel_.fw_.warehouse_;
+
+  cmap_delete_list_vals((CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK));
   CMAP_CALL(kernel_.fw_.pool_list_, delete);
   CMAP_CALL(kernel_.fw_.pool_string_, delete);
-  CMAP_CALL((CMAP_MAP *)kernel_.fw_.warehouse_, delete);
+  CMAP_CALL((CMAP_MAP *)wh, delete);
 }
 
 /*******************************************************************************

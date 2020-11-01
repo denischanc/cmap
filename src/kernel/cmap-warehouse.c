@@ -23,6 +23,15 @@ static void warehouse__delete_aisle(CMAP_WAREHOUSE * this, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
+static void warehouse__delete_last(CMAP_WAREHOUSE * this, const char * aisle)
+{
+  CMAP_MAP * map = CMAP_GET(this, aisle);
+  if(map != NULL) CMAP_SET(this, aisle, CMAP_DELETE(map));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete_aisle_apply_fn(const char * key, CMAP_MAP ** val,
   void * data)
 {
@@ -54,6 +63,7 @@ CMAP_WAREHOUSE * cmap_warehouse_create()
   map -> delete = warehouse__delete;
 
   wh -> delete = warehouse__delete_aisle;
+  wh -> delete_last = warehouse__delete_last;
 
   return wh;
 }

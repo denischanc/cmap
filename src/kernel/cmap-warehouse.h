@@ -10,6 +10,7 @@ struct CMAP_WAREHOUSE_s
   CMAP_MAP super_;
 
   void (*delete)(CMAP_WAREHOUSE * this, const char * aisle);
+  void (*delete_last)(CMAP_WAREHOUSE * this, const char * aisle);
 };
 
 CMAP_WAREHOUSE * cmap_warehouse_create();
