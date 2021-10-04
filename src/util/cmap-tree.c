@@ -54,12 +54,13 @@ void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
     else if(v < 0) tree = CMAP_CALL_ARGS(runner, ge, parent);
     else
     {
-      void ** ge = CMAP_CALL_ARGS(runner, ge, node);
-      *ge = parent;
-      parent = *CMAP_CALL_ARGS(runner, parent, parent);
-      *CMAP_CALL_ARGS(runner, parent, *ge) = node;
-
-      *tree = NULL;
+      tree = CMAP_CALL_ARGS(runner, ge, parent);
+      if(*tree != NULL)
+      {
+        *CMAP_CALL_ARGS(runner, ge, node) = *tree;
+        *CMAP_CALL_ARGS(runner, parent, *tree) = node;
+        *tree = NULL;
+      }
     }
   }
 
