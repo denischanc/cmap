@@ -1,6 +1,8 @@
 #ifndef __CMAP_MEM_H__
 #define __CMAP_MEM_H__
 
+#include "cmap-mem-define.h"
+
 typedef struct
 {
   void * (*alloc)(int size);

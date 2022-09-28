@@ -3,8 +3,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "cmap-common-define.h"
 #include "cmap-fw.h"
 #include "cmap-aisle.h"
+#include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -19,7 +22,7 @@ static void display(FILE * f, CMAP_LIST * args)
     for(i = 0; i < CMAP_CALL(args, size); i++)
     {
       CMAP_MAP * tmp = CMAP_CALL_ARGS(args, get, i);
-      if(CMAP_CALL(tmp, nature) == CMAP_STRING_NATURE)
+      if(CMAP_NATURE(tmp) == cmap_string_public.nature)
       {
         CMAP_CALL_ARGS(line, append, CMAP_CALL((CMAP_STRING *)tmp, val));
       }

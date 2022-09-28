@@ -3,6 +3,7 @@
 
 #include "cmap-core.h"
 #include "cmap-map.h"
+#include "cmap-list-define.h"
 
 extern const char * CMAP_LIST_NATURE;
 

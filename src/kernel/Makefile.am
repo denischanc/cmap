@@ -3,15 +3,15 @@ include $(top_srcdir)/src/common.mk
 
 SUBDIRS = core prototype console
 
-include_HEADERS = \
-  cmap-kernel.h \
-  cmap-warehouse.h \
-  cmap-pool.h \
-  cmap-aisle.h \
-  cmap-log.h
-
 noinst_HEADERS = \
-  cmap-global-env.h
+  cmap-aisle.h \
+  cmap-global-env.h \
+  cmap-kernel-define.h \
+  cmap-kernel.h \
+  cmap-log.h \
+  cmap-pool.h \
+  cmap-pool-handlers.h \
+  cmap-warehouse.h
 
 noinst_LTLIBRARIES = libkernel.la
 

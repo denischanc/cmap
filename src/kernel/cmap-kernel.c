@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "cmap-global-env.h"
-#include "cmap-common.h"
 #include "cmap-fw.h"
 #include "cmap-aisle.h"
 #include "cmap-util-list.h"

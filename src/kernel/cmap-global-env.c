@@ -10,7 +10,7 @@
 
 CMAP_MAP * cmap_global_env_create()
 {
-  CMAP_MAP * global_env = cmap_root_map_create(CMAP_AISLE_KERNEL);
+  CMAP_MAP * global_env = cmap_map_public.create_root(CMAP_AISLE_KERNEL);
 
   CMAP_MAP * cmap = CMAP_MAP(CMAP_AISLE_KERNEL);
   CMAP_SET(cmap, "console", cmap_console_create());

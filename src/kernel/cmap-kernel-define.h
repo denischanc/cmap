@@ -1,7 +1,7 @@
-#ifndef __CMAP_COMMON_KERNEL_H__
-#define __CMAP_COMMON_KERNEL_H__
+#ifndef __CMAP_KERNEL_DEFINE_H__
+#define __CMAP_KERNEL_DEFINE_H__
 
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 
 #define CMAP_KERNEL_ALLOC(struct) \
   CMAP_ALLOC(struct, cmap_kernel() -> mem_)

@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -429,5 +428,5 @@ CMAP_MAP * cmap_list_delete(CMAP_LIST * list)
   CMAP_FREE(internal -> list_, mem);
   CMAP_FREE(internal, mem);
 
-  return cmap_map_delete((CMAP_MAP *)list);
+  return cmap_map_public.delete((CMAP_MAP *)list);
 }

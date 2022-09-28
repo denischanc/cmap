@@ -3,7 +3,6 @@
 *******************************************************************************/
 
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 #include "cmap-fw.h"
 #include "cmap-aisle.h"
 

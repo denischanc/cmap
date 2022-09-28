@@ -7,4 +7,7 @@ typedef struct CMAP_FN_s CMAP_FN;
 typedef struct CMAP_STRING_s CMAP_STRING;
 typedef struct CMAP_INT_s CMAP_INT;
 
+typedef CMAP_MAP * (*CMAP_FN_TPL)(CMAP_MAP * features, CMAP_MAP * map,
+  CMAP_LIST * args);
+
 #endif

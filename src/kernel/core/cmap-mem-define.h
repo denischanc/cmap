@@ -1,7 +1,5 @@
-#ifndef __CMAP_COMMON_MEM_H__
-#define __CMAP_COMMON_MEM_H__
-
-#include "cmap-mem.h"
+#ifndef __CMAP_MEM_DEFINE_H__
+#define __CMAP_MEM_DEFINE_H__
 
 #define CMAP_ALLOC(struct, mem) \
   (struct *)mem -> alloc(sizeof(struct))

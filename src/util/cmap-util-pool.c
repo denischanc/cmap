@@ -1,10 +1,11 @@
 
 #include "cmap-util-pool.h"
 
+#include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-pool.h"
-#include "cmap-common.h"
-#include <stdlib.h>
+#include "cmap-common-define.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -18,7 +19,7 @@ void cmap_release_list_n_strings(CMAP_LIST * list)
   CMAP_MAP * val;
   while((val = CMAP_POP(list)) != NULL)
   {
-    if(CMAP_NATURE(val) == CMAP_STRING_NATURE)
+    if(CMAP_NATURE(val) == cmap_string_public.nature)
     {
       CMAP_CALL_ARGS(pool_string, release, (CMAP_STRING *)val);
     }

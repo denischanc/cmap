@@ -55,7 +55,7 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
   if(prototype != NULL) map = CMAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
-  CMAP_DO_PROCESS(this, map, args);
+  CMAP_PROCESS(this, map, args);
 
   return map;
 }
@@ -82,7 +82,7 @@ void cmap_fn_init(CMAP_FN * fn, CMAP_FN_TPL process)
   internal -> process_ = process;
 
   fn -> internal_ = internal;
-  fn -> features_ = cmap_root_map_create(NULL);
+  fn -> features_ = cmap_map_public.create_root(NULL);
   fn -> process = cmap_fn__process;
   fn -> new = cmap_fn__new;
 }
@@ -93,5 +93,5 @@ CMAP_MAP * cmap_fn_delete(CMAP_FN * fn)
 
   CMAP_CALL(fn -> features_, delete);
 
-  return cmap_map_delete((CMAP_MAP *)fn);
+  return cmap_map_public.delete((CMAP_MAP *)fn);
 }

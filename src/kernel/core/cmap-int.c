@@ -2,7 +2,6 @@
 #include "cmap-int.h"
 
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -81,5 +80,5 @@ CMAP_MAP * cmap_int_delete(CMAP_INT * _int)
 {
   CMAP_KERNEL_FREE(_int -> internal_);
 
-  return cmap_map_delete((CMAP_MAP *)_int);
+  return cmap_map_public.delete((CMAP_MAP *)_int);
 }

@@ -2,6 +2,9 @@
 #include "cmap-util-string.h"
 
 #include "cmap-fw.h"
+#include "cmap-common-define.h"
+#include "cmap-pool.h"
+#include "cmap-kernel.h"
 
 /*******************************************************************************
 *******************************************************************************/

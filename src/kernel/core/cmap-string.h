@@ -4,13 +4,30 @@
 #include "cmap-core.h"
 #include "cmap-map.h"
 
-extern const char * CMAP_STRING_NATURE;
+typedef struct
+{
+  const char * nature;
+
+  CMAP_STRING * (*create)(const char * val, int size_inc, const char * aisle);
+  void (*init)(CMAP_STRING * string, const char * val, int size_inc);
+  CMAP_MAP * (*delete)(CMAP_STRING * string);
+
+  const char * (*val)(CMAP_STRING * this);
+
+  void (*append)(CMAP_STRING * this, const char * val);
+  void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
+    int off_stop);
+
+  void (*clear)(CMAP_STRING * this);
+} CMAP_STRING_PUBLIC;
+
+extern const CMAP_STRING_PUBLIC cmap_string_public;
 
 struct CMAP_STRING_s
 {
-  CMAP_MAP super_;
+  CMAP_MAP super;
 
-  void * internal_;
+  void * internal;
 
   const char * (*val)(CMAP_STRING * this);
 
@@ -20,18 +37,5 @@ struct CMAP_STRING_s
 
   void (*clear)(CMAP_STRING * this);
 };
-
-const char * cmap_string__val(CMAP_STRING * this);
-
-void cmap_string__append(CMAP_STRING * this, const char * val);
-void cmap_string__append_sub(CMAP_STRING * this, const char * val,
-  int off_start, int off_stop);
-
-void cmap_string__clear(CMAP_STRING * this);
-
-CMAP_STRING * cmap_string_create(const char * val, int size_inc,
-  const char * aisle);
-void cmap_string_init(CMAP_STRING * string, const char * val, int size_inc);
-CMAP_MAP * cmap_string_delete(CMAP_STRING * string);
 
 #endif

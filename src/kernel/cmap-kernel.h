@@ -7,6 +7,7 @@
 #include "cmap-warehouse.h"
 #include "cmap-log.h"
 #include "cmap-pool.h"
+#include "cmap-kernel-define.h"
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1

@@ -2,18 +2,26 @@
 #define __CMAP_FW_DEFINE_H__
 
 #include <stdlib.h>
-#include "cmap-map.h"
-#include "cmap-list.h"
-#include "cmap-fn.h"
-#include "cmap-string.h"
-#include "cmap-int.h"
 
-#define CMAP_MAP(aisle) cmap_map_create(aisle)
-#define CMAP_LIST(size_inc, aisle) cmap_list_create(size_inc, aisle)
-#define CMAP_FN(process, aisle) cmap_fn_create(process, aisle)
-#define CMAP_STRING(val, size_inc, aisle) \
-  cmap_string_create(val, size_inc, aisle)
-#define CMAP_INT(aisle) cmap_int_create(aisle)
+#define CMAP_T (1 == 1)
+#define CMAP_F (1 == 0)
+
+#define CMAP_MAP(aisle) cmap_map(aisle)
+#define CMAP_LIST(size_inc, aisle) cmap_list(size_inc, aisle)
+#define CMAP_FN(process, aisle) cmap_fn(process, aisle)
+#define CMAP_STRING(val, size_inc, aisle) cmap_string(val, size_inc, aisle)
+#define CMAP_INT(aisle) cmap_int(aisle)
+
+#define CMAP_NATURE(map) cmap_nature((CMAP_MAP *)(map))
+#define CMAP_DELETE(map) cmap_delete((CMAP_MAP *)(map))
+#define CMAP_SET(map, key, val) cmap_set( \
+  (CMAP_MAP *)(map), key, (CMAP_MAP *)(val))
+#define CMAP_GET(map, key) cmap_get((CMAP_MAP *)(map), key)
+
+#define CMAP_PROCESS(fn, map, args) cmap_process(fn, (CMAP_MAP *)(map), args)
+
+#define CMAP_LIST_SET(list, i, val) cmap_list_set(list, i, (CMAP_MAP *)(val))
+#define CMAP_LIST_GET(list, i) cmap_list_get(list, i)
 
 #define CMAP_SET_GLOBAL(keys, val) CMAP_SET_SPLIT(NULL, keys, val)
 #define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)

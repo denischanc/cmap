@@ -2,9 +2,10 @@
 #include "cmap-warehouse.h"
 
 #include <stdlib.h>
-#include "cmap-common.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-kernel.h"
+#include "cmap-fw.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -48,7 +49,7 @@ static CMAP_MAP * warehouse__delete(CMAP_MAP * this)
 {
   CMAP_CALL_ARGS(this, apply, delete_aisle_apply_fn, NULL);
 
-  return cmap_map_delete(this);
+  return cmap_map_public.delete(this);
 }
 
 /*******************************************************************************
@@ -59,7 +60,7 @@ CMAP_WAREHOUSE * cmap_warehouse_create()
   CMAP_KERNEL_ALLOC_PTR(wh, CMAP_WAREHOUSE);
   CMAP_MAP * map = (CMAP_MAP *)wh;
 
-  cmap_map_init(map);
+  cmap_map_public.init(map);
   map -> delete = warehouse__delete;
 
   wh -> delete = warehouse__delete_aisle;

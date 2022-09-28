@@ -1,11 +1,89 @@
 
 #include "cmap-fw.h"
 
+#include "cmap-common-define.h"
+#include "cmap-map.h"
+#include "cmap-list.h"
+#include "cmap-fn.h"
+#include "cmap-string.h"
+#include "cmap-int.h"
 #include "cmap-kernel.h"
 #include "cmap-util-string.h"
 #include "cmap-util-pool.h"
 #include "cmap-aisle.h"
 #include "cmap-util-list.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MAP * cmap_map(const char * aisle)
+{
+  return cmap_map_public.create(aisle);
+}
+
+CMAP_LIST * cmap_list(int size_inc, const char * aisle)
+{
+  return cmap_list_create(size_inc, aisle);
+}
+
+CMAP_FN * cmap_fn(CMAP_FN_TPL process, const char * aisle)
+{
+  return cmap_fn_create(process, aisle);
+}
+
+CMAP_STRING * cmap_string(const char * val, int size_inc, const char * aisle)
+{
+  return cmap_string_public.create(val, size_inc, aisle);
+}
+
+CMAP_INT * cmap_int(const char * aisle)
+{
+  return cmap_int_create(aisle);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const char * cmap_nature(CMAP_MAP * map)
+{
+  return CMAP_CALL(map, nature);
+}
+
+CMAP_MAP * cmap_delete(CMAP_MAP * map)
+{
+  return CMAP_CALL(map, delete);
+}
+
+void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)
+{
+  CMAP_CALL_ARGS(map, set, key, val);
+}
+
+CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key)
+{
+  return CMAP_CALL_ARGS(map, get, key);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MAP * cmap_process(CMAP_FN * fn, CMAP_MAP * map, CMAP_LIST * args)
+{
+  return CMAP_CALL_ARGS(fn, process, map, args);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val)
+{
+  CMAP_CALL_ARGS(list, set, i, val);
+}
+
+CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
+{
+  return CMAP_CALL_ARGS(list, get, i);
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -84,7 +162,7 @@ CMAP_MAP * cmap_fw_vproc(CMAP_MAP * map, const char * fn_name, va_list args)
   if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == CMAP_FN_NATURE))
   {
     CMAP_FN * fn = (CMAP_FN *)fn_tmp;
-    ret = CMAP_DO_PROCESS(fn, map, args_list);
+    ret = CMAP_PROCESS(fn, map, args_list);
   }
 
   cmap_delete_list_vals(stack_local);
