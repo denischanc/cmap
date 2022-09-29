@@ -23,7 +23,7 @@ CMAP_MAP * cmap_map(const char * aisle)
 
 CMAP_LIST * cmap_list(int size_inc, const char * aisle)
 {
-  return cmap_list_create(size_inc, aisle);
+  return cmap_list_public.create(size_inc, aisle);
 }
 
 CMAP_FN * cmap_fn(CMAP_FN_TPL process, const char * aisle)
@@ -38,7 +38,7 @@ CMAP_STRING * cmap_string(const char * val, int size_inc, const char * aisle)
 
 CMAP_INT * cmap_int(const char * aisle)
 {
-  return cmap_int_create(aisle);
+  return cmap_int_public.create(aisle);
 }
 
 /*******************************************************************************

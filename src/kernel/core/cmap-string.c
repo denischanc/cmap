@@ -30,7 +30,7 @@ static const char * nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * val_(CMAP_STRING * this)
+static const char * val(CMAP_STRING * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   return internal -> val;
@@ -123,7 +123,7 @@ static CMAP_MAP * delete_(CMAP_MAP * string)
   return delete((CMAP_STRING *)string);
 }
 
-static void init(CMAP_STRING * string, const char * val, int size_inc)
+static void init(CMAP_STRING * string, const char * val_, int size_inc)
 {
   CMAP_MAP * super = (CMAP_MAP *)string;
   super -> nature = nature;
@@ -133,13 +133,13 @@ static void init(CMAP_STRING * string, const char * val, int size_inc)
   CMAP_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size_inc = size_inc;
-  internal -> size = (strlen(val) + 1);
+  internal -> size = (strlen(val_) + 1);
   internal -> size_max = adjusted_size_max(internal, 0);
   internal -> val = (char *)mem -> alloc(internal -> size_max);
-  memcpy(internal -> val, val, internal -> size);
+  memcpy(internal -> val, val_, internal -> size);
 
   string -> internal = internal;
-  string -> val = val_;
+  string -> val = val;
   string -> append = append;
   string -> append_sub = append_sub;
   string -> clear = clear;
@@ -163,7 +163,7 @@ const CMAP_STRING_PUBLIC cmap_string_public =
   create,
   init,
   delete,
-  val_,
+  val,
   append,
   append_sub,
   clear

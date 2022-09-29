@@ -6,79 +6,83 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_INT_NATURE = "cmap.nature.int";
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct
 {
-  int64_t val_;
-} CMAP_INTERNAL;
+  int64_t val;
+} INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * int__nature(CMAP_MAP * this)
+static const char * nature(CMAP_MAP * this)
 {
-  return CMAP_INT_NATURE;
+  return cmap_int_public.nature;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * int__delete(CMAP_MAP * this)
+static int64_t get(CMAP_INT * this)
 {
-  return cmap_int_delete((CMAP_INT *)this);
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  return internal -> val;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-int64_t cmap_int__get(CMAP_INT * this)
+static void set(CMAP_INT * this, int64_t val)
 {
-  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
-  return internal -> val_;
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  internal -> val = val;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_int__set(CMAP_INT * this, int64_t val)
+static CMAP_MAP * delete(CMAP_INT * int_)
 {
-  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
-  internal -> val_ = val;
+  CMAP_KERNEL_FREE(int_ -> internal);
+
+  return cmap_map_public.delete((CMAP_MAP *)int_);
 }
 
-/*******************************************************************************
-*******************************************************************************/
+static CMAP_MAP * delete_(CMAP_MAP * int_)
+{
+  return delete((CMAP_INT *)int_);
+}
 
-CMAP_INT * cmap_int_create(const char * aisle)
+static void init(CMAP_INT * int_)
+{
+  CMAP_MAP * super = (CMAP_MAP *)int_;
+  super -> nature = nature;
+  super -> delete = delete_;
+
+  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  internal -> val = 0;
+
+  int_ -> internal = internal;
+  int_ -> get = get;
+  int_ -> set = set;
+}
+
+static CMAP_INT * create(const char * aisle)
 {
   CMAP_MAP * prototype_int = cmap_kernel() -> fw_.prototype_.int_;
-  CMAP_INT * _int = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
+  CMAP_INT * int_ = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
     sizeof(CMAP_INT), aisle);
-  cmap_int_init(_int);
-  return _int;
+  init(int_);
+  return int_;
 }
 
-void cmap_int_init(CMAP_INT * _int)
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_INT_PUBLIC cmap_int_public =
 {
-  CMAP_MAP * super = (CMAP_MAP *)_int;
-  super -> nature = int__nature;
-  super -> delete = int__delete;
-
-  CMAP_KERNEL_ALLOC_PTR(internal, CMAP_INTERNAL);
-  internal -> val_ = 0;
-
-  _int -> internal_ = internal;
-  _int -> get = cmap_int__get;
-  _int -> set = cmap_int__set;
-}
-
-CMAP_MAP * cmap_int_delete(CMAP_INT * _int)
-{
-  CMAP_KERNEL_FREE(_int -> internal_);
-
-  return cmap_map_public.delete((CMAP_MAP *)_int);
-}
+  "cmap.nature.int",
+  get, set,
+  create,
+  init,
+  delete
+};

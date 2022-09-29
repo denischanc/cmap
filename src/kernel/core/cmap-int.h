@@ -5,23 +5,28 @@
 #include "cmap-map.h"
 #include <sys/types.h>
 
-extern const char * CMAP_INT_NATURE;
-
 struct CMAP_INT_s
 {
-  CMAP_MAP super_;
+  CMAP_MAP super;
 
-  void * internal_;
+  void * internal;
 
   int64_t (*get)(CMAP_INT * this);
   void (*set)(CMAP_INT * this, int64_t val);
 };
 
-int64_t cmap_int__get(CMAP_INT * this);
-void cmap_int__set(CMAP_INT * this, int64_t val);
+typedef struct
+{
+  const char * nature;
 
-CMAP_INT * cmap_int_create(const char * aisle);
-void cmap_int_init(CMAP_INT * _int);
-CMAP_MAP * cmap_int_delete(CMAP_INT * _int);
+  int64_t (*get)(CMAP_INT * this);
+  void (*set)(CMAP_INT * this, int64_t val);
+
+  CMAP_INT * (*create)(const char * aisle);
+  void (*init)(CMAP_INT * int_);
+  CMAP_MAP * (*delete)(CMAP_INT * int_);
+} CMAP_INT_PUBLIC;
+
+extern const CMAP_INT_PUBLIC cmap_int_public;
 
 #endif

@@ -4,6 +4,21 @@
 #include "cmap-core.h"
 #include "cmap-map.h"
 
+struct CMAP_STRING_s
+{
+  CMAP_MAP super;
+
+  void * internal;
+
+  const char * (*val)(CMAP_STRING * this);
+
+  void (*append)(CMAP_STRING * this, const char * val);
+  void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
+    int off_stop);
+
+  void (*clear)(CMAP_STRING * this);
+};
+
 typedef struct
 {
   const char * nature;
@@ -22,20 +37,5 @@ typedef struct
 } CMAP_STRING_PUBLIC;
 
 extern const CMAP_STRING_PUBLIC cmap_string_public;
-
-struct CMAP_STRING_s
-{
-  CMAP_MAP super;
-
-  void * internal;
-
-  const char * (*val)(CMAP_STRING * this);
-
-  void (*append)(CMAP_STRING * this, const char * val);
-  void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
-    int off_stop);
-
-  void (*clear)(CMAP_STRING * this);
-};
 
 #endif

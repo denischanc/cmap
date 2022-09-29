@@ -5,13 +5,11 @@
 #include "cmap-map.h"
 #include "cmap-list-define.h"
 
-extern const char * CMAP_LIST_NATURE;
-
 struct CMAP_LIST_s
 {
-  CMAP_MAP super_;
+  CMAP_MAP super;
 
-  void * internal_;
+  void * internal;
 
   int (*size)(CMAP_LIST * this);
 
@@ -30,24 +28,31 @@ struct CMAP_LIST_s
   void (*clear)(CMAP_LIST * this);
 };
 
-int cmap_list__size(CMAP_LIST * this);
+typedef struct
+{
+  const char * nature;
 
-void cmap_list__set(CMAP_LIST * this, int i, CMAP_MAP * val);
-CMAP_MAP * cmap_list__get(CMAP_LIST * this, int i);
+  CMAP_LIST * (*create)(int size_inc, const char * aisle);
+  void (*init)(CMAP_LIST * list, int size_inc);
+  CMAP_MAP * (*delete)(CMAP_LIST * list);
 
-void cmap_list__add(CMAP_LIST * this, int i, CMAP_MAP * val);
-CMAP_MAP * cmap_list__rm(CMAP_LIST * this, int i);
+  int (*size)(CMAP_LIST * this);
 
-void cmap_list__push(CMAP_LIST * this, CMAP_MAP * val);
-CMAP_MAP * cmap_list__pop(CMAP_LIST * this);
+  void (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_MAP * (*get)(CMAP_LIST * this, int i);
 
-void cmap_list__shift(CMAP_LIST * this, CMAP_MAP * val);
-CMAP_MAP * cmap_list__unshift(CMAP_LIST * this);
+  void (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_MAP * (*rm)(CMAP_LIST * this, int i);
 
-void cmap_list__clear(CMAP_LIST * this);
+  void (*push)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_MAP * (*pop)(CMAP_LIST * this);
 
-CMAP_LIST * cmap_list_create(int size_inc, const char * aisle);
-void cmap_list_init(CMAP_LIST * list, int size_inc);
-CMAP_MAP * cmap_list_delete(CMAP_LIST * list);
+  void (*shift)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_MAP * (*unshift)(CMAP_LIST * this);
+
+  void (*clear)(CMAP_LIST * this);
+} CMAP_LIST_PUBLIC;
+
+extern const CMAP_LIST_PUBLIC cmap_list_public;
 
 #endif

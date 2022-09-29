@@ -11,7 +11,7 @@
 static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
+  if(CMAP_NATURE(map) == cmap_list_public.nature)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
@@ -40,12 +40,12 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
 static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
+  if(CMAP_NATURE(map) == cmap_list_public.nature)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
     CMAP_MAP * tmp = CMAP_CALL(args, unshift);
-    if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_LIST_NATURE))
+    if((tmp != NULL) && (CMAP_NATURE(tmp) == cmap_list_public.nature))
     {
       CMAP_LIST * list2 = (CMAP_LIST *)tmp;
 
