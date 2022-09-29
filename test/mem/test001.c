@@ -8,16 +8,16 @@
 #include <stdlib.h>
 
 #define ASSERT_NB_FREE(nb) \
-  CMAP_TEST_ASSERT(cmap_mem_state() -> nb_block_free_ == nb, \
+  CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_block_free == nb, \
     "Check free block number")
 
 #define ASSERT_NB_CHUNK(nb) \
-  CMAP_TEST_ASSERT(cmap_mem_state() -> nb_chunk_ == nb, \
+  CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_chunk == nb, \
     "Check chunk number")
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_create(1024);
+  CMAP_MEM * mem = cmap_mem_public.create(1024);
   CMAP_TEST_ASSERT_PTR(mem);
 
   ASSERT_NB_CHUNK(0);

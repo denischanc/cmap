@@ -21,8 +21,8 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM mem_ = {};
-static CMAP_MEM * mem_ptr_ = NULL;
+static CMAP_MEM mem = {};
+static CMAP_MEM * mem_ptr = NULL;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -31,9 +31,9 @@ typedef struct BLOCK_s BLOCK;
 
 struct BLOCK_s
 {
-  char valid1_, valid2_, free_;
+  char valid1, valid2, free;
 
-  BLOCK * prev_, * next_;
+  BLOCK * prev, * next;
 };
 
 typedef struct
@@ -50,19 +50,24 @@ typedef struct CHUNK_s CHUNK;
 
 struct CHUNK_s
 {
-  int size_;
+  int size;
 
-  CHUNK * prev_, * next_;
+  CHUNK * prev, * next;
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int chunk_size_ = CHUNK_SIZE_DFT;
+typedef struct
+{
+  int chunk_size;
 
-static CHUNK * chunk_list_ = NULL, * chunk_tail_list_ = NULL;
+  CHUNK * chunk_list, * chunk_tail_list;
 
-static BLOCK_FREE * block_free_tree_ = NULL;
+  BLOCK_FREE * block_free_tree;
+} INTERNAL;
+
+static INTERNAL internal = {CHUNK_SIZE_DFT, NULL, NULL, NULL};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -79,21 +84,21 @@ static void error(const char * msg)
 
 static void valid_block(BLOCK * block)
 {
-  block -> valid1_ = VAL_1;
-  block -> valid2_ = VAL_2;
+  block -> valid1 = VAL_1;
+  block -> valid2 = VAL_2;
 }
 
 static int is_block(BLOCK * block)
 {
-  return ((block -> valid1_ == VAL_1) && (block -> valid2_ == VAL_2));
+  return ((block -> valid1 == VAL_1) && (block -> valid2 == VAL_2));
 }
 
 static inline int block_size(BLOCK * block)
 {
-  if(block -> next_ == NULL) return 0;
+  if(block -> next == NULL) return 0;
   else
   {
-    int size = (void *)block -> next_ - (void *)block;
+    int size = (void *)block -> next - (void *)block;
     return (size - sizeof(BLOCK));
   }
 }
@@ -102,26 +107,26 @@ static void init_block(BLOCK * block)
 {
   valid_block(block);
 
-  block -> free_ = CMAP_F;
-  block -> prev_ = NULL;
-  block -> next_ = NULL;
+  block -> free = CMAP_F;
+  block -> prev = NULL;
+  block -> next = NULL;
 }
 
 static void add_block(BLOCK * block, BLOCK * prev)
 {
-  block -> prev_ = prev;
+  block -> prev = prev;
 
-  block -> next_ = prev -> next_;
-  prev -> next_ = block;
+  block -> next = prev -> next;
+  prev -> next = block;
 
-  if(block -> next_ != NULL) block -> next_ -> prev_ = block;
+  if(block -> next != NULL) block -> next -> prev = block;
 }
 
 static void rm_block(BLOCK * block, BLOCK * prev)
 {
-  prev -> next_ = block -> next_;
+  prev -> next = block -> next;
 
-  if(prev -> next_ != NULL) prev -> next_ -> prev_ = prev;
+  if(prev -> next != NULL) prev -> next -> prev = prev;
 }
 
 /*******************************************************************************
@@ -141,23 +146,23 @@ CMAP_TREE_RUNNER(BLOCK_FREE, block_free, NULL, false, true)
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  return (BLOCK_FREE *)CMAP_TREE_FINDFN(block_free, block_free_tree_,
+  return (BLOCK_FREE *)CMAP_TREE_FINDFN(block_free, internal.block_free_tree,
     &alloc_size);
 }
 
 static void free_block(BLOCK * block)
 {
-  block -> free_ = CMAP_T;
+  block -> free = CMAP_T;
 
   int size = block_size(block);
-  CMAP_TREE_ADDFN(block_free, &block_free_tree_, block, &size);
+  CMAP_TREE_ADDFN(block_free, &internal.block_free_tree, block, &size);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  CMAP_TREE_RMFN(block_free, &block_free_tree_, block);
+  CMAP_TREE_RMFN(block_free, &internal.block_free_tree, block);
 
-  ((BLOCK *)block) -> free_ = CMAP_F;
+  ((BLOCK *)block) -> free = CMAP_F;
 }
 
 /*******************************************************************************
@@ -170,15 +175,15 @@ static inline BLOCK * chunk_block_list(CHUNK * chunk)
 
 static inline BLOCK * chunk_block_tail_list(CHUNK * chunk)
 {
-  BLOCK * block = (BLOCK *)(((void *)(chunk + 1)) + chunk -> size_);
+  BLOCK * block = (BLOCK *)(((void *)(chunk + 1)) + chunk -> size);
   return (block - 1);
 }
 
 static void init_chunk(CHUNK * chunk, int size)
 {
-  chunk -> size_ = size;
-  chunk -> prev_ = NULL;
-  chunk -> next_ = NULL;
+  chunk -> size = size;
+  chunk -> prev = NULL;
+  chunk -> next = NULL;
 
   BLOCK * block_list = chunk_block_list(chunk),
         * block_tail_list = chunk_block_tail_list(chunk);
@@ -191,7 +196,7 @@ static void init_chunk(CHUNK * chunk, int size)
 
 static CHUNK * create_chunk(int alloc_size)
 {
-  int chunk_size = chunk_size_;
+  int chunk_size = internal.chunk_size;
   alloc_size += 2 * sizeof(BLOCK);
   if(alloc_size > chunk_size) chunk_size = alloc_size;
 
@@ -205,16 +210,16 @@ static CHUNK * create_chunk(int alloc_size)
   {
     init_chunk(chunk, chunk_size);
 
-    if(chunk_tail_list_ != NULL)
+    if(internal.chunk_tail_list != NULL)
     {
-      chunk_tail_list_ -> next_ = chunk;
-      chunk -> prev_ = chunk_tail_list_;
+      internal.chunk_tail_list -> next = chunk;
+      chunk -> prev = internal.chunk_tail_list;
     }
     else
     {
-      chunk_list_ = chunk;
+      internal.chunk_list = chunk;
     }
-    chunk_tail_list_ = chunk;
+    internal.chunk_tail_list = chunk;
 
     return chunk;
   }
@@ -234,7 +239,7 @@ static BLOCK_FREE * create_block_free(int alloc_size)
 /*******************************************************************************
 *******************************************************************************/
 
-static void * _alloc(int size)
+static void * alloc(int size)
 {
   BLOCK_FREE * block = find_block_free(size);
   if(block == NULL) block = create_block_free(size);
@@ -261,22 +266,22 @@ static void * _alloc(int size)
 /*******************************************************************************
 *******************************************************************************/
 
-static void _free(void * ptr)
+static void free_(void * ptr)
 {
   if(ptr == NULL) return;
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
   if(!is_block(block)) error("Invalid block ???");
 
-  BLOCK * next = block -> next_, * prev = block -> prev_;
+  BLOCK * next = block -> next, * prev = block -> prev;
 
-  if(next -> free_)
+  if(next -> free)
   {
     alloc_block((BLOCK_FREE *)next);
     rm_block(next, block);
   }
 
-  if((prev == NULL) || !prev -> free_)
+  if((prev == NULL) || !prev -> free)
   {
     free_block(block);
   }
@@ -291,18 +296,19 @@ static void _free(void * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MEM * cmap_mem_create(int chunk_size)
+static CMAP_MEM * create(int chunk_size)
 {
-  if(mem_ptr_ == NULL)
+  if(mem_ptr == NULL)
   {
-    chunk_size_ = (chunk_size > CHUNK_SIZE_MIN) ? chunk_size : CHUNK_SIZE_DFT;
+    internal.chunk_size =
+      (chunk_size > CHUNK_SIZE_MIN) ? chunk_size : CHUNK_SIZE_DFT;
 
-    mem_.alloc = _alloc;
-    mem_.free = _free;
+    mem.alloc = alloc;
+    mem.free = free_;
 
-    mem_ptr_ = &mem_;
+    mem_ptr = &mem;
   }
-  return mem_ptr_;
+  return mem_ptr;
 }
 
 /*******************************************************************************
@@ -313,40 +319,40 @@ static void upd_state_chunk(CMAP_MEM_STATE * state, CHUNK * chunk)
   BLOCK * block = chunk_block_list(chunk);
   while(block != NULL)
   {
-    state -> nb_block_++;
-    if(block -> free_)
+    state -> nb_block++;
+    if(block -> free)
     {
-      state -> nb_block_free_++;
-      state -> size_free_ += block_size(block);
+      state -> nb_block_free++;
+      state -> size_free += block_size(block);
     }
     else
     {
-      state -> size_alloc_ += block_size(block);
+      state -> size_alloc += block_size(block);
     }
 
-    block = block -> next_;
+    block = block -> next;
   }
 }
 
 static void upd_state(CMAP_MEM_STATE * state)
 {
-  state -> nb_chunk_ = 0;
-  state -> nb_block_ = 0;
-  state -> nb_block_free_ = 0;
-  state -> size_alloc_ = 0;
-  state -> size_free_ = 0;
+  state -> nb_chunk = 0;
+  state -> nb_block = 0;
+  state -> nb_block_free = 0;
+  state -> size_alloc = 0;
+  state -> size_free = 0;
 
-  CHUNK * chunk = chunk_list_;
+  CHUNK * chunk = internal.chunk_list;
   while(chunk != NULL)
   {
-    state -> nb_chunk_++;
+    state -> nb_chunk++;
     upd_state_chunk(state, chunk);
 
-    chunk = chunk -> next_;
+    chunk = chunk -> next;
   }
 }
 
-CMAP_MEM_STATE * cmap_mem_state()
+static CMAP_MEM_STATE * state()
 {
   static CMAP_MEM_STATE state;
   upd_state(&state);
@@ -356,7 +362,17 @@ CMAP_MEM_STATE * cmap_mem_state()
 /*******************************************************************************
 *******************************************************************************/
 
-char cmap_mem_is_this(CMAP_MEM * mem)
+static char is_this(CMAP_MEM * mem_)
 {
-  return (mem == &mem_);
+  return (mem_ == &mem);
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_MEM_PUBLIC cmap_mem_public =
+{
+  create,
+  state,
+  is_this
+};

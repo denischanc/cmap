@@ -22,7 +22,7 @@
 
 typedef struct
 {
-  int nb_;
+  int nb;
   CMAP_TREE_STRUCT;
 } NB;
 
@@ -30,7 +30,7 @@ static int CMAP_TREE_EVALFN_NAME(nb)(CMAP_TREE_RUNNER * runner, void * node,
   void * data)
 {
   NB * node1 = (NB *)node, * node2 = (NB *)data;
-  return (node1 -> nb_ - node2 -> nb_);
+  return (node1 -> nb - node2 -> nb);
 }
 
 CMAP_TREE_RUNNER(NB, nb, NULL, false, false)
@@ -40,15 +40,15 @@ CMAP_TREE_RUNNER(NB, nb, NULL, false, false)
 
 typedef struct
 {
-  int i_;
-  int * list_;
+  int i;
+  int * list;
 } TREE2LIST_ARGS;
 
 static void nb_tree2list(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   TREE2LIST_ARGS * args = (TREE2LIST_ARGS *)data;
-  int nb = ((NB *)*node) -> nb_;
-  args -> list_[args -> i_++] = nb;
+  int nb = ((NB *)*node) -> nb;
+  args -> list[args -> i++] = nb;
 
 #ifdef DEBUG
   printf("%d ", nb);
@@ -72,10 +72,10 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
   int i;
   for(i = 0; i < SIZE; i++)
   {
-    args -> list_[i] = ge_first ? i : SIZE - i - 1;
+    args -> list[i] = ge_first ? i : SIZE - i - 1;
   }
 
-  args -> i_ = 0;
+  args -> i = 0;
   CMAP_TREE_APPLYFN(nb, tree, *apply, ge_first, args);
 #ifdef DEBUG
   printf("\n");
@@ -85,7 +85,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
   int prev = ge_first ? MAX : 0, cur;
   for(i = 0; i < SIZE; i++)
   {
-    cur = args -> list_[i];
+    cur = args -> list[i];
     if(ge_first)
     {
       if(prev < cur) return CMAP_F;
@@ -105,7 +105,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_create(0);
+  CMAP_MEM * mem = cmap_mem_public.create(0);
   NB * nb_tree = NULL, * tmp;
 
   /********** Fill tree */
@@ -113,14 +113,14 @@ int main(int argc, char * argv[])
   for(i = 0; i < SIZE; i++)
   {
     tmp = (NB *)mem -> alloc(sizeof(NB));
-    tmp -> nb_ = (random() % MAX);
+    tmp -> nb = (random() % MAX);
 
     CMAP_TREE_ADDFN(nb, &nb_tree, tmp, tmp);
   }
 
   /********** Check tree */
   TREE2LIST_ARGS args;
-  args.list_ = (int *)mem -> alloc(SIZE * sizeof(int));
+  args.list = (int *)mem -> alloc(SIZE * sizeof(int));
 
   CMAP_TREE_APPLY apply;
   CMAP_TREE_APPLY_INIT(apply, NULL, NULL, nb_tree2list, NULL)
@@ -131,14 +131,14 @@ int main(int argc, char * argv[])
     "Check not ge_first sort");
 
   /********** Check mem */
-  CMAP_MEM_STATE * mem_state = cmap_mem_state();
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk_ == 1);
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_ == SIZE + 3);
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free_ == 1);
+  CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == SIZE + 3);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);
 #ifdef DEBUG
-  printf("Alloc size = %d\n", mem_state -> size_alloc_);
+  printf("Alloc size = %d\n", mem_state -> size_alloc);
 #endif
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc_ ==
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc ==
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
@@ -146,15 +146,15 @@ int main(int argc, char * argv[])
   CMAP_TREE_APPLYFN(nb, &nb_tree, apply, CMAP_T, mem);
   CMAP_TEST_ASSERT_NOMSG(nb_tree == NULL);
 
-  mem -> free(args.list_);
-  args.list_ = NULL;
+  mem -> free(args.list);
+  args.list = NULL;
 
   /********** Check mem */
-  mem_state = cmap_mem_state();
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk_ == 1);
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_ == 2);
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free_ == 1);
-  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc_ == 0);
+  mem_state = cmap_mem_public.state();
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == 2);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);
+  CMAP_TEST_ASSERT_NOMSG(mem_state -> size_alloc == 0);
 
   return EXIT_SUCCESS;
 }

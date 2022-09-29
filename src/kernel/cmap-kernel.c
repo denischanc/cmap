@@ -53,9 +53,9 @@ static void delete_all()
 
 static void check_mem(int * ret)
 {
-  if(cmap_mem_is_this(kernel_.mem_))
+  if(cmap_mem_public.is_this(kernel_.mem_))
   {
-    int s = cmap_mem_state() -> size_alloc_;
+    int s = cmap_mem_public.state() -> size_alloc;
     kernel_.log_.debug("Allocated memory size : [%d].", s);
     if((s != 0) && kernel_.cfg_ -> failure_on_allocmem_) *ret = EXIT_FAILURE;
   }
@@ -123,7 +123,7 @@ static void cfg_init(CMAP_KERNEL_CFG * cfg)
 inline CMAP_MEM * get_mem(CMAP_KERNEL_CFG * cfg)
 {
   CMAP_MEM * mem = cfg -> mem_;
-  if(mem == NULL) mem = cmap_mem_create(0);
+  if(mem == NULL) mem = cmap_mem_public.create(0);
   return mem;
 }
 

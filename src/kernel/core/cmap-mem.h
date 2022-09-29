@@ -11,14 +11,19 @@ typedef struct
 
 typedef struct
 {
-  int nb_chunk_, nb_block_, nb_block_free_;
-  int size_alloc_, size_free_;
+  int nb_chunk, nb_block, nb_block_free;
+  int size_alloc, size_free;
 } CMAP_MEM_STATE;
 
-CMAP_MEM * cmap_mem_create(int chunk_size);
+typedef struct
+{
+  CMAP_MEM * (*create)(int chunk_size);
 
-CMAP_MEM_STATE * cmap_mem_state();
+  CMAP_MEM_STATE * (*state)();
 
-char cmap_mem_is_this(CMAP_MEM * mem);
+  char (*is_this)(CMAP_MEM * mem);
+} CMAP_MEM_PUBLIC;
+
+extern const CMAP_MEM_PUBLIC cmap_mem_public;
 
 #endif
