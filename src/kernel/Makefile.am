@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = core prototype console
+SUBDIRS = prototype console
 
 noinst_HEADERS = \
   cmap-aisle.h \
@@ -26,6 +26,5 @@ libkernel_la_SOURCES = \
   cmap-log.c
 libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
 libkernel_la_LIBADD = \
-  core/libcore.la \
   prototype/libprototype.la \
   console/libconsole.la

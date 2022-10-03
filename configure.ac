@@ -34,8 +34,8 @@ AC_CONFIG_FILES([ \
   Makefile \
   src/Makefile \
   src/util/Makefile \
+  src/core/Makefile \
   src/kernel/Makefile \
-  src/kernel/core/Makefile \
   src/kernel/prototype/Makefile \
   src/kernel/console/Makefile \
   test/Makefile \

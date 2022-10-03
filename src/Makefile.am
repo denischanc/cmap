@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = util kernel
+SUBDIRS = util core kernel
 
 noinst_HEADERS = \
   cmap-common-define.h
@@ -17,6 +17,7 @@ libcmap_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
 libcmap_la_LDFLAGS =
 libcmap_la_LIBADD = \
   util/libutil.la \
+  core/libcore.la \
   kernel/libkernel.la
 
 if CYGWIN
