@@ -8,50 +8,36 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_FN_NATURE = "cmap.nature.fn",
-  * CMAP_FN_PROTOTYPE_NAME = "prototype";
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct
 {
-  CMAP_FN_TPL process_;
-} CMAP_INTERNAL;
+  CMAP_FN_TPL process;
+} INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * fn__nature(CMAP_MAP * this)
+static const char * nature(CMAP_MAP * this)
 {
-  return CMAP_FN_NATURE;
+  return cmap_fn_public.nature;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * fn__delete(CMAP_MAP * this)
+static CMAP_MAP * process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
 {
-  return cmap_fn_delete((CMAP_FN *)this);
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  return internal -> process(this -> features, map, args);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_fn__process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
-{
-  CMAP_INTERNAL * internal = (CMAP_INTERNAL *)this -> internal_;
-  return internal -> process_(this -> features_, map, args);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
+static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 {
   CMAP_MAP * map = NULL;
 
-  CMAP_MAP * prototype = CMAP_GET(this, CMAP_FN_PROTOTYPE_NAME);
+  CMAP_MAP * prototype = CMAP_GET(this, cmap_fn_public.prototype_name);
   if(prototype != NULL) map = CMAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
@@ -63,35 +49,54 @@ CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_FN * cmap_fn_create(CMAP_FN_TPL process, const char * aisle)
+static CMAP_MAP * delete(CMAP_FN * fn)
+{
+  CMAP_KERNEL_FREE(fn -> internal);
+
+  CMAP_CALL(fn -> features, delete);
+
+  return cmap_map_public.delete((CMAP_MAP *)fn);
+}
+
+static CMAP_MAP * delete_(CMAP_MAP * fn)
+{
+  return delete((CMAP_FN *)fn);
+}
+
+static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
+{
+  CMAP_MAP * super = (CMAP_MAP *)fn;
+  super -> nature = nature;
+  super -> delete = delete_;
+
+  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  internal -> process = process_;
+
+  fn -> internal = internal;
+  fn -> features = cmap_map_public.create_root(NULL);
+  fn -> process = process;
+  fn -> new = new;
+}
+
+static CMAP_FN * create(CMAP_FN_TPL process, const char * aisle)
 {
   CMAP_MAP * prototype_fn = cmap_kernel() -> fw_.prototype_.fn_;
   CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
     sizeof(CMAP_FN), aisle);
-  cmap_fn_init(fn, process);
+  init(fn, process);
   return fn;
 }
 
-void cmap_fn_init(CMAP_FN * fn, CMAP_FN_TPL process)
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_FN_PUBLIC cmap_fn_public =
 {
-  CMAP_MAP * super = (CMAP_MAP *)fn;
-  super -> nature = fn__nature;
-  super -> delete = fn__delete;
-
-  CMAP_KERNEL_ALLOC_PTR(internal, CMAP_INTERNAL);
-  internal -> process_ = process;
-
-  fn -> internal_ = internal;
-  fn -> features_ = cmap_map_public.create_root(NULL);
-  fn -> process = cmap_fn__process;
-  fn -> new = cmap_fn__new;
-}
-
-CMAP_MAP * cmap_fn_delete(CMAP_FN * fn)
-{
-  CMAP_KERNEL_FREE(fn -> internal_);
-
-  CMAP_CALL(fn -> features_, delete);
-
-  return cmap_map_public.delete((CMAP_MAP *)fn);
-}
+  "cmap.nature.fn",
+  "prototype",
+  create,
+  init,
+  delete,
+  process,
+  new
+};

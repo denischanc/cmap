@@ -4,27 +4,31 @@
 #include "cmap-core.h"
 #include "cmap-map.h"
 
-extern const char * CMAP_FN_NATURE, * CMAP_FN_PROTOTYPE_NAME;
-
 struct CMAP_FN_s
 {
-  CMAP_MAP super_;
+  CMAP_MAP super;
 
-  void * internal_;
+  void * internal;
 
-  CMAP_MAP * features_;
+  CMAP_MAP * features;
 
   CMAP_MAP * (*process)(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args);
 
   CMAP_MAP * (*new)(CMAP_FN * this, CMAP_LIST * args, const char * aisle);
 };
 
-CMAP_MAP * cmap_fn__process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args);
+typedef struct {
+  const char * nature, * prototype_name;
 
-CMAP_MAP * cmap_fn__new(CMAP_FN * this, CMAP_LIST * args, const char * aisle);
+  CMAP_FN * (*create)(CMAP_FN_TPL process, const char * aisle);
+  void (*init)(CMAP_FN * fn, CMAP_FN_TPL process);
+  CMAP_MAP * (*delete)(CMAP_FN * fn);
 
-CMAP_FN * cmap_fn_create(CMAP_FN_TPL process, const char * aisle);
-void cmap_fn_init(CMAP_FN * fn, CMAP_FN_TPL process);
-CMAP_MAP * cmap_fn_delete(CMAP_FN * fn);
+  CMAP_MAP * (*process)(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args);
+
+  CMAP_MAP * (*new)(CMAP_FN * this, CMAP_LIST * args, const char * aisle);
+} CMAP_FN_PUBLIC;
+
+extern const CMAP_FN_PUBLIC cmap_fn_public;
 
 #endif
