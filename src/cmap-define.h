@@ -1,5 +1,5 @@
-#ifndef __CMAP_FW_DEFINE_H__
-#define __CMAP_FW_DEFINE_H__
+#ifndef __CMAP_DEFINE_H__
+#define __CMAP_DEFINE_H__
 
 #include <stdlib.h>
 
@@ -18,8 +18,6 @@
   (CMAP_MAP *)(map), key, (CMAP_MAP *)(val))
 #define CMAP_GET(map, key) cmap_get((CMAP_MAP *)(map), key)
 
-#define CMAP_PROCESS(fn, map, args) cmap_process(fn, (CMAP_MAP *)(map), args)
-
 #define CMAP_LIST_SET(list, i, val) cmap_list_set(list, i, (CMAP_MAP *)(val))
 #define CMAP_LIST_GET(list, i) cmap_list_get(list, i)
 
@@ -27,17 +25,13 @@
 #define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)
 
 #define CMAP_SET_SPLIT(map, keys, val) \
-  cmap_fw_set_split(map, keys, (CMAP_MAP *)(val))
-#define CMAP_GET_SPLIT(map, keys) \
-  cmap_fw_get_split(map, keys)
+  cmap_set_split(map, keys, (CMAP_MAP *)(val))
+#define CMAP_GET_SPLIT(map, keys) cmap_get_split(map, keys)
 
-#define CMAP_PROC_ARGS(map, fn, args...) \
-  cmap_fw_proc(map, fn, args, NULL)
-#define CMAP_PROC(map, fn) \
-  cmap_fw_proc(map, fn, NULL)
+#define CMAP_PROC_ARGS(map, fn, args...) cmap_proc(map, fn, args, NULL)
+#define CMAP_PROC(map, fn) cmap_proc(map, fn, NULL)
 #define CMAP_PROC_GLOBAL_ARGS(fn, args...) \
-  cmap_fw_proc_split(NULL, fn, args, NULL)
-#define CMAP_PROC_GLOBAL(fn) \
-  cmap_fw_proc_split(NULL, fn, NULL)
+  cmap_proc_split(NULL, fn, args, NULL)
+#define CMAP_PROC_GLOBAL(fn) cmap_proc_split(NULL, fn, NULL)
 
 #endif

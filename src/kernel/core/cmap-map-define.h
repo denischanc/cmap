@@ -3,7 +3,7 @@
 
 #include "cmap-common-define.h"
 
-#define CMAP_NEW_MAP(prototype, aisle) (CMAP_MAP *)CMAP_CALL_ARGS( \
+#define CMAP_MAP_NEW_MAP(prototype, aisle) (CMAP_MAP *)CMAP_CALL_ARGS( \
   (CMAP_MAP *)(prototype), new, sizeof(CMAP_MAP), aisle)
 
 #endif

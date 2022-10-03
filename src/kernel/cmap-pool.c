@@ -5,7 +5,7 @@
 #include "cmap-pool-handlers.h"
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
-#include "cmap-fw.h"
+#include "cmap.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -35,9 +35,9 @@ static void pool_##lower_name##__delete(CMAP_POOL_##name * this) \
   } \
    \
   CMAP_DELETE(_list); \
-  CMAP_FREE(internal, mem); \
+  CMAP_MEM_FREE(internal, mem); \
  \
-  CMAP_FREE(this, mem); \
+  CMAP_MEM_FREE(this, mem); \
 } \
  \
 static _struct * pool_##lower_name##__take(CMAP_POOL_##name * this) \
@@ -64,7 +64,7 @@ static void pool_##lower_name##__release(CMAP_POOL_##name * this, \
   if(CMAP_CALL(_list, size) < internal -> size_) \
   { \
     handler -> clean(name_s); \
-    CMAP_PUSH(_list, name_s); \
+    CMAP_LIST_PUSH(_list, name_s); \
   } \
   else \
   { \
@@ -75,9 +75,9 @@ static void pool_##lower_name##__release(CMAP_POOL_##name * this, \
 CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size) \
 { \
   CMAP_MEM * mem = cmap_kernel() -> mem_; \
-  CMAP_ALLOC_PTR(pool, CMAP_POOL_##name, mem); \
+  CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##name, mem); \
  \
-  CMAP_ALLOC_PTR(internal, CMAP_INTERNAL, mem); \
+  CMAP_MEM_ALLOC_PTR(internal, CMAP_INTERNAL, mem); \
   internal -> size_ = size; \
   internal -> list_ = CMAP_LIST(size, NULL); \
  \

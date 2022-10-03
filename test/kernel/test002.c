@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 #include "cmap-kernel.h"
-#include "cmap-fw.h"
+#include "cmap.h"
 
 #include "test-assert.h"
 #include <stdlib.h>

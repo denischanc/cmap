@@ -3,7 +3,7 @@
 
 #include "cmap-prototype-util.h"
 #include "cmap-aisle.h"
-#include "cmap-fw.h"
+#include "cmap.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,8 +24,8 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
       for(i = 0; i < size; i++)
       {
         CMAP_CALL(args_list_i, clear);
-        CMAP_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
-        CMAP_PROCESS(map_fn.fn_, map_fn.map_, args_list_i);
+        CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
+        CMAP_FN_PROCESS(map_fn.fn_, map_fn.map_, args_list_i);
       }
 
       CMAP_DELETE(args_list_i);
@@ -52,7 +52,7 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
       int size = CMAP_CALL(list2, size), i;
       for(i = 0; i < size; i++)
       {
-        CMAP_PUSH(list, CMAP_CALL_ARGS(list2, get, i));
+        CMAP_LIST_PUSH(list, CMAP_CALL_ARGS(list2, get, i));
       }
     }
   }

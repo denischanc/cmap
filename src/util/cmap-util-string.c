@@ -1,7 +1,7 @@
 
 #include "cmap-util-string.h"
 
-#include "cmap-fw.h"
+#include "cmap.h"
 #include "cmap-common-define.h"
 #include "cmap-pool.h"
 #include "cmap-kernel.h"
@@ -19,7 +19,7 @@ static void cmap_split_w_handler(CMAP_LIST * list, const char * line, char sep,
     {
       CMAP_STRING * sub = create(data);
       CMAP_CALL_ARGS(sub, append_sub, line, off, i);
-      CMAP_PUSH(list, sub);
+      CMAP_LIST_PUSH(list, sub);
 
       if(line[i] == 0) return;
 

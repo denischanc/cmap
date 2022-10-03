@@ -4,7 +4,7 @@
 #include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
-#include "cmap-fw.h"
+#include "cmap.h"
 #include "cmap-aisle.h"
 
 /*******************************************************************************
@@ -47,7 +47,7 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
   if(!strcmp(aisle, CMAP_AISLE_LOCAL))
   {
     CMAP_LIST * stack_local = (CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK);
-    CMAP_PUSH(stack_local, map);
+    CMAP_LIST_PUSH(stack_local, map);
   }
   else
   {
@@ -142,7 +142,7 @@ static void add_key(CMAP_TREE_APPLY * this, void ** node, void * data)
   KEYS_DATA * data_ = (KEYS_DATA *)data;
   CMAP_STRING * key =
     CMAP_STRING(((ENTRY *)*node) -> key, 0, data_ -> aisle);
-  CMAP_ADD(data_ -> keys, 0, (CMAP_MAP *)key);
+  CMAP_LIST_ADD(data_ -> keys, 0, (CMAP_MAP *)key);
 }
 
 static void keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)
@@ -196,8 +196,8 @@ static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
   ENTRY * entry = (ENTRY *)*node;
-  CMAP_FREE(entry -> key, mem);
-  CMAP_FREE(entry, mem);
+  CMAP_MEM_FREE(entry -> key, mem);
+  CMAP_MEM_FREE(entry, mem);
 }
 
 static CMAP_MAP * delete(CMAP_MAP * map)
@@ -210,8 +210,8 @@ static CMAP_MAP * delete(CMAP_MAP * map)
   CMAP_TREE_APPLY_INIT(apply, NULL, NULL, NULL, entry_delete)
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply, CMAP_T, mem);
 
-  CMAP_FREE(internal, mem);
-  CMAP_FREE(map, mem);
+  CMAP_MEM_FREE(internal, mem);
+  CMAP_MEM_FREE(map, mem);
 
   return next;
 }
@@ -246,7 +246,7 @@ static CMAP_MAP * create(const char * aisle)
 {
   CMAP_MAP * prototype_map = cmap_kernel() -> fw_.prototype_.map_;
   if(prototype_map == NULL) return create_root(aisle);
-  else return CMAP_NEW_MAP(prototype_map, aisle);
+  else return CMAP_MAP_NEW_MAP(prototype_map, aisle);
 }
 
 /*******************************************************************************

@@ -199,7 +199,7 @@ static void add_on_full(INTERNAL * internal, int i, CMAP_MAP * val)
   internal -> i_stop = old_size_max + 1;
   internal -> list = new_list;
 
-  CMAP_FREE(old_list, mem);
+  CMAP_MEM_FREE(old_list, mem);
 }
 
 /*******************************************************************************
@@ -335,7 +335,7 @@ static CMAP_MAP * rm(CMAP_LIST * this, int i)
 
 static void push(CMAP_LIST * this, CMAP_MAP * val)
 {
-  CMAP_ADD(this, CMAP_CALL(this, size), val);
+  CMAP_LIST_ADD(this, CMAP_CALL(this, size), val);
 }
 
 static CMAP_MAP * pop(CMAP_LIST * this)
@@ -348,7 +348,7 @@ static CMAP_MAP * pop(CMAP_LIST * this)
 
 static void shift(CMAP_LIST * this, CMAP_MAP * val)
 {
-  CMAP_ADD(this, 0, val);
+  CMAP_LIST_ADD(this, 0, val);
 }
 
 static CMAP_MAP * unshift(CMAP_LIST * this)
@@ -374,8 +374,8 @@ static CMAP_MAP * delete(CMAP_LIST * list)
 {
   INTERNAL * internal = (INTERNAL *)list -> internal;
   CMAP_MEM * mem = cmap_kernel() -> mem_;
-  CMAP_FREE(internal -> list, mem);
-  CMAP_FREE(internal, mem);
+  CMAP_MEM_FREE(internal -> list, mem);
+  CMAP_MEM_FREE(internal, mem);
 
   return cmap_map_public.delete((CMAP_MAP *)list);
 }
@@ -392,7 +392,7 @@ static void init(CMAP_LIST * list, int size_inc)
   super -> delete = delete_;
 
   CMAP_MEM * mem = cmap_kernel() -> mem_;
-  CMAP_ALLOC_PTR(internal, INTERNAL, mem);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size = 0;
   internal -> size_inc = size_inc;

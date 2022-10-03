@@ -112,8 +112,8 @@ static CMAP_MAP * delete(CMAP_STRING * string)
 {
   INTERNAL * internal = (INTERNAL *)string -> internal;
   CMAP_MEM * mem = cmap_kernel() -> mem_;
-  CMAP_FREE(internal -> val, mem);
-  CMAP_FREE(internal, mem);
+  CMAP_MEM_FREE(internal -> val, mem);
+  CMAP_MEM_FREE(internal, mem);
 
   return cmap_map_public.delete((CMAP_MAP *)string);
 }
@@ -130,7 +130,7 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
   super -> delete = delete_;
 
   CMAP_MEM * mem = cmap_kernel() -> mem_;
-  CMAP_ALLOC_PTR(internal, INTERNAL, mem);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size_inc = size_inc;
   internal -> size = (strlen(val_) + 1);
