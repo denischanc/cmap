@@ -42,7 +42,7 @@ CMAP_TREE_RUNNER(ENTRY, entry, NULL, false, false)
 
 static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
-  CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel() -> fw_.warehouse_;
+  CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel_public.this() -> fw_.warehouse_;
 
   if(!strcmp(aisle, CMAP_AISLE_LOCAL))
   {
@@ -76,7 +76,7 @@ static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
   if(entry == NULL)
   {
-    CMAP_MEM * mem = cmap_kernel() -> mem_;
+    CMAP_MEM * mem = cmap_kernel_public.this() -> mem_;
     entry = (ENTRY *)mem -> alloc(sizeof(ENTRY));
     entry -> key = (char *)mem -> alloc((strlen(key) + 1) * sizeof(char));
     strcpy(entry -> key, key);
@@ -110,7 +110,7 @@ static void init(CMAP_MAP * map);
 
 static void * new(CMAP_MAP * this, int size, const char * aisle)
 {
-  CMAP_MAP * map = (CMAP_MAP *)cmap_kernel() -> mem_ -> alloc(size);
+  CMAP_MAP * map = (CMAP_MAP *)cmap_kernel_public.this() -> mem_ -> alloc(size);
   init(map);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
@@ -142,7 +142,7 @@ static void add_key(CMAP_TREE_APPLY * this, void ** node, void * data)
   KEYS_DATA * data_ = (KEYS_DATA *)data;
   CMAP_STRING * key =
     CMAP_STRING(((ENTRY *)*node) -> key, 0, data_ -> aisle);
-  CMAP_LIST_ADD(data_ -> keys, 0, (CMAP_MAP *)key);
+  CMAP_LIST_ADD(data_ -> keys, 0, key);
 }
 
 static void keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)
@@ -204,7 +204,7 @@ static CMAP_MAP * delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
   CMAP_MAP * next = internal -> next;
-  CMAP_MEM * mem = cmap_kernel() -> mem_;
+  CMAP_MEM * mem = cmap_kernel_public.this() -> mem_;
 
   CMAP_TREE_APPLY apply;
   CMAP_TREE_APPLY_INIT(apply, NULL, NULL, NULL, entry_delete)
@@ -244,7 +244,7 @@ static CMAP_MAP * create_root(const char * aisle)
 
 static CMAP_MAP * create(const char * aisle)
 {
-  CMAP_MAP * prototype_map = cmap_kernel() -> fw_.prototype_.map_;
+  CMAP_MAP * prototype_map = cmap_kernel_public.this() -> fw_.prototype_.map_;
   if(prototype_map == NULL) return create_root(aisle);
   else return CMAP_MAP_NEW_MAP(prototype_map, aisle);
 }

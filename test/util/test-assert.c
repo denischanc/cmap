@@ -11,7 +11,7 @@ void cmap_test_assert(char cond, const char * file, int line,
   if(!cond)
   {
     printf("[%s:%i][TEST] %s => KO\n", file, line, msg);
-    if(cmap_kernel() != NULL) cmap_kernel() -> fatal();
+    if(cmap_kernel_public.this() != NULL) cmap_kernel_public.this() -> fatal();
     else exit(EXIT_FAILURE);
   }
   else

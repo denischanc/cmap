@@ -2,8 +2,9 @@
 @TEST_DESC@ Add/rm maps in list
 *******************************************************************************/
 
-#include "cmap-kernel.h"
 #include "cmap.h"
+#include "cmap-map.h"
+#include "cmap-list.h"
 
 #include "test-assert.h"
 #include <stdlib.h>
@@ -99,12 +100,12 @@ static void test_list(int size)
 
 int main(int argc, char * argv[])
 {
-  cmap_kernel_init(NULL);
+  cmap_init(NULL);
 
   test_list(3);
   test_list(4);
   test_list(5);
   test_list(7);
 
-  return cmap_kernel() -> main(argc, argv);
+  return cmap_main(argc, argv);
 }

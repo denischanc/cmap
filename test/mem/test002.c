@@ -131,7 +131,7 @@ int main(int argc, char * argv[])
     "Check not ge_first sort");
 
   /********** Check mem */
-  CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
+  CMAP_MEM_STATE * mem_state = cmap_mem_state();
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == SIZE + 3);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);
@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
   args.list = NULL;
 
   /********** Check mem */
-  mem_state = cmap_mem_public.state();
+  mem_state = cmap_mem_state();
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == 2);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);

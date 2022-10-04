@@ -3,6 +3,10 @@ include $(top_srcdir)/src/common.mk
 
 SUBDIRS = prototype console
 
+include_HEADERS = \
+  cmap-aisle-external.h \
+  cmap-kernel-external.h
+
 noinst_HEADERS = \
   cmap-aisle.h \
   cmap-global-env.h \

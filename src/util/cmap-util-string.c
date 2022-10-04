@@ -46,7 +46,7 @@ static CMAP_STRING * create_handler_from_aisle(void * data)
 
 static CMAP_STRING * create_handler_from_pool(void * data)
 {
-  CMAP_POOL_STRING * pool = cmap_kernel() -> fw_.pool_string_;
+  CMAP_POOL_STRING * pool = cmap_kernel_public.this() -> fw_.pool_string_;
   return CMAP_CALL(pool, take);
 }
 
@@ -64,7 +64,7 @@ CMAP_LIST * cmap_split_w_aisle(const char * line, char sep, const char * aisle)
 
 CMAP_LIST * cmap_split_w_pool(const char * line, char sep)
 {
-  CMAP_POOL_LIST * pool = cmap_kernel() -> fw_.pool_list_;
+  CMAP_POOL_LIST * pool = cmap_kernel_public.this() -> fw_.pool_list_;
   CMAP_LIST * list = CMAP_CALL(pool, take);
   cmap_split_w_handler(list, line, sep, create_handler_from_pool, NULL);
   return list;

@@ -4,6 +4,7 @@
 #include "cmap-core.h"
 #include "cmap-map.h"
 #include "cmap-fn-define.h"
+#include "cmap-fn-external.h"
 
 struct CMAP_FN_s
 {

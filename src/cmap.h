@@ -3,8 +3,15 @@
 
 #include <stdarg.h>
 
+#include "cmap-kernel-external.h"
 #include "cmap-core.h"
+#include "cmap-fn-external.h"
+#include "cmap-aisle-external.h"
+#include "cmap-mem-external.h"
 #include "cmap-define.h"
+
+void cmap_init(CMAP_KERNEL_CFG * cfg);
+int cmap_main(int argc, char * argv[]);
 
 CMAP_MAP * cmap_map(const char * aisle);
 CMAP_LIST * cmap_list(int size_inc, const char * aisle);
@@ -25,5 +32,7 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys);
 
 CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * fn_name, ...);
 CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...);
+
+CMAP_MEM_STATE * cmap_mem_state();
 
 #endif

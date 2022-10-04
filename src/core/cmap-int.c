@@ -68,7 +68,7 @@ static void init(CMAP_INT * int_)
 
 static CMAP_INT * create(const char * aisle)
 {
-  CMAP_MAP * prototype_int = cmap_kernel() -> fw_.prototype_.int_;
+  CMAP_MAP * prototype_int = cmap_kernel_public.this() -> fw_.prototype_.int_;
   CMAP_INT * int_ = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
     sizeof(CMAP_INT), aisle);
   init(int_);

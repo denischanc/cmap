@@ -80,7 +80,7 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 
 static CMAP_FN * create(CMAP_FN_TPL process, const char * aisle)
 {
-  CMAP_MAP * prototype_fn = cmap_kernel() -> fw_.prototype_.fn_;
+  CMAP_MAP * prototype_fn = cmap_kernel_public.this() -> fw_.prototype_.fn_;
   CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
     sizeof(CMAP_FN), aisle);
   init(fn, process);

@@ -74,7 +74,7 @@ static INTERNAL internal = {CHUNK_SIZE_DFT, NULL, NULL, NULL};
 
 static void error(const char * msg)
 {
-  CMAP_KERNEL * kernel = cmap_kernel();
+  CMAP_KERNEL * kernel = cmap_kernel_public.this();
   kernel -> log_.error("%s", msg);
   kernel -> fatal();
 }

@@ -8,10 +8,24 @@
 #include "cmap-string.h"
 #include "cmap-int.h"
 #include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-util-string.h"
 #include "cmap-util-pool.h"
 #include "cmap-aisle.h"
 #include "cmap-util-list.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_init(CMAP_KERNEL_CFG * cfg)
+{
+  cmap_kernel_public.init(cfg);
+}
+
+int cmap_main(int argc, char * argv[])
+{
+  return cmap_kernel_public.this() -> main(argc, argv);
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -83,7 +97,7 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
-  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
   CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
   if(map == NULL) map = fw -> global_env_;
@@ -113,7 +127,7 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 {
-  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
   CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
   if(map == NULL) map = fw -> global_env_;
@@ -159,7 +173,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   }
 
   cmap_delete_list_vals(stack_local);
-  CMAP_WAREHOUSE * wh = cmap_kernel() -> fw_.warehouse_;
+  CMAP_WAREHOUSE * wh = cmap_kernel_public.this() -> fw_.warehouse_;
   CMAP_CALL_ARGS(wh, delete_last, CMAP_AISLE_STACK);
 
   return ret;
@@ -183,7 +197,7 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * fn_name, ...)
 CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 {
   CMAP_STRING * fn_name;
-  CMAP_KERNEL_FW * fw = &(cmap_kernel() -> fw_);
+  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
   CMAP_POOL_STRING * pool_string = fw -> pool_string_;
 
   if(map == NULL) map = fw -> global_env_;
@@ -213,4 +227,12 @@ CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
   cmap_release_list_n_strings(keys_split);
 
   return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MEM_STATE * cmap_mem_state()
+{
+  return cmap_mem_public.state();
 }

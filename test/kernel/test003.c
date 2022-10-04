@@ -2,9 +2,7 @@
 @TEST_DESC@ Call console info/error fns
 *******************************************************************************/
 
-#include "cmap-kernel.h"
 #include "cmap.h"
-#include "cmap-aisle.h"
 
 #include <stdlib.h>
 #include "test-assert.h"
@@ -14,7 +12,7 @@
 
 int main(int argc, char * argv[])
 {
-  cmap_kernel_init(NULL);
+  cmap_init(NULL);
 
   CMAP_PROC_GLOBAL_ARGS("cmap.console.info",
     CMAP_STRING("Hello ", 0, CMAP_AISLE_LOCAL),
@@ -23,5 +21,5 @@ int main(int argc, char * argv[])
 
   CMAP_PROC_GLOBAL("cmap.console.info");
 
-  return cmap_kernel() -> main(argc, argv);
+  return cmap_main(argc, argv);
 }

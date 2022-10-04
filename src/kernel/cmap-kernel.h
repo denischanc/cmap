@@ -8,18 +8,12 @@
 #include "cmap-log.h"
 #include "cmap-pool.h"
 #include "cmap-kernel-define.h"
+#include "cmap-kernel-external.h"
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1
 #define CMAP_KERNEL_S_ALIVE 2
 #define CMAP_KERNEL_S_EXITING 3
-
-typedef struct
-{
-  CMAP_MEM * mem_;
-
-  char failure_on_allocmem_;
-} CMAP_KERNEL_CFG;
 
 typedef struct
 {
@@ -51,7 +45,12 @@ typedef struct
   int (*state)();
 } CMAP_KERNEL;
 
-void cmap_kernel_init(CMAP_KERNEL_CFG * cfg);
-CMAP_KERNEL * cmap_kernel();
+typedef struct
+{
+  void (*init)(CMAP_KERNEL_CFG * cfg);
+  CMAP_KERNEL * (*this)();
+} CMAP_KERNEL_PUBLIC;
+
+extern const CMAP_KERNEL_PUBLIC cmap_kernel_public;
 
 #endif

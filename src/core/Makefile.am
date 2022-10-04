@@ -1,7 +1,10 @@
 
 include $(top_srcdir)/src/common.mk
 
-include_HEADERS = cmap-core.h
+include_HEADERS = \
+  cmap-core.h \
+  cmap-fn-external.h \
+  cmap-mem-external.h
 
 noinst_HEADERS = \
   cmap-fn-define.h \
