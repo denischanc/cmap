@@ -1,6 +1,7 @@
 
 #include "cmap.h"
 
+#include <stdlib.h>
 #include "cmap-common-define.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
@@ -24,7 +25,23 @@ void cmap_init(CMAP_KERNEL_CFG * cfg)
 
 int cmap_main(int argc, char * argv[])
 {
-  return cmap_kernel_public.this() -> main(argc, argv);
+  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  if(kernel == NULL) cmap_fatal();
+  return kernel -> main(argc, argv);
+}
+
+void cmap_exit(int ret)
+{
+  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  if(kernel != NULL) kernel -> exit(ret);
+  else exit(ret);
+}
+
+void cmap_fatal()
+{
+  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  if(kernel != NULL) kernel -> fatal();
+  else exit(EXIT_FAILURE);
 }
 
 /*******************************************************************************

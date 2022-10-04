@@ -12,6 +12,8 @@
 
 void cmap_init(CMAP_KERNEL_CFG * cfg);
 int cmap_main(int argc, char * argv[]);
+void cmap_exit(int ret);
+void cmap_fatal();
 
 CMAP_MAP * cmap_map(const char * aisle);
 CMAP_LIST * cmap_list(int size_inc, const char * aisle);
