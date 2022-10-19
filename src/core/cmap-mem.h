@@ -6,7 +6,8 @@
 
 typedef struct
 {
-  CMAP_MEM * (*create)(int chunk_size);
+  CMAP_MEM * (*init)(int chunk_size);
+  CMAP_MEM * (*instance)();
 
   CMAP_MEM_STATE * (*state)();
 

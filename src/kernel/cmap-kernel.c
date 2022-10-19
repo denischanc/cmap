@@ -10,29 +10,37 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KERNEL kernel = {};
-static CMAP_KERNEL * kernel_ptr = NULL;
+typedef struct
+{
+  CMAP_KERNEL_CFG * cfg;
 
-static CMAP_KERNEL_CFG cfg = {};
+  char exiting;
 
-static char exiting = CMAP_F;
+  int state;
+} INTERNAL;
 
-static int state = CMAP_KERNEL_S_UNKNOWN;
+static INTERNAL internal = {NULL, CMAP_F, CMAP_KERNEL_S_UNKNOWN};
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init_fw_env()
-{
-  kernel.fw_.warehouse_ = cmap_warehouse_create();
+static CMAP_KERNEL kernel = {};
+static CMAP_KERNEL * kernel_ptr = NULL;
 
-  cmap_prototype_init(&kernel.fw_.prototype_);
-  kernel.fw_.pool_list_ = cmap_pool_list_create(20);
-  kernel.fw_.pool_string_ = cmap_pool_string_create(20);
+/*******************************************************************************
+*******************************************************************************/
+
+static void init_env()
+{
+  kernel.warehouse = cmap_warehouse_create();
+
+  cmap_prototype_init(&kernel.prototype);
+  kernel.pool_list = cmap_pool_list_create(20);
+  kernel.pool_string = cmap_pool_string_create(20);
 
   CMAP_LIST(0, CMAP_AISLE_STACK);
 
-  kernel.fw_.global_env_ = cmap_global_env_create();
+  kernel.global_env = cmap_global_env_create();
 }
 
 /*******************************************************************************
@@ -40,11 +48,11 @@ static void init_fw_env()
 
 static void delete_all()
 {
-  CMAP_WAREHOUSE * wh = kernel.fw_.warehouse_;
+  CMAP_WAREHOUSE * wh = kernel.warehouse;
 
   cmap_delete_list_vals((CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK));
-  CMAP_CALL(kernel.fw_.pool_list_, delete);
-  CMAP_CALL(kernel.fw_.pool_string_, delete);
+  CMAP_CALL(kernel.pool_list, delete);
+  CMAP_CALL(kernel.pool_string, delete);
   CMAP_CALL((CMAP_MAP *)wh, delete);
 }
 
@@ -53,11 +61,11 @@ static void delete_all()
 
 static void check_mem(int * ret)
 {
-  if(cmap_mem_public.is_this(kernel.mem_))
+  if(cmap_mem_public.is_this(kernel.mem))
   {
     int s = cmap_mem_state() -> size_alloc;
-    kernel.log_.debug("Allocated memory size : [%d].", s);
-    if((s != 0) && kernel.cfg_ -> failure_on_allocmem) *ret = EXIT_FAILURE;
+    kernel.log -> debug("Allocated memory size : [%d].", s);
+    if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
   }
 }
 
@@ -69,98 +77,100 @@ static void check_all(int * ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static void kernel_exit(int ret)
+static void exit_(int ret)
 {
-  state = CMAP_KERNEL_S_EXITING;
+  internal.state = CMAP_KERNEL_S_EXITING;
 
-  if(!exiting)
+  if(!internal.exiting)
   {
-    exiting = CMAP_T;
+    internal.exiting = CMAP_T;
 
     delete_all();
 
     check_all(&ret);
 
-    kernel.log_.debug("Exit kernel (%d).", ret);
+    kernel.log -> debug("Exit kernel (%d).", ret);
     exit(ret);
   }
 }
 
-static void kernel_fatal()
+static void fatal()
 {
-  kernel_exit(EXIT_FAILURE);
+  exit_(EXIT_FAILURE);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int kernel_main(int argc, char * argv[])
+static int main_(int argc, char * argv[])
 {
-  kernel_exit(EXIT_SUCCESS);
+  exit_(EXIT_SUCCESS);
   return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int kernel_state()
+static int state()
 {
-  return state;
+  return internal.state;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void cfg_init(CMAP_KERNEL_CFG * cfg)
+static CMAP_KERNEL_CFG * instance_cfg()
 {
-  cfg -> mem = NULL;
-  cfg -> failure_on_allocmem = CMAP_T;
+  static CMAP_KERNEL_CFG cfg = {};
+
+  cfg.mem = NULL;
+  cfg.failure_on_allocmem = CMAP_T;
+
+  return &cfg;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-inline CMAP_MEM * get_mem(CMAP_KERNEL_CFG * cfg)
+static inline CMAP_MEM * get_mem()
 {
-  CMAP_MEM * mem = cfg -> mem;
-  if(mem == NULL) mem = cmap_mem_public.create(0);
+  CMAP_MEM * mem = internal.cfg -> mem;
+  if(mem == NULL) mem = cmap_mem_public.init(0);
   return mem;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_KERNEL_CFG * cfg_)
+static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
 {
-  kernel_ptr = &kernel;
-  state = CMAP_KERNEL_S_INIT;
-
-  cmap_log_init(&kernel.log_);
-  kernel.log_.debug("Init kernel.");
-
-  if(cfg_ == NULL)
+  if(kernel_ptr == NULL)
   {
-    cfg_ = &cfg;
-    cfg_init(cfg_);
+    internal.state = CMAP_KERNEL_S_INIT;
+
+    kernel.log = cmap_log_public.init();
+    kernel.log -> debug("Init kernel.");
+
+    if(cfg == NULL) cfg = instance_cfg();
+	internal.cfg = cfg;
+
+    kernel.mem = get_mem();
+
+    kernel.main = main_;
+    kernel.exit = exit_;
+    kernel.fatal = fatal;
+    kernel.state = state;
+
+    init_env();
+
+    internal.state = CMAP_KERNEL_S_ALIVE;
+
+    kernel_ptr = &kernel;
   }
-  kernel.cfg_ = cfg_;
-
-  kernel.mem_ = get_mem(cfg_);
-
-  kernel.main = kernel_main;
-  kernel.exit = kernel_exit;
-  kernel.fatal = kernel_fatal;
-  kernel.state = kernel_state;
-
-  init_fw_env();
-
-  state = CMAP_KERNEL_S_ALIVE;
+  return kernel_ptr;
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_KERNEL * this()
+static CMAP_KERNEL * instance()
 {
   return kernel_ptr;
 }
@@ -171,5 +181,5 @@ static CMAP_KERNEL * this()
 const CMAP_KERNEL_PUBLIC cmap_kernel_public =
 {
   init,
-  this
+  instance
 };

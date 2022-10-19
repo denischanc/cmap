@@ -105,7 +105,7 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.create(0);
+  CMAP_MEM * mem = cmap_mem_public.init(0);
   NB * nb_tree = NULL, * tmp;
 
   /********** Fill tree */

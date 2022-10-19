@@ -17,25 +17,15 @@
 
 typedef struct
 {
-  CMAP_PROTOTYPE prototype_;
+  CMAP_MEM * mem;
+  CMAP_LOG * log;
 
-  CMAP_MAP * global_env_;
+  CMAP_PROTOTYPE prototype;
+  CMAP_MAP * global_env;
+  CMAP_WAREHOUSE * warehouse;
 
-  CMAP_WAREHOUSE * warehouse_;
-
-  CMAP_POOL_LIST * pool_list_;
-  CMAP_POOL_STRING * pool_string_;
-} CMAP_KERNEL_FW;
-
-typedef struct
-{
-  CMAP_LOG log_;
-
-  CMAP_KERNEL_CFG * cfg_;
-
-  CMAP_MEM * mem_;
-
-  CMAP_KERNEL_FW fw_;
+  CMAP_POOL_LIST * pool_list;
+  CMAP_POOL_STRING * pool_string;
 
   int (*main)(int argc, char * argv[]);
 
@@ -47,8 +37,8 @@ typedef struct
 
 typedef struct
 {
-  void (*init)(CMAP_KERNEL_CFG * cfg);
-  CMAP_KERNEL * (*this)();
+  CMAP_KERNEL * (*init)(CMAP_KERNEL_CFG * cfg);
+  CMAP_KERNEL * (*instance)();
 } CMAP_KERNEL_PUBLIC;
 
 extern const CMAP_KERNEL_PUBLIC cmap_kernel_public;

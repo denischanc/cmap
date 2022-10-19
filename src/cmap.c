@@ -25,21 +25,21 @@ void cmap_init(CMAP_KERNEL_CFG * cfg)
 
 int cmap_main(int argc, char * argv[])
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
   if(kernel == NULL) cmap_fatal();
   return kernel -> main(argc, argv);
 }
 
 void cmap_exit(int ret)
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
   if(kernel != NULL) kernel -> exit(ret);
   else exit(ret);
 }
 
 void cmap_fatal()
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.this();
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
   if(kernel != NULL) kernel -> fatal();
   else exit(EXIT_FAILURE);
 }
@@ -114,10 +114,10 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
-  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
-  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
-  if(map == NULL) map = fw -> global_env_;
+  if(map == NULL) map = kernel -> global_env;
 
   CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
 
@@ -144,10 +144,10 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 {
-  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
-  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
-  if(map == NULL) map = fw -> global_env_;
+  if(map == NULL) map = kernel -> global_env;
 
   CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
 
@@ -190,7 +190,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   }
 
   cmap_delete_list_vals(stack_local);
-  CMAP_WAREHOUSE * wh = cmap_kernel_public.this() -> fw_.warehouse_;
+  CMAP_WAREHOUSE * wh = cmap_kernel_public.instance() -> warehouse;
   CMAP_CALL_ARGS(wh, delete_last, CMAP_AISLE_STACK);
 
   return ret;
@@ -214,10 +214,10 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * fn_name, ...)
 CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 {
   CMAP_STRING * fn_name;
-  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
-  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
-  if(map == NULL) map = fw -> global_env_;
+  if(map == NULL) map = kernel -> global_env;
 
   CMAP_LIST * keys_split = cmap_split_w_pool(fn_names, '.');
 

@@ -8,21 +8,18 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_LOG_DEBUG = "DEBUG";
-const char * CMAP_LOG_INFO = "_INFO";
-const char * CMAP_LOG_WARN = "_WARN";
-const char * CMAP_LOG_ERROR = "ERROR";
-const char * CMAP_LOG_FATAL = "FATAL";
+#define LOOP(macro) \
+  macro(debug, cmap_log_public.debug) \
+  macro(info, cmap_log_public.info) \
+  macro(warn, cmap_log_public.warn) \
+  macro(error, cmap_log_public.error) \
+  macro(fatal, cmap_log_public.fatal)
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define LOOP(macro) \
-  macro(debug, CMAP_LOG_DEBUG) \
-  macro(info, CMAP_LOG_INFO) \
-  macro(warn, CMAP_LOG_WARN) \
-  macro(error, CMAP_LOG_ERROR) \
-  macro(fatal, CMAP_LOG_FATAL)
+static CMAP_LOG log = {};
+static CMAP_LOG * log_ptr = NULL;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -43,7 +40,7 @@ static void vlog(const char * level, const char * msg, va_list ap)
 /*******************************************************************************
 *******************************************************************************/
 
-static void _log(const char * level, const char * msg, ...)
+static void log_(const char * level, const char * msg, ...)
 {
   va_list ap;
   va_start(ap, msg);
@@ -69,11 +66,36 @@ LOOP(FN)
 *******************************************************************************/
 
 #define SET(name, level) \
-  log -> name = name;
+  log.name = name;
 
-void cmap_log_init(CMAP_LOG * log)
+static CMAP_LOG * init()
 {
-  LOOP(SET)
-  log -> log = _log;
-  log -> vlog = vlog;
+  if(log_ptr == NULL)
+  {
+    LOOP(SET)
+    log.log = log_;
+    log.vlog = vlog;
+
+    log_ptr = &log;
+  }
+  return log_ptr;
 }
+
+static CMAP_LOG * instance()
+{
+  return log_ptr;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_LOG_PUBLIC cmap_log_public =
+{
+  "DEBUG",
+  "_INFO",
+  "_WARN",
+  "ERROR",
+  "FATAL",
+  init,
+  instance
+};

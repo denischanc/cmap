@@ -18,7 +18,7 @@
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.create(1024);
+  CMAP_MEM * mem = cmap_mem_public.init(1024);
   CMAP_TEST_ASSERT_PTR(mem);
 
   ASSERT_NB_CHUNK(0);

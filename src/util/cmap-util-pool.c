@@ -12,9 +12,9 @@
 
 void cmap_release_list_n_strings(CMAP_LIST * list)
 {
-  CMAP_KERNEL_FW * fw = &(cmap_kernel_public.this() -> fw_);
-  CMAP_POOL_STRING * pool_string = fw -> pool_string_;
-  CMAP_POOL_LIST * pool_list = fw -> pool_list_;
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
+  CMAP_POOL_LIST * pool_list = kernel -> pool_list;
 
   CMAP_MAP * val;
   while((val = CMAP_LIST_POP(list)) != NULL)

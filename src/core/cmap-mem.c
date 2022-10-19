@@ -21,12 +21,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM mem = {};
-static CMAP_MEM * mem_ptr = NULL;
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct BLOCK_s BLOCK;
 
 struct BLOCK_s
@@ -72,10 +66,16 @@ static INTERNAL internal = {CHUNK_SIZE_DFT, NULL, NULL, NULL};
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MEM mem = {};
+static CMAP_MEM * mem_ptr = NULL;
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void error(const char * msg)
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.this();
-  kernel -> log_.error("%s", msg);
+  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  kernel -> log -> error("%s", msg);
   kernel -> fatal();
 }
 
@@ -296,7 +296,7 @@ static void free_(void * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM * create(int chunk_size)
+static CMAP_MEM * init(int chunk_size)
 {
   if(mem_ptr == NULL)
   {
@@ -308,6 +308,11 @@ static CMAP_MEM * create(int chunk_size)
 
     mem_ptr = &mem;
   }
+  return mem_ptr;
+}
+
+static CMAP_MEM * instance()
+{
   return mem_ptr;
 }
 
@@ -372,7 +377,8 @@ static char is_this(CMAP_MEM * mem_)
 
 const CMAP_MEM_PUBLIC cmap_mem_public =
 {
-  create,
+  init,
+  instance,
   state,
   is_this
 };

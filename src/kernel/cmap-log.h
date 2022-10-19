@@ -3,12 +3,6 @@
 
 #include <stdarg.h>
 
-extern const char * CMAP_LOG_DEBUG;
-extern const char * CMAP_LOG_INFO;
-extern const char * CMAP_LOG_WARN;
-extern const char * CMAP_LOG_ERROR;
-extern const char * CMAP_LOG_FATAL;
-
 typedef struct
 {
   void (*debug)(const char * msg, ...);
@@ -21,6 +15,19 @@ typedef struct
   void (*vlog)(const char * level, const char * msg, va_list ap);
 } CMAP_LOG;
 
-void cmap_log_init(CMAP_LOG * log);
+typedef struct
+{
+
+  const char * debug;
+  const char * info;
+  const char * warn;
+  const char * error;
+  const char * fatal;
+
+  CMAP_LOG * (*init)();
+  CMAP_LOG * (*instance)();
+} CMAP_LOG_PUBLIC;
+
+extern const CMAP_LOG_PUBLIC cmap_log_public;
 
 #endif
