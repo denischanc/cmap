@@ -34,7 +34,7 @@ typedef struct
 {
   BLOCK super;
 
-  CMAP_TREE_STRUCT;
+  CMAP_TREE_NODE node;
 } BLOCK_FREE;
 
 /*******************************************************************************
@@ -132,6 +132,14 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
+#define WAY_FN(way) \
+static void ** way(CMAP_TREE_RUNNER * this, void * node) \
+{ \
+  return &((BLOCK_FREE *)node) -> node.way; \
+}
+
+CMAP_TREE_LOOP(WAY_FN)
+
 static int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this,
   void * node, void * data)
 {
@@ -139,7 +147,16 @@ static int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this,
   return (size - *(int *)data);
 }
 
-CMAP_TREE_RUNNER(BLOCK_FREE, block_free, NULL, false, true)
+#define WAY_SET(way) way,
+
+static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(block_free) =
+{
+  NULL,
+  CMAP_TREE_LOOP(WAY_SET)
+  CMAP_TREE_EVALFN_NAME(block_free),
+  cmap_tree_usable_false,
+  cmap_tree_usable_true
+};
 
 /*******************************************************************************
 *******************************************************************************/

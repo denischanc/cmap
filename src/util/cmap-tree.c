@@ -8,7 +8,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
+static void * find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
 {
   void * result = NULL;
 
@@ -38,7 +38,7 @@ void * cmap_tree_find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
+static void add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
   void * data)
 {
   *CMAP_CALL_ARGS(runner, ge, node) = NULL;
@@ -72,7 +72,7 @@ void cmap_tree_add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_tree_rm(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
+static void rm(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
 {
   void * repl, * parent;
 
@@ -110,6 +110,30 @@ void cmap_tree_rm(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
 /*******************************************************************************
 *******************************************************************************/
 
+static void apply(CMAP_TREE_RUNNER * runner, void ** tree,
+  CMAP_TREE_APPLY * apply_, char ge_first, void * data)
+{
+  void * node = *tree;
+  if(node != NULL)
+  {
+    void ** ge = CMAP_CALL_ARGS(runner, ge, node);
+    void ** lt = CMAP_CALL_ARGS(runner, lt, node);
+
+    if(apply_ -> before != NULL) CMAP_CALL_ARGS(apply_, before, tree, data);
+
+    apply(runner, ge_first ? ge : lt, apply_, ge_first, data);
+
+    if(apply_ -> between != NULL) CMAP_CALL_ARGS(apply_, between, tree, data);
+
+    apply(runner, ge_first ? lt : ge, apply_, ge_first, data);
+
+    if(apply_ -> after != NULL) CMAP_CALL_ARGS(apply_, after, tree, data);
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 char cmap_tree_usable_true(CMAP_TREE_RUNNER * this)
 {
   return CMAP_T;
@@ -123,24 +147,21 @@ char cmap_tree_usable_false(CMAP_TREE_RUNNER * this)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_tree_apply(CMAP_TREE_RUNNER * runner, void ** tree,
-  CMAP_TREE_APPLY * apply, char ge_first, void * data)
-{
-  void * _tree = *tree;
-  if(_tree != NULL)
-  {
-    if(apply -> before != NULL) CMAP_CALL_ARGS(apply, before, tree, data);
-
-    void ** ge = CMAP_CALL_ARGS(runner, ge, _tree);
-    void ** lt = CMAP_CALL_ARGS(runner, lt, _tree);
-    void ** next = ge_first ? ge : lt;
-    cmap_tree_apply(runner, next, apply, ge_first, data);
-
-    if(apply -> between != NULL) CMAP_CALL_ARGS(apply, between, tree, data);
-
-    next = ge_first ? lt : ge;
-    cmap_tree_apply(runner, next, apply, ge_first, data);
-
-    if(apply -> after != NULL) CMAP_CALL_ARGS(apply, after, tree, data);
-  }
+#define WAY_FN(way) \
+void ** cmap_tree_##way(CMAP_TREE_RUNNER * this, void * node) \
+{ \
+  return &((CMAP_TREE_NODE *)node) -> way; \
 }
+
+CMAP_TREE_LOOP(WAY_FN)
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_TREE_PUBLIC const cmap_tree_public =
+{
+  find,
+  add,
+  rm,
+  apply
+};

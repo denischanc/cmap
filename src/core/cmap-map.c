@@ -12,10 +12,10 @@
 
 typedef struct
 {
+  CMAP_TREE_NODE node;
+
   char * key;
   CMAP_MAP * val;
-
-  CMAP_TREE_STRUCT;
 } ENTRY;
 
 typedef struct
@@ -35,7 +35,7 @@ static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node,
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_TREE_RUNNER(ENTRY, entry, NULL, false, false)
+CMAP_TREE_RUNNER(entry, NULL, false, false);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -146,6 +146,8 @@ static void add_key(CMAP_TREE_APPLY * this, void ** node, void * data)
   CMAP_LIST_ADD(data_ -> keys, 0, key);
 }
 
+CMAP_TREE_APPLY(keys_apply, NULL, NULL, add_key, NULL);
+
 static void keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
@@ -154,9 +156,7 @@ static void keys(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle)
   data.keys = keys;
   data.aisle = aisle;
 
-  CMAP_TREE_APPLY apply;
-  CMAP_TREE_APPLY_INIT(apply, NULL, NULL, add_key, NULL)
-  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply, CMAP_T, &data);
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, keys_apply, CMAP_T, &data);
 }
 
 /*******************************************************************************
@@ -176,6 +176,8 @@ static void apply_fn(CMAP_TREE_APPLY * this, void ** node, void * data)
   apply_data -> fn(entry -> key, &entry -> val, apply_data -> fn_data);
 }
 
+CMAP_TREE_APPLY(apply_apply, NULL, NULL, apply_fn, NULL);
+
 static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
@@ -184,9 +186,7 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
   apply_data.fn = fn;
   apply_data.fn_data = data;
 
-  CMAP_TREE_APPLY apply;
-  CMAP_TREE_APPLY_INIT(apply, NULL, NULL, apply_fn, NULL)
-  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply, CMAP_T,
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply_apply, CMAP_T,
     &apply_data);
 }
 
@@ -201,15 +201,15 @@ static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
   CMAP_MEM_FREE(entry, mem);
 }
 
+CMAP_TREE_APPLY(delete_apply, NULL, NULL, NULL, entry_delete);
+
 static CMAP_MAP * delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
   CMAP_MAP * next = internal -> next;
   CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
 
-  CMAP_TREE_APPLY apply;
-  CMAP_TREE_APPLY_INIT(apply, NULL, NULL, NULL, entry_delete)
-  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply, CMAP_T, mem);
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply, CMAP_T, mem);
 
   CMAP_MEM_FREE(internal, mem);
   CMAP_MEM_FREE(map, mem);
