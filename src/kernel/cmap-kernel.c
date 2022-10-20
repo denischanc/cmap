@@ -132,7 +132,7 @@ static CMAP_KERNEL_CFG * instance_cfg()
 /*******************************************************************************
 *******************************************************************************/
 
-static inline CMAP_MEM * get_mem()
+static CMAP_MEM * get_mem()
 {
   CMAP_MEM * mem = internal.cfg -> mem;
   if(mem == NULL) mem = cmap_mem_public.init(0);
@@ -148,11 +148,8 @@ static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
   {
     internal.state = CMAP_KERNEL_S_INIT;
 
-    kernel.log = cmap_log_public.init();
-    kernel.log -> debug("Init kernel.");
-
     if(cfg == NULL) cfg = instance_cfg();
-	internal.cfg = cfg;
+    internal.cfg = cfg;
 
     kernel.mem = get_mem();
 
@@ -161,11 +158,14 @@ static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
     kernel.fatal = fatal;
     kernel.state = state;
 
+    kernel_ptr = &kernel;
+
+    kernel.log = cmap_log_public.init();
+    kernel.log -> debug("Init kernel.");
+
     init_env();
 
     internal.state = CMAP_KERNEL_S_ALIVE;
-
-    kernel_ptr = &kernel;
   }
   return kernel_ptr;
 }
