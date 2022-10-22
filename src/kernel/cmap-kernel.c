@@ -5,7 +5,7 @@
 #include "cmap-global-env.h"
 #include "cmap.h"
 #include "cmap-aisle.h"
-#include "cmap-util-list.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -50,7 +50,8 @@ static void delete_all()
 {
   CMAP_WAREHOUSE * wh = kernel.warehouse;
 
-  cmap_delete_list_vals((CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK));
+  cmap_util_public.delete_list_vals(
+    (CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK));
   CMAP_CALL(kernel.pool_list, delete);
   CMAP_CALL(kernel.pool_string, delete);
   CMAP_CALL((CMAP_MAP *)wh, delete);

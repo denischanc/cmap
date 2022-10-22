@@ -10,10 +10,8 @@
 #include "cmap-int.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
-#include "cmap-util-string.h"
-#include "cmap-util-pool.h"
 #include "cmap-aisle.h"
-#include "cmap-util-list.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -119,7 +117,7 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
   if(map == NULL) map = kernel -> global_env;
 
-  CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
+  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
   for(; (i < i_stop) && (map != NULL); i++)
@@ -136,7 +134,7 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
     CMAP_CALL_ARGS(pool_string, release, key);
   }
 
-  cmap_release_list_n_strings(keys_split);
+  cmap_util_public.release_pool_list_n_strings(keys_split);
 }
 
 /*******************************************************************************
@@ -149,7 +147,7 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 
   if(map == NULL) map = kernel -> global_env;
 
-  CMAP_LIST * keys_split = cmap_split_w_pool(keys, '.');
+  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.');
 
   CMAP_STRING * key;
   int i = 0, i_stop = CMAP_CALL(keys_split, size);
@@ -160,7 +158,7 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
     CMAP_CALL_ARGS(pool_string, release, key);
   }
 
-  cmap_release_list_n_strings(keys_split);
+  cmap_util_public.release_pool_list_n_strings(keys_split);
 
   return map;
 }
@@ -189,7 +187,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
     ret = CMAP_FN_PROCESS(fn, map, args_list);
   }
 
-  cmap_delete_list_vals(stack_local);
+  cmap_util_public.delete_list_vals(stack_local);
   CMAP_WAREHOUSE * wh = cmap_kernel_public.instance() -> warehouse;
   CMAP_CALL_ARGS(wh, delete_last, CMAP_AISLE_STACK);
 
@@ -219,7 +217,7 @@ CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 
   if(map == NULL) map = kernel -> global_env;
 
-  CMAP_LIST * keys_split = cmap_split_w_pool(fn_names, '.');
+  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(fn_names, '.');
 
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
   for(; (i < i_stop) && (map != NULL); i++)
@@ -241,7 +239,7 @@ CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
     CMAP_CALL_ARGS(pool_string, release, fn_name);
   }
 
-  cmap_release_list_n_strings(keys_split);
+  cmap_util_public.release_pool_list_n_strings(keys_split);
 
   return map;
 }
