@@ -40,7 +40,7 @@ static void init_env()
 
   CMAP_LIST(0, cmap_aisle_public.stack);
 
-  kernel.global_env = cmap_global_env_create();
+  kernel.global_env = cmap_global_env_public.init();
 }
 
 /*******************************************************************************

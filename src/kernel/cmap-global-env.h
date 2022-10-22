@@ -3,6 +3,12 @@
 
 #include "cmap-map.h"
 
-CMAP_MAP * cmap_global_env_create();
+typedef struct
+{
+  CMAP_MAP * (*init)();
+  CMAP_MAP * (*instance)();
+} CMAP_GLOBAL_ENV_PUBLIC;
+
+extern const CMAP_GLOBAL_ENV_PUBLIC cmap_global_env_public;
 
 #endif
