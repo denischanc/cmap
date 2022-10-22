@@ -14,7 +14,7 @@
 
 static void display(FILE * f, CMAP_LIST * args)
 {
-  CMAP_STRING * line = CMAP_STRING("", 0, CMAP_AISLE_LOCAL);
+  CMAP_STRING * line = CMAP_STRING("", 0, cmap_aisle_public.local);
 
   if(args != NULL)
   {
@@ -55,10 +55,10 @@ static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 
 CMAP_MAP * cmap_console_create()
 {
-  CMAP_MAP * console = CMAP_MAP(CMAP_AISLE_KERNEL);
+  CMAP_MAP * console = CMAP_MAP(cmap_aisle_public.kernel);
 
-  CMAP_SET(console, "info", CMAP_FN(info, CMAP_AISLE_KERNEL));
-  CMAP_SET(console, "error", CMAP_FN(error, CMAP_AISLE_KERNEL));
+  CMAP_SET(console, "info", CMAP_FN(info, cmap_aisle_public.kernel));
+  CMAP_SET(console, "error", CMAP_FN(error, cmap_aisle_public.kernel));
 
   return console;
 }

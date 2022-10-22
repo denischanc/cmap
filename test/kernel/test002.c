@@ -40,7 +40,7 @@ static void test_list(int size)
 
   static CMAP_MAP * elmts[NB_MAX];
   int i = 0;
-  for(; i < size; i++) elmts[i] = CMAP_MAP(CMAP_AISLE_LOCAL);
+  for(; i < size; i++) elmts[i] = CMAP_MAP(cmap_aisle_public.local);
 
   /********** push/unshift */
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);

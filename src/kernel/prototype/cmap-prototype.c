@@ -24,7 +24,7 @@
 *******************************************************************************/
 
 #define CREATE(proto) \
-  prototype -> proto##_ = CMAP_MAP(CMAP_AISLE_KERNEL);
+  prototype -> proto##_ = CMAP_MAP(cmap_aisle_public.kernel);
 
 #define INIT(proto) \
   cmap_prototype_##proto##_init(prototype -> proto##_);

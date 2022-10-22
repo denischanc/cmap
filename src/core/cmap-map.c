@@ -44,9 +44,10 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
   CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel_public.instance() -> warehouse;
 
-  if(!strcmp(aisle, CMAP_AISLE_LOCAL))
+  if(!strcmp(aisle, cmap_aisle_public.local))
   {
-    CMAP_LIST * stack_local = (CMAP_LIST *)CMAP_GET(wh, CMAP_AISLE_STACK);
+    CMAP_LIST * stack_local =
+      (CMAP_LIST *)CMAP_GET(wh, cmap_aisle_public.stack);
     CMAP_LIST_PUSH(stack_local, map);
   }
   else

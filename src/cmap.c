@@ -169,9 +169,9 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   va_list args)
 {
-  CMAP_LIST * stack_local = CMAP_LIST(0, CMAP_AISLE_STACK);
+  CMAP_LIST * stack_local = CMAP_LIST(0, cmap_aisle_public.stack);
 
-  CMAP_LIST * args_list = CMAP_LIST(0, CMAP_AISLE_LOCAL);
+  CMAP_LIST * args_list = CMAP_LIST(0, cmap_aisle_public.local);
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
@@ -189,7 +189,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
 
   cmap_util_public.delete_list_vals(stack_local);
   CMAP_WAREHOUSE * wh = cmap_kernel_public.instance() -> warehouse;
-  CMAP_CALL_ARGS(wh, delete_last, CMAP_AISLE_STACK);
+  CMAP_CALL_ARGS(wh, delete_last, cmap_aisle_public.stack);
 
   return ret;
 }

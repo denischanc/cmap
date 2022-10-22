@@ -58,5 +58,6 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
 
 void cmap_prototype_map_init(CMAP_MAP * proto)
 {
-  CMAP_SET(proto, CMAP_APPLY_FN_NAME, CMAP_FN(apply_fn, CMAP_AISLE_KERNEL));
+  CMAP_SET(proto, CMAP_APPLY_FN_NAME,
+    CMAP_FN(apply_fn, cmap_aisle_public.kernel));
 }
