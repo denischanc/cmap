@@ -53,7 +53,7 @@ static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_console_create()
+static CMAP_MAP * create()
 {
   CMAP_MAP * console = CMAP_MAP(cmap_aisle_public.kernel);
 
@@ -62,3 +62,11 @@ CMAP_MAP * cmap_console_create()
 
   return console;
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_CONSOLE_PUBLIC cmap_console_public =
+{
+  create
+};

@@ -3,6 +3,11 @@
 
 #include "cmap-map.h"
 
-CMAP_MAP * cmap_console_create();
+typedef struct
+{
+  CMAP_MAP * (*create)();
+} CMAP_CONSOLE_PUBLIC;
+
+extern const CMAP_CONSOLE_PUBLIC cmap_console_public;
 
 #endif
