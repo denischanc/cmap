@@ -15,14 +15,14 @@ noinst_HEADERS = \
   cmap-log.h \
   cmap-pool.h \
   cmap-pool-handlers.h \
-  cmap-warehouse.h
+  cmap-aislestore.h
 
 noinst_LTLIBRARIES = libkernel.la
 
 libkernel_la_SOURCES = \
   cmap-kernel.c \
   cmap-global-env.c \
-  cmap-warehouse.c \
+  cmap-aislestore.c \
   cmap-pool.c \
   cmap-pool-handlers.c \
   cmap-pool-handlers.h \

@@ -42,20 +42,20 @@ CMAP_TREE_RUNNER(entry, NULL, false, false);
 
 static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
-  CMAP_MAP * wh = (CMAP_MAP *)cmap_kernel_public.instance() -> warehouse;
+  CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.instance() -> aislestore;
 
   if(!strcmp(aisle, cmap_aisle_public.local))
   {
     CMAP_LIST * stack_local =
-      (CMAP_LIST *)CMAP_GET(wh, cmap_aisle_public.stack);
+      (CMAP_LIST *)CMAP_GET(as, cmap_aisle_public.stack);
     CMAP_LIST_PUSH(stack_local, map);
   }
   else
   {
     INTERNAL * internal = (INTERNAL *)map -> internal;
-    internal -> next = CMAP_GET(wh, aisle);
+    internal -> next = CMAP_GET(as, aisle);
 
-    CMAP_SET(wh, aisle, map);
+    CMAP_SET(as, aisle, map);
   }
 }
 

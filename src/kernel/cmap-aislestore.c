@@ -1,5 +1,5 @@
 
-#include "cmap-warehouse.h"
+#include "cmap-aislestore.h"
 
 #include <stdlib.h>
 #include "cmap-list.h"
@@ -10,7 +10,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void warehouse__delete_aisle(CMAP_WAREHOUSE * this, const char * aisle)
+static void delete_aisle(CMAP_AISLESTORE * this, const char * aisle)
 {
   CMAP_MAP * map = CMAP_GET(this, aisle);
   while(map != NULL)
@@ -24,7 +24,7 @@ static void warehouse__delete_aisle(CMAP_WAREHOUSE * this, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-static void warehouse__delete_last(CMAP_WAREHOUSE * this, const char * aisle)
+static void delete_last(CMAP_AISLESTORE * this, const char * aisle)
 {
   CMAP_MAP * map = CMAP_GET(this, aisle);
   if(map != NULL) CMAP_SET(this, aisle, CMAP_DELETE(map));
@@ -36,16 +36,12 @@ static void warehouse__delete_last(CMAP_WAREHOUSE * this, const char * aisle)
 static void delete_aisle_apply_fn(const char * key, CMAP_MAP ** val,
   void * data)
 {
-  CMAP_MAP * map = *val;
-  while(map != NULL)
-  {
-    map = CMAP_DELETE(map);
-  }
+  for(CMAP_MAP * map = *val; map != NULL; map = CMAP_DELETE(map));
 
   *val = NULL;
 }
 
-static CMAP_MAP * warehouse__delete(CMAP_MAP * this)
+static CMAP_MAP * delete(CMAP_MAP * this)
 {
   CMAP_CALL_ARGS(this, apply, delete_aisle_apply_fn, NULL);
 
@@ -55,16 +51,24 @@ static CMAP_MAP * warehouse__delete(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_WAREHOUSE * cmap_warehouse_create()
+static CMAP_AISLESTORE * create()
 {
-  CMAP_KERNEL_ALLOC_PTR(wh, CMAP_WAREHOUSE);
-  CMAP_MAP * map = (CMAP_MAP *)wh;
+  CMAP_KERNEL_ALLOC_PTR(as, CMAP_AISLESTORE);
+  CMAP_MAP * map = (CMAP_MAP *)as;
 
   cmap_map_public.init(map);
-  map -> delete = warehouse__delete;
+  map -> delete = delete;
 
-  wh -> delete = warehouse__delete_aisle;
-  wh -> delete_last = warehouse__delete_last;
+  as -> delete = delete_aisle;
+  as -> delete_last = delete_last;
 
-  return wh;
+  return as;
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_AISLESTORE_PUBLIC cmap_aislestore_public =
+{
+  create
+};

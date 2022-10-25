@@ -188,8 +188,8 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   }
 
   cmap_util_public.delete_list_vals(stack_local);
-  CMAP_WAREHOUSE * wh = cmap_kernel_public.instance() -> warehouse;
-  CMAP_CALL_ARGS(wh, delete_last, cmap_aisle_public.stack);
+  CMAP_AISLESTORE * as = cmap_kernel_public.instance() -> aislestore;
+  CMAP_CALL_ARGS(as, delete_last, cmap_aisle_public.stack);
 
   return ret;
 }

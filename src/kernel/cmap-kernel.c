@@ -32,7 +32,7 @@ static CMAP_KERNEL * kernel_ptr = NULL;
 
 static void init_env()
 {
-  kernel.warehouse = cmap_warehouse_create();
+  kernel.aislestore = cmap_aislestore_public.create();
 
   cmap_prototype_init(&kernel.prototype);
   kernel.pool_list = cmap_pool_list_public.create(20);
@@ -48,13 +48,13 @@ static void init_env()
 
 static void delete_all()
 {
-  CMAP_WAREHOUSE * wh = kernel.warehouse;
+  CMAP_AISLESTORE * as = kernel.aislestore;
 
   cmap_util_public.delete_list_vals(
-    (CMAP_LIST *)CMAP_GET(wh, cmap_aisle_public.stack));
+    (CMAP_LIST *)CMAP_GET(as, cmap_aisle_public.stack));
   CMAP_CALL(kernel.pool_list, delete);
   CMAP_CALL(kernel.pool_string, delete);
-  CMAP_CALL((CMAP_MAP *)wh, delete);
+  CMAP_CALL((CMAP_MAP *)as, delete);
 }
 
 /*******************************************************************************

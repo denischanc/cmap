@@ -4,7 +4,7 @@
 #include "cmap-mem.h"
 #include "cmap-map.h"
 #include "cmap-prototype.h"
-#include "cmap-warehouse.h"
+#include "cmap-aislestore.h"
 #include "cmap-log.h"
 #include "cmap-pool.h"
 #include "cmap-kernel-define.h"
@@ -22,7 +22,7 @@ typedef struct
 
   CMAP_PROTOTYPE prototype;
   CMAP_MAP * global_env;
-  CMAP_WAREHOUSE * warehouse;
+  CMAP_AISLESTORE * aislestore;
 
   CMAP_POOL_LIST * pool_list;
   CMAP_POOL_STRING * pool_string;
