@@ -1,60 +1,55 @@
 
 #include "cmap-pool-handlers.h"
 
+#include <stdlib.h>
 #include "cmap.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * list_handler__create()
+static CMAP_LIST * list_create()
 {
   return CMAP_LIST(0, NULL);
 }
 
-static void list_handler__delete(CMAP_LIST * list)
+static void list_delete(CMAP_LIST * list)
 {
   CMAP_DELETE(list);
 }
 
-static void list_handler__clean(CMAP_LIST * list)
+static void list_clean(CMAP_LIST * list)
 {
   CMAP_CALL(list, clear);
 }
 
-static CMAP_POOL_LIST_HANDLER cmap_pool_list_handler_ =
+const CMAP_POOL_HANDLER_LIST_PUBLIC cmap_pool_handler_list_public =
 {
-  .create = list_handler__create,
-  .delete = list_handler__delete,
-  .clean = list_handler__clean
+  list_create,
+  list_delete,
+  list_clean
 };
-
-CMAP_POOL_LIST_HANDLER * cmap_pool_list_handler =
-  &cmap_pool_list_handler_;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STRING * string_handler__create()
+static CMAP_STRING * string_create()
 {
   return CMAP_STRING("", 0, NULL);
 }
 
-static void string_handler__delete(CMAP_STRING * string)
+static void string_delete(CMAP_STRING * string)
 {
   CMAP_DELETE(string);
 }
 
-static void string_handler__clean(CMAP_STRING * string)
+static void string_clean(CMAP_STRING * string)
 {
   CMAP_CALL(string, clear);
 }
 
-static CMAP_POOL_STRING_HANDLER cmap_pool_string_handler_ =
+const CMAP_POOL_HANDLER_STRING_PUBLIC cmap_pool_handler_string_public =
 {
-  .create = string_handler__create,
-  .delete = string_handler__delete,
-  .clean = string_handler__clean
+  string_create,
+  string_delete,
+  string_clean
 };
-
-CMAP_POOL_STRING_HANDLER * cmap_pool_string_handler =
-  &cmap_pool_string_handler_;

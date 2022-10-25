@@ -4,22 +4,27 @@
 #include "cmap-list.h"
 #include "cmap-string.h"
 
-#define CMAP_POOL_DECL(name, lower_name, _struct, name_s) \
-  typedef struct CMAP_POOL_##name##_s CMAP_POOL_##name; \
-   \
-  struct CMAP_POOL_##name##_s \
-  { \
-    void * internal_; \
-   \
-    void (*delete)(CMAP_POOL_##name * this); \
-   \
-    _struct * (*take)(CMAP_POOL_##name * this); \
-    void (*release)(CMAP_POOL_##name * this, _struct * name_s); \
-  }; \
-   \
-  CMAP_POOL_##name * cmap_pool_##lower_name##_create(int size);
+#define CMAP_POOL(TYPE, type) \
+typedef struct CMAP_POOL_##TYPE##_s CMAP_POOL_##TYPE; \
+ \
+struct CMAP_POOL_##TYPE##_s \
+{ \
+  void * internal; \
+ \
+  void (*delete)(CMAP_POOL_##TYPE * this); \
+ \
+  CMAP_##TYPE * (*take)(CMAP_POOL_##TYPE * this); \
+  void (*release)(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e); \
+}; \
+ \
+typedef struct \
+{ \
+  CMAP_POOL_##TYPE * (*create)(int size); \
+} CMAP_POOL_##TYPE##_PUBLIC; \
+ \
+extern const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public;
 
-CMAP_POOL_DECL(LIST, list, CMAP_LIST, list)
-CMAP_POOL_DECL(STRING, string, CMAP_STRING, string)
+CMAP_POOL(LIST, list)
+CMAP_POOL(STRING, string)
 
 #endif

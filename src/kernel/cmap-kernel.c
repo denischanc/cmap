@@ -35,8 +35,8 @@ static void init_env()
   kernel.warehouse = cmap_warehouse_create();
 
   cmap_prototype_init(&kernel.prototype);
-  kernel.pool_list = cmap_pool_list_create(20);
-  kernel.pool_string = cmap_pool_string_create(20);
+  kernel.pool_list = cmap_pool_list_public.create(20);
+  kernel.pool_string = cmap_pool_string_public.create(20);
 
   CMAP_LIST(0, cmap_aisle_public.stack);
 

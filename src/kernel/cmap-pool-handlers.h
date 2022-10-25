@@ -4,17 +4,18 @@
 #include "cmap-list.h"
 #include "cmap-string.h"
 
-#define CMAP_POOL_HANDLER_DECL(name, lower_name, _struct, name_s) \
-  typedef struct \
-  { \
-    _struct * (*create)(); \
-    void (*delete)(_struct * name_s); \
-    void (*clean)(_struct * name_s); \
-  } CMAP_POOL_##name##_HANDLER; \
-    \
-  extern CMAP_POOL_##name##_HANDLER * cmap_pool_##lower_name##_handler;
+#define CMAP_POOL_HANDLER(TYPE, type) \
+typedef struct \
+{ \
+  CMAP_##TYPE * (*create)(); \
+  void (*delete)(CMAP_##TYPE * e); \
+  void (*clean)(CMAP_##TYPE * s); \
+} CMAP_POOL_HANDLER_##TYPE##_PUBLIC; \
+ \
+extern const CMAP_POOL_HANDLER_##TYPE##_PUBLIC \
+  cmap_pool_handler_##type##_public;
 
-CMAP_POOL_HANDLER_DECL(LIST, list, CMAP_LIST, list)
-CMAP_POOL_HANDLER_DECL(STRING, string, CMAP_STRING, string)
+CMAP_POOL_HANDLER(LIST, list)
+CMAP_POOL_HANDLER(STRING, string)
 
 #endif
