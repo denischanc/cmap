@@ -1,8 +1,8 @@
 
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 #include <stdlib.h>
-#include "cmap-common-define.h"
+#include "cmap-define.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-fn.h"

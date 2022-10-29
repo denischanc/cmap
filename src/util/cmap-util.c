@@ -2,10 +2,10 @@
 #include "cmap-util.h"
 
 #include <stdlib.h>
-#include "cmap.h"
+#include <cmap/cmap.h>
 #include "cmap-kernel.h"
 #include "cmap-pool.h"
-#include "cmap-common-define.h"
+#include "cmap-define.h"
 
 /*******************************************************************************
 *******************************************************************************/

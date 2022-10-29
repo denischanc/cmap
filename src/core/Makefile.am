@@ -1,22 +1,17 @@
 
 include $(top_srcdir)/src/common.mk
 
-include_cmap_HEADERS = \
-  cmap-core.h \
-  cmap-fn-external.h \
-  cmap-mem-external.h
-
 noinst_HEADERS = \
-  cmap-fn-define.h \
-  cmap-fn.h \
-  cmap-int.h \
-  cmap-list-define.h \
-  cmap-list.h \
-  cmap-map-define.h \
-  cmap-map.h \
-  cmap-mem-define.h \
   cmap-mem.h \
-  cmap-string.h
+  cmap-mem-define.h \
+  cmap-map.h \
+  cmap-map-define.h \
+  cmap-list.h \
+  cmap-list-define.h \
+  cmap-fn.h \
+  cmap-fn-define.h \
+  cmap-string.h \
+  cmap-int.h
 
 noinst_LTLIBRARIES = libcore.la
 

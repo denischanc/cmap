@@ -1,7 +1,7 @@
 #ifndef __CMAP_STRING_H__
 #define __CMAP_STRING_H__
 
-#include "cmap-core.h"
+#include <cmap/core.h>
 #include "cmap-map.h"
 
 struct CMAP_STRING_s

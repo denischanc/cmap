@@ -3,19 +3,15 @@ include $(top_srcdir)/src/common.mk
 
 SUBDIRS = prototype console
 
-include_cmap_HEADERS = \
-  cmap-aisle-external.h \
-  cmap-kernel-external.h
-
 noinst_HEADERS = \
-  cmap-aisle.h \
-  cmap-global-env.h \
-  cmap-kernel-define.h \
   cmap-kernel.h \
-  cmap-log.h \
+  cmap-kernel-define.h \
+  cmap-global-env.h \
+  cmap-aislestore.h \
   cmap-pool.h \
   cmap-pool-handlers.h \
-  cmap-aislestore.h
+  cmap-aisle.h \
+  cmap-log.h
 
 noinst_LTLIBRARIES = libkernel.la
 
@@ -25,7 +21,6 @@ libkernel_la_SOURCES = \
   cmap-aislestore.c \
   cmap-pool.c \
   cmap-pool-handlers.c \
-  cmap-pool-handlers.h \
   cmap-aisle.c \
   cmap-log.c
 libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)

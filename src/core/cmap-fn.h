@@ -1,10 +1,10 @@
 #ifndef __CMAP_FN_H__
 #define __CMAP_FN_H__
 
-#include "cmap-core.h"
+#include <cmap/core.h>
 #include "cmap-map.h"
 #include "cmap-fn-define.h"
-#include "cmap-fn-external.h"
+#include <cmap/fn.h>
 
 struct CMAP_FN_s
 {

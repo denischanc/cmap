@@ -1,7 +1,7 @@
 #ifndef __CMAP_INT_H__
 #define __CMAP_INT_H__
 
-#include "cmap-core.h"
+#include <cmap/core.h>
 #include "cmap-map.h"
 #include <sys/types.h>
 

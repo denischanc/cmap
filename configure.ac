@@ -33,6 +33,7 @@ AM_CONDITIONAL([CYGWIN], [echo $host_os | grep -q cygwin])
 AC_CONFIG_FILES([ \
   Makefile \
   src/Makefile \
+  src/include/cmap/Makefile \
   src/util/Makefile \
   src/core/Makefile \
   src/kernel/Makefile \

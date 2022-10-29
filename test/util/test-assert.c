@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 void cmap_test_assert(char cond, const char * file, int line,
   const char * msg)

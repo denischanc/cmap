@@ -2,7 +2,7 @@
 @TEST_DESC@ Instantiate kernel
 *******************************************************************************/
 
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 #include <stdlib.h>
 

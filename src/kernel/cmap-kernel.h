@@ -8,7 +8,7 @@
 #include "cmap-log.h"
 #include "cmap-pool.h"
 #include "cmap-kernel-define.h"
-#include "cmap-kernel-external.h"
+#include <cmap/kernel.h>
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1

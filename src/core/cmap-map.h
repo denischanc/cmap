@@ -1,7 +1,7 @@
 #ifndef __CMAP_MAP_H__
 #define __CMAP_MAP_H__
 
-#include "cmap-core.h"
+#include <cmap/core.h>
 #include "cmap-map-define.h"
 
 typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP ** val,

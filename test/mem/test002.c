@@ -4,7 +4,7 @@
 
 #include "cmap-mem.h"
 #include "cmap-tree.h"
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 #include <stdlib.h>
 #include <stdio.h>

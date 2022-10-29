@@ -2,7 +2,7 @@
 #include "cmap-prototype.h"
 
 #include <stdlib.h>
-#include "cmap.h"
+#include <cmap/cmap.h>
 #include "cmap-aisle.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"

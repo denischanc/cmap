@@ -1,13 +1,13 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = util core kernel
+SUBDIRS = \
+  include/cmap \
+  util \
+  core \
+  kernel
 
-noinst_HEADERS = \
-  cmap-common-define.h
-include_cmap_HEADERS = \
-  cmap-define.h \
-  cmap.h
+noinst_HEADERS = cmap-define.h
 
 lib_LTLIBRARIES = libcmap.la
 

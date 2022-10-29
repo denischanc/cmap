@@ -2,8 +2,8 @@
 #include "cmap-tree.h"
 
 #include <stdlib.h>
-#include "cmap-common-define.h"
-#include "cmap.h"
+#include "cmap-define.h"
+#include <cmap/cmap.h>
 
 /*******************************************************************************
 *******************************************************************************/

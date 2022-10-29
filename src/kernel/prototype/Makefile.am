@@ -1,10 +1,8 @@
 
 include $(top_srcdir)/src/common.mk
 
-include_cmap_HEADERS = \
-  cmap-prototype.h
-
 noinst_HEADERS = \
+  cmap-prototype.h \
   cmap-prototype-map.h \
   cmap-prototype-list.h \
   cmap-prototype-fn.h \

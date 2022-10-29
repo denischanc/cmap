@@ -2,7 +2,7 @@
 #define __CMAP_MEM_H__
 
 #include "cmap-mem-define.h"
-#include "cmap-mem-external.h"
+#include <cmap/mem.h>
 
 typedef struct
 {

@@ -2,7 +2,7 @@
 @TEST_DESC@ Call console info/error fns
 *******************************************************************************/
 
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 #include <stdlib.h>
 #include "test-assert.h"

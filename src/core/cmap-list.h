@@ -1,7 +1,7 @@
 #ifndef __CMAP_LIST_H__
 #define __CMAP_LIST_H__
 
-#include "cmap-core.h"
+#include <cmap/core.h>
 #include "cmap-map.h"
 #include "cmap-list-define.h"
 

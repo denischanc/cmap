@@ -4,7 +4,7 @@
 #include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
-#include "cmap.h"
+#include <cmap/cmap.h>
 #include "cmap-aisle.h"
 
 /*******************************************************************************

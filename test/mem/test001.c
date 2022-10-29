@@ -3,7 +3,7 @@
 *******************************************************************************/
 
 #include "cmap-mem.h"
-#include "cmap.h"
+#include <cmap/cmap.h>
 
 #include "test-assert.h"
 #include <stdlib.h>

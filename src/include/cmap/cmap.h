@@ -3,12 +3,12 @@
 
 #include <stdarg.h>
 
-#include "cmap-kernel-external.h"
-#include "cmap-core.h"
-#include "cmap-fn-external.h"
-#include "cmap-aisle-external.h"
-#include "cmap-mem-external.h"
-#include "cmap-define.h"
+#include <cmap/kernel.h>
+#include <cmap/core.h>
+#include <cmap/fn.h>
+#include <cmap/aisle.h>
+#include <cmap/mem.h>
+#include <cmap/define.h>
 
 void cmap_init(CMAP_KERNEL_CFG * cfg);
 int cmap_main(int argc, char * argv[]);

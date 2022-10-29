@@ -3,8 +3,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "cmap-common-define.h"
-#include "cmap.h"
+#include "cmap-define.h"
+#include <cmap/cmap.h>
 #include "cmap-aisle.h"
 #include "cmap-list.h"
 #include "cmap-string.h"

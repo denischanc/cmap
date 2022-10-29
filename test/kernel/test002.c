@@ -2,7 +2,7 @@
 @TEST_DESC@ Add/rm maps in list
 *******************************************************************************/
 
-#include "cmap.h"
+#include <cmap/cmap.h>
 #include "cmap-list.h"
 
 #include "test-assert.h"

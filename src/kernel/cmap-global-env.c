@@ -2,7 +2,7 @@
 #include "cmap-global-env.h"
 
 #include <stdlib.h>
-#include "cmap.h"
+#include <cmap/cmap.h>
 #include "cmap-console.h"
 #include "cmap-aisle.h"
 

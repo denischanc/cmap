@@ -1,7 +1,7 @@
 #ifndef __CMAP_KERNEL_EXTERNAL_H__
 #define __CMAP_KERNEL_EXTERNAL_H__
 
-#include "cmap-mem-external.h"
+#include <cmap/mem.h>
 
 typedef struct
 {
