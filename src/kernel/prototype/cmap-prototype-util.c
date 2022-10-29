@@ -19,7 +19,7 @@ char cmap_prototype_args_map_fn(CMAP_PROTOTYPE_MAP_FN * map_fn,
 {
   if(CMAP_CALL(args, size) < 1) return CMAP_F;
 
-  CMAP_MAP * tmp = CMAP_CALL(args, unshift);
+  CMAP_MAP * tmp = CMAP_LIST_GET(args, 0);
   if(CMAP_NATURE(tmp) == cmap_fn_public.nature)
   {
     map_fn -> fn_ = (CMAP_FN *)tmp;
