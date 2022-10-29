@@ -2,6 +2,7 @@
 #include "cmap-int.h"
 
 #include "cmap-kernel.h"
+#include "cmap-prototype-int.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -68,7 +69,7 @@ static void init(CMAP_INT * int_)
 
 static CMAP_INT * create(const char * aisle)
 {
-  CMAP_MAP * prototype_int = cmap_kernel_public.instance() -> prototype.int_;
+  CMAP_MAP * prototype_int = cmap_prototype_int_public.instance();
   CMAP_INT * int_ = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
     sizeof(CMAP_INT), aisle);
   init(int_);

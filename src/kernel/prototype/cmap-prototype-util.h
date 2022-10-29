@@ -1,6 +1,7 @@
 #ifndef __CMAP_PROTOTYPE_UTIL__
 #define __CMAP_PROTOTYPE_UTIL__
 
+#include "cmap-prototype-util-define.h"
 #include "cmap-map.h"
 #include "cmap-fn.h"
 #include "cmap-list.h"
@@ -13,13 +14,6 @@ typedef struct
   CMAP_MAP * map_;
   CMAP_FN * fn_;
 } CMAP_PROTOTYPE_MAP_FN;
-
-/*******************************************************************************
-*******************************************************************************/
-
-extern const char * CMAP_MAIN_FN_NAME;
-extern const char * CMAP_APPLY_FN_NAME;
-extern const char * CMAP_ADDALL_FN_NAME;
 
 /*******************************************************************************
 *******************************************************************************/

@@ -7,7 +7,10 @@ SUBDIRS = \
   core \
   kernel
 
-noinst_HEADERS = cmap-define.h
+noinst_HEADERS = \
+  cmap-common.h \
+  cmap-common-define.h \
+  cmap-common-super-define.h
 
 lib_LTLIBRARIES = libcmap.la
 

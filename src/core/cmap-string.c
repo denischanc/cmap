@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include "cmap-kernel.h"
+#include "cmap-prototype-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -147,8 +148,7 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
 
 static CMAP_STRING * create(const char * val, int size_inc, const char * aisle)
 {
-  CMAP_MAP * prototype_string =
-    cmap_kernel_public.instance() -> prototype.string_;
+  CMAP_MAP * prototype_string = cmap_prototype_string_public.instance();
   CMAP_STRING * string = (CMAP_STRING *)CMAP_CALL_ARGS(prototype_string, new,
     sizeof(CMAP_STRING), aisle);
   init(string, val, size_inc);

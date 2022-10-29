@@ -4,8 +4,9 @@
 #include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
-#include <cmap/cmap.h>
+#include "cmap-common.h"
 #include "cmap-aisle.h"
+#include "cmap-prototype-map.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -44,10 +45,9 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
   CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.instance() -> aislestore;
 
-  if(!strcmp(aisle, cmap_aisle_public.local))
+  if(aisle == CMAP_AISLE_LOCAL)
   {
-    CMAP_LIST * stack_local =
-      (CMAP_LIST *)CMAP_GET(as, cmap_aisle_public.stack);
+    CMAP_LIST * stack_local = (CMAP_LIST *)CMAP_GET(as, CMAP_AISLE_STACK);
     CMAP_LIST_PUSH(stack_local, map);
   }
   else
@@ -246,7 +246,7 @@ static CMAP_MAP * create_root(const char * aisle)
 
 static CMAP_MAP * create(const char * aisle)
 {
-  CMAP_MAP * prototype_map = cmap_kernel_public.instance() -> prototype.map_;
+  CMAP_MAP * prototype_map = cmap_prototype_map_public.instance();
   if(prototype_map == NULL) return create_root(aisle);
   else return CMAP_MAP_NEW_MAP(prototype_map, aisle);
 }

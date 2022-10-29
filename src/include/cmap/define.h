@@ -2,9 +2,7 @@
 #define __CMAP_DEFINE_H__
 
 #include <stdlib.h>
-
-#define CMAP_T (1 == 1)
-#define CMAP_F (1 == 0)
+#include <cmap/super-define.h>
 
 #define CMAP_MAP(aisle) cmap_map(aisle)
 #define CMAP_LIST(size_inc, aisle) cmap_list(size_inc, aisle)

@@ -1,7 +1,7 @@
 #ifndef __CMAP_LIST_DEFINE_H__
 #define __CMAP_LIST_DEFINE_H__
 
-#include "cmap-define.h"
+#include "cmap-common.h"
 
 #define CMAP_LIST_ADD(list, i, val) \
   CMAP_CALL_ARGS(list, add, i, (CMAP_MAP *)(val))

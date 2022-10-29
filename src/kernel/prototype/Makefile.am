@@ -8,7 +8,8 @@ noinst_HEADERS = \
   cmap-prototype-fn.h \
   cmap-prototype-string.h \
   cmap-prototype-int.h \
-  cmap-prototype-util.h
+  cmap-prototype-util.h \
+  cmap-prototype-util-define.h
 
 noinst_LTLIBRARIES = libprototype.la
 

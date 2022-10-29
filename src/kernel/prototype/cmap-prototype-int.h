@@ -3,6 +3,12 @@
 
 #include "cmap-map.h"
 
-void cmap_prototype_int_init(CMAP_MAP * proto);
+typedef struct
+{
+  CMAP_MAP * (*init)();
+  CMAP_MAP * (*instance)();
+} CMAP_PROTOTYPE_INT_PUBLIC;
+
+extern const CMAP_PROTOTYPE_INT_PUBLIC cmap_prototype_int_public;
 
 #endif

@@ -15,9 +15,9 @@ int main(int argc, char * argv[])
   cmap_init(NULL);
 
   CMAP_PROC_GLOBAL_ARGS("cmap.console.info",
-    CMAP_STRING("Hello ", 0, cmap_aisle_public.local),
-    CMAP_STRING("World ", 0, cmap_aisle_public.local),
-    CMAP_STRING("!!!", 0, cmap_aisle_public.local));
+    CMAP_STRING("Hello ", 0, CMAP_AISLE_LOCAL),
+    CMAP_STRING("World ", 0, CMAP_AISLE_LOCAL),
+    CMAP_STRING("!!!", 0, CMAP_AISLE_LOCAL));
 
   CMAP_PROC_GLOBAL("cmap.console.info");
 

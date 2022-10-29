@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-kernel.h"
+#include "cmap-prototype-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -416,7 +417,7 @@ static void init(CMAP_LIST * list, int size_inc)
 
 static CMAP_LIST * create(int size_inc, const char * aisle)
 {
-  CMAP_MAP * prototype_list = cmap_kernel_public.instance() -> prototype.list_;
+  CMAP_MAP * prototype_list = cmap_prototype_list_public.instance();
   CMAP_LIST * list = (CMAP_LIST *)CMAP_CALL_ARGS(prototype_list, new,
     sizeof(CMAP_LIST), aisle);
   init(list, size_inc);

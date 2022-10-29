@@ -3,18 +3,18 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "cmap-define.h"
-#include <cmap/cmap.h>
+#include "cmap-common.h"
 #include "cmap-aisle.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void display(FILE * f, CMAP_LIST * args)
 {
-  CMAP_STRING * line = CMAP_STRING("", 0, cmap_aisle_public.local);
+  CMAP_STRING * line = CMAP_STRING("", 0, CMAP_AISLE_LOCAL);
 
   if(args != NULL)
   {
@@ -55,10 +55,10 @@ static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 
 static CMAP_MAP * create()
 {
-  CMAP_MAP * console = CMAP_MAP(cmap_aisle_public.kernel);
+  CMAP_MAP * console = CMAP_MAP(CMAP_AISLE_GLOBAL);
 
-  CMAP_SET(console, "info", CMAP_FN(info, cmap_aisle_public.kernel));
-  CMAP_SET(console, "error", CMAP_FN(error, cmap_aisle_public.kernel));
+  CMAP_SET(console, "info", CMAP_FN(info, CMAP_AISLE_GLOBAL));
+  CMAP_SET(console, "error", CMAP_FN(error, CMAP_AISLE_GLOBAL));
 
   return console;
 }

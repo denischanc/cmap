@@ -1,8 +1,9 @@
 
 #include <cmap/cmap.h>
+#define __CMAP_COMMON_H__
 
 #include <stdlib.h>
-#include "cmap-define.h"
+#include "cmap-common-super-define.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-fn.h"
@@ -10,7 +11,6 @@
 #include "cmap-int.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
-#include "cmap-aisle.h"
 #include "cmap-util.h"
 
 /*******************************************************************************
@@ -169,9 +169,9 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   va_list args)
 {
-  CMAP_LIST * stack_local = CMAP_LIST(0, cmap_aisle_public.stack);
+  CMAP_LIST * stack_local = CMAP_LIST(0, CMAP_AISLE_STACK);
 
-  CMAP_LIST * args_list = CMAP_LIST(0, cmap_aisle_public.local);
+  CMAP_LIST * args_list = CMAP_LIST(0, CMAP_AISLE_LOCAL);
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
@@ -189,7 +189,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
 
   cmap_util_public.delete_list_vals(stack_local);
   CMAP_AISLESTORE * as = cmap_kernel_public.instance() -> aislestore;
-  CMAP_CALL_ARGS(as, delete_last, cmap_aisle_public.stack);
+  CMAP_CALL_ARGS(as, delete_last, CMAP_AISLE_STACK);
 
   return ret;
 }

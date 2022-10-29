@@ -3,17 +3,16 @@
 *******************************************************************************/
 
 #include "cmap-mem.h"
-#include <cmap/cmap.h>
 
 #include "test-assert.h"
 #include <stdlib.h>
 
 #define ASSERT_NB_FREE(nb) \
-  CMAP_TEST_ASSERT(cmap_mem_state() -> nb_block_free == nb, \
+  CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_block_free == nb, \
     "Check free block number")
 
 #define ASSERT_NB_CHUNK(nb) \
-  CMAP_TEST_ASSERT(cmap_mem_state() -> nb_chunk == nb, \
+  CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_chunk == nb, \
     "Check chunk number")
 
 int main(int argc, char * argv[])

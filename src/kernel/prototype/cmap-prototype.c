@@ -1,9 +1,6 @@
 
 #include "cmap-prototype.h"
 
-#include <stdlib.h>
-#include <cmap/cmap.h>
-#include "cmap-aisle.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
 #include "cmap-prototype-fn.h"
@@ -20,17 +17,14 @@
   macro(string) \
   macro(int)
 
+#define INIT(proto) cmap_prototype_##proto##_public.init();
+
+static void init()
+{
+  LOOP(INIT)
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
-#define CREATE(proto) \
-  prototype -> proto##_ = CMAP_MAP(cmap_aisle_public.kernel);
-
-#define INIT(proto) \
-  cmap_prototype_##proto##_init(prototype -> proto##_);
-
-void cmap_prototype_init(CMAP_PROTOTYPE * prototype)
-{
-  LOOP(CREATE)
-  LOOP(INIT)
-}
+const CMAP_PROTOTYPE_PUBLIC cmap_prototype_public = { init };

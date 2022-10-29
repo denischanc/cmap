@@ -1,9 +1,15 @@
 
 #include "cmap-prototype-list.h"
 
+#include <stdlib.h>
 #include "cmap-prototype-util.h"
-#include "cmap-aisle.h"
-#include <cmap/cmap.h>
+#include "cmap-common.h"
+#include "cmap-list.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * proto = NULL;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -62,10 +68,24 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_prototype_list_init(CMAP_MAP * proto)
+static CMAP_MAP * init()
 {
-  CMAP_SET(proto, CMAP_APPLY_FN_NAME,
-    CMAP_FN(apply_fn, cmap_aisle_public.kernel));
-  CMAP_SET(proto, CMAP_ADDALL_FN_NAME,
-    CMAP_FN(add_all_fn, cmap_aisle_public.kernel));
+  proto = CMAP_KERNEL_MAP();
+  CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
+  CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
+  return proto;
 }
+
+static CMAP_MAP * instance()
+{
+  return proto;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_PROTOTYPE_LIST_PUBLIC cmap_prototype_list_public =
+{
+  init,
+  instance
+};

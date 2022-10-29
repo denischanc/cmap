@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap-kernel.h"
-#include <cmap/cmap.h>
+#include "cmap-prototype-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -80,7 +80,7 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 
 static CMAP_FN * create(CMAP_FN_TPL process, const char * aisle)
 {
-  CMAP_MAP * prototype_fn = cmap_kernel_public.instance() -> prototype.fn_;
+  CMAP_MAP * prototype_fn = cmap_prototype_fn_public.instance();
   CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
     sizeof(CMAP_FN), aisle);
   init(fn, process);

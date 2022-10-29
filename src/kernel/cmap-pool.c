@@ -5,7 +5,7 @@
 #include "cmap-pool-handlers.h"
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
-#include <cmap/cmap.h>
+#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/

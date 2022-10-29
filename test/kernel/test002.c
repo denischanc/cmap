@@ -3,6 +3,8 @@
 *******************************************************************************/
 
 #include <cmap/cmap.h>
+#define __CMAP_COMMON_H__
+#include "cmap-common-super-define.h"
 #include "cmap-list.h"
 
 #include "test-assert.h"
@@ -40,7 +42,7 @@ static void test_list(int size)
 
   static CMAP_MAP * elmts[NB_MAX];
   int i = 0;
-  for(; i < size; i++) elmts[i] = CMAP_MAP(cmap_aisle_public.local);
+  for(; i < size; i++) elmts[i] = CMAP_MAP(CMAP_AISLE_LOCAL);
 
   /********** push/unshift */
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);

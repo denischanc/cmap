@@ -1,9 +1,33 @@
 
 #include "cmap-prototype-int.h"
 
+#include <stdlib.h>
+#include "cmap-common.h"
+
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_prototype_int_init(CMAP_MAP * proto)
+static CMAP_MAP * proto = NULL;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * init()
 {
+  proto = CMAP_KERNEL_MAP();
+  return proto;
 }
+
+static CMAP_MAP * instance()
+{
+  return proto;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_PROTOTYPE_INT_PUBLIC cmap_prototype_int_public =
+{
+  init,
+  instance
+};
