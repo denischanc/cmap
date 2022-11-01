@@ -66,7 +66,7 @@ static void check_mem(int * ret)
   if(cmap_mem_public.is_this(kernel.mem))
   {
     int s = cmap_mem_public.state() -> size_alloc;
-    kernel.log -> debug("Allocated memory size : [%d].", s);
+    cmap_log_public.debug("Allocated memory size : [%d].", s);
     if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
   }
 }
@@ -91,7 +91,7 @@ static void exit_(int ret)
 
     check_all(&ret);
 
-    kernel.log -> debug("Exit kernel (%d).", ret);
+    cmap_log_public.debug("Exit kernel (%d).", ret);
     exit(ret);
   }
 }
@@ -163,7 +163,7 @@ static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
     kernel_ptr = &kernel;
 
     kernel.log = cmap_log_public.init();
-    kernel.log -> debug("Init kernel.");
+    cmap_log_public.debug("Init kernel.");
 
     init_env();
 

@@ -8,12 +8,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define LOOP(macro) \
-  macro(debug, cmap_log_public.debug) \
-  macro(info, cmap_log_public.info) \
-  macro(warn, cmap_log_public.warn) \
-  macro(error, cmap_log_public.error) \
-  macro(fatal, cmap_log_public.fatal)
+#define LEVEL(LVL, lvl) const char * CMAP_LOG_##LVL = "LVL";
+
+CMAP_LOG_LOOP(LEVEL)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -51,28 +48,29 @@ static void log_(const char * level, const char * msg, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-#define FN(name, level) \
-static void name(const char * msg, ...) \
+#define FN(LVL, lvl) \
+static void v##lvl(const char * msg, va_list ap) \
+{ \
+  CMAP_KERNEL_INSTANCE -> log -> vlog(CMAP_LOG_##LVL, msg, ap); \
+} \
+ \
+static void lvl(const char * msg, ...) \
 { \
   va_list ap; \
   va_start(ap, msg); \
-  vlog(level, msg, ap); \
+  v##lvl(msg, ap); \
   va_end(ap); \
 }
 
-LOOP(FN)
+CMAP_LOG_LOOP(FN)
 
 /*******************************************************************************
 *******************************************************************************/
-
-#define SET(name, level) \
-  log.name = name;
 
 static CMAP_LOG * init()
 {
   if(log_ptr == NULL)
   {
-    LOOP(SET)
     log.log = log_;
     log.vlog = vlog;
 
@@ -89,13 +87,11 @@ static CMAP_LOG * instance()
 /*******************************************************************************
 *******************************************************************************/
 
+#define SET(LVL, lvl) lvl, v##lvl,
+
 const CMAP_LOG_PUBLIC cmap_log_public =
 {
-  "DEBUG",
-  "_INFO",
-  "_WARN",
-  "ERROR",
-  "FATAL",
   init,
-  instance
+  instance,
+  CMAP_LOG_LOOP(SET)
 };

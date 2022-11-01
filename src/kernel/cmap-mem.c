@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "cmap-kernel.h"
+#include "cmap-log.h"
 #include "cmap-tree.h"
 
 /*******************************************************************************
@@ -73,9 +74,8 @@ static CMAP_MEM * mem_ptr = NULL;
 
 static void error(const char * msg)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  kernel -> log -> error("%s", msg);
-  kernel -> fatal();
+  cmap_log_public.error(msg);
+  CMAP_KERNEL_INSTANCE -> fatal();
 }
 
 /*******************************************************************************

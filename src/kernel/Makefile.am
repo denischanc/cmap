@@ -11,7 +11,8 @@ noinst_HEADERS = \
   cmap-pool.h \
   cmap-pool-handlers.h \
   cmap-aisle.h \
-  cmap-log.h
+  cmap-log.h \
+  cmap-log-define.h
 
 noinst_LTLIBRARIES = libkernel.la
 
