@@ -29,6 +29,11 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+const char * CMAP_NATURE_MAP = "cmap.nature.map";
+
+/*******************************************************************************
+*******************************************************************************/
+
 static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node,
   void * data)
 {
@@ -43,7 +48,7 @@ CMAP_TREE_RUNNER(entry, NULL, false, false);
 
 static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
-  CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.instance() -> aislestore;
+  CMAP_MAP * as = (CMAP_MAP *)CMAP_KERNEL_INSTANCE -> aislestore;
 
   if(aisle == CMAP_AISLE_LOCAL)
   {
@@ -64,7 +69,7 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 
 static const char * nature(CMAP_MAP * this)
 {
-  return cmap_map_public.nature;
+  return CMAP_NATURE_MAP;
 }
 
 /*******************************************************************************
@@ -77,7 +82,7 @@ static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
   if(entry == NULL)
   {
-    CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+    CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
     entry = (ENTRY *)mem -> alloc(sizeof(ENTRY));
     entry -> key = (char *)mem -> alloc((strlen(key) + 1) * sizeof(char));
     strcpy(entry -> key, key);
@@ -111,8 +116,7 @@ static void init(CMAP_MAP * map);
 
 static void * new(CMAP_MAP * this, int size, const char * aisle)
 {
-  CMAP_MAP * map =
-    (CMAP_MAP *)cmap_kernel_public.instance() -> mem -> alloc(size);
+  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_INSTANCE -> mem -> alloc(size);
   init(map);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
@@ -208,7 +212,7 @@ static CMAP_MAP * delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
   CMAP_MAP * next = internal -> next;
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
 
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply, CMAP_T, mem);
 
@@ -256,7 +260,6 @@ static CMAP_MAP * create(const char * aisle)
 
 const CMAP_MAP_PUBLIC cmap_map_public =
 {
-  "cmap.nature.map",
   create,
   create_root,
   init,

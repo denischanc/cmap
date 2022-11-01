@@ -4,6 +4,7 @@
 #include <cmap/core.h>
 #include "cmap-map.h"
 #include <sys/types.h>
+#include <cmap/nature.h>
 
 struct CMAP_INT_s
 {
@@ -17,8 +18,6 @@ struct CMAP_INT_s
 
 typedef struct
 {
-  const char * nature;
-
   int64_t (*get)(CMAP_INT * this);
   void (*set)(CMAP_INT * this, int64_t val);
 

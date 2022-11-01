@@ -1,5 +1,5 @@
-#ifndef __CMAP_MEM_EXTERNAL_H__
-#define __CMAP_MEM_EXTERNAL_H__
+#ifndef ___CMAP_MEM_H___
+#define ___CMAP_MEM_H___
 
 typedef struct
 {

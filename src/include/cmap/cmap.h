@@ -1,13 +1,11 @@
-#ifndef __CMAP_H__
-#define __CMAP_H__
+#ifndef ___CMAP_H___
+#define ___CMAP_H___
 
 #include <stdarg.h>
 
 #include <cmap/kernel.h>
 #include <cmap/core.h>
 #include <cmap/fn.h>
-#include <cmap/aisle.h>
-#include <cmap/mem.h>
 #include <cmap/define.h>
 
 void cmap_init(CMAP_KERNEL_CFG * cfg);

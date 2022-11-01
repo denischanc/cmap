@@ -16,9 +16,16 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+const char * CMAP_NATURE_FN = "cmap.nature.fn";
+
+const char * CMAP_PROTOTYPE_NAME = "prototype";
+
+/*******************************************************************************
+*******************************************************************************/
+
 static const char * nature(CMAP_MAP * this)
 {
-  return cmap_fn_public.nature;
+  return CMAP_NATURE_FN;
 }
 
 /*******************************************************************************
@@ -37,7 +44,7 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
 {
   CMAP_MAP * map = NULL;
 
-  CMAP_MAP * prototype = CMAP_GET(this, cmap_fn_public.prototype_name);
+  CMAP_MAP * prototype = CMAP_GET(this, CMAP_PROTOTYPE_NAME);
   if(prototype != NULL) map = CMAP_MAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
@@ -92,8 +99,6 @@ static CMAP_FN * create(CMAP_FN_TPL process, const char * aisle)
 
 const CMAP_FN_PUBLIC cmap_fn_public =
 {
-  "cmap.nature.fn",
-  "prototype",
   create,
   init,
   delete,

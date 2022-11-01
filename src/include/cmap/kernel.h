@@ -1,5 +1,5 @@
-#ifndef __CMAP_KERNEL_EXTERNAL_H__
-#define __CMAP_KERNEL_EXTERNAL_H__
+#ifndef ___CMAP_KERNEL_H___
+#define ___CMAP_KERNEL_H___
 
 #include <cmap/mem.h>
 

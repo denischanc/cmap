@@ -5,6 +5,7 @@
 #include "cmap-map.h"
 #include "cmap-fn-define.h"
 #include <cmap/fn.h>
+#include <cmap/nature.h>
 
 struct CMAP_FN_s
 {
@@ -20,8 +21,6 @@ struct CMAP_FN_s
 };
 
 typedef struct {
-  const char * nature, * prototype_name;
-
   CMAP_FN * (*create)(CMAP_FN_TPL process, const char * aisle);
   void (*init)(CMAP_FN * fn, CMAP_FN_TPL process);
   CMAP_MAP * (*delete)(CMAP_FN * fn);

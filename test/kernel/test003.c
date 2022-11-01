@@ -3,6 +3,7 @@
 *******************************************************************************/
 
 #include <cmap/cmap.h>
+#include <cmap/aisle.h>
 
 #include <stdlib.h>
 #include "test-assert.h"

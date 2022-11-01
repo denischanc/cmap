@@ -5,8 +5,6 @@ noinst_PROGRAMS = \
   test001 \
   test002
 
-TESTS = $(noinst_PROGRAMS)
-
 AM_CFLAGS = $(CMAP_TEST_CFLAGS)
 LDADD = $(CMAP_TEST_LDADD)
 

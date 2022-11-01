@@ -5,7 +5,8 @@ SUBDIRS = \
   include/cmap \
   util \
   core \
-  kernel
+  kernel \
+  components
 
 noinst_HEADERS = \
   cmap-common.h \
@@ -20,7 +21,8 @@ libcmap_la_LDFLAGS = -version-info 1:0:0
 libcmap_la_LIBADD = \
   util/libutil.la \
   core/libcore.la \
-  kernel/libkernel.la
+  kernel/libkernel.la \
+  components/libcomponents.la
 
 if CYGWIN
 libcmap_la_LDFLAGS += -no-undefined

@@ -23,9 +23,14 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+const char * CMAP_NATURE_STRING = "cmap.nature.string";
+
+/*******************************************************************************
+*******************************************************************************/
+
 static const char * nature(CMAP_MAP * this)
 {
-  return cmap_string_public.nature;
+  return CMAP_NATURE_STRING;
 }
 
 /*******************************************************************************
@@ -58,7 +63,7 @@ static void append_(INTERNAL * internal, const char * val, int size_append)
 
   if(new_size_max > internal -> size_max)
   {
-    CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+    CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
 
     char * new_val = (char *)mem -> alloc(new_size_max),
       * old_val = internal -> val;
@@ -112,7 +117,7 @@ static void clear(CMAP_STRING * this)
 static CMAP_MAP * delete(CMAP_STRING * string)
 {
   INTERNAL * internal = (INTERNAL *)string -> internal;
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
   CMAP_MEM_FREE(internal -> val, mem);
   CMAP_MEM_FREE(internal, mem);
 
@@ -130,7 +135,7 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
   super -> nature = nature;
   super -> delete = delete_;
 
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size_inc = size_inc;
@@ -160,7 +165,6 @@ static CMAP_STRING * create(const char * val, int size_inc, const char * aisle)
 
 const CMAP_STRING_PUBLIC cmap_string_public =
 {
-  "cmap.nature.string",
   create,
   init,
   delete,

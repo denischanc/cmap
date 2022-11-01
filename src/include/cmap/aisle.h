@@ -1,5 +1,5 @@
-#ifndef __CMAP_AISLE_EXTERNAL_H__
-#define __CMAP_AISLE_EXTERNAL_H__
+#ifndef ___CMAP_AISLE_H___
+#define ___CMAP_AISLE_H___
 
 extern const char * CMAP_AISLE_LOCAL;
 extern const char * CMAP_AISLE_KERNEL;

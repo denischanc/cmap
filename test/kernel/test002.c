@@ -3,6 +3,7 @@
 *******************************************************************************/
 
 #include <cmap/cmap.h>
+#include <cmap/aisle.h>
 #define __CMAP_COMMON_H__
 #include "cmap-common-super-define.h"
 #include "cmap-list.h"

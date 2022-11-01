@@ -15,9 +15,14 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+const char * CMAP_NATURE_INT = "cmap.nature.int";
+
+/*******************************************************************************
+*******************************************************************************/
+
 static const char * nature(CMAP_MAP * this)
 {
-  return cmap_int_public.nature;
+  return CMAP_NATURE_INT;
 }
 
 /*******************************************************************************
@@ -81,8 +86,8 @@ static CMAP_INT * create(const char * aisle)
 
 const CMAP_INT_PUBLIC cmap_int_public =
 {
-  "cmap.nature.int",
-  get, set,
+  get,
+  set,
   create,
   init,
   delete

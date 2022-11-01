@@ -4,6 +4,7 @@
 #include <cmap/core.h>
 #include "cmap-map.h"
 #include "cmap-list-define.h"
+#include <cmap/nature.h>
 
 struct CMAP_LIST_s
 {
@@ -30,8 +31,6 @@ struct CMAP_LIST_s
 
 typedef struct
 {
-  const char * nature;
-
   CMAP_LIST * (*create)(int size_inc, const char * aisle);
   void (*init)(CMAP_LIST * list, int size_inc);
   CMAP_MAP * (*delete)(CMAP_LIST * list);

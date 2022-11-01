@@ -12,6 +12,7 @@
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
+#include <cmap/aisle.h>
 
 /*******************************************************************************
 *******************************************************************************/
@@ -23,21 +24,21 @@ void cmap_init(CMAP_KERNEL_CFG * cfg)
 
 int cmap_main(int argc, char * argv[])
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   if(kernel == NULL) cmap_fatal();
   return kernel -> main(argc, argv);
 }
 
 void cmap_exit(int ret)
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   if(kernel != NULL) kernel -> exit(ret);
   else exit(ret);
 }
 
 void cmap_fatal()
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   if(kernel != NULL) kernel -> fatal();
   else exit(EXIT_FAILURE);
 }
@@ -112,7 +113,7 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
   if(map == NULL) map = kernel -> global_env;
@@ -142,7 +143,7 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
   if(map == NULL) map = kernel -> global_env;
@@ -181,14 +182,14 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   CMAP_MAP * ret = NULL;
 
   CMAP_MAP * fn_tmp = CMAP_GET(map, fn_name);
-  if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == cmap_fn_public.nature))
+  if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == CMAP_NATURE_FN))
   {
     CMAP_FN * fn = (CMAP_FN *)fn_tmp;
     ret = CMAP_FN_PROCESS(fn, map, args_list);
   }
 
   cmap_util_public.delete_list_vals(stack_local);
-  CMAP_AISLESTORE * as = cmap_kernel_public.instance() -> aislestore;
+  CMAP_AISLESTORE * as = CMAP_KERNEL_INSTANCE -> aislestore;
   CMAP_CALL_ARGS(as, delete_last, CMAP_AISLE_STACK);
 
   return ret;
@@ -212,7 +213,7 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * fn_name, ...)
 CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 {
   CMAP_STRING * fn_name;
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   CMAP_POOL_STRING * pool_string = kernel -> pool_string;
 
   if(map == NULL) map = kernel -> global_env;

@@ -73,7 +73,7 @@ static CMAP_MEM * mem_ptr = NULL;
 
 static void error(const char * msg)
 {
-  CMAP_KERNEL * kernel = cmap_kernel_public.instance();
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   kernel -> log -> error("%s", msg);
   kernel -> fatal();
 }

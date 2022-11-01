@@ -24,9 +24,14 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+const char * CMAP_NATURE_LIST = "cmap.nature.list";
+
+/*******************************************************************************
+*******************************************************************************/
+
 static const char * nature(CMAP_MAP * this)
 {
-  return cmap_list_public.nature;
+  return CMAP_NATURE_LIST;
 }
 
 /*******************************************************************************
@@ -182,7 +187,7 @@ static void list_mv_inc(CMAP_MAP ** list, int i_start, int i_stop,
 
 static void add_on_full(INTERNAL * internal, int i, CMAP_MAP * val)
 {
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
 
   int off = list_offset(internal, i), old_size_max = internal -> size_max,
     new_size_max = old_size_max + internal -> size_inc;
@@ -374,7 +379,7 @@ static void clear(CMAP_LIST * this)
 static CMAP_MAP * delete(CMAP_LIST * list)
 {
   INTERNAL * internal = (INTERNAL *)list -> internal;
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
   CMAP_MEM_FREE(internal -> list, mem);
   CMAP_MEM_FREE(internal, mem);
 
@@ -392,7 +397,7 @@ static void init(CMAP_LIST * list, int size_inc)
   super -> nature = nature;
   super -> delete = delete_;
 
-  CMAP_MEM * mem = cmap_kernel_public.instance() -> mem;
+  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size = 0;
@@ -429,7 +434,6 @@ static CMAP_LIST * create(int size_inc, const char * aisle)
 
 const CMAP_LIST_PUBLIC cmap_list_public =
 {
-  "cmap.nature.list",
   create, init, delete,
   size,
   set, get,

@@ -1,5 +1,5 @@
-#ifndef __CMAP_DEFINE_H__
-#define __CMAP_DEFINE_H__
+#ifndef ___CMAP_DEFINE_H___
+#define ___CMAP_DEFINE_H___
 
 #include <stdlib.h>
 #include <cmap/super-define.h>

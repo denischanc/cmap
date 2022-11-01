@@ -36,9 +36,10 @@ AC_CONFIG_FILES([ \
   src/include/cmap/Makefile \
   src/util/Makefile \
   src/core/Makefile \
+  src/core/prototype/Makefile \
   src/kernel/Makefile \
-  src/kernel/prototype/Makefile \
-  src/kernel/console/Makefile \
+  src/components/Makefile \
+  src/components/console/Makefile \
   test/Makefile \
   test/util/Makefile \
   test/mem/Makefile \

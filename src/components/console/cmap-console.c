@@ -22,7 +22,7 @@ static void display(FILE * f, CMAP_LIST * args)
     for(i = 0; i < CMAP_CALL(args, size); i++)
     {
       CMAP_MAP * tmp = CMAP_CALL_ARGS(args, get, i);
-      if(CMAP_NATURE(tmp) == cmap_string_public.nature)
+      if(CMAP_NATURE(tmp) == CMAP_NATURE_STRING)
       {
         CMAP_CALL_ARGS(line, append, CMAP_CALL((CMAP_STRING *)tmp, val));
       }

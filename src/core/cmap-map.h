@@ -3,6 +3,7 @@
 
 #include <cmap/core.h>
 #include "cmap-map-define.h"
+#include <cmap/nature.h>
 
 typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP ** val,
   void * data);
@@ -28,8 +29,6 @@ struct CMAP_MAP_s
 
 typedef struct
 {
-  const char * nature;
-
   CMAP_MAP * (*create)(const char * aisle);
   CMAP_MAP * (*create_root)(const char * aisle);
   void (*init)(CMAP_MAP * map);

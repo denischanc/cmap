@@ -1,9 +1,9 @@
 
 include $(top_srcdir)/src/common.mk
 
+SUBDIRS = prototype
+
 noinst_HEADERS = \
-  cmap-mem.h \
-  cmap-mem-define.h \
   cmap-map.h \
   cmap-map-define.h \
   cmap-list.h \
@@ -16,10 +16,10 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libcore.la
 
 libcore_la_SOURCES = \
-  cmap-mem.c \
   cmap-map.c \
   cmap-list.c \
   cmap-fn.c \
   cmap-string.c \
   cmap-int.c
 libcore_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
+libcore_la_LIBADD = prototype/libprototype.la
