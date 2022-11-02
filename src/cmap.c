@@ -12,7 +12,6 @@
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
-#include <cmap/aisle.h>
 
 /*******************************************************************************
 *******************************************************************************/
@@ -170,9 +169,9 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
   va_list args)
 {
-  CMAP_LIST * stack_local = CMAP_LIST(0, CMAP_AISLE_STACK);
+  CMAP_POOL_LIST * pool = CMAP_KERNEL_INSTANCE -> pool_list;
+  CMAP_LIST * args_list = CMAP_CALL(pool, take);
 
-  CMAP_LIST * args_list = CMAP_LIST(0, CMAP_AISLE_LOCAL);
   CMAP_MAP * arg;
   while((arg = va_arg(args, CMAP_MAP *)) != NULL)
   {
@@ -188,9 +187,7 @@ static CMAP_MAP * cmap_vproc(CMAP_MAP * map, const char * fn_name,
     ret = CMAP_FN_PROCESS(fn, map, args_list);
   }
 
-  cmap_util_public.delete_list_vals(stack_local);
-  CMAP_AISLESTORE * as = CMAP_KERNEL_INSTANCE -> aislestore;
-  CMAP_CALL_ARGS(as, delete_last, CMAP_AISLE_STACK);
+  CMAP_CALL_ARGS(pool, release, args_list);
 
   return ret;
 }

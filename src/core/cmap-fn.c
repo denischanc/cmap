@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-prototype-fn.h"
+#include "cmap-list.h"
+#include <cmap/aisle.h>
+#include "cmap-util.h"
+#include "cmap-aislestore.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -33,8 +37,16 @@ static const char * nature(CMAP_MAP * this)
 
 static CMAP_MAP * process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
 {
+  CMAP_LIST * stack_local = CMAP_LIST(0, CMAP_AISLE_STACK);
+
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  return internal -> process(this -> features, map, args);
+  CMAP_MAP * ret = internal -> process(this -> features, map, args);
+
+  cmap_util_public.delete_list_vals(stack_local);
+  CMAP_AISLESTORE * as = CMAP_KERNEL_INSTANCE -> aislestore;
+  CMAP_CALL_ARGS(as, delete_last, CMAP_AISLE_STACK);
+
+  return ret;
 }
 
 /*******************************************************************************
