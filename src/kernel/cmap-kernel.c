@@ -125,8 +125,9 @@ static CMAP_KERNEL_CFG * instance_cfg()
 {
   static CMAP_KERNEL_CFG cfg = {};
 
-  cfg.mem = NULL;
   cfg.failure_on_allocmem = CMAP_T;
+  cfg.mem = NULL;
+  cfg.log = NULL;
 
   return &cfg;
 }
@@ -141,6 +142,13 @@ static CMAP_MEM * get_mem()
   return mem;
 }
 
+static CMAP_LOG * get_log()
+{
+  CMAP_LOG * log = internal.cfg -> log;
+  if(log == NULL) log = cmap_log_public.init();
+  return log;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -153,16 +161,15 @@ static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
     if(cfg == NULL) cfg = instance_cfg();
     internal.cfg = cfg;
 
-    kernel.mem = get_mem();
-
     kernel.main = main_;
     kernel.exit = exit_;
     kernel.fatal = fatal;
     kernel.state = state;
 
-    kernel_ptr = &kernel;
+    kernel.mem = get_mem();
+    kernel.log = get_log();
 
-    kernel.log = cmap_log_public.init();
+    kernel_ptr = &kernel;
     cmap_log_public.debug("Init kernel.");
 
     init_env();

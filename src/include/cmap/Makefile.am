@@ -9,4 +9,5 @@ include_cmap_HEADERS = \
   super-define.h \
   fn.h \
   kernel.h \
-  mem.h
+  mem.h \
+  log.h

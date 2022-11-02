@@ -1,14 +1,8 @@
 #ifndef __CMAP_LOG_H__
 #define __CMAP_LOG_H__
 
-#include <stdarg.h>
+#include <cmap/log.h>
 #include "cmap-log-define.h"
-
-typedef struct
-{
-  void (*log)(const char * level, const char * msg, ...);
-  void (*vlog)(const char * level, const char * msg, va_list ap);
-} CMAP_LOG;
 
 typedef struct
 {
