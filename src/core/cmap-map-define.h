@@ -4,6 +4,6 @@
 #include "cmap-common.h"
 
 #define CMAP_MAP_NEW_MAP(prototype, aisle) (CMAP_MAP *)CMAP_CALL_ARGS( \
-  (CMAP_MAP *)(prototype), new, sizeof(CMAP_MAP), aisle)
+  (CMAP_MAP *)prototype, new, sizeof(CMAP_MAP), aisle)
 
 #endif

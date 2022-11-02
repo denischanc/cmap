@@ -5,7 +5,7 @@
 #include "cmap-kernel.h"
 #include "cmap-prototype-fn.h"
 #include "cmap-list.h"
-#include <cmap/aisle.h>
+#include "cmap-aisle.h"
 #include "cmap-util.h"
 #include "cmap-aislestore.h"
 

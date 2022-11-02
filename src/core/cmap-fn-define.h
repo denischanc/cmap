@@ -4,6 +4,6 @@
 #include "cmap-common.h"
 
 #define CMAP_FN_PROCESS(fn, map, args) \
-  CMAP_CALL_ARGS(fn, process, (CMAP_MAP *)(map), args)
+  CMAP_CALL_ARGS(fn, process, (CMAP_MAP *)map, args)
 
 #endif

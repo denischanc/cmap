@@ -217,7 +217,7 @@ CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...)
 
   CMAP_LIST * keys_split = cmap_util_public.split_w_pool(fn_names, '.');
 
-  int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
+  int i = 0, i_stop = CMAP_CALL(keys_split, size) - 1;
   for(; (i < i_stop) && (map != NULL); i++)
   {
     fn_name = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
