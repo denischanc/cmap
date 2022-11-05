@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "cmap-prototype-util.h"
-#include "cmap-util.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
 #include "cmap-common.h"
@@ -19,39 +18,39 @@ static CMAP_MAP * proto = NULL;
 
 typedef struct
 {
-  CMAP_PROTOTYPE_MAP_FN map_fn_;
-  CMAP_STRING * key_;
-  CMAP_LIST * args_;
+  CMAP_PROTOTYPE_UTIL_MAP_FN map_fn;
+  CMAP_STRING * key;
+  CMAP_LIST * args;
 } MAP_ENTRY_DATA;
 
 static void map_entry_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
-  MAP_ENTRY_DATA * _data = (MAP_ENTRY_DATA *)data;
+  MAP_ENTRY_DATA * data_ = (MAP_ENTRY_DATA *)data;
 
-  CMAP_STRING * _key = _data -> key_;
-  CMAP_CALL(_key, clear);
-  CMAP_CALL_ARGS(_key, append, key);
+  CMAP_STRING * key_ = data_ -> key;
+  CMAP_CALL(key_, clear);
+  CMAP_CALL_ARGS(key_, append, key);
 
-  CMAP_LIST * args = _data -> args_;
+  CMAP_LIST * args = data_ -> args;
   CMAP_CALL(args, clear);
-  CMAP_LIST_PUSH(args, _key);
+  CMAP_LIST_PUSH(args, key_);
   CMAP_LIST_PUSH(args, *val);
 
-  CMAP_FN * fn = _data -> map_fn_.fn_;
-  CMAP_FN_PROC(fn, _data -> map_fn_.map_, args);
+  CMAP_FN * fn = data_ -> map_fn.fn;
+  CMAP_FN_PROC(fn, data_ -> map_fn.map, args);
 }
 
 static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   MAP_ENTRY_DATA data = {};
-  if(cmap_prototype_args_map_fn(&data.map_fn_, args))
+  if(cmap_prototype_util_public.args_to_map_fn(args, &data.map_fn))
   {
     CMAP_STRING * key = CMAP_STRING("", 0, NULL);
     CMAP_LIST * args_map_kv = CMAP_LIST(0, NULL);
 
-    data.key_ = key;
-    data.args_ = args_map_kv;
+    data.key = key;
+    data.args = args_map_kv;
     CMAP_CALL_ARGS(map, apply, map_entry_apply_fn, &data);
 
     CMAP_DELETE(key);
@@ -63,16 +62,22 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * init()
+static void require()
 {
-  proto = cmap_util_public.to_map(CMAP_AISLE_KERNEL,
-    "apply", CMAP_KERNEL_FN(apply_fn),
-    NULL);
-  return proto;
+  if(proto == NULL) proto = cmap_map_public.create_root(CMAP_AISLE_KERNEL);
 }
+
+/*******************************************************************************
+*******************************************************************************/
 
 static CMAP_MAP * instance()
 {
+  if(proto == NULL)
+  {
+    require();
+
+    CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
+  }
   return proto;
 }
 
@@ -81,6 +86,6 @@ static CMAP_MAP * instance()
 
 const CMAP_PROTOTYPE_MAP_PUBLIC cmap_prototype_map_public =
 {
-  init,
+  require,
   instance
 };

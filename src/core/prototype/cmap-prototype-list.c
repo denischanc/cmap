@@ -3,9 +3,9 @@
 
 #include <stdlib.h>
 #include "cmap-prototype-util.h"
+#include "cmap-prototype-map.h"
 #include "cmap-common.h"
 #include "cmap-list.h"
-#include "cmap-util.h"
 #include "cmap-aisle.h"
 
 /*******************************************************************************
@@ -23,8 +23,8 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
-    CMAP_PROTOTYPE_MAP_FN map_fn = {};
-    if(cmap_prototype_args_map_fn(&map_fn, args))
+    CMAP_PROTOTYPE_UTIL_MAP_FN map_fn = {};
+    if(cmap_prototype_util_public.args_to_map_fn(args, &map_fn))
     {
       CMAP_LIST * args_list_i = CMAP_LIST(0, NULL);
 
@@ -33,7 +33,7 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
       {
         CMAP_CALL(args_list_i, clear);
         CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
-        CMAP_FN_PROC(map_fn.fn_, map_fn.map_, args_list_i);
+        CMAP_FN_PROC(map_fn.fn, map_fn.map, args_list_i);
       }
 
       CMAP_DELETE(args_list_i);
@@ -70,17 +70,27 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * init()
+static void require()
 {
-  proto = cmap_util_public.to_map(CMAP_AISLE_KERNEL,
-    "apply", CMAP_KERNEL_FN(apply_fn),
-    "addAll", CMAP_KERNEL_FN(add_all_fn),
-    NULL);
-  return proto;
+  if(proto == NULL)
+  {
+    cmap_prototype_map_public.require();
+    proto = CMAP_KERNEL_MAP();
+  }
 }
+
+/*******************************************************************************
+*******************************************************************************/
 
 static CMAP_MAP * instance()
 {
+  if(proto == NULL)
+  {
+    require();
+
+    CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
+    CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
+  }
   return proto;
 }
 
@@ -89,6 +99,6 @@ static CMAP_MAP * instance()
 
 const CMAP_PROTOTYPE_LIST_PUBLIC cmap_prototype_list_public =
 {
-  init,
+  require,
   instance
 };

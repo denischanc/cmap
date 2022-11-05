@@ -46,7 +46,7 @@ CMAP_TREE_RUNNER(entry, NULL, false, false);
 /*******************************************************************************
 *******************************************************************************/
 
-static void fill_warehouse(const char * aisle, CMAP_MAP * map)
+static void fill_aislestore(const char * aisle, CMAP_MAP * map)
 {
   CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.aislestore();
 
@@ -125,7 +125,7 @@ static void * new(CMAP_MAP * this, int size, const char * aisle)
   init(map);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
-  if(aisle != NULL) fill_warehouse(aisle, map);
+  if(aisle != NULL) fill_aislestore(aisle, map);
   return (void *)map;
 }
 
@@ -249,15 +249,14 @@ static CMAP_MAP * create_root(const char * aisle)
 {
   CMAP_KERNEL_ALLOC_PTR(map, CMAP_MAP);
   init(map);
-  if(aisle != NULL) fill_warehouse(aisle, map);
+  if(aisle != NULL) fill_aislestore(aisle, map);
   return map;
 }
 
 static CMAP_MAP * create(const char * aisle)
 {
   CMAP_MAP * prototype_map = cmap_prototype_map_public.instance();
-  if(prototype_map == NULL) return create_root(aisle);
-  else return CMAP_MAP_NEW_MAP(prototype_map, aisle);
+  return CMAP_MAP_NEW_MAP(prototype_map, aisle);
 }
 
 /*******************************************************************************

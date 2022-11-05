@@ -2,6 +2,8 @@
 #include "cmap-prototype-fn.h"
 
 #include <stdlib.h>
+#include "cmap-aisle.h"
+#include "cmap-prototype-map.h"
 #include "cmap-common.h"
 
 /*******************************************************************************
@@ -12,15 +14,24 @@ static CMAP_MAP * proto = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * instance()
+static void require()
 {
-  if(proto == NULL) proto = CMAP_KERNEL_MAP();
-  return proto;
+  if(proto == NULL)
+  {
+    cmap_prototype_map_public.require();
+    proto = CMAP_KERNEL_MAP();
+  }
 }
 
-static CMAP_MAP * init()
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * instance()
 {
-  CMAP_MAP * proto = instance();
+  if(proto == NULL)
+  {
+    require();
+  }
   return proto;
 }
 
@@ -29,6 +40,6 @@ static CMAP_MAP * init()
 
 const CMAP_PROTOTYPE_FN_PUBLIC cmap_prototype_fn_public =
 {
-  init,
+  require,
   instance
 };
