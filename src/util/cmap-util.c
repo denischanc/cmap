@@ -134,6 +134,32 @@ static CMAP_LIST * to_list(const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * vto_map(const char * aisle, va_list key_maps)
+{
+  CMAP_MAP * ret = CMAP_MAP(aisle);
+
+  const char * key;
+  while((key = va_arg(key_maps, char *)) != NULL)
+  {
+    CMAP_MAP * map = va_arg(key_maps, CMAP_MAP *);
+    CMAP_SET(ret, key, map);
+  }
+
+  return ret;
+}
+
+static CMAP_MAP * to_map(const char * aisle, ...)
+{
+  va_list key_maps;
+  va_start(key_maps, aisle);
+  CMAP_MAP * map = vto_map(aisle, key_maps);
+  va_end(key_maps);
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
@@ -143,5 +169,7 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   fill_list,
   vfill_list,
   to_list,
-  vto_list
+  vto_list,
+  to_map,
+  vto_map
 };

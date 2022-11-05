@@ -5,6 +5,8 @@
 #include "cmap-prototype-util.h"
 #include "cmap-common.h"
 #include "cmap-list.h"
+#include "cmap-util.h"
+#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -70,9 +72,10 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
 
 static CMAP_MAP * init()
 {
-  proto = CMAP_KERNEL_MAP();
-  CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
-  CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
+  proto = cmap_util_public.to_map(CMAP_AISLE_KERNEL,
+    "apply", CMAP_KERNEL_FN(apply_fn),
+    "addAll", CMAP_KERNEL_FN(add_all_fn),
+    NULL);
   return proto;
 }
 

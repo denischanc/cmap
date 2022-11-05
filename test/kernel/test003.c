@@ -15,7 +15,7 @@
 static CMAP_MAP * main_(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
   $$$G(
-    "cmap.console.info", L$($SL("Hello "), $SL("World "), $SL("!!!")),
+    "cmap.console.info", L$L($SL("Hello "), $SL("World "), $SL("!!!")),
     "info", $LL());
 
   $$G("cmap.console.info");

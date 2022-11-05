@@ -56,6 +56,10 @@
 #define CMAP_PROC_CHAIN(map, args...) cmap_proc_chain(map, args, NULL)
 #define CMAP_PROC_CHAIN_GLOBAL(args...) CMAP_PROC_CHAIN(NULL, args)
 
-#define CMAP_TO_LIST(maps...) cmap_to_list(CMAP_AISLE_LOCAL, maps, NULL)
+#define CMAP_TO_LIST(aisle, maps...) cmap_to_list(aisle, maps, NULL)
+#define CMAP_TO_LOCAL_LIST(maps...) CMAP_TO_LIST(CMAP_AISLE_LOCAL, maps)
+
+#define CMAP_TO_MAP(aisle, key_maps...) cmap_to_map(aisle, key_maps, NULL)
+#define CMAP_TO_LOCAL_MAP(key_maps...) CMAP_TO_MAP(CMAP_AISLE_LOCAL, key_maps)
 
 #endif

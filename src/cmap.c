@@ -324,6 +324,18 @@ CMAP_LIST * cmap_to_list(const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
+CMAP_MAP * cmap_to_map(const char * aisle, ...)
+{
+  va_list key_maps;
+  va_start(key_maps, aisle);
+  CMAP_MAP * map = cmap_util_public.vto_map(aisle, key_maps);
+  va_end(key_maps);
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_MEM_STATE * cmap_mem_state()
 {
   return cmap_mem_public.state();

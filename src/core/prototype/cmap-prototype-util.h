@@ -1,7 +1,6 @@
 #ifndef __CMAP_PROTOTYPE_UTIL__
 #define __CMAP_PROTOTYPE_UTIL__
 
-#include "cmap-prototype-util-define.h"
 #include "cmap-map.h"
 #include "cmap-fn.h"
 #include "cmap-list.h"

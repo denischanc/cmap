@@ -45,6 +45,10 @@
 #define $$$(map, args...) CMAP_PROC_CHAIN(map, args)
 #define $$$G(args...) CMAP_PROC_CHAIN_GLOBAL(args)
 
-#define L$(maps...) CMAP_TO_LIST(maps)
+#define L$(aisle, maps...) CMAP_TO_LIST(aisle, maps)
+#define L$L(maps...) CMAP_TO_LOCAL_LIST(maps)
+
+#define M$(aisle, key_maps...) CMAP_TO_MAP(aisle, key_maps)
+#define M$L(key_maps...) CMAP_TO_LOCAL_MAP(key_maps)
 
 #endif
