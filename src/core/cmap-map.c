@@ -21,6 +21,8 @@ typedef struct
 
 typedef struct
 {
+  char is_ref;
+
   ENTRY * entry_tree;
 
   CMAP_MAP * prototype, * next;
@@ -49,6 +51,9 @@ CMAP_TREE_RUNNER(entry, NULL, false, false);
 static void fill_aislestore(const char * aisle, CMAP_MAP * map)
 {
   CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.aislestore();
+  INTERNAL * internal = (INTERNAL *)map -> internal;
+
+  internal -> is_ref = CMAP_T;
 
   if(aisle == CMAP_AISLE_LOCAL)
   {
@@ -62,9 +67,7 @@ static void fill_aislestore(const char * aisle, CMAP_MAP * map)
   }
   else
   {
-    INTERNAL * internal = (INTERNAL *)map -> internal;
     internal -> next = CMAP_GET(as, aisle);
-
     CMAP_SET(as, aisle, map);
   }
 }
@@ -203,6 +206,14 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
+static char is_ref(CMAP_MAP * this)
+{
+  return ((INTERNAL *)this -> internal) -> is_ref;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
@@ -230,6 +241,7 @@ static CMAP_MAP * delete(CMAP_MAP * map)
 static void init(CMAP_MAP * map)
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  internal -> is_ref = CMAP_F;
   internal -> entry_tree = NULL;
   internal -> prototype = NULL;
   internal -> next = NULL;
@@ -243,6 +255,7 @@ static void init(CMAP_MAP * map)
   map -> is_key = is_key;
   map -> keys = keys;
   map -> apply = apply;
+  map -> is_ref = is_ref;
 }
 
 static CMAP_MAP * create_root(const char * aisle)
@@ -273,5 +286,6 @@ const CMAP_MAP_PUBLIC cmap_map_public =
   new,
   is_key,
   keys,
-  apply
+  apply,
+  is_ref
 };

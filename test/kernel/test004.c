@@ -1,5 +1,5 @@
 /*******************************************************************************
-@TEST_DESC@ Call console info/error fns
+@TEST_DESC@ Test deepDeleteNoRef()
 *******************************************************************************/
 
 #include <cmap/cmap.h>
@@ -14,12 +14,18 @@
 
 static CMAP_MAP * main_(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
-  $G_$$(
-    "cmap.console.info",
-      $$LIST_L($STR_L("Hello "), $STR_L("World "), $STR_L("!!!")),
-    "info", $LIST_L());
+  CMAP_MAP * map1 = $MAP(NULL);
+  $SET(map1, "lien1", $MAP(NULL));
+  $SET(map1, "lien2", $MAP_L());
+  $SET(map1, "lien3", $MAP("aisle1"));
 
-  $G_$("cmap.console.info");
+  CMAP_MAP * map2 = $MAP(NULL);
+  $SET(map2, "lien1", map1);
+  $SET(map2, "lien2", $MAP_L());
+  $SET(map2, "lien3", $MAP("aisle1"));
+  $SET(map2, "lien4", $MAP(NULL));
+
+  $$(map2, "deepDeleteNoRef");
 
   return NULL;
 }

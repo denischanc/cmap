@@ -6,12 +6,12 @@
 #include "cmap-prototype-map.h"
 #include "cmap-common.h"
 #include "cmap-list.h"
-#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static CMAP_MAP * proto = NULL;
+static char proto_ok = CMAP_F;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -39,7 +39,7 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
       CMAP_DELETE(args_list_i);
     }
   }
-  return NULL;
+  return map;
 }
 
 /*******************************************************************************
@@ -64,34 +64,29 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
       }
     }
   }
-  return NULL;
+  return map;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void require()
+static CMAP_MAP * require()
 {
-  if(proto == NULL)
-  {
-    cmap_prototype_map_public.require();
-    proto = CMAP_KERNEL_MAP();
-  }
+  return cmap_prototype_util_public.require_map(&proto);
 }
 
 /*******************************************************************************
 *******************************************************************************/
+
+static void init()
+{
+  CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
+  CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
+}
 
 static CMAP_MAP * instance()
 {
-  if(proto == NULL)
-  {
-    require();
-
-    CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
-    CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
-  }
-  return proto;
+  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init);
 }
 
 /*******************************************************************************

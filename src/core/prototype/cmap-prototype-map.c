@@ -12,6 +12,7 @@
 *******************************************************************************/
 
 static CMAP_MAP * proto = NULL;
+static char proto_ok = CMAP_F;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -56,29 +57,49 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
     CMAP_DELETE(key);
     CMAP_DELETE(args_map_kv);
   }
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
+{
+  if(!CMAP_CALL(*val, is_ref))
+  {
+    CMAP_CALL_ARGS(*val, apply, delete_apply_fn, data);
+    CMAP_DELETE(*val);
+  }
+}
+
+static CMAP_MAP * deep_delete_no_ref(CMAP_MAP * features, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  delete_apply_fn(NULL, &map, NULL);
   return NULL;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void require()
+static CMAP_MAP * require()
 {
   if(proto == NULL) proto = cmap_map_public.create_root(CMAP_AISLE_KERNEL);
+  return proto;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
+static void init()
+{
+  CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
+  CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref);
+}
+
 static CMAP_MAP * instance()
 {
-  if(proto == NULL)
-  {
-    require();
-
-    CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
-  }
-  return proto;
+  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init);
 }
 
 /*******************************************************************************

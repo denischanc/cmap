@@ -5,7 +5,7 @@
 
 typedef struct
 {
-  void (*require)();
+  CMAP_MAP * (*require)();
   CMAP_MAP * (*instance)();
 } CMAP_PROTOTYPE_INT_PUBLIC;
 

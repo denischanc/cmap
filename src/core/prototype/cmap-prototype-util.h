@@ -15,6 +15,9 @@ typedef struct
 typedef struct
 {
   char (*args_to_map_fn)(CMAP_LIST * args, CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn);
+  CMAP_MAP * (*require_map)(CMAP_MAP ** proto);
+  CMAP_MAP * (*instance)(CMAP_MAP ** proto, char * ok,
+    CMAP_MAP * (*require)(), void (*init)());
 } CMAP_PROTOTYPE_UTIL_PUBLIC;
 
 extern const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public;

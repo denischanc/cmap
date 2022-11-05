@@ -81,10 +81,16 @@ static void error(const char * msg)
 /*******************************************************************************
 *******************************************************************************/
 
-static void valid_block(BLOCK * block)
+static inline void valid_block(BLOCK * block)
 {
   block -> valid1 = VAL_1;
   block -> valid2 = VAL_2;
+}
+
+static inline void invalid_block(BLOCK * block)
+{
+  block -> valid1 = 0;
+  block -> valid2 = 0;
 }
 
 static int is_block(BLOCK * block)
@@ -123,6 +129,8 @@ static void add_block(BLOCK * block, BLOCK * prev)
 
 static void rm_block(BLOCK * block, BLOCK * prev)
 {
+  invalid_block(block);
+
   prev -> next = block -> next;
 
   if(prev -> next != NULL) prev -> next -> prev = prev;
@@ -288,6 +296,7 @@ static void free_(void * ptr)
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
   if(!is_block(block)) error("Invalid block ???");
+  if(block -> free) error("Memory address already free !!!");
 
   BLOCK * next = block -> next, * prev = block -> prev;
 

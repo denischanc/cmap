@@ -25,6 +25,8 @@ struct CMAP_MAP_s
   void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
+
+  char (*is_ref)(CMAP_MAP * this);
 };
 
 typedef struct
@@ -43,6 +45,8 @@ typedef struct
   void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
+
+  char (*is_ref)(CMAP_MAP * this);
 } CMAP_MAP_PUBLIC;
 
 extern const CMAP_MAP_PUBLIC cmap_map_public;

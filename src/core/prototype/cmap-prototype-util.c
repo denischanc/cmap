@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 #include "cmap-common.h"
+#include "cmap-aisle.h"
+#include "cmap-prototype-map.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -36,7 +38,38 @@ static char args_to_map_fn(CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * require_map(CMAP_MAP ** proto)
+{
+  if(*proto == NULL)
+  {
+    CMAP_MAP * proto_map = cmap_prototype_map_public.require();
+    *proto = CMAP_MAP_NEW_MAP(proto_map, CMAP_AISLE_KERNEL);
+    cmap_prototype_map_public.instance();
+  }
+  return *proto;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * instance(CMAP_MAP ** proto, char * ok,
+  CMAP_MAP * (*require)(), void (*init)())
+{
+  if(!*ok)
+  {
+    *ok = CMAP_T;
+    require();
+    init();
+  }
+  return *proto;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public =
 {
-  args_to_map_fn
+  args_to_map_fn,
+  require_map,
+  instance
 };
