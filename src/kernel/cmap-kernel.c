@@ -15,12 +15,23 @@ typedef struct
 {
   CMAP_KERNEL_CFG * cfg;
 
+  CMAP_MEM * mem;
+  CMAP_LOG * log;
+
+  CMAP_AISLESTORE * aislestore;
+
+  CMAP_POOL_LIST * pool_list;
+  CMAP_POOL_STRING * pool_string;
+
+  CMAP_MAP * global_env;
+
   char exiting;
 
   int state;
 } INTERNAL;
 
-static INTERNAL internal = {NULL, CMAP_F, CMAP_KERNEL_S_UNKNOWN};
+static INTERNAL internal = {NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+  CMAP_F, CMAP_KERNEL_S_UNKNOWN};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -33,13 +44,13 @@ static CMAP_KERNEL * kernel_ptr = NULL;
 
 static void init_env()
 {
-  kernel.aislestore = cmap_aislestore_public.create();
+  internal.aislestore = cmap_aislestore_public.create();
 
   cmap_prototype_public.init();
-  kernel.pool_list = cmap_pool_list_public.create(20);
-  kernel.pool_string = cmap_pool_string_public.create(20);
+  internal.pool_list = cmap_pool_list_public.create(20);
+  internal.pool_string = cmap_pool_string_public.create(20);
 
-  kernel.global_env = cmap_global_env_public.create();
+  internal.global_env = cmap_global_env_public.create();
 }
 
 /*******************************************************************************
@@ -47,10 +58,10 @@ static void init_env()
 
 static void delete_all()
 {
-  CMAP_CALL(kernel.pool_list, delete);
-  CMAP_CALL(kernel.pool_string, delete);
+  CMAP_CALL(internal.pool_list, delete);
+  CMAP_CALL(internal.pool_string, delete);
 
-  CMAP_MAP * as = (CMAP_MAP *)kernel.aislestore;
+  CMAP_MAP * as = (CMAP_MAP *)internal.aislestore;
   CMAP_CALL(as, delete);
 }
 
@@ -59,7 +70,7 @@ static void delete_all()
 
 static void check_mem(int * ret)
 {
-  if(cmap_mem_public.is_this(kernel.mem))
+  if(cmap_mem_public.is_this(internal.mem))
   {
     int s = cmap_mem_public.state() -> size_alloc;
     cmap_log_public.debug("Allocated memory size : [%d].", s);
@@ -154,18 +165,18 @@ static CMAP_KERNEL * init(CMAP_KERNEL_CFG * cfg)
   {
     internal.state = CMAP_KERNEL_S_INIT;
 
-    if(cfg == NULL) cfg = instance_cfg();
-    internal.cfg = cfg;
-
     kernel.main = main_;
     kernel.exit = exit_;
     kernel.fatal = fatal;
     kernel.state = state;
 
-    kernel.mem = get_mem();
-    kernel.log = get_log();
-
     kernel_ptr = &kernel;
+
+    if(cfg == NULL) cfg = instance_cfg();
+    internal.cfg = cfg;
+    internal.mem = get_mem();
+    internal.log = get_log();
+
     cmap_log_public.debug("Init kernel.");
 
     init_env();
@@ -183,8 +194,47 @@ static CMAP_KERNEL * instance()
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MEM * mem()
+{
+  return internal.mem;
+}
+
+static CMAP_LOG * log_()
+{
+  return internal.log;
+}
+
+static CMAP_AISLESTORE * aislestore()
+{
+  return internal.aislestore;
+}
+
+static CMAP_POOL_LIST * pool_list()
+{
+  return internal.pool_list;
+}
+
+static CMAP_POOL_STRING * pool_string()
+{
+  return internal.pool_string;
+}
+
+static CMAP_MAP * global_env()
+{
+  return internal.global_env;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_KERNEL_PUBLIC cmap_kernel_public =
 {
   init,
-  instance
+  instance,
+  mem,
+  log_,
+  aislestore,
+  pool_list,
+  pool_string,
+  global_env
 };

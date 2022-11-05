@@ -48,7 +48,7 @@ CMAP_TREE_RUNNER(entry, NULL, false, false);
 
 static void fill_warehouse(const char * aisle, CMAP_MAP * map)
 {
-  CMAP_MAP * as = (CMAP_MAP *)CMAP_KERNEL_INSTANCE -> aislestore;
+  CMAP_MAP * as = (CMAP_MAP *)cmap_kernel_public.aislestore();
 
   if(aisle == CMAP_AISLE_LOCAL)
   {
@@ -87,7 +87,7 @@ static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
   if(entry == NULL)
   {
-    CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
+    CMAP_MEM * mem = cmap_kernel_public.mem();
     entry = (ENTRY *)mem -> alloc(sizeof(ENTRY));
     entry -> key = (char *)mem -> alloc((strlen(key) + 1) * sizeof(char));
     strcpy(entry -> key, key);
@@ -121,7 +121,7 @@ static void init(CMAP_MAP * map);
 
 static void * new(CMAP_MAP * this, int size, const char * aisle)
 {
-  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_INSTANCE -> mem -> alloc(size);
+  CMAP_MAP * map = (CMAP_MAP *)cmap_kernel_public.mem() -> alloc(size);
   init(map);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
@@ -217,7 +217,7 @@ static CMAP_MAP * delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
   CMAP_MAP * next = internal -> next;
-  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem;
+  CMAP_MEM * mem = cmap_kernel_public.mem();
 
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply, CMAP_T, mem);
 

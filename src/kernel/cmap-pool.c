@@ -22,7 +22,7 @@ typedef struct
 #define CMAP_POOL_IMPL(TYPE, type) \
 static void type##_delete(CMAP_POOL_##TYPE * this) \
 { \
-  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem; \
+  CMAP_MEM * mem = cmap_kernel_public.mem(); \
  \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
   CMAP_LIST * list = internal -> list; \
@@ -72,7 +72,7 @@ static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
  \
 CMAP_POOL_##TYPE * type##_create(int size) \
 { \
-  CMAP_MEM * mem = CMAP_KERNEL_INSTANCE -> mem; \
+  CMAP_MEM * mem = cmap_kernel_public.mem(); \
   CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##TYPE, mem); \
  \
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem); \

@@ -22,9 +22,8 @@ static void delete_list_vals(CMAP_LIST * list)
 
 static void release_pool_list_n_strings(CMAP_LIST * list)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
-  CMAP_POOL_LIST * pool_list = kernel -> pool_list;
+  CMAP_POOL_STRING * pool_string = cmap_kernel_public.pool_string();
+  CMAP_POOL_LIST * pool_list = cmap_kernel_public.pool_list();
 
   CMAP_MAP * val;
   while((val = CMAP_LIST_POP(list)) != NULL)
@@ -73,7 +72,7 @@ static CMAP_STRING * create_handler_from_aisle(void * data)
 
 static CMAP_STRING * create_handler_from_pool(void * data)
 {
-  CMAP_POOL_STRING * pool = CMAP_KERNEL_INSTANCE -> pool_string;
+  CMAP_POOL_STRING * pool = cmap_kernel_public.pool_string();
   return CMAP_CALL(pool, take);
 }
 
@@ -90,7 +89,7 @@ static CMAP_LIST * split_w_aisle(const char * line, char sep,
 
 static CMAP_LIST * split_w_pool(const char * line, char sep)
 {
-  CMAP_POOL_LIST * pool = CMAP_KERNEL_INSTANCE -> pool_list;
+  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
   CMAP_LIST * list = CMAP_CALL(pool, take);
   split_w_handler(list, line, sep, create_handler_from_pool, NULL);
   return list;

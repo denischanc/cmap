@@ -112,10 +112,9 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 {
   CMAP_STRING * key;
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
+  CMAP_POOL_STRING * pool_string = cmap_kernel_public.pool_string();
 
-  if(map == NULL) map = kernel -> global_env;
+  if(map == NULL) map = cmap_kernel_public.global_env();
 
   CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.');
 
@@ -142,10 +141,9 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
 
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
+  CMAP_POOL_STRING * pool_string = cmap_kernel_public.pool_string();
 
-  if(map == NULL) map = kernel -> global_env;
+  if(map == NULL) map = cmap_kernel_public.global_env();
 
   CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.');
 
@@ -173,7 +171,7 @@ static CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_MAP * map, CMAP_LIST * args)
 
 static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_MAP * map, va_list args)
 {
-  CMAP_POOL_LIST * pool = CMAP_KERNEL_INSTANCE -> pool_list;
+  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
   CMAP_LIST * args_list = CMAP_CALL(pool, take);
   cmap_util_public.vfill_list(args_list, args);
 
@@ -212,7 +210,7 @@ CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key, CMAP_LIST * args)
 
 static CMAP_MAP * vproc(CMAP_MAP * map, const char * key, va_list args)
 {
-  CMAP_POOL_LIST * pool = CMAP_KERNEL_INSTANCE -> pool_list;
+  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
   CMAP_LIST * args_list = CMAP_CALL(pool, take);
   cmap_util_public.vfill_list(args_list, args);
 
@@ -239,10 +237,9 @@ CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
   CMAP_LIST * args)
 {
   CMAP_STRING * key;
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_POOL_STRING * pool_string = kernel -> pool_string;
+  CMAP_POOL_STRING * pool_string = cmap_kernel_public.pool_string();
 
-  if(map == NULL) map = kernel -> global_env;
+  if(map == NULL) map = cmap_kernel_public.global_env();
 
   CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.');
 
@@ -269,7 +266,7 @@ CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
 static CMAP_MAP * vproc_split(CMAP_MAP * map, const char * keys,
   va_list args)
 {
-  CMAP_POOL_LIST * pool = CMAP_KERNEL_INSTANCE -> pool_list;
+  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
   CMAP_LIST * args_list = CMAP_CALL(pool, take);
   cmap_util_public.vfill_list(args_list, args);
 
@@ -294,7 +291,7 @@ CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * keys, ...)
 
 CMAP_MAP * cmap_proc_chain(CMAP_MAP * map, ...)
 {
-  if(map == NULL) map = CMAP_KERNEL_INSTANCE -> global_env;
+  if(map == NULL) map = cmap_kernel_public.global_env();
 
   va_list chain;
   va_start(chain, map);

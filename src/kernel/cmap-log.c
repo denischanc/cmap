@@ -51,7 +51,7 @@ static void log_(const char * level, const char * msg, ...)
 #define FN(LVL, lvl) \
 static void v##lvl(const char * msg, va_list ap) \
 { \
-  CMAP_KERNEL_INSTANCE -> log -> vlog(CMAP_LOG_##LVL, msg, ap); \
+  cmap_kernel_public.log() -> vlog(CMAP_LOG_##LVL, msg, ap); \
 } \
  \
 static void lvl(const char * msg, ...) \

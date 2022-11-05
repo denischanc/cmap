@@ -44,7 +44,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_MAP * map, CMAP_LIST * args)
   CMAP_MAP * ret = internal -> process(this -> features, map, args);
 
   cmap_util_public.delete_list_vals(stack_local);
-  CMAP_AISLESTORE * as = CMAP_KERNEL_INSTANCE -> aislestore;
+  CMAP_AISLESTORE * as = cmap_kernel_public.aislestore();
   CMAP_CALL_ARGS(as, delete_last, CMAP_AISLE_STACK);
 
   return ret;

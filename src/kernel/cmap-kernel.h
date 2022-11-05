@@ -16,15 +16,6 @@
 
 typedef struct
 {
-  CMAP_MEM * mem;
-  CMAP_LOG * log;
-
-  CMAP_MAP * global_env;
-  CMAP_AISLESTORE * aislestore;
-
-  CMAP_POOL_LIST * pool_list;
-  CMAP_POOL_STRING * pool_string;
-
   int (*main)(int argc, char * argv[]);
 
   void (*exit)(int ret);
@@ -37,6 +28,16 @@ typedef struct
 {
   CMAP_KERNEL * (*init)(CMAP_KERNEL_CFG * cfg);
   CMAP_KERNEL * (*instance)();
+
+  CMAP_MEM * (*mem)();
+  CMAP_LOG * (*log)();
+
+  CMAP_AISLESTORE * (*aislestore)();
+
+  CMAP_POOL_LIST * (*pool_list)();
+  CMAP_POOL_STRING * (*pool_string)();
+
+  CMAP_MAP * (*global_env)();
 } CMAP_KERNEL_PUBLIC;
 
 extern const CMAP_KERNEL_PUBLIC cmap_kernel_public;
