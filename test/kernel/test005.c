@@ -1,10 +1,12 @@
 /*******************************************************************************
-@TEST_DESC@ deepDeleteNoRef()
+@TEST_DESC@ Free ptr 2 times
 *******************************************************************************/
 
 #include <cmap/cmap.h>
+#define __CMAP_COMMON_H__
 #include <cmap/aisle.h>
 #include <cmap/define-min.h>
+#include "cmap-kernel.h"
 
 #include <stdlib.h>
 
@@ -13,18 +15,9 @@
 
 static CMAP_MAP * main_(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_MAP * map1 = $MAP(NULL);
-  $SET(map1, "lien1", $MAP(NULL));
-  $SET(map1, "lien2", $MAP_L());
-  $SET(map1, "lien3", $MAP("aisle1"));
-
-  CMAP_MAP * map2 = $MAP(NULL);
-  $SET(map2, "lien1", map1);
-  $SET(map2, "lien2", $MAP_L());
-  $SET(map2, "lien3", $MAP("aisle1"));
-  $SET(map2, "lien4", $MAP(NULL));
-
-  $$(map2, "deepDeleteNoRef");
+  CMAP_MAP * tmp = $MAP(NULL);
+  CMAP_DELETE(tmp);
+  CMAP_KERNEL_FREE(tmp);
 
   return NULL;
 }
