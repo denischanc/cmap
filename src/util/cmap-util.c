@@ -99,10 +99,50 @@ static CMAP_LIST * split_w_pool(const char * line, char sep)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_LIST * vfill_list(CMAP_LIST * list, va_list maps)
+{
+  CMAP_MAP * map;
+  while((map = va_arg(maps, CMAP_MAP *)) != NULL) CMAP_LIST_PUSH(list, map);
+  return list;
+}
+
+static CMAP_LIST * fill_list(CMAP_LIST * list, ...)
+{
+  va_list maps;
+  va_start(maps, list);
+  vfill_list(list, maps);
+  va_end(maps);
+  return list;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_LIST * vto_list(const char * aisle, va_list maps)
+{
+  return vfill_list(CMAP_LIST(0, aisle), maps);
+}
+
+static CMAP_LIST * to_list(const char * aisle, ...)
+{
+  va_list maps;
+  va_start(maps, aisle);
+  CMAP_LIST * list = vto_list(aisle, maps);
+  va_end(maps);
+  return list;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
   release_pool_list_n_strings,
   split_w_aisle,
-  split_w_pool
+  split_w_pool,
+  fill_list,
+  vfill_list,
+  to_list,
+  vto_list
 };

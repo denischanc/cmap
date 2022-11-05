@@ -9,7 +9,6 @@ noinst_HEADERS = \
   cmap-list.h \
   cmap-list-define.h \
   cmap-fn.h \
-  cmap-fn-define.h \
   cmap-string.h \
   cmap-int.h
 

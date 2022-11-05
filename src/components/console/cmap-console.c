@@ -38,7 +38,7 @@ static void display(FILE * f, CMAP_LIST * args)
 static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
   display(stdout, args);
-  return NULL;
+  return map;
 }
 
 /*******************************************************************************
@@ -47,7 +47,7 @@ static CMAP_MAP * info(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 static CMAP_MAP * error(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
   display(stderr, args);
-  return NULL;
+  return map;
 }
 
 /*******************************************************************************

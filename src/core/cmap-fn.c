@@ -8,6 +8,7 @@
 #include "cmap-aisle.h"
 #include "cmap-util.h"
 #include "cmap-aislestore.h"
+#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -60,7 +61,7 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
   if(prototype != NULL) map = CMAP_MAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
-  CMAP_FN_PROCESS(this, map, args);
+  CMAP_FN_PROC(this, map, args);
 
   return map;
 }

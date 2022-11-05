@@ -53,7 +53,12 @@ static void fill_warehouse(const char * aisle, CMAP_MAP * map)
   if(aisle == CMAP_AISLE_LOCAL)
   {
     CMAP_LIST * stack_local = (CMAP_LIST *)CMAP_GET(as, CMAP_AISLE_STACK);
-    CMAP_LIST_PUSH(stack_local, map);
+    if(stack_local != NULL) CMAP_LIST_PUSH(stack_local, map);
+    else
+    {
+      cmap_log_public.fatal("Try to create local cmap outside fn !!!");
+      CMAP_KERNEL_INSTANCE -> fatal();
+    }
   }
   else
   {

@@ -31,7 +31,7 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
       {
         CMAP_CALL(args_list_i, clear);
         CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
-        CMAP_FN_PROCESS(map_fn.fn_, map_fn.map_, args_list_i);
+        CMAP_FN_PROC(map_fn.fn_, map_fn.map_, args_list_i);
       }
 
       CMAP_DELETE(args_list_i);

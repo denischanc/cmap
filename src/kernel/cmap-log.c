@@ -8,7 +8,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define LEVEL(LVL, lvl) const char * CMAP_LOG_##LVL = "LVL";
+#define LEVEL(LVL, lvl) const char * CMAP_LOG_##LVL = #LVL;
 
 CMAP_LOG_LOOP(LEVEL)
 

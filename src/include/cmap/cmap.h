@@ -30,8 +30,18 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val);
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys);
 
-CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * fn_name, ...);
-CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * fn_names, ...);
+CMAP_MAP * cmap_fn_proc(CMAP_FN * fn, CMAP_MAP * map, ...);
+
+CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key, ...);
+CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key, CMAP_LIST * args);
+
+CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * keys, ...);
+CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
+  CMAP_LIST * args);
+
+CMAP_MAP * cmap_proc_chain(CMAP_MAP * map, ...);
+
+CMAP_LIST * cmap_to_list(const char * aisle, ...);
 
 CMAP_MEM_STATE * cmap_mem_state();
 

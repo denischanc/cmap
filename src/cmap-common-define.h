@@ -23,4 +23,7 @@
   CMAP_CALL_ARGS(list, set, i, (CMAP_MAP *)val)
 #define CMAP_LIST_GET(list, i) CMAP_CALL_ARGS(list, get, i)
 
+#define CMAP_FN_PROC(fn, map, args) \
+  CMAP_CALL_ARGS(fn, process, (CMAP_MAP *)map, args)
+
 #endif

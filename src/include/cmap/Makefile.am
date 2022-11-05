@@ -6,6 +6,7 @@ include_cmap_HEADERS = \
   cmap.h \
   core.h \
   define.h \
+  define-min.h \
   super-define.h \
   fn.h \
   kernel.h \

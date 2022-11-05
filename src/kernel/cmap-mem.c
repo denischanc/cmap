@@ -74,7 +74,7 @@ static CMAP_MEM * mem_ptr = NULL;
 
 static void error(const char * msg)
 {
-  cmap_log_public.error(msg);
+  cmap_log_public.fatal(msg);
   CMAP_KERNEL_INSTANCE -> fatal();
 }
 
