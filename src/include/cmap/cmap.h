@@ -46,4 +46,6 @@ CMAP_MAP * cmap_to_map(const char * aisle, ...);
 
 CMAP_MEM_STATE * cmap_mem_state();
 
+void cmap_delete_aisle(const char * aisle);
+
 #endif

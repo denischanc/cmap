@@ -340,3 +340,11 @@ CMAP_MEM_STATE * cmap_mem_state()
 {
   return cmap_mem_public.state();
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_delete_aisle(const char * aisle)
+{
+  CMAP_CALL_ARGS(cmap_kernel_public.aislestore(), delete, aisle);
+}

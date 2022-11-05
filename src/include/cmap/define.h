@@ -62,4 +62,6 @@
 #define CMAP_TO_MAP(aisle, key_maps...) cmap_to_map(aisle, key_maps, NULL)
 #define CMAP_TO_LOCAL_MAP(key_maps...) CMAP_TO_MAP(CMAP_AISLE_LOCAL, key_maps)
 
+#define CMAP_DELETE_AISLE(aisle) cmap_delete_aisle(aisle)
+
 #endif
