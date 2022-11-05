@@ -42,6 +42,7 @@ CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
 CMAP_MAP * cmap_proc_chain(CMAP_MAP * map, ...);
 
 CMAP_LIST * cmap_to_list(const char * aisle, ...);
+CMAP_MAP * cmap_to_map(const char * aisle, ...);
 
 CMAP_MEM_STATE * cmap_mem_state();
 
