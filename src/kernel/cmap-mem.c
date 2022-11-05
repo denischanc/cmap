@@ -327,11 +327,6 @@ static CMAP_MEM * init(int chunk_size)
   return mem_ptr;
 }
 
-static CMAP_MEM * instance()
-{
-  return mem_ptr;
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -394,7 +389,6 @@ static char is_this(CMAP_MEM * mem_)
 const CMAP_MEM_PUBLIC cmap_mem_public =
 {
   init,
-  instance,
   state,
   is_this
 };

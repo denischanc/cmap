@@ -79,11 +79,6 @@ static CMAP_LOG * init()
   return log_ptr;
 }
 
-static CMAP_LOG * instance()
-{
-  return log_ptr;
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -92,6 +87,5 @@ static CMAP_LOG * instance()
 const CMAP_LOG_PUBLIC cmap_log_public =
 {
   init,
-  instance,
   CMAP_LOG_LOOP(SET)
 };

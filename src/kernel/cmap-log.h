@@ -7,7 +7,6 @@
 typedef struct
 {
   CMAP_LOG * (*init)();
-  CMAP_LOG * (*instance)();
 
   CMAP_LOG_LOOP(CMAP_LOG_FN)
 } CMAP_LOG_PUBLIC;
