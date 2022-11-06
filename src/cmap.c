@@ -9,6 +9,7 @@
 #include "cmap-fn.h"
 #include "cmap-string.h"
 #include "cmap-int.h"
+#include "cmap-double.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
@@ -65,9 +66,14 @@ CMAP_STRING * cmap_string(const char * val, int size_inc, const char * aisle)
   return cmap_string_public.create(val, size_inc, aisle);
 }
 
-CMAP_INT * cmap_int(const char * aisle)
+CMAP_INT * cmap_int(int64_t val, const char * aisle)
 {
-  return cmap_int_public.create(aisle);
+  return cmap_int_public.create(val, aisle);
+}
+
+CMAP_DOUBLE * cmap_double(double val, const char * aisle)
+{
+  return cmap_double_public.create(val, aisle);
 }
 
 /*******************************************************************************
@@ -109,14 +115,27 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_int_set(CMAP_INT * i, int64_t v)
+void cmap_int_set(CMAP_INT * i, int64_t val)
 {
-  CMAP_CALL_ARGS(i, set, v);
+  CMAP_CALL_ARGS(i, set, val);
 }
 
 int64_t cmap_int_get(CMAP_INT * i)
 {
   return CMAP_CALL(i, get);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_double_set(CMAP_DOUBLE * d, double val)
+{
+  CMAP_CALL_ARGS(d, set, val);
+}
+
+double cmap_double_get(CMAP_DOUBLE * d)
+{
+  return CMAP_CALL(d, get);
 }
 
 /*******************************************************************************

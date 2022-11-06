@@ -2,7 +2,7 @@
 #define ___CMAP_H___
 
 #include <stdarg.h>
-#include <sys/types.h>
+#include <stdint.h>
 
 #include <cmap/kernel.h>
 #include <cmap/core.h>
@@ -18,7 +18,8 @@ CMAP_MAP * cmap_map(const char * aisle);
 CMAP_LIST * cmap_list(int size_inc, const char * aisle);
 CMAP_FN * cmap_fn(CMAP_FN_TPL process, const char * aisle);
 CMAP_STRING * cmap_string(const char * val, int size_inc, const char * aisle);
-CMAP_INT * cmap_int(const char * aisle);
+CMAP_INT * cmap_int(int64_t val, const char * aisle);
+CMAP_DOUBLE * cmap_double(double val, const char * aisle);
 
 const char * cmap_nature(CMAP_MAP * map);
 CMAP_MAP * cmap_delete(CMAP_MAP * map);
@@ -28,8 +29,11 @@ CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
 void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val);
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);
 
-void cmap_int_set(CMAP_INT * i, int64_t v);
+void cmap_int_set(CMAP_INT * i, int64_t val);
 int64_t cmap_int_get(CMAP_INT * i);
+
+void cmap_double_set(CMAP_DOUBLE * d, double val);
+double cmap_double_get(CMAP_DOUBLE * d);
 
 const char * cmap_string_val(CMAP_STRING * string);
 

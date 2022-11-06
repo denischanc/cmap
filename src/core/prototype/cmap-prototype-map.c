@@ -73,7 +73,7 @@ static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
   }
 }
 
-static CMAP_MAP * deep_delete_no_ref(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * deep_delete_no_ref_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   delete_apply_fn(NULL, &map, NULL);
@@ -95,7 +95,7 @@ static CMAP_MAP * require()
 static void init()
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
-  CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref);
+  CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref_fn);
 }
 
 static CMAP_MAP * instance()

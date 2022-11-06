@@ -17,8 +17,11 @@
 #define CMAP_STRING(val, size_inc, aisle) cmap_string(val, size_inc, aisle)
 #define CMAP_LOCAL_STRING(val) CMAP_STRING(val, 0, CMAP_AISLE_LOCAL)
 
-#define CMAP_INT(aisle) cmap_int(aisle)
-#define CMAP_LOCAL_INT() CMAP_INT(CMAP_AISLE_LOCAL)
+#define CMAP_INT(val, aisle) cmap_int(val, aisle)
+#define CMAP_LOCAL_INT(val) CMAP_INT(val, CMAP_AISLE_LOCAL)
+
+#define CMAP_DOUBLE(val, aisle) cmap_double(val, aisle)
+#define CMAP_LOCAL_DOUBLE(val) CMAP_DOUBLE(val, CMAP_AISLE_LOCAL)
 
 #define CMAP_NATURE(map) cmap_nature((CMAP_MAP *)map)
 #define CMAP_DELETE(map) cmap_delete((CMAP_MAP *)map)
@@ -31,6 +34,9 @@
 
 #define CMAP_INT_SET(i, v) cmap_int_set(i, v)
 #define CMAP_INT_GET(i) cmap_int_get(i)
+
+#define CMAP_DOUBLE_SET(d, v) cmap_double_set(d, v)
+#define CMAP_DOUBLE_GET(d) cmap_double_get(d)
 
 #define CMAP_STRING_VAL(s) cmap_string_val(s)
 

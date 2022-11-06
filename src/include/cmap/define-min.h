@@ -13,8 +13,11 @@
 #define $STR(val, size_inc, aisle) CMAP_STRING(val, size_inc, aisle)
 #define $STR_L(val) CMAP_LOCAL_STRING(val)
 
-#define $INT(aisle) CMAP_INT(aisle)
-#define $INT_L() CMAP_LOCAL_INT()
+#define $INT(val, aisle) CMAP_INT(val, aisle)
+#define $INT_L(val) CMAP_LOCAL_INT(val)
+
+#define $DOUBLE(val, aisle) CMAP_DOUBLE(val, aisle)
+#define $DOUBLE_L(val) CMAP_LOCAL_DOUBLE(val)
 
 #define $SET(map, key, val) CMAP_SET(map, key, val)
 #define $GET(map, key) CMAP_GET(map, key)
@@ -24,6 +27,9 @@
 
 #define $SETI(i, v) CMAP_INT_SET(i, v)
 #define $GETI(i) CMAP_INT_GET(i)
+
+#define $SETD(d, v) CMAP_DOUBLE_SET(d, v)
+#define $GETD(d) CMAP_DOUBLE_GET(d)
 
 #define $STRV(s) CMAP_STRING_VAL(s)
 

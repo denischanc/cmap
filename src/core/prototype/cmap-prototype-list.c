@@ -78,10 +78,8 @@ static CMAP_MAP * size_fn(CMAP_MAP * features, CMAP_MAP * map,
   if(CMAP_NATURE(map) != CMAP_NATURE_LIST) return NULL;
   else
   {
-    CMAP_INT * size = CMAP_INT(NULL);
     CMAP_LIST * list = (CMAP_LIST *)map;
-    CMAP_CALL_ARGS(size, set, CMAP_CALL(list, size));
-    return (CMAP_MAP *)size;
+    return (CMAP_MAP *)CMAP_INT(CMAP_CALL(list, size), NULL);
   }
 }
 

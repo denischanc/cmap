@@ -7,6 +7,7 @@ noinst_HEADERS = \
   cmap-prototype-fn.h \
   cmap-prototype-string.h \
   cmap-prototype-int.h \
+  cmap-prototype-double.h \
   cmap-prototype-util.h \
   cmap-prototype-util-define.h
 
@@ -18,5 +19,6 @@ libprototype_la_SOURCES = \
   cmap-prototype-fn.c \
   cmap-prototype-string.c \
   cmap-prototype-int.c \
+  cmap-prototype-double.c \
   cmap-prototype-util.c
 libprototype_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)

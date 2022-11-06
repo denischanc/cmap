@@ -6,5 +6,6 @@ extern const char * CMAP_NATURE_LIST;
 extern const char * CMAP_NATURE_FN;
 extern const char * CMAP_NATURE_STRING;
 extern const char * CMAP_NATURE_INT;
+extern const char * CMAP_NATURE_DOUBLE;
 
 #endif
