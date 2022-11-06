@@ -11,6 +11,7 @@
 #include "cmap-prototype-string.h"
 #include "cmap-prototype-int.h"
 #include "cmap-prototype-double.h"
+#include "cmap-prototype-ptr.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,6 +25,7 @@ static CMAP_MAP * create_prototype()
   $SET(prototype, "string", cmap_prototype_string_public.instance());
   $SET(prototype, "int", cmap_prototype_int_public.instance());
   $SET(prototype, "double", cmap_prototype_double_public.instance());
+  $SET(prototype, "ptr", cmap_prototype_ptr_public.instance());
   return prototype;
 }
 

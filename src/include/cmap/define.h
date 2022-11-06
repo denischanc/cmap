@@ -23,6 +23,9 @@
 #define CMAP_DOUBLE(val, aisle) cmap_double(val, aisle)
 #define CMAP_LOCAL_DOUBLE(val) CMAP_DOUBLE(val, CMAP_AISLE_LOCAL)
 
+#define CMAP_PTR(struct, aisle) cmap_ptr(sizeof(struct), aisle)
+#define CMAP_LOCAL_PTR(struct) CMAP_PTR(struct, CMAP_AISLE_LOCAL)
+
 #define CMAP_NATURE(map) cmap_nature((CMAP_MAP *)map)
 #define CMAP_DELETE(map) cmap_delete((CMAP_MAP *)map)
 #define CMAP_SET(map, key, val) cmap_set( \
@@ -37,6 +40,8 @@
 
 #define CMAP_DOUBLE_SET(d, v) cmap_double_set(d, v)
 #define CMAP_DOUBLE_GET(d) cmap_double_get(d)
+
+#define CMAP_PTR_GET(ptr) cmap_ptr_get(ptr)
 
 #define CMAP_STRING_VAL(s) cmap_string_val(s)
 

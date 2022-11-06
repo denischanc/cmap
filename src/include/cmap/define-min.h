@@ -19,6 +19,9 @@
 #define $DOUBLE(val, aisle) CMAP_DOUBLE(val, aisle)
 #define $DOUBLE_L(val) CMAP_LOCAL_DOUBLE(val)
 
+#define $PTR(struct, aisle) CMAP_PTR(struct, aisle)
+#define $PTR_L(struct) CMAP_LOCAL_PTR(struct)
+
 #define $SET(map, key, val) CMAP_SET(map, key, val)
 #define $GET(map, key) CMAP_GET(map, key)
 
@@ -30,6 +33,8 @@
 
 #define $SETD(d, v) CMAP_DOUBLE_SET(d, v)
 #define $GETD(d) CMAP_DOUBLE_GET(d)
+
+#define $GETP(ptr) CMAP_PTR_GET(ptr)
 
 #define $STRV(s) CMAP_STRING_VAL(s)
 

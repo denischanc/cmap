@@ -10,6 +10,7 @@
 #include "cmap-string.h"
 #include "cmap-int.h"
 #include "cmap-double.h"
+#include "cmap-ptr.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
@@ -76,6 +77,11 @@ CMAP_DOUBLE * cmap_double(double val, const char * aisle)
   return cmap_double_public.create(val, aisle);
 }
 
+CMAP_PTR * cmap_ptr(int size, const char * aisle)
+{
+  return cmap_ptr_public.create(size, aisle);
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -136,6 +142,14 @@ void cmap_double_set(CMAP_DOUBLE * d, double val)
 double cmap_double_get(CMAP_DOUBLE * d)
 {
   return CMAP_CALL(d, get);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void * cmap_ptr_get(CMAP_PTR * ptr)
+{
+  return CMAP_CALL(ptr, get);
 }
 
 /*******************************************************************************

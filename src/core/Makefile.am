@@ -11,7 +11,8 @@ noinst_HEADERS = \
   cmap-fn.h \
   cmap-string.h \
   cmap-int.h \
-  cmap-double.h
+  cmap-double.h \
+  cmap-ptr.h
 
 noinst_LTLIBRARIES = libcore.la
 
@@ -21,6 +22,7 @@ libcore_la_SOURCES = \
   cmap-fn.c \
   cmap-string.c \
   cmap-int.c \
-  cmap-double.c
+  cmap-double.c \
+  cmap-ptr.c
 libcore_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
 libcore_la_LIBADD = prototype/libprototype.la
