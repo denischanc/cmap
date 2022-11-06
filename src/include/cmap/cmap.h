@@ -2,6 +2,7 @@
 #define ___CMAP_H___
 
 #include <stdarg.h>
+#include <sys/types.h>
 
 #include <cmap/kernel.h>
 #include <cmap/core.h>
@@ -26,6 +27,11 @@ CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
 
 void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val);
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);
+
+void cmap_int_set(CMAP_INT * i, int64_t v);
+int64_t cmap_int_get(CMAP_INT * i);
+
+const char * cmap_string_val(CMAP_STRING * string);
 
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val);
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys);

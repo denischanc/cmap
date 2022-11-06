@@ -6,6 +6,8 @@
 #include "cmap-prototype-map.h"
 #include "cmap-common.h"
 #include "cmap-list.h"
+#include "cmap-map.h"
+#include "cmap-int.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -70,6 +72,22 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * size_fn(CMAP_MAP * features, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  if(CMAP_NATURE(map) != CMAP_NATURE_LIST) return NULL;
+  else
+  {
+    CMAP_INT * size = CMAP_INT(NULL);
+    CMAP_LIST * list = (CMAP_LIST *)map;
+    CMAP_CALL_ARGS(size, set, CMAP_CALL(list, size));
+    return (CMAP_MAP *)size;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_MAP * require()
 {
   return cmap_prototype_util_public.require_map(&proto);
@@ -82,6 +100,7 @@ static void init()
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
   CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
+  CMAP_PROTO_SET_FN(proto, "size", size_fn);
 }
 
 static CMAP_MAP * instance()

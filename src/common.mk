@@ -11,5 +11,6 @@ CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_SRC_PATH)/core \
   -I$(CMAP_SRC_PATH)/core/prototype \
   -I$(CMAP_SRC_PATH)/kernel \
+  -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/components/console \
   -Wall

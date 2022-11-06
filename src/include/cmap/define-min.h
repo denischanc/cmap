@@ -22,6 +22,11 @@
 #define $SETL(list, i, val) CMAP_LIST_SET(list, i, val)
 #define $GETL(list, i) CMAP_LIST_GET(list, i)
 
+#define $SETI(i, v) CMAP_INT_SET(i, v)
+#define $GETI(i) CMAP_INT_GET(i)
+
+#define $STRV(s) CMAP_STRING_VAL(s)
+
 #define $K_SET(map, keys, val) CMAP_SET_SPLIT(map, keys, val)
 #define $K_GET(map, keys) CMAP_GET_SPLIT(map, keys)
 

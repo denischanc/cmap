@@ -29,6 +29,11 @@
 #define CMAP_LIST_SET(list, i, val) cmap_list_set(list, i, (CMAP_MAP *)val)
 #define CMAP_LIST_GET(list, i) cmap_list_get(list, i)
 
+#define CMAP_INT_SET(i, v) cmap_int_set(i, v)
+#define CMAP_INT_GET(i) cmap_int_get(i)
+
+#define CMAP_STRING_VAL(s) cmap_string_val(s)
+
 #define CMAP_SET_SPLIT(map, keys, val) \
   cmap_set_split(map, keys, (CMAP_MAP *)val)
 #define CMAP_GET_SPLIT(map, keys) cmap_get_split(map, keys)
@@ -40,9 +45,10 @@
 #define CMAP_FN_PROC_ARGS(fn, map, args...) \
   cmap_fn_proc(fn, (CMAP_MAP *)map, args, NULL)
 
-#define CMAP_PROC(map, key) cmap_proc(map, key, NULL)
-#define CMAP_PROC_ARGS(map, key, args...) cmap_proc(map, key, args, NULL)
-#define CMAP_LPROC(map, key, args) cmap_lproc(map, key, args)
+#define CMAP_PROC(map, key) cmap_proc((CMAP_MAP *)map, key, NULL)
+#define CMAP_PROC_ARGS(map, key, args...) \
+  cmap_proc((CMAP_MAP *)map, key, args, NULL)
+#define CMAP_LPROC(map, key, args) cmap_lproc((CMAP_MAP *)map, key, args)
 
 #define CMAP_PROC_SPLIT(map, keys) cmap_proc_split(map, keys, NULL)
 #define CMAP_PROC_SPLIT_ARGS(map, keys, args...) \

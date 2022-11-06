@@ -4,12 +4,38 @@
 #include <stdlib.h>
 #include "cmap-prototype-util.h"
 #include "cmap-common.h"
+#include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static CMAP_MAP * proto = NULL;
 static char proto_ok = CMAP_F;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * append_fn(CMAP_MAP * features, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  if((map != NULL) && (args != NULL) &&
+    (CMAP_NATURE(map) == CMAP_NATURE_STRING))
+  {
+    int size = CMAP_CALL(args, size);
+    for(int i = 0; i < size; i++)
+    {
+      CMAP_MAP * tmp = CMAP_LIST_GET(args, i);
+      if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_NATURE_STRING))
+      {
+        CMAP_STRING * append = (CMAP_STRING *)tmp;
+        CMAP_STRING * string = (CMAP_STRING *)map;
+        CMAP_CALL_ARGS(string, append, CMAP_CALL(append, val));
+      }
+    }
+  }
+  return map;
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,6 +50,7 @@ static CMAP_MAP * require()
 
 static void init()
 {
+  CMAP_PROTO_SET_FN(proto, "append", append_fn);
 }
 
 static CMAP_MAP * instance()

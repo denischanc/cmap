@@ -1,7 +1,7 @@
 #ifndef __CMAP_CONSOLE_H__
 #define __CMAP_CONSOLE_H__
 
-#include "cmap-map.h"
+#include <cmap/core.h>
 
 typedef struct
 {
