@@ -4,7 +4,6 @@
 #include <cmap/cmap.h>
 #include <cmap/define-min.h>
 #include <cmap/aisle.h>
-#include "cmap-console.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
 #include "cmap-prototype-fn.h"
@@ -12,6 +11,8 @@
 #include "cmap-prototype-int.h"
 #include "cmap-prototype-double.h"
 #include "cmap-prototype-ptr.h"
+#include "cmap-console.h"
+#include "cmap-scheduler.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -35,8 +36,9 @@ static CMAP_MAP * create_prototype()
 static CMAP_MAP * create()
 {
   CMAP_MAP * cmap = $MAP(CMAP_AISLE_GLOBAL);
-  $SET(cmap, "console", cmap_console_public.create());
   $SET(cmap, "prototype", create_prototype());
+  $SET(cmap, "console", cmap_console_public.create());
+  $SET(cmap, "scheduler", cmap_scheduler_public.create());
   return cmap;
 }
 

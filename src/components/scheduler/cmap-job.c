@@ -1,37 +1,27 @@
 
-#include "cmap-console.h"
+#include "cmap-job.h"
 
-#include <stdio.h>
 #include <cmap/cmap.h>
 #include <cmap/define-min.h>
+#include <stdlib.h>
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void display(FILE * f, CMAP_LIST * args)
+static CMAP_MAP * init_fn(CMAP_MAP * features, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
-  CMAP_STRING * line = $STR_L("");
-  $$_L(line, "append", args);
-  fprintf(f, "%s\n", $STRV(line));
+  $SET(map, "process", $$(args, "unshift"));
+  return NULL;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * info_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * schedule_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  display(stdout, args);
-  return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * error_fn(CMAP_MAP * features, CMAP_MAP * map,
-  CMAP_LIST * args)
-{
-  display(stderr, args);
+  $G_$_A("cmap.scheduler.addJob", map);
   return map;
 }
 
@@ -40,16 +30,17 @@ static CMAP_MAP * error_fn(CMAP_MAP * features, CMAP_MAP * map,
 
 static CMAP_MAP * create()
 {
-  return $$MAP(CMAP_AISLE_GLOBAL,
-    "info", $FN(info_fn, CMAP_AISLE_GLOBAL),
-    "error", $FN(error_fn, CMAP_AISLE_GLOBAL),
-    NULL);
+  CMAP_FN * job = $FN(init_fn, CMAP_AISLE_GLOBAL);
+  $SET(job, CMAP_PROTOTYPE_NAME, $$MAP(CMAP_AISLE_GLOBAL,
+    "schedule", $FN(schedule_fn, CMAP_AISLE_GLOBAL),
+    NULL));
+  return (CMAP_MAP *)job;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CONSOLE_PUBLIC cmap_console_public =
+const CMAP_JOB_PUBLIC cmap_job_public =
 {
   create
 };

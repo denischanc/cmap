@@ -22,11 +22,10 @@ static CMAP_MAP * append_fn(CMAP_MAP * features, CMAP_MAP * map,
   if((map != NULL) && (args != NULL) &&
     (CMAP_NATURE(map) == CMAP_NATURE_STRING))
   {
-    int size = CMAP_CALL(args, size);
-    for(int i = 0; i < size; i++)
+    CMAP_MAP * tmp;
+    while((tmp = CMAP_LIST_UNSHIFT(args)) != NULL)
     {
-      CMAP_MAP * tmp = CMAP_LIST_GET(args, i);
-      if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_NATURE_STRING))
+      if(CMAP_NATURE(tmp) == CMAP_NATURE_STRING)
       {
         CMAP_STRING * append = (CMAP_STRING *)tmp;
         CMAP_STRING * string = (CMAP_STRING *)map;

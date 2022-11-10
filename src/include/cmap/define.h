@@ -52,6 +52,11 @@
 #define CMAP_SET_GLOBAL(keys, val) CMAP_SET_SPLIT(NULL, keys, val)
 #define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)
 
+#define CMAP_NEW(prototype, aisle) cmap_new(prototype, aisle, NULL)
+#define CMAP_NEW_ARGS(prototype, aisle, args...) \
+  cmap_new(prototype, aisle, args, NULL)
+#define CMAP_LNEW(prototype, aisle, args) cmap_lnew(prototype, aisle, args)
+
 #define CMAP_FN_PROC(fn, map) cmap_fn_proc(fn, (CMAP_MAP *)map, NULL)
 #define CMAP_FN_PROC_ARGS(fn, map, args...) \
   cmap_fn_proc(fn, (CMAP_MAP *)map, args, NULL)

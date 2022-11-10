@@ -7,6 +7,7 @@
 #include "cmap-pool.h"
 #include "cmap-common.h"
 #include "cmap-fn.h"
+#include <uv.h>
 
 /*******************************************************************************
 *******************************************************************************/
@@ -160,6 +161,14 @@ static CMAP_MAP * to_map(const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
+static void uv_error(int err)
+{
+  if(err < 0) cmap_log_public.error("Libuv : %s", uv_strerror(err));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
@@ -171,5 +180,6 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   to_list,
   vto_list,
   to_map,
-  vto_map
+  vto_map,
+  uv_error
 };

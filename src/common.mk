@@ -13,4 +13,5 @@ CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_SRC_PATH)/kernel \
   -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/components/console \
+  -I$(CMAP_SRC_PATH)/components/scheduler \
   -Wall

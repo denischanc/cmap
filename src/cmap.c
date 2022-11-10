@@ -18,16 +18,16 @@
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_init(CMAP_KERNEL_CFG * cfg)
+void cmap_bootstrap(CMAP_KERNEL_CFG * cfg)
 {
-  cmap_kernel_public.init(cfg);
+  cmap_kernel_public.bootstrap(cfg);
 }
 
-int cmap_main(int argc, char * argv[])
+int cmap_main(int argc, char * argv[], CMAP_MAP * job)
 {
   CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   if(kernel == NULL) cmap_fatal();
-  return kernel -> main(argc, argv);
+  return kernel -> main(argc, argv, job);
 }
 
 void cmap_exit(int ret)
@@ -213,6 +213,37 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
   cmap_util_public.release_pool_list_n_strings(keys_split);
 
   return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MAP * cmap_lnew(CMAP_FN * prototype, const char * aisle, CMAP_LIST * args)
+{
+  return CMAP_CALL_ARGS(prototype, new, args, aisle);
+}
+
+static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, const char * aisle,
+  va_list args)
+{
+  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
+  CMAP_LIST * args_list = CMAP_CALL(pool, take);
+  cmap_util_public.vfill_list(args_list, args);
+
+  CMAP_MAP * ret = cmap_lnew(prototype, aisle, args_list);
+
+  CMAP_CALL_ARGS(pool, release, args_list);
+
+  return ret;
+}
+
+CMAP_MAP * cmap_new(CMAP_FN * prototype, const char * aisle, ...)
+{
+  va_list args;
+  va_start(args, aisle);
+  CMAP_MAP * ret = cmap_vnew(prototype, aisle, args);
+  va_end(args);
+  return ret;
 }
 
 /*******************************************************************************

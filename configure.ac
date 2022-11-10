@@ -14,6 +14,7 @@ AC_PROG_CC
 LT_INIT([win32-dll])
 
 # Checks for libraries.
+AC_SEARCH_LIBS([uv_run], [uv])
 
 # Checks for header files.
 
@@ -40,6 +41,7 @@ AC_CONFIG_FILES([ \
   src/kernel/Makefile \
   src/components/Makefile \
   src/components/console/Makefile \
+  src/components/scheduler/Makefile \
   test/Makefile \
   test/util/Makefile \
   test/mem/Makefile \

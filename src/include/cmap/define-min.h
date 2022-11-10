@@ -44,6 +44,10 @@
 #define $K_SET_G(keys, val) CMAP_SET_GLOBAL(keys, val)
 #define $K_GET_G(keys) CMAP_GET_GLOBAL(keys)
 
+#define $NEW(prototype, aisle) CMAP_NEW(prototype, aisle)
+#define $NEW_A(prototype, aisle, args...) CMAP_NEW_ARGS(prototype, aisle, args)
+#define $NEW_L(prototype, aisle, args) CMAP_LNEW(prototype, aisle, args)
+
 #define $PROC_FN(fn, map) CMAP_FN_PROC(fn, map)
 #define $PROC_FN_A(fn, map, args...) CMAP_FN_PROC_ARGS(fn, map, args)
 

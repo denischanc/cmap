@@ -61,6 +61,8 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args, const char * aisle)
   if(prototype != NULL) map = CMAP_MAP_NEW_MAP(prototype, aisle);
   else map = CMAP_MAP(aisle);
 
+  CMAP_STRING * aisle_string = CMAP_STRING(aisle, 0, aisle);
+  CMAP_SET(map, "cmap-aisle", aisle_string);
   CMAP_FN_PROC(this, map, args);
 
   return map;

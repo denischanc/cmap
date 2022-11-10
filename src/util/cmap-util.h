@@ -22,6 +22,8 @@ typedef struct
 
   CMAP_MAP * (*to_map)(const char * aisle, ...);
   CMAP_MAP * (*vto_map)(const char * aisle, va_list key_maps);
+
+  void (*uv_error)(int err);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

@@ -9,8 +9,8 @@
 #include <cmap/fn.h>
 #include <cmap/define.h>
 
-void cmap_init(CMAP_KERNEL_CFG * cfg);
-int cmap_main(int argc, char * argv[]);
+void cmap_bootstrap(CMAP_KERNEL_CFG * cfg);
+int cmap_main(int argc, char * argv[], CMAP_MAP * job);
 void cmap_exit(int ret);
 void cmap_fatal();
 
@@ -42,6 +42,9 @@ const char * cmap_string_val(CMAP_STRING * string);
 
 void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val);
 CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys);
+
+CMAP_MAP * cmap_new(CMAP_FN * prototype, const char * aisle, ...);
+CMAP_MAP * cmap_lnew(CMAP_FN * prototype, const char * aisle, CMAP_LIST * args);
 
 CMAP_MAP * cmap_fn_proc(CMAP_FN * fn, CMAP_MAP * map, ...);
 

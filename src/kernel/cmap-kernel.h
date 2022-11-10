@@ -16,17 +16,17 @@
 
 typedef struct
 {
-  int (*main)(int argc, char * argv[]);
+  int (*main)(int argc, char * argv[], CMAP_MAP * job);
 
   void (*exit)(int ret);
   void (*fatal)();
 
-  int (*state)();
+  char (*state)();
 } CMAP_KERNEL;
 
 typedef struct
 {
-  CMAP_KERNEL * (*init)(CMAP_KERNEL_CFG * cfg);
+  CMAP_KERNEL * (*bootstrap)(CMAP_KERNEL_CFG * cfg);
   CMAP_KERNEL * (*instance)();
 
   CMAP_MEM * (*mem)();
