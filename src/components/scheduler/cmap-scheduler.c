@@ -52,7 +52,7 @@ static CMAP_MAP * add_job_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   CMAP_MAP * job;
-  while((job = $$(args, "unshift")) != NULL)
+  while((job = $$(args, "shift")) != NULL)
   {
     $K_$_A(map, "internal.jobs.push", job);
     schedule(internal.loop, NULL);
@@ -66,7 +66,7 @@ static CMAP_MAP * add_job_fn(CMAP_MAP * features, CMAP_MAP * map,
 static CMAP_MAP * process_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * job = $K_$(map, "jobs.unshift");
+  CMAP_MAP * job = $K_$(map, "jobs.shift");
   if(job != NULL)
   {
     $$(job, "process");

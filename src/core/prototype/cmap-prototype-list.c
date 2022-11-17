@@ -54,7 +54,7 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
-    CMAP_MAP * tmp = CMAP_LIST_UNSHIFT(args);
+    CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
     if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_NATURE_LIST))
     {
       CMAP_LIST * list2 = (CMAP_LIST *)tmp;
@@ -93,7 +93,7 @@ static CMAP_MAP * push_fn(CMAP_MAP * features, CMAP_MAP * map,
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
     CMAP_MAP * e;
-    while((e = CMAP_LIST_UNSHIFT(args)) != NULL)
+    while((e = CMAP_LIST_SHIFT(args)) != NULL)
     {
       CMAP_LIST_PUSH(list, e);
     }
@@ -117,16 +117,16 @@ static CMAP_MAP * pop_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * shift_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * unshift_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
     CMAP_MAP * e;
-    while((e = CMAP_LIST_UNSHIFT(args)) != NULL)
+    while((e = CMAP_LIST_SHIFT(args)) != NULL)
     {
-      CMAP_LIST_SHIFT(list, e);
+      CMAP_LIST_UNSHIFT(list, e);
     }
   }
   return map;
@@ -135,12 +135,12 @@ static CMAP_MAP * shift_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * unshift_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * shift_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
   {
-    return CMAP_LIST_UNSHIFT((CMAP_LIST *)map);
+    return CMAP_LIST_SHIFT((CMAP_LIST *)map);
   }
   return NULL;
 }
@@ -153,8 +153,8 @@ static CMAP_MAP * add_fn(CMAP_MAP * features, CMAP_MAP * map,
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
   {
-    int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_UNSHIFT(args), get);
-    CMAP_MAP * e = CMAP_LIST_UNSHIFT(args);
+    int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_SHIFT(args), get);
+    CMAP_MAP * e = CMAP_LIST_SHIFT(args);
     CMAP_LIST_ADD((CMAP_LIST *)map, i, e);
   }
   return map;
@@ -168,7 +168,7 @@ static CMAP_MAP * rm_fn(CMAP_MAP * features, CMAP_MAP * map,
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
   {
-    int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_UNSHIFT(args), get);
+    int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_SHIFT(args), get);
     CMAP_LIST_RM((CMAP_LIST *)map, i);
   }
   return map;
@@ -192,8 +192,8 @@ static void init()
   CMAP_PROTO_SET_FN(proto, "size", size_fn);
   CMAP_PROTO_SET_FN(proto, "push", push_fn);
   CMAP_PROTO_SET_FN(proto, "pop", pop_fn);
-  CMAP_PROTO_SET_FN(proto, "shift", shift_fn);
   CMAP_PROTO_SET_FN(proto, "unshift", unshift_fn);
+  CMAP_PROTO_SET_FN(proto, "shift", shift_fn);
   CMAP_PROTO_SET_FN(proto, "add", add_fn);
   CMAP_PROTO_SET_FN(proto, "rm", rm_fn);
 }

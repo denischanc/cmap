@@ -23,8 +23,8 @@ struct CMAP_LIST_s
   CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*pop)(CMAP_LIST * this);
 
-  CMAP_LIST * (*shift)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*unshift)(CMAP_LIST * this);
+  CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_MAP * (*shift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);
 };
@@ -46,8 +46,8 @@ typedef struct
   CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*pop)(CMAP_LIST * this);
 
-  CMAP_LIST * (*shift)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*unshift)(CMAP_LIST * this);
+  CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_MAP * (*shift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);
 } CMAP_LIST_PUBLIC;

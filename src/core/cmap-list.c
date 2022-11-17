@@ -355,13 +355,13 @@ static CMAP_MAP * pop(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * shift(CMAP_LIST * this, CMAP_MAP * val)
+static CMAP_LIST * unshift(CMAP_LIST * this, CMAP_MAP * val)
 {
   CMAP_LIST_ADD(this, 0, val);
   return this;
 }
 
-static CMAP_MAP * unshift(CMAP_LIST * this)
+static CMAP_MAP * shift(CMAP_LIST * this)
 {
   return CMAP_CALL_ARGS(this, rm, 0);
 }
@@ -419,8 +419,8 @@ static void init(CMAP_LIST * list, int size_inc)
   list -> rm = rm;
   list -> push = push;
   list -> pop = pop;
-  list -> shift = shift;
   list -> unshift = unshift;
+  list -> shift = shift;
   list -> clear = clear;
 }
 
@@ -443,6 +443,6 @@ const CMAP_LIST_PUBLIC cmap_list_public =
   set, get,
   add,  rm,
   push, pop,
-  shift, unshift,
+  unshift, shift,
   clear
 };

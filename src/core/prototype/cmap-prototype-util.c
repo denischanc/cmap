@@ -14,7 +14,7 @@ static char args_to_map_fn(CMAP_LIST * args,
 {
   if(CMAP_CALL(args, size) < 1) return CMAP_F;
 
-  CMAP_MAP * tmp = CMAP_LIST_UNSHIFT(args);
+  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
   if(CMAP_NATURE(tmp) == CMAP_NATURE_FN)
   {
     map_fn -> fn = (CMAP_FN *)tmp;

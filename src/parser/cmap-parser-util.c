@@ -154,9 +154,9 @@ static CMAP_MAP * map_args(CMAP_LIST * args, const char * aisle)
   CMAP_MAP * map = CMAP_MAP(aisle);
 
   CMAP_STRING * key;
-  while((key = (CMAP_STRING *)CMAP_LIST_UNSHIFT(args)) != NULL)
+  while((key = (CMAP_STRING *)CMAP_LIST_SHIFT(args)) != NULL)
   {
-    CMAP_MAP * val = CMAP_LIST_UNSHIFT(args);
+    CMAP_MAP * val = CMAP_LIST_SHIFT(args);
     CMAP_SET(map, CMAP_CALL(key, val), val);
     CMAP_CALL_ARGS(cmap_kernel_public.pool_string(), release, key);
   }
@@ -181,7 +181,7 @@ static CMAP_MAP * list_args(CMAP_LIST * args, const char * aisle)
   CMAP_LIST * list = CMAP_LIST(0, aisle);
 
   int size = CMAP_CALL(args, size);
-  for(int i = 0; i < size; i++) CMAP_LIST_PUSH(list, CMAP_LIST_UNSHIFT(args));
+  for(int i = 0; i < size; i++) CMAP_LIST_PUSH(list, CMAP_LIST_SHIFT(args));
   CMAP_CALL_ARGS(cmap_kernel_public.pool_list(), release, args);
 
   return (CMAP_MAP *)list;

@@ -176,14 +176,14 @@ void cmap_set_split(CMAP_MAP * map, const char * keys, CMAP_MAP * val)
   int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
   for(; (i < i_stop) && (map != NULL); i++)
   {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
     map = CMAP_GET(map, CMAP_CALL(key, val));
     CMAP_CALL_ARGS(pool_string, release, key);
   }
 
   if(map != NULL)
   {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
     CMAP_SET(map, CMAP_CALL(key, val), val);
     CMAP_CALL_ARGS(pool_string, release, key);
   }
@@ -206,7 +206,7 @@ CMAP_MAP * cmap_get_split(CMAP_MAP * map, const char * keys)
   int i = 0, i_stop = CMAP_CALL(keys_split, size);
   for(; (i < i_stop) && (map != NULL); i++)
   {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
     map = CMAP_GET(map, CMAP_CALL(key, val));
     CMAP_CALL_ARGS(pool_string, release, key);
   }
@@ -332,14 +332,14 @@ CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
   int i = 0, i_stop = CMAP_CALL(keys_split, size) - 1;
   for(; (i < i_stop) && (map != NULL); i++)
   {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
     map = CMAP_GET(map, CMAP_CALL(key, val));
     CMAP_CALL_ARGS(pool_string, release, key);
   }
 
   if(map != NULL)
   {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, unshift);
+    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
     map = cmap_lproc(map, CMAP_CALL(key, val), args);
     CMAP_CALL_ARGS(pool_string, release, key);
   }

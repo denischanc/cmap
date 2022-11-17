@@ -11,7 +11,7 @@
 static CMAP_MAP * init_fn(CMAP_MAP * features, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  $SET(map, "process", $$(args, "unshift"));
+  $SET(map, "process", $$(args, "shift"));
   return NULL;
 }
 

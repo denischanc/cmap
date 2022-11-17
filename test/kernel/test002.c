@@ -49,12 +49,12 @@ static void test_list(int size)
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == size);
   for(i = 0; i < size; i++)
-    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, unshift) == elmts[i]);
+    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, shift) == elmts[i]);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
-  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, unshift) == NULL);
+  CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, shift) == NULL);
 
   /********** shift/pop */
-  for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, shift, elmts[i]);
+  for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, unshift, elmts[i]);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == size);
   for(i = 0; i < size; i++)
     CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, pop) == elmts[i]);
@@ -86,7 +86,7 @@ static void test_list(int size)
   for(i = 0; i < size; i++)
     CMAP_TEST_ASSERT_NOMSG(CMAP_CALL_ARGS(list, get, i) == elmts[i]);
   for(i = 0; i < size; i++)
-    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, unshift) == elmts[i]);
+    CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, shift) == elmts[i]);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
 
   /********** push/pop until max size */

@@ -23,7 +23,7 @@ static CMAP_MAP * append_fn(CMAP_MAP * features, CMAP_MAP * map,
     (CMAP_NATURE(map) == CMAP_NATURE_STRING))
   {
     CMAP_MAP * tmp;
-    while((tmp = CMAP_LIST_UNSHIFT(args)) != NULL)
+    while((tmp = CMAP_LIST_SHIFT(args)) != NULL)
     {
       if(CMAP_NATURE(tmp) == CMAP_NATURE_STRING)
       {

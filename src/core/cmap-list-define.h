@@ -11,8 +11,8 @@
   CMAP_CALL_ARGS(list, push, (CMAP_MAP *)val)
 #define CMAP_LIST_POP(list) CMAP_CALL(list, pop)
 
-#define CMAP_LIST_SHIFT(list, val) \
-  CMAP_CALL_ARGS(list, shift, (CMAP_MAP *)val)
-#define CMAP_LIST_UNSHIFT(list) CMAP_CALL(list, unshift)
+#define CMAP_LIST_UNSHIFT(list, val) \
+  CMAP_CALL_ARGS(list, unshift, (CMAP_MAP *)val)
+#define CMAP_LIST_SHIFT(list) CMAP_CALL(list, shift)
 
 #endif
