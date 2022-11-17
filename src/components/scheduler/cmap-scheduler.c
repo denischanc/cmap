@@ -31,10 +31,6 @@ static void on_schedule(uv_work_t * req, int status)
   $G_$("cmap.scheduler.internal.process");
 }
 
-static void dummy(uv_work_t * req)
-{
-}
-
 static void schedule(uv_loop_t * loop, CMAP_MAP * job)
 {
   if(!internal.scheduled)
@@ -42,8 +38,8 @@ static void schedule(uv_loop_t * loop, CMAP_MAP * job)
     internal.scheduled = CMAP_T;
     internal.loop = loop;
 
-    cmap_util_public.uv_error(
-      uv_queue_work(loop, &internal.req, dummy, on_schedule));
+    cmap_util_public.uv_error(uv_queue_work(loop, &internal.req,
+      cmap_util_public.uv_dummy, on_schedule));
   }
 
   if(job != NULL) $G_$_A("cmap.scheduler.addJob", job);

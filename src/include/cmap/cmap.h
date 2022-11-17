@@ -64,4 +64,6 @@ CMAP_MEM_STATE * cmap_mem_state();
 
 void cmap_delete_aisle(const char * aisle);
 
+void cmap$$(char * impl);
+
 #endif

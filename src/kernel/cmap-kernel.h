@@ -1,13 +1,14 @@
 #ifndef __CMAP_KERNEL_H__
 #define __CMAP_KERNEL_H__
 
-#include "cmap-mem.h"
-#include "cmap-map.h"
-#include "cmap-aislestore.h"
-#include "cmap-log.h"
-#include "cmap-pool.h"
-#include "cmap-kernel-define.h"
 #include <cmap/kernel.h>
+#include "cmap-kernel-define.h"
+#include "cmap-map.h"
+#include "cmap-mem.h"
+#include "cmap-log.h"
+#include "cmap-ctx.h"
+#include "cmap-aislestore.h"
+#include "cmap-pool.h"
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1
@@ -31,6 +32,7 @@ typedef struct
 
   CMAP_MEM * (*mem)();
   CMAP_LOG * (*log)();
+  CMAP_CTX * (*current_ctx)();
 
   CMAP_AISLESTORE * (*aislestore)();
 

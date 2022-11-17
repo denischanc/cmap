@@ -3,6 +3,7 @@
 
 #include "cmap-aislestore.h"
 #include "cmap-pool.h"
+#include <uv.h>
 
 typedef struct CMAP_CTX_s CMAP_CTX;
 
@@ -18,6 +19,8 @@ struct CMAP_CTX_s
   CMAP_POOL_STRING * (*pool_string)(CMAP_CTX * this);
 
   CMAP_MAP * (*global_env)(CMAP_CTX * this);
+
+  uv_loop_t * (*uv_loop)(CMAP_CTX * this);
 };
 
 typedef struct

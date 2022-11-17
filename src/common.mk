@@ -7,6 +7,7 @@ CMAP_BUILD_PATH = $(top_builddir)/src
 CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_INCLUDE_PATH) \
   -I$(CMAP_SRC_PATH) \
+  -I$(CMAP_SRC_PATH)/parser \
   -I$(CMAP_SRC_PATH)/util \
   -I$(CMAP_SRC_PATH)/core \
   -I$(CMAP_SRC_PATH)/core/prototype \
@@ -14,4 +15,5 @@ CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/components/console \
   -I$(CMAP_SRC_PATH)/components/scheduler \
+  -I$(top_builddir)/src/parser \
   -Wall

@@ -171,14 +171,12 @@ static void fatal()
 
 static void main_uv(CMAP_MAP * job)
 {
-  uv_loop_t * loop = (uv_loop_t *)mem() -> alloc(sizeof(uv_loop_t));
-  cmap_util_public.uv_error(uv_loop_init(loop));
+  CMAP_CTX * ctx = current_ctx();
+  uv_loop_t * loop = CMAP_CALL(ctx, uv_loop);
 
   cmap_scheduler_public.schedule(loop, job);
 
   cmap_util_public.uv_error(uv_run(loop, UV_RUN_DEFAULT));
-
-  mem() -> free(loop);
 }
 
 static int main_(int argc, char * argv[], CMAP_MAP * job)
@@ -234,6 +232,7 @@ const CMAP_KERNEL_PUBLIC cmap_kernel_public =
   instance,
   mem,
   log_,
+  current_ctx,
   aislestore,
   pool_list,
   pool_string,

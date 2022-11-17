@@ -14,16 +14,16 @@ struct CMAP_LIST_s
 
   int (*size)(CMAP_LIST * this);
 
-  void (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_LIST * (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_LIST * this, int i);
 
-  void (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_LIST * (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
   CMAP_MAP * (*rm)(CMAP_LIST * this, int i);
 
-  void (*push)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*pop)(CMAP_LIST * this);
 
-  void (*shift)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_LIST * (*shift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*unshift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);
@@ -37,16 +37,16 @@ typedef struct
 
   int (*size)(CMAP_LIST * this);
 
-  void (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_LIST * (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_LIST * this, int i);
 
-  void (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
+  CMAP_LIST * (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
   CMAP_MAP * (*rm)(CMAP_LIST * this, int i);
 
-  void (*push)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*pop)(CMAP_LIST * this);
 
-  void (*shift)(CMAP_LIST * this, CMAP_MAP * val);
+  CMAP_LIST * (*shift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*unshift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);

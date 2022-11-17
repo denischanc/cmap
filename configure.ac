@@ -12,6 +12,13 @@ AC_CONFIG_MACRO_DIR([m4])
 # Checks for programs.
 AC_PROG_CC
 LT_INIT([win32-dll])
+AC_PROG_LEX([noyywrap])
+AX_PROG_FLEX(
+  [AC_MSG_NOTICE([LEX = $LEX])],
+  [AC_MSG_ERROR([flex not found])])
+AX_PROG_BISON(
+  [AC_MSG_NOTICE([YACC = $YACC])],
+  [AC_MSG_ERROR([bison not found])])
 
 # Checks for libraries.
 AC_SEARCH_LIBS([uv_run], [uv])
@@ -34,6 +41,7 @@ AM_CONDITIONAL([CYGWIN], [echo $host_os | grep -q cygwin])
 AC_CONFIG_FILES([ \
   Makefile \
   src/Makefile \
+  src/parser/Makefile \
   src/include/cmap/Makefile \
   src/util/Makefile \
   src/core/Makefile \

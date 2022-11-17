@@ -14,6 +14,7 @@
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
+#include "cmap-parser-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -432,4 +433,12 @@ CMAP_MEM_STATE * cmap_mem_state()
 void cmap_delete_aisle(const char * aisle)
 {
   CMAP_CALL_ARGS(cmap_kernel_public.aislestore(), delete, aisle);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap$$(char * impl)
+{
+  cmap_parser_util_public.$$(NULL, impl, NULL);
 }

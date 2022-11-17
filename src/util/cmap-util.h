@@ -3,6 +3,7 @@
 
 #include "cmap-list.h"
 #include <stdarg.h>
+#include <uv.h>
 
 typedef struct
 {
@@ -24,6 +25,7 @@ typedef struct
   CMAP_MAP * (*vto_map)(const char * aisle, va_list key_maps);
 
   void (*uv_error)(int err);
+  void (*uv_dummy)(uv_work_t * req);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

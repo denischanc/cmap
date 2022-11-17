@@ -58,7 +58,7 @@ static int list_offset(INTERNAL * internal, int i)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set(CMAP_LIST * this, int i, CMAP_MAP * val)
+static CMAP_LIST * set(CMAP_LIST * this, int i, CMAP_MAP * val)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   int size = internal -> size;
@@ -66,6 +66,7 @@ static void set(CMAP_LIST * this, int i, CMAP_MAP * val)
   {
     internal -> list[list_offset(internal, i)] = val;
   }
+  return this;
 }
 
 static CMAP_MAP * get(CMAP_LIST * this, int i)
@@ -297,7 +298,7 @@ static CMAP_MAP * rm_on_end(INTERNAL * internal)
 /*******************************************************************************
 *******************************************************************************/
 
-static void add(CMAP_LIST * this, int i, CMAP_MAP * val)
+static CMAP_LIST * add(CMAP_LIST * this, int i, CMAP_MAP * val)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   int size = internal -> size;
@@ -313,6 +314,7 @@ static void add(CMAP_LIST * this, int i, CMAP_MAP * val)
 
     internal -> size++;
   }
+  return this;
 }
 
 /*******************************************************************************
@@ -339,9 +341,10 @@ static CMAP_MAP * rm(CMAP_LIST * this, int i)
 /*******************************************************************************
 *******************************************************************************/
 
-static void push(CMAP_LIST * this, CMAP_MAP * val)
+static CMAP_LIST * push(CMAP_LIST * this, CMAP_MAP * val)
 {
   CMAP_LIST_ADD(this, CMAP_CALL(this, size), val);
+  return this;
 }
 
 static CMAP_MAP * pop(CMAP_LIST * this)
@@ -352,9 +355,10 @@ static CMAP_MAP * pop(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void shift(CMAP_LIST * this, CMAP_MAP * val)
+static CMAP_LIST * shift(CMAP_LIST * this, CMAP_MAP * val)
 {
   CMAP_LIST_ADD(this, 0, val);
+  return this;
 }
 
 static CMAP_MAP * unshift(CMAP_LIST * this)
