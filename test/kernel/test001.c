@@ -9,5 +9,5 @@
 int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
-  return cmap_main(argc, argv, NULL);
+  return cmap_main(argc, argv, NULL, "");
 }

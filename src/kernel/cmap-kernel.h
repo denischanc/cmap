@@ -17,7 +17,8 @@
 
 typedef struct
 {
-  int (*main)(int argc, char * argv[], CMAP_MAP * job);
+  int (*main)(int argc, char * argv[], CMAP_MAP * definitions,
+    const char * impl);
 
   void (*exit)(int ret);
   void (*fatal)();

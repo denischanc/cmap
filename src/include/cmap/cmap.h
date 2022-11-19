@@ -8,9 +8,11 @@
 #include <cmap/core.h>
 #include <cmap/fn.h>
 #include <cmap/define.h>
+#include <cmap/parser-util.h>
 
 void cmap_bootstrap(CMAP_KERNEL_CFG * cfg);
-int cmap_main(int argc, char * argv[], CMAP_MAP * job);
+int cmap_main(int argc, char * argv[], CMAP_MAP * definitions,
+  const char * impl);
 void cmap_exit(int ret);
 void cmap_fatal();
 
@@ -64,6 +66,6 @@ CMAP_MEM_STATE * cmap_mem_state();
 
 void cmap_delete_aisle(const char * aisle);
 
-void cmap$$(char * impl);
+void cmap$$(CMAP_MAP * definitions, const char * impl, SCANNER_NODE ** chain);
 
 #endif

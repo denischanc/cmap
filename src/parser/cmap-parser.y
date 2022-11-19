@@ -4,6 +4,8 @@
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
 #include "cmap-log.h"
+#include "cmap-common.h"
+#include "cmap-string.h"
 
 static void cmap_parser_error(yyscan_t yyscanner, CMAP_MAP * definitions,
   SCANNER_NODE ** chain, const char * msg);
@@ -28,7 +30,7 @@ static void cmap_parser_error(yyscan_t yyscanner, CMAP_MAP * definitions,
 %token<name> NAME LOCAL
 %token<string> STRING
 
-%type<map> path cmap creator function chain
+%type<map> path cmap creator function fn_chain
 %type<name> aisle name
 %type<list> args args_name_cmap
 
@@ -64,18 +66,13 @@ instruction: LOCAL name '=' cmap
 /*******************************************************************************
 *******************************************************************************/
 
-aisle: '<' name '>' { $$ = $2; };
+aisle: { $$ = NULL; } | '<' name '>' { $$ = $2; };
 
-creator: '{' '}' aisle { $$ = cmap_parser_util_public.map($3); }
-| '{' args_name_cmap '}' aisle
+creator: '{' args_name_cmap '}' aisle
 {
   $$ = cmap_parser_util_public.map_args($2, $4);
 }
-| '[' ']' aisle { $$ = cmap_parser_util_public.list($3); }
-| '[' args ']' aisle
-{
-  $$ = cmap_parser_util_public.list_args($2, $4);
-}
+| '[' args ']' aisle { $$ = cmap_parser_util_public.list_args($2, $4); }
 | STRING aisle { $$ = cmap_parser_util_public.string($1, $2); };
 
 /*******************************************************************************
@@ -87,10 +84,8 @@ path: name { $$ = cmap_parser_util_public.name(definitions, $1); }
 /*******************************************************************************
 *******************************************************************************/
 
-args_name_cmap: name ',' cmap
-{
-  $$ = cmap_parser_util_public.args_map($1, $3);
-}
+args_name_cmap: { $$ = cmap_parser_util_public.args_empty(); }
+| name ',' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
 | args_name_cmap ',' name ',' cmap
 {
   $$ = cmap_parser_util_public.args_map_push($1, $3, $5);
@@ -99,28 +94,33 @@ args_name_cmap: name ',' cmap
 /*******************************************************************************
 *******************************************************************************/
 
-args: cmap { $$ = cmap_parser_util_public.args($1); }
+args: { $$ = cmap_parser_util_public.args_empty(); }
+| cmap { $$ = cmap_parser_util_public.args($1); }
 | args ',' cmap { $$ = cmap_parser_util_public.args_push($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: creator | path | function | chain;
+cmap: creator | path | fn_chain;
 
 /*******************************************************************************
 *******************************************************************************/
 
-function: path '.' name '(' args ')'
+function: name '(' args ')'
 {
-  $$ = cmap_parser_util_public.process($1, $3, $5);
+  $$ = cmap_parser_util_public.process(definitions, NULL, $1, $3);
 }
-| chain '.' name '(' args ')'
+| path '.' name '(' args ')'
 {
-  $$ = cmap_parser_util_public.process($1, $3, $5);
+  $$ = cmap_parser_util_public.process(definitions, $1, $3, $5);
+}
+| fn_chain '.' name '(' args ')'
+{
+  $$ = cmap_parser_util_public.process(definitions, $1, $3, $5);
 };
 
-chain: function '.' name { $$ = cmap_parser_util_public.path($1, $3); }
-| chain '.' name { $$ = cmap_parser_util_public.path($1, $3); };
+fn_chain: function
+| fn_chain '.' name { $$ = cmap_parser_util_public.path($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/

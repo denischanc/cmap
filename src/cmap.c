@@ -24,11 +24,12 @@ void cmap_bootstrap(CMAP_KERNEL_CFG * cfg)
   cmap_kernel_public.bootstrap(cfg);
 }
 
-int cmap_main(int argc, char * argv[], CMAP_MAP * job)
+int cmap_main(int argc, char * argv[], CMAP_MAP * definitions,
+  const char * impl)
 {
   CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
   if(kernel == NULL) cmap_fatal();
-  return kernel -> main(argc, argv, job);
+  return kernel -> main(argc, argv, definitions, impl);
 }
 
 void cmap_exit(int ret)
@@ -438,7 +439,7 @@ void cmap_delete_aisle(const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap$$(char * impl)
+void cmap$$(CMAP_MAP * definitions, const char * impl, SCANNER_NODE ** chain)
 {
-  cmap_parser_util_public.$$(NULL, impl, NULL);
+  cmap_parser_util_public.$$(definitions, impl, chain);
 }

@@ -3,4 +3,7 @@
 
 #include <cmap/aisle.h>
 
+extern const char * CMAP_AISLE_KERNEL;
+extern const char * CMAP_AISLE_STACK;
+
 #endif

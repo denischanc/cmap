@@ -5,6 +5,7 @@
 #include "cmap-ctx.h"
 #include "cmap-scheduler.h"
 #include "cmap-util.h"
+#include "cmap-parser-util.h"
 #include <uv.h>
 
 /*******************************************************************************
@@ -169,19 +170,14 @@ static void fatal()
 /*******************************************************************************
 *******************************************************************************/
 
-static void main_uv(CMAP_MAP * job)
+static int main_(int argc, char * argv[], CMAP_MAP * definitions,
+  const char * impl)
 {
+  cmap_parser_util_public.$$(definitions, impl, NULL);
+
   CMAP_CTX * ctx = current_ctx();
-  uv_loop_t * loop = CMAP_CALL(ctx, uv_loop);
+  cmap_util_public.uv_error(uv_run(CMAP_CALL(ctx, uv_loop), UV_RUN_DEFAULT));
 
-  cmap_scheduler_public.schedule(loop, job);
-
-  cmap_util_public.uv_error(uv_run(loop, UV_RUN_DEFAULT));
-}
-
-static int main_(int argc, char * argv[], CMAP_MAP * job)
-{
-  main_uv(job);
   exit_(EXIT_SUCCESS);
   return EXIT_SUCCESS;
 }

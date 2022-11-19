@@ -13,7 +13,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * job_fn(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * test(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
   CMAP_MAP * tmp = $MAP(NULL);
   CMAP_DELETE(tmp);
@@ -26,9 +26,8 @@ int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
 
-  CMAP_FN * job_proto = (CMAP_FN *)$K_GET_G("cmap.scheduler.job");
-  CMAP_MAP * job = $NEW_A(job_proto, CMAP_AISLE_GLOBAL,
-    $FN(job_fn, CMAP_AISLE_GLOBAL));
+  CMAP_MAP * definitions = CMAP_MAP(CMAP_AISLE_GLOBAL);
+  CMAP_SET(definitions, "test", CMAP_FN(test, CMAP_AISLE_GLOBAL));
 
-  return cmap_main(argc, argv, job);
+  return cmap_main(argc, argv, definitions, "test();");
 }

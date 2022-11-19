@@ -45,11 +45,12 @@ static void pop_scanner(SCANNER_NODE ** chain)
 /*******************************************************************************
 *******************************************************************************/
 
-static void $$(CMAP_MAP * definitions, char * impl, SCANNER_NODE ** chain)
+static void $$(CMAP_MAP * definitions, const char * impl,
+  SCANNER_NODE ** chain)
 {
   yyscan_t scanner;
   cmap_parser_lex_init(&scanner);
-  cmap_parser_set_in(fmemopen(impl, strlen(impl), "r"), scanner);
+  cmap_parser_set_in(fmemopen((void *)impl, strlen(impl), "r"), scanner);
 
   chain = push_scanner(chain, scanner);
   cmap_parser_parse(scanner, definitions, chain);
@@ -88,7 +89,7 @@ static CMAP_MAP * path(CMAP_MAP * map, const char * name)
 static void set_local(CMAP_MAP * definitions,
   const char * name, CMAP_MAP * map)
 {
-  CMAP_SET(definitions, name, map);
+  if(definitions != NULL) CMAP_SET(definitions, name, map);
 }
 
 /*******************************************************************************
@@ -110,6 +111,11 @@ static void set_path(CMAP_MAP * src, const char * name, CMAP_MAP * map)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_LIST * args_empty()
+{
+  return CMAP_CALL(cmap_kernel_public.pool_list(), take);
+}
+
 static CMAP_LIST * args_push(CMAP_LIST * list, CMAP_MAP * map)
 {
   return CMAP_LIST_PUSH(list, map);
@@ -117,7 +123,7 @@ static CMAP_LIST * args_push(CMAP_LIST * list, CMAP_MAP * map)
 
 static CMAP_LIST * args(CMAP_MAP * map)
 {
-  return args_push(CMAP_CALL(cmap_kernel_public.pool_list(), take), map);
+  return args_push(args_empty(), map);
 }
 
 /*******************************************************************************
@@ -134,16 +140,7 @@ static CMAP_LIST * args_map_push(CMAP_LIST * list, const char * name,
 
 static CMAP_LIST * args_map(const char * name, CMAP_MAP * map)
 {
-  return args_map_push(CMAP_CALL(cmap_kernel_public.pool_list(), take),
-    name, map);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * map(const char * aisle)
-{
-  return CMAP_MAP(aisle);
+  return args_map_push(args_empty(), name, map);
 }
 
 /*******************************************************************************
@@ -163,14 +160,6 @@ static CMAP_MAP * map_args(CMAP_LIST * args, const char * aisle)
   CMAP_CALL_ARGS(cmap_kernel_public.pool_list(), release, args);
 
   return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * list(const char * aisle)
-{
-  return (CMAP_MAP *)CMAP_LIST(0, aisle);
 }
 
 /*******************************************************************************
@@ -217,10 +206,13 @@ static CMAP_MAP * string(CMAP_STRING * string, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * process(CMAP_MAP * map, const char * fn_name,
-  CMAP_LIST * args)
+static CMAP_MAP * process(CMAP_MAP * definitions, CMAP_MAP * map,
+  const char * fn_name, CMAP_LIST * args)
 {
-  CMAP_FN * fn = (CMAP_FN *)CMAP_GET(map, fn_name);
+  CMAP_FN * fn;
+  if(map == NULL) fn = (CMAP_FN *)name(definitions, fn_name);
+  else fn = (CMAP_FN *)CMAP_GET(map, fn_name);
+
   CMAP_MAP * ret = CMAP_FN_PROC(fn, map, args);
   CMAP_CALL_ARGS(cmap_kernel_public.pool_list(), release, args);
   return ret;
@@ -237,13 +229,12 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   set_local,
   set_global,
   set_path,
-  args,
+  args_empty,
   args_push,
-  args_map,
+  args,
   args_map_push,
-  map,
+  args_map,
   map_args,
-  list,
   list_args,
   string_scanner,
   scanner_append,

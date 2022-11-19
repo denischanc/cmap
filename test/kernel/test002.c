@@ -101,7 +101,7 @@ static void test_list(int size)
   CMAP_CALL(((CMAP_MAP *)list), delete);
 }
 
-static CMAP_MAP * job_fn(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * test(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
 {
   test_list(3);
   test_list(4);
@@ -115,9 +115,8 @@ int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
 
-  CMAP_FN * job_proto = (CMAP_FN *)CMAP_GET_GLOBAL("cmap.scheduler.job");
-  CMAP_MAP * job = CMAP_NEW_ARGS(job_proto, CMAP_AISLE_GLOBAL,
-    CMAP_FN(job_fn, CMAP_AISLE_GLOBAL));
+  CMAP_MAP * definitions = CMAP_MAP(CMAP_AISLE_GLOBAL);
+  CMAP_SET(definitions, "test", CMAP_FN(test, CMAP_AISLE_GLOBAL));
 
-  return cmap_main(argc, argv, job);
+  return cmap_main(argc, argv, definitions, "test();");
 }

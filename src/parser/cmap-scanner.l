@@ -12,7 +12,8 @@ static void scanner_append(YYSTYPE * yylval_p, const char * txt);
 
 %x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S
 
-NAME_D [a-zA-Z_$][a-zA-Z0-9_$\-]*
+NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
+SPACE_D [[:space:]]+
 
 %%
 
@@ -57,7 +58,7 @@ NAME_D [a-zA-Z_$][a-zA-Z0-9_$\-]*
 "<" { return '<'; }
 ">" { return '>'; }
 
-[:space:] {}
+{SPACE_D} {}
 "\n" {}
 . { return ERROR; }
 
