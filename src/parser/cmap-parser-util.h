@@ -40,6 +40,9 @@ typedef struct
   CMAP_MAP * (*process)(CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, const char * fn_name, CMAP_LIST * args);
 
+  CMAP_MAP * (*new)(CMAP_MAP * map, const char * fn_name, CMAP_LIST * args,
+    CMAP_PROC_CTX * proc_ctx, const char * aisle);
+
   CMAP_FN * (*fn_with_impl)(CMAP_STRING * impl, CMAP_PROC_CTX * proc_ctx,
     const char * aisle);
 } CMAP_PARSER_UTIL_PUBLIC;

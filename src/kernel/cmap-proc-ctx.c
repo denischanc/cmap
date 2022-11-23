@@ -41,8 +41,12 @@ static void pop_scanner(CMAP_PROC_CTX * this)
 static yyscan_t scanner(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  int size = CMAP_CALL(internal -> scanners, size);
-  return (yyscan_t)CMAP_LIST_GET(internal -> scanners, size - 1);
+  if(internal -> scanners == NULL) return NULL;
+  else
+  {
+    int size = CMAP_CALL(internal -> scanners, size);
+    return (yyscan_t)CMAP_LIST_GET(internal -> scanners, size - 1);
+  }
 }
 
 /*******************************************************************************
@@ -69,8 +73,12 @@ static void pop_local_stack(CMAP_PROC_CTX * this)
 static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  int size = CMAP_CALL(internal -> local_stacks, size);
-  return (CMAP_LIST *)CMAP_LIST_GET(internal -> local_stacks, size - 1);
+  if(internal -> local_stacks == NULL) return NULL;
+  else
+  {
+    int size = CMAP_CALL(internal -> local_stacks, size);
+    return (CMAP_LIST *)CMAP_LIST_GET(internal -> local_stacks, size - 1);
+  }
 }
 
 /*******************************************************************************
@@ -94,8 +102,12 @@ static void pop_definitions(CMAP_PROC_CTX * this)
 static CMAP_MAP * definitions(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  int size = CMAP_CALL(internal -> definitions_list, size);
-  return CMAP_LIST_GET(internal -> definitions_list, size - 1);
+  if(internal -> definitions_list == NULL) return NULL;
+  else
+  {
+    int size = CMAP_CALL(internal -> definitions_list, size);
+    return CMAP_LIST_GET(internal -> definitions_list, size - 1);
+  }
 }
 
 /*******************************************************************************

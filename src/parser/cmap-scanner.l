@@ -4,9 +4,11 @@
 
 #include "cmap-scanner.h"
 #include "cmap-parser-util.h"
+#include "cmap-kernel.h"
 
 static void string_scanner(yyscan_t scanner, YYSTYPE * yylval_p);
 static void scanner_append(YYSTYPE * yylval_p, const char * txt);
+static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 
 %}
 
@@ -35,19 +37,10 @@ SPACE_D [[:space:]]+
 <STRING_S>"\\". { scanner_append(yylval, yytext + 1); }
 <STRING_S>. { scanner_append(yylval, yytext); }
 
-"local" {
-  /* TODO : free ptr */
-  yylval -> name = strdup(yytext);
-  yylval -> name[yyleng] = 0;
-  return LOCAL;
-}
+"local" { name_scanner(yylval, yytext); return LOCAL; }
+"new" { name_scanner(yylval, yytext); return NEW; }
 
-{NAME_D} {
-  /* TODO : free ptr */
-  yylval -> name = strdup(yytext);
-  yylval -> name[yyleng] = 0;
-  return NAME;
-}
+{NAME_D} { name_scanner(yylval, yytext); return NAME; }
 
 "." { return '.'; }
 "," { return ','; }
@@ -77,4 +70,11 @@ static void string_scanner(yyscan_t scanner, YYSTYPE * yylval_p)
 static void scanner_append(YYSTYPE * yylval_p, const char * txt)
 {
   cmap_parser_util_public.scanner_append(yylval_p -> string, txt);
+}
+
+static void name_scanner(YYSTYPE * yylval_p, const char * txt)
+{
+  int size = (strlen(txt) + 1) * sizeof(char);
+  yylval_p -> name = (char *)cmap_kernel_public.mem() -> alloc(size);
+  memcpy(yylval_p -> name, txt, size);
 }

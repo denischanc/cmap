@@ -7,6 +7,7 @@ AM_LFLAGS = --prefix=cmap_parser_
 LEX_OUTPUT_ROOT = lex.cmap_parser_
 
 AM_YFLAGS = -d --name-prefix=cmap_parser_
+### AM_YFLAGS = -d --name-prefix=cmap_parser_ -Wcounterexamples
 
 noinst_HEADERS = \
   cmap-scanner.h \

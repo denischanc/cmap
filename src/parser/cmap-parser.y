@@ -6,6 +6,7 @@
 #include "cmap-log.h"
 #include "cmap-common.h"
 #include "cmap-string.h"
+#include "cmap-kernel.h"
 
 static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
   const char * msg);
@@ -27,10 +28,10 @@ static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
 }
 
 %token ERROR
-%token<name> NAME LOCAL
+%token<name> NAME LOCAL NEW
 %token<string> STRING
 
-%type<map> path cmap creator function fn_chain
+%type<map> cmap creator path process process_chain new
 %type<name> aisle name
 %type<list> args args_name_cmap
 
@@ -47,21 +48,19 @@ instructions: instruction ';'
 /*******************************************************************************
 *******************************************************************************/
 
-name: NAME | LOCAL;
+name: NAME | LOCAL | NEW;
 
 /*******************************************************************************
 *******************************************************************************/
 
 instruction: LOCAL name '=' cmap
 {
+  CMAP_KERNEL_FREE($1);
   cmap_parser_util_public.set_local(proc_ctx, $2, $4);
 }
 | name '=' cmap { cmap_parser_util_public.set_global(proc_ctx, $1, $3); }
-| path '.' name '=' cmap
-{
-  cmap_parser_util_public.set_path($1, $3, $5);
-}
-| function;
+| path '.' name '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
+| process;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -76,10 +75,7 @@ creator: '{' args_name_cmap '}' aisle
 {
   $$ = cmap_parser_util_public.list_args($2, proc_ctx, $4);
 }
-| STRING aisle
-{
-  $$ = cmap_parser_util_public.string($1, proc_ctx, $2);
-};
+| STRING aisle { $$ = cmap_parser_util_public.string($1, proc_ctx, $2); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -107,12 +103,12 @@ args: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: creator | path | fn_chain;
+cmap: creator | path | process | new;
 
 /*******************************************************************************
 *******************************************************************************/
 
-function: name '(' args ')'
+process: name '(' args ')'
 {
   $$ = cmap_parser_util_public.process(proc_ctx, NULL, $1, $3);
 }
@@ -120,13 +116,32 @@ function: name '(' args ')'
 {
   $$ = cmap_parser_util_public.process(proc_ctx, $1, $3, $5);
 }
-| fn_chain '.' name '(' args ')'
+| process_chain '.' name '(' args ')'
 {
   $$ = cmap_parser_util_public.process(proc_ctx, $1, $3, $5);
 };
 
-fn_chain: function
-| fn_chain '.' name { $$ = cmap_parser_util_public.path($1, $3); };
+process_chain: process
+| process_chain '.' name { $$ = cmap_parser_util_public.path($1, $3); };
+
+/*******************************************************************************
+*******************************************************************************/
+
+new: NEW name '(' args ')' aisle
+{
+  CMAP_KERNEL_FREE($1);
+  $$ = cmap_parser_util_public.new(NULL, $2, $4, proc_ctx, $6);
+}
+| NEW path '.' name '(' args ')' aisle
+{
+  CMAP_KERNEL_FREE($1);
+  $$ = cmap_parser_util_public.new($2, $4, $6, proc_ctx, $8);
+}
+| NEW process_chain '.' name '(' args ')' aisle
+{
+  CMAP_KERNEL_FREE($1);
+  $$ = cmap_parser_util_public.new($2, $4, $6, proc_ctx, $8);
+};
 
 /*******************************************************************************
 *******************************************************************************/
