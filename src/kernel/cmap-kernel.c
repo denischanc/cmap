@@ -2,11 +2,9 @@
 #include "cmap-kernel.h"
 
 #include <stdlib.h>
-#include "cmap-ctx.h"
-#include "cmap-scheduler.h"
 #include "cmap-util.h"
 #include "cmap-parser-util.h"
-#include <uv.h>
+#include "cmap-env.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -17,11 +15,10 @@ typedef struct
 
   CMAP_MEM * mem;
   CMAP_LOG * log;
-  CMAP_CTX * ctx;
 
-  char exiting;
+  uv_loop_t * uv_loop;
 
-  char state;
+  char exiting, state;
 } INTERNAL;
 
 static INTERNAL internal = {NULL, NULL, NULL, NULL, CMAP_F,
@@ -82,46 +79,14 @@ static CMAP_LOG * log_()
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_CTX * current_ctx()
+static uv_loop_t * uv_loop()
 {
-  if(internal.ctx == NULL)
+  if(internal.uv_loop == NULL)
   {
-    internal.ctx = cmap_ctx_public.create();
+    internal.uv_loop = CMAP_MEM_ALLOC(uv_loop_t, mem());
+    cmap_util_public.uv_error(uv_loop_init(internal.uv_loop));
   }
-  return internal.ctx;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_AISLESTORE * aislestore()
-{
-  CMAP_CTX * ctx = current_ctx();
-  return CMAP_CALL(ctx, aislestore);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_POOL_LIST * pool_list()
-{
-  CMAP_CTX * ctx = current_ctx();
-  return CMAP_CALL(ctx, pool_list);
-}
-
-static CMAP_POOL_STRING * pool_string()
-{
-  CMAP_CTX * ctx = current_ctx();
-  return CMAP_CALL(ctx, pool_string);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * global_env()
-{
-  CMAP_CTX * ctx = current_ctx();
-  return CMAP_CALL(ctx, global_env);
+  return internal.uv_loop;
 }
 
 /*******************************************************************************
@@ -145,6 +110,13 @@ static void check_all(int * ret)
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_all()
+{
+  cmap_env_public.delete_all();
+
+  CMAP_MEM_FREE(uv_loop(), mem());
+}
+
 static void exit_(int ret)
 {
   internal.state = CMAP_KERNEL_S_EXITING;
@@ -153,7 +125,7 @@ static void exit_(int ret)
   {
     internal.exiting = CMAP_T;
 
-    CMAP_CALL(current_ctx(), delete);
+    delete_all();
 
     check_all(&ret);
 
@@ -170,13 +142,9 @@ static void fatal()
 /*******************************************************************************
 *******************************************************************************/
 
-static int main_(int argc, char * argv[], CMAP_MAP * definitions,
-  const char * impl)
+static int main_()
 {
-  cmap_parser_util_public.$$(definitions, impl, NULL);
-
-  CMAP_CTX * ctx = current_ctx();
-  cmap_util_public.uv_error(uv_run(CMAP_CALL(ctx, uv_loop), UV_RUN_DEFAULT));
+  cmap_util_public.uv_error(uv_run(uv_loop(), UV_RUN_DEFAULT));
 
   exit_(EXIT_SUCCESS);
   return EXIT_SUCCESS;
@@ -228,9 +196,5 @@ const CMAP_KERNEL_PUBLIC cmap_kernel_public =
   instance,
   mem,
   log_,
-  current_ctx,
-  aislestore,
-  pool_list,
-  pool_string,
-  global_env
+  uv_loop
 };

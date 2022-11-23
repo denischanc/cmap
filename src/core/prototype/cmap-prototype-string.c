@@ -6,6 +6,7 @@
 #include "cmap-common.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -16,7 +17,7 @@ static char proto_ok = CMAP_F;
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * append_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if((map != NULL) && (args != NULL) &&
@@ -39,22 +40,23 @@ static CMAP_MAP * append_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require()
+static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.require_map(&proto);
+  return cmap_prototype_util_public.require_map(&proto, proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init()
+static void init(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTO_SET_FN(proto, "append", append_fn);
+  CMAP_PROTO_SET_FN(proto, "append", append_fn, proc_ctx);
 }
 
-static CMAP_MAP * instance()
+static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init);
+  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init,
+    proc_ctx);
 }
 
 /*******************************************************************************

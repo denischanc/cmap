@@ -7,23 +7,28 @@
 #include "cmap-pool.h"
 #include "cmap-common.h"
 #include "cmap-fn.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void delete_list_vals(CMAP_LIST * list)
 {
-  CMAP_MAP * val;
-  while((val = CMAP_LIST_SHIFT(list)) != NULL) CMAP_DELETE(val);
+  while(CMAP_CALL(list, size) != 0)
+  {
+    CMAP_MAP * val = CMAP_LIST_SHIFT(list);
+    if(val != NULL) CMAP_DELETE(val);
+  }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void release_pool_list_n_strings(CMAP_LIST * list)
+static void release_pool_list_n_strings(CMAP_LIST * list,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_POOL_STRING * pool_string = cmap_kernel_public.pool_string();
-  CMAP_POOL_LIST * pool_list = cmap_kernel_public.pool_list();
+  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
+  CMAP_POOL_LIST * pool_list = CMAP_CALL(proc_ctx, pool_list);
 
   CMAP_MAP * val;
   while((val = CMAP_LIST_POP(list)) != NULL)
@@ -64,34 +69,51 @@ static void split_w_handler(CMAP_LIST * list, const char * line, char sep,
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct
+{
+  const char * aisle;
+  CMAP_PROC_CTX * proc_ctx;
+} SPLIT_HANDLER_DATA;
+
 static CMAP_STRING * create_handler_from_aisle(void * data)
 {
-  const char * aisle = (const char *)data;
-  return CMAP_STRING("", 0, aisle);
+  SPLIT_HANDLER_DATA * data_ = (SPLIT_HANDLER_DATA *)data;
+  return CMAP_STRING("", 0, data_ -> proc_ctx, data_ -> aisle);
 }
 
 static CMAP_STRING * create_handler_from_pool(void * data)
 {
-  CMAP_POOL_STRING * pool = cmap_kernel_public.pool_string();
-  return CMAP_CALL(pool, take);
+  SPLIT_HANDLER_DATA * data_ = (SPLIT_HANDLER_DATA *)data;
+  CMAP_POOL_STRING * pool = CMAP_CALL(data_ -> proc_ctx, pool_string);
+  return CMAP_CALL_ARGS(pool, take, data_ -> proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
 static CMAP_LIST * split_w_aisle(const char * line, char sep,
-  const char * aisle)
+  CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_LIST * list = CMAP_LIST(0, aisle);
-  split_w_handler(list, line, sep, create_handler_from_aisle, (void *)aisle);
+  CMAP_LIST * list = CMAP_LIST(0, proc_ctx, aisle);
+
+  SPLIT_HANDLER_DATA data;
+  data.proc_ctx = proc_ctx;
+  data.aisle = aisle;
+  split_w_handler(list, line, sep, create_handler_from_aisle, &data);
+
   return list;
 }
 
-static CMAP_LIST * split_w_pool(const char * line, char sep)
+static CMAP_LIST * split_w_pool(const char * line, char sep,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_POOL_LIST * pool = cmap_kernel_public.pool_list();
-  CMAP_LIST * list = CMAP_CALL(pool, take);
-  split_w_handler(list, line, sep, create_handler_from_pool, NULL);
+  CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
+  CMAP_LIST * list = CMAP_CALL_ARGS(pool, take, proc_ctx);
+
+  SPLIT_HANDLER_DATA data;
+  data.proc_ctx = proc_ctx;
+  split_w_handler(list, line, sep, create_handler_from_pool, &data);
+
   return list;
 }
 
@@ -117,16 +139,17 @@ static CMAP_LIST * fill_list(CMAP_LIST * list, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * vto_list(const char * aisle, va_list maps)
+static CMAP_LIST * vto_list(CMAP_PROC_CTX * proc_ctx, const char * aisle,
+  va_list maps)
 {
-  return vfill_list(CMAP_LIST(0, aisle), maps);
+  return vfill_list(CMAP_LIST(0, proc_ctx, aisle), maps);
 }
 
-static CMAP_LIST * to_list(const char * aisle, ...)
+static CMAP_LIST * to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
 {
   va_list maps;
   va_start(maps, aisle);
-  CMAP_LIST * list = vto_list(aisle, maps);
+  CMAP_LIST * list = vto_list(proc_ctx, aisle, maps);
   va_end(maps);
   return list;
 }
@@ -134,9 +157,10 @@ static CMAP_LIST * to_list(const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * vto_map(const char * aisle, va_list key_maps)
+static CMAP_MAP * vto_map(CMAP_PROC_CTX * proc_ctx, const char * aisle,
+  va_list key_maps)
 {
-  CMAP_MAP * ret = CMAP_MAP(aisle);
+  CMAP_MAP * ret = CMAP_MAP(proc_ctx, aisle);
 
   const char * key;
   while((key = va_arg(key_maps, char *)) != NULL)
@@ -148,11 +172,11 @@ static CMAP_MAP * vto_map(const char * aisle, va_list key_maps)
   return ret;
 }
 
-static CMAP_MAP * to_map(const char * aisle, ...)
+static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
 {
   va_list key_maps;
   va_start(key_maps, aisle);
-  CMAP_MAP * map = vto_map(aisle, key_maps);
+  CMAP_MAP * map = vto_map(proc_ctx, aisle, key_maps);
   va_end(key_maps);
   return map;
 }

@@ -1,10 +1,9 @@
 #ifndef __CMAP_PROTOTYPE_UTIL__
 #define __CMAP_PROTOTYPE_UTIL__
 
+#include <cmap/core.h>
 #include "cmap-prototype-util-define.h"
-#include "cmap-map.h"
-#include "cmap-fn.h"
-#include "cmap-list.h"
+#include "cmap-proc-ctx.h"
 
 typedef struct
 {
@@ -15,9 +14,10 @@ typedef struct
 typedef struct
 {
   char (*args_to_map_fn)(CMAP_LIST * args, CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn);
-  CMAP_MAP * (*require_map)(CMAP_MAP ** proto);
+  CMAP_MAP * (*require_map)(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx);
   CMAP_MAP * (*instance)(CMAP_MAP ** proto, char * ok,
-    CMAP_MAP * (*require)(), void (*init)());
+    CMAP_MAP * (*require)(CMAP_PROC_CTX *), void (*init)(CMAP_PROC_CTX *),
+    CMAP_PROC_CTX * proc_ctx);
 } CMAP_PROTOTYPE_UTIL_PUBLIC;
 
 extern const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public;

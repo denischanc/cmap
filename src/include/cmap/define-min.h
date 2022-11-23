@@ -1,26 +1,27 @@
 #ifndef ___CMAP_DEFINE_MIN_H___
 #define ___CMAP_DEFINE_MIN_H___
 
-#define $MAP(aisle) CMAP_MAP(aisle)
-#define $MAP_L() CMAP_LOCAL_MAP()
+#define $MAP(proc_ctx, aisle) CMAP_MAP(proc_ctx, aisle)
+#define $MAP_L(proc_ctx) CMAP_LOCAL_MAP(proc_ctx)
 
-#define $LIST(size_inc, aisle) CMAP_LIST(size_inc, aisle)
-#define $LIST_L() CMAP_LOCAL_LIST()
+#define $LIST(size_inc, proc_ctx, aisle) CMAP_LIST(size_inc, proc_ctx, aisle)
+#define $LIST_L(proc_ctx) CMAP_LOCAL_LIST(proc_ctx)
 
-#define $FN(process, aisle) CMAP_FN(process, aisle)
-#define $FN_L(process) CMAP_LOCAL_FN(process)
+#define $FN(process, proc_ctx, aisle) CMAP_FN(process, proc_ctx, aisle)
+#define $FN_L(process, proc_ctx) CMAP_LOCAL_FN(process, proc_ctx)
 
-#define $STR(val, size_inc, aisle) CMAP_STRING(val, size_inc, aisle)
-#define $STR_L(val) CMAP_LOCAL_STRING(val)
+#define $STR(val, size_inc, proc_ctx, aisle) \
+  CMAP_STRING(val, size_inc, proc_ctx, aisle)
+#define $STR_L(val, proc_ctx) CMAP_LOCAL_STRING(val, proc_ctx)
 
-#define $INT(val, aisle) CMAP_INT(val, aisle)
-#define $INT_L(val) CMAP_LOCAL_INT(val)
+#define $INT(val, proc_ctx, aisle) CMAP_INT(val, proc_ctx, aisle)
+#define $INT_L(val, proc_ctx) CMAP_LOCAL_INT(val, proc_ctx)
 
-#define $DOUBLE(val, aisle) CMAP_DOUBLE(val, aisle)
-#define $DOUBLE_L(val) CMAP_LOCAL_DOUBLE(val)
+#define $DOUBLE(val, proc_ctx, aisle) CMAP_DOUBLE(val, proc_ctx, aisle)
+#define $DOUBLE_L(val, proc_ctx) CMAP_LOCAL_DOUBLE(val, proc_ctx)
 
-#define $PTR(struct, aisle) CMAP_PTR(struct, aisle)
-#define $PTR_L(struct) CMAP_LOCAL_PTR(struct)
+#define $PTR(struct, proc_ctx, aisle) CMAP_PTR(struct, proc_ctx, aisle)
+#define $PTR_L(struct, proc_ctx) CMAP_LOCAL_PTR(struct, proc_ctx)
 
 #define $SET(map, key, val) CMAP_SET(map, key, val)
 #define $GET(map, key) CMAP_GET(map, key)
@@ -44,31 +45,39 @@
 #define $K_SET_G(keys, val) CMAP_SET_GLOBAL(keys, val)
 #define $K_GET_G(keys) CMAP_GET_GLOBAL(keys)
 
-#define $NEW(prototype, aisle) CMAP_NEW(prototype, aisle)
-#define $NEW_A(prototype, aisle, args...) CMAP_NEW_ARGS(prototype, aisle, args)
-#define $NEW_L(prototype, aisle, args) CMAP_LNEW(prototype, aisle, args)
+#define $NEW(prototype, proc_ctx, aisle) CMAP_NEW(prototype, proc_ctx, aisle)
+#define $NEW_A(prototype, proc_ctx, aisle, args...) \
+  CMAP_NEW_ARGS(prototype, proc_ctx, aisle, args)
+#define $NEW_L(prototype, proc_ctx, aisle, args) \
+  CMAP_LNEW(prototype, proc_ctx, aisle, args)
 
-#define $PROC_FN(fn, map) CMAP_FN_PROC(fn, map)
-#define $PROC_FN_A(fn, map, args...) CMAP_FN_PROC_ARGS(fn, map, args)
+#define $PROC_FN(fn, proc_ctx, map) CMAP_FN_PROC(fn, proc_ctx, map)
+#define $PROC_FN_A(fn, proc_ctx, map, args...) \
+  CMAP_FN_PROC_ARGS(fn, proc_ctx, map, args)
 
-#define $$(map, key) CMAP_PROC(map, key)
-#define $$_A(map, key, args...) CMAP_PROC_ARGS(map, key, args)
-#define $$_L(map, key, args) CMAP_LPROC(map, key, args)
+#define $$(map, key, proc_ctx) CMAP_PROC(map, key, proc_ctx)
+#define $$_A(map, key, proc_ctx, args...) \
+  CMAP_PROC_ARGS(map, key, proc_ctx, args)
+#define $$_L(map, key, proc_ctx, args) CMAP_LPROC(map, key, proc_ctx, args)
 
-#define $K_$(map, keys) CMAP_PROC_SPLIT(map, keys)
-#define $K_$_A(map, keys, args...) CMAP_PROC_SPLIT_ARGS(map, keys, args)
-#define $K_$_L(map, keys, args) CMAP_LPROC_SPLIT(map, keys, args)
+#define $K_$(map, keys, proc_ctx) CMAP_PROC_SPLIT(map, keys, proc_ctx)
+#define $K_$_A(map, keys, proc_ctx, args...) \
+  CMAP_PROC_SPLIT_ARGS(map, keys, proc_ctx, args)
+#define $K_$_L(map, keys, proc_ctx, args) \
+  CMAP_LPROC_SPLIT(map, keys, proc_ctx, args)
 
-#define $G_$(keys) CMAP_PROC_GLOBAL(keys)
-#define $G_$_A(keys, args...) CMAP_PROC_GLOBAL_ARGS(keys, args)
+#define $G_$(keys, proc_ctx) CMAP_PROC_GLOBAL(keys, proc_ctx)
+#define $G_$_A(keys, proc_ctx, args...) \
+  CMAP_PROC_GLOBAL_ARGS(keys, proc_ctx, args)
 
-#define $$$(map, args...) CMAP_PROC_CHAIN(map, args)
-#define $G_$$(args...) CMAP_PROC_CHAIN_GLOBAL(args)
+#define $$$(proc_ctx, map, args...) CMAP_PROC_CHAIN(proc_ctx, map, args)
+#define $G_$$(proc_ctx, args...) CMAP_PROC_CHAIN_GLOBAL(proc_ctx, args)
 
-#define $$LIST(aisle, maps...) CMAP_TO_LIST(aisle, maps)
-#define $$LIST_L(maps...) CMAP_TO_LOCAL_LIST(maps)
+#define $$LIST(proc_ctx, aisle, maps...) CMAP_TO_LIST(proc_ctx, aisle, maps)
+#define $$LIST_L(proc_ctx, maps...) CMAP_TO_LOCAL_LIST(proc_ctx, maps)
 
-#define $$MAP(aisle, key_maps...) CMAP_TO_MAP(aisle, key_maps)
-#define $$MAP_L(key_maps...) CMAP_TO_LOCAL_MAP(key_maps)
+#define $$MAP(proc_ctx, aisle, key_maps...) \
+  CMAP_TO_MAP(proc_ctx, aisle, key_maps)
+#define $$MAP_L(proc_ctx, key_maps...) CMAP_TO_LOCAL_MAP(proc_ctx, key_maps)
 
 #endif

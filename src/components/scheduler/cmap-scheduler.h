@@ -3,12 +3,11 @@
 
 #include <cmap/core.h>
 #include <uv.h>
+#include <cmap/proc-ctx.h>
 
 typedef struct
 {
-  CMAP_MAP * (*create)();
-
-  void (*schedule)(uv_loop_t * loop, CMAP_MAP * job);
+  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx);
 } CMAP_SCHEDULER_PUBLIC;
 
 extern const CMAP_SCHEDULER_PUBLIC cmap_scheduler_public;

@@ -34,16 +34,16 @@ static void display_list_ptr(CMAP_LIST * list)
 #endif
 }
 
-static void test_list(int size)
+static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_TEST_ASSERT_NOMSG(size >= NB_MIN);
   CMAP_TEST_ASSERT_NOMSG(size <= NB_MAX);
 
-  CMAP_LIST * list = CMAP_LIST(size, NULL);
+  CMAP_LIST * list = CMAP_LIST(size, proc_ctx, NULL);
 
   static CMAP_MAP * elmts[NB_MAX];
   int i = 0;
-  for(; i < size; i++) elmts[i] = CMAP_MAP(CMAP_AISLE_LOCAL);
+  for(; i < size; i++) elmts[i] = CMAP_MAP(proc_ctx, CMAP_AISLE_LOCAL);
 
   /********** push/unshift */
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);
@@ -101,12 +101,13 @@ static void test_list(int size)
   CMAP_CALL(((CMAP_MAP *)list), delete);
 }
 
-static CMAP_MAP * test(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
-  test_list(3);
-  test_list(4);
-  test_list(5);
-  test_list(7);
+  test_list(3, proc_ctx);
+  test_list(4, proc_ctx);
+  test_list(5, proc_ctx);
+  test_list(7, proc_ctx);
 
   return NULL;
 }
@@ -115,8 +116,17 @@ int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
 
-  CMAP_MAP * definitions = CMAP_MAP(CMAP_AISLE_GLOBAL);
-  CMAP_SET(definitions, "test", CMAP_FN(test, CMAP_AISLE_GLOBAL));
+  CMAP_ENV * env = cmap_env();
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
+  CMAP_MAP * definitions = CMAP_MAP(proc_ctx, NULL);
+  CMAP_FN * test_fn = CMAP_FN(test, proc_ctx, NULL);
 
-  return cmap_main(argc, argv, definitions, "test();");
+  CMAP_SET(definitions, "test", test_fn);
+  cmap_env_main(env, argc, argv, definitions, "test();");
+
+  CMAP_DELETE(test_fn);
+  CMAP_DELETE(definitions);
+  cmap_delete_proc_ctx(proc_ctx);
+
+  return cmap_main();
 }

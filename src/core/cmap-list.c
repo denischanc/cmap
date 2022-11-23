@@ -424,11 +424,12 @@ static void init(CMAP_LIST * list, int size_inc)
   list -> clear = clear;
 }
 
-static CMAP_LIST * create(int size_inc, const char * aisle)
+static CMAP_LIST * create(int size_inc, CMAP_PROC_CTX * proc_ctx,
+  const char * aisle)
 {
-  CMAP_MAP * prototype_list = cmap_prototype_list_public.instance();
+  CMAP_MAP * prototype_list = cmap_prototype_list_public.instance(proc_ctx);
   CMAP_LIST * list = (CMAP_LIST *)CMAP_CALL_ARGS(prototype_list, new,
-    sizeof(CMAP_LIST), aisle);
+    sizeof(CMAP_LIST), proc_ctx, aisle);
   init(list, size_inc);
   return list;
 }

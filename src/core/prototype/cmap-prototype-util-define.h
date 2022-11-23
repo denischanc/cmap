@@ -3,7 +3,7 @@
 
 #include "cmap-common.h"
 
-#define CMAP_PROTO_SET_FN(proto, fn_name, fn) \
-  CMAP_SET(proto, fn_name, CMAP_KERNEL_FN(fn))
+#define CMAP_PROTO_SET_FN(proto, fn_name, fn, proc_ctx) \
+  CMAP_SET(proto, fn_name, CMAP_KERNEL_FN(fn, proc_ctx))
 
 #endif

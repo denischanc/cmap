@@ -151,11 +151,12 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
   string -> clear = clear;
 }
 
-static CMAP_STRING * create(const char * val, int size_inc, const char * aisle)
+static CMAP_STRING * create(const char * val, int size_inc,
+  CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * prototype_string = cmap_prototype_string_public.instance();
+  CMAP_MAP * prototype_string = cmap_prototype_string_public.instance(proc_ctx);
   CMAP_STRING * string = (CMAP_STRING *)CMAP_CALL_ARGS(prototype_string, new,
-    sizeof(CMAP_STRING), aisle);
+    sizeof(CMAP_STRING), proc_ctx, aisle);
   init(string, val, size_inc);
   return string;
 }

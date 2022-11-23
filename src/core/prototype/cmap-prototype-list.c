@@ -8,6 +8,7 @@
 #include "cmap-list.h"
 #include "cmap-map.h"
 #include "cmap-int.h"
+#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -18,7 +19,7 @@ static char proto_ok = CMAP_F;
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -28,14 +29,14 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
     CMAP_PROTOTYPE_UTIL_MAP_FN map_fn = {};
     if(cmap_prototype_util_public.args_to_map_fn(args, &map_fn))
     {
-      CMAP_LIST * args_list_i = CMAP_LIST(0, NULL);
+      CMAP_LIST * args_list_i = CMAP_LIST(0, proc_ctx, NULL);
 
       int size = CMAP_CALL(list, size), i;
       for(i = 0; i < size; i++)
       {
         CMAP_CALL(args_list_i, clear);
         CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
-        CMAP_FN_PROC(map_fn.fn, map_fn.map, args_list_i);
+        CMAP_FN_PROC(map_fn.fn, proc_ctx, map_fn.map, args_list_i);
       }
 
       CMAP_DELETE(args_list_i);
@@ -47,7 +48,7 @@ static CMAP_MAP * apply_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * add_all_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -72,21 +73,21 @@ static CMAP_MAP * add_all_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * size_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * size_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) != CMAP_NATURE_LIST) return NULL;
   else
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
-    return (CMAP_MAP *)CMAP_INT(CMAP_CALL(list, size), NULL);
+    return (CMAP_MAP *)CMAP_INT(CMAP_CALL(list, size), proc_ctx, NULL);
   }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * push_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * push_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -104,7 +105,7 @@ static CMAP_MAP * push_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * pop_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * pop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -117,7 +118,7 @@ static CMAP_MAP * pop_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * unshift_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * unshift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -135,7 +136,7 @@ static CMAP_MAP * unshift_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * shift_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * shift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -148,7 +149,7 @@ static CMAP_MAP * shift_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * add_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -163,7 +164,7 @@ static CMAP_MAP * add_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * rm_fn(CMAP_MAP * features, CMAP_MAP * map,
+static CMAP_MAP * rm_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
@@ -177,30 +178,31 @@ static CMAP_MAP * rm_fn(CMAP_MAP * features, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require()
+static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.require_map(&proto);
+  return cmap_prototype_util_public.require_map(&proto, proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init()
+static void init(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTO_SET_FN(proto, "apply", apply_fn);
-  CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn);
-  CMAP_PROTO_SET_FN(proto, "size", size_fn);
-  CMAP_PROTO_SET_FN(proto, "push", push_fn);
-  CMAP_PROTO_SET_FN(proto, "pop", pop_fn);
-  CMAP_PROTO_SET_FN(proto, "unshift", unshift_fn);
-  CMAP_PROTO_SET_FN(proto, "shift", shift_fn);
-  CMAP_PROTO_SET_FN(proto, "add", add_fn);
-  CMAP_PROTO_SET_FN(proto, "rm", rm_fn);
+  CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "size", size_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "push", push_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "pop", pop_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "unshift", unshift_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "shift", shift_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "add", add_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "rm", rm_fn, proc_ctx);
 }
 
-static CMAP_MAP * instance()
+static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init);
+  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init,
+    proc_ctx);
 }
 
 /*******************************************************************************

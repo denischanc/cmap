@@ -63,11 +63,11 @@ static void init(CMAP_PTR * ptr, int size)
   ptr -> get = get;
 }
 
-static CMAP_PTR * create(int size, const char * aisle)
+static CMAP_PTR * create(int size, CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * prototype_ptr = cmap_prototype_ptr_public.instance();
+  CMAP_MAP * prototype_ptr = cmap_prototype_ptr_public.instance(proc_ctx);
   CMAP_PTR * ptr = (CMAP_PTR *)CMAP_CALL_ARGS(prototype_ptr, new,
-    sizeof(CMAP_PTR), aisle);
+    sizeof(CMAP_PTR), proc_ctx, aisle);
   init(ptr, size);
   return ptr;
 }

@@ -8,10 +8,11 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * create()
+static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * global_env = cmap_map_public.create_root(CMAP_AISLE_KERNEL);
-  CMAP_SET(global_env, "cmap", cmap_cmap_public.create());
+  CMAP_MAP * global_env =
+    cmap_map_public.create_root(proc_ctx, CMAP_AISLE_KERNEL);
+  CMAP_SET(global_env, "cmap", cmap_cmap_public.create(proc_ctx));
   return global_env;
 }
 

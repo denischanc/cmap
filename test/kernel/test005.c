@@ -13,9 +13,10 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * test(CMAP_MAP * features, CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
-  CMAP_MAP * tmp = $MAP(NULL);
+  CMAP_MAP * tmp = $MAP(proc_ctx, NULL);
   CMAP_DELETE(tmp);
   CMAP_KERNEL_FREE(tmp);
 
@@ -26,8 +27,17 @@ int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
 
-  CMAP_MAP * definitions = CMAP_MAP(CMAP_AISLE_GLOBAL);
-  CMAP_SET(definitions, "test", CMAP_FN(test, CMAP_AISLE_GLOBAL));
+  CMAP_ENV * env = cmap_env();
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
+  CMAP_MAP * definitions = CMAP_MAP(proc_ctx, NULL);
+  CMAP_FN * test_fn = CMAP_FN(test, proc_ctx, NULL);
 
-  return cmap_main(argc, argv, definitions, "test();");
+  CMAP_SET(definitions, "test", test_fn);
+  cmap_env_main(env, argc, argv, definitions, "test();");
+
+  CMAP_DELETE(test_fn);
+  CMAP_DELETE(definitions);
+  cmap_delete_proc_ctx(proc_ctx);
+
+  return cmap_main();
 }

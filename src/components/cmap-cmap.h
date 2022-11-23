@@ -2,10 +2,11 @@
 #define __CMAP_CMAP_H__
 
 #include <cmap/core.h>
+#include <cmap/proc-ctx.h>
 
 typedef struct
 {
-  CMAP_MAP * (*create)();
+  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx);
 } CMAP_CMAP_PUBLIC;
 
 extern const CMAP_CMAP_PUBLIC cmap_cmap_public;

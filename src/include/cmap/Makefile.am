@@ -7,8 +7,11 @@ include_cmap_HEADERS = \
   core.h \
   define.h \
   define-min.h \
-  super-define.h \
+  env.h \
   fn.h \
   kernel.h \
-  mem.h \
-  log.h
+  log.h \
+  mem.h  \
+  nature.h \
+  proc-ctx.h \
+  super-define.h

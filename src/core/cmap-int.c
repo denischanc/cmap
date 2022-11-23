@@ -72,11 +72,12 @@ static void init(CMAP_INT * int_, int64_t val)
   int_ -> set = set;
 }
 
-static CMAP_INT * create(int64_t val, const char * aisle)
+static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx,
+  const char * aisle)
 {
-  CMAP_MAP * prototype_int = cmap_prototype_int_public.instance();
+  CMAP_MAP * prototype_int = cmap_prototype_int_public.instance(proc_ctx);
   CMAP_INT * int_ = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
-    sizeof(CMAP_INT), aisle);
+    sizeof(CMAP_INT), proc_ctx, aisle);
   init(int_, val);
   return int_;
 }

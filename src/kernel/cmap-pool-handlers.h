@@ -3,11 +3,12 @@
 
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-proc-ctx.h"
 
 #define CMAP_POOL_HANDLER(TYPE, type) \
 typedef struct \
 { \
-  CMAP_##TYPE * (*create)(); \
+  CMAP_##TYPE * (*create)(CMAP_PROC_CTX * proc_ctx); \
   void (*delete)(CMAP_##TYPE * e); \
   void (*clean)(CMAP_##TYPE * s); \
 } CMAP_POOL_HANDLER_##TYPE##_PUBLIC; \

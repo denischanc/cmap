@@ -5,26 +5,33 @@
 #include <cmap/super-define.h>
 #include <cmap/aisle.h>
 
-#define CMAP_MAP(aisle) cmap_map(aisle)
-#define CMAP_LOCAL_MAP() CMAP_MAP(CMAP_AISLE_LOCAL)
+#define CMAP_MAP(proc_ctx, aisle) cmap_map(proc_ctx, aisle)
+#define CMAP_LOCAL_MAP(proc_ctx) CMAP_MAP(proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_LIST(size_inc, aisle) cmap_list(size_inc, aisle)
-#define CMAP_LOCAL_LIST() CMAP_LIST(0, CMAP_AISLE_LOCAL)
+#define CMAP_LIST(size_inc, proc_ctx, aisle) \
+  cmap_list(size_inc, proc_ctx, aisle)
+#define CMAP_LOCAL_LIST(proc_ctx) CMAP_LIST(0, proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_FN(process, aisle) cmap_fn(process, aisle)
-#define CMAP_LOCAL_FN(process) CMAP_FN(process, CMAP_AISLE_LOCAL)
+#define CMAP_FN(process, proc_ctx, aisle) cmap_fn(process, proc_ctx, aisle)
+#define CMAP_LOCAL_FN(process, proc_ctx) \
+  CMAP_FN(process, proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_STRING(val, size_inc, aisle) cmap_string(val, size_inc, aisle)
-#define CMAP_LOCAL_STRING(val) CMAP_STRING(val, 0, CMAP_AISLE_LOCAL)
+#define CMAP_STRING(val, size_inc, proc_ctx, aisle) \
+  cmap_string(val, size_inc, proc_ctx, aisle)
+#define CMAP_LOCAL_STRING(val, proc_ctx) \
+  CMAP_STRING(val, 0, proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_INT(val, aisle) cmap_int(val, aisle)
-#define CMAP_LOCAL_INT(val) CMAP_INT(val, CMAP_AISLE_LOCAL)
+#define CMAP_INT(val, proc_ctx, aisle) cmap_int(val, proc_ctx, aisle)
+#define CMAP_LOCAL_INT(val, proc_ctx) CMAP_INT(val, proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_DOUBLE(val, aisle) cmap_double(val, aisle)
-#define CMAP_LOCAL_DOUBLE(val) CMAP_DOUBLE(val, CMAP_AISLE_LOCAL)
+#define CMAP_DOUBLE(val, proc_ctx, aisle) cmap_double(val, proc_ctx, aisle)
+#define CMAP_LOCAL_DOUBLE(val, proc_ctx) \
+  CMAP_DOUBLE(val, proc_ctx, CMAP_AISLE_LOCAL)
 
-#define CMAP_PTR(struct, aisle) cmap_ptr(sizeof(struct), aisle)
-#define CMAP_LOCAL_PTR(struct) CMAP_PTR(struct, CMAP_AISLE_LOCAL)
+#define CMAP_PTR(struct, proc_ctx, aisle) \
+  cmap_ptr(sizeof(struct), proc_ctx, aisle)
+#define CMAP_LOCAL_PTR(struct, proc_ctx) \
+  CMAP_PTR(struct, proc_ctx, CMAP_AISLE_LOCAL)
 
 #define CMAP_NATURE(map) cmap_nature((CMAP_MAP *)map)
 #define CMAP_DELETE(map) cmap_delete((CMAP_MAP *)map)
@@ -52,38 +59,51 @@
 #define CMAP_SET_GLOBAL(keys, val) CMAP_SET_SPLIT(NULL, keys, val)
 #define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)
 
-#define CMAP_NEW(prototype, aisle) cmap_new(prototype, aisle, NULL)
-#define CMAP_NEW_ARGS(prototype, aisle, args...) \
-  cmap_new(prototype, aisle, args, NULL)
-#define CMAP_LNEW(prototype, aisle, args) cmap_lnew(prototype, aisle, args)
+#define CMAP_NEW(prototype, proc_ctx, aisle) \
+  cmap_new(prototype, proc_ctx, aisle, NULL)
+#define CMAP_NEW_ARGS(prototype, proc_ctx, aisle, args...) \
+  cmap_new(prototype, proc_ctx, aisle, args, NULL)
+#define CMAP_LNEW(prototype, proc_ctx, aisle, args) \
+  cmap_lnew(prototype, proc_ctx, aisle, args)
 
-#define CMAP_FN_PROC(fn, map) cmap_fn_proc(fn, (CMAP_MAP *)map, NULL)
-#define CMAP_FN_PROC_ARGS(fn, map, args...) \
-  cmap_fn_proc(fn, (CMAP_MAP *)map, args, NULL)
+#define CMAP_FN_PROC(fn, proc_ctx, map) \
+  cmap_fn_proc(fn, proc_ctx, (CMAP_MAP *)map, NULL)
+#define CMAP_FN_PROC_ARGS(fn, proc_ctx, map, args...) \
+  cmap_fn_proc(fn, proc_ctx, (CMAP_MAP *)map, args, NULL)
 
-#define CMAP_PROC(map, key) cmap_proc((CMAP_MAP *)map, key, NULL)
-#define CMAP_PROC_ARGS(map, key, args...) \
-  cmap_proc((CMAP_MAP *)map, key, args, NULL)
-#define CMAP_LPROC(map, key, args) cmap_lproc((CMAP_MAP *)map, key, args)
+#define CMAP_PROC(map, key, proc_ctx) \
+  cmap_proc((CMAP_MAP *)map, key, proc_ctx, NULL)
+#define CMAP_PROC_ARGS(map, key, proc_ctx, args...) \
+  cmap_proc((CMAP_MAP *)map, key, proc_ctx, args, NULL)
+#define CMAP_LPROC(map, key, proc_ctx, args) \
+  cmap_lproc((CMAP_MAP *)map, key, proc_ctx, args)
 
-#define CMAP_PROC_SPLIT(map, keys) cmap_proc_split(map, keys, NULL)
-#define CMAP_PROC_SPLIT_ARGS(map, keys, args...) \
-  cmap_proc_split(map, keys, args, NULL)
-#define CMAP_LPROC_SPLIT(map, keys, args) cmap_lproc_split(map, keys, args)
+#define CMAP_PROC_SPLIT(map, keys, proc_ctx) \
+  cmap_proc_split(map, keys, proc_ctx, NULL)
+#define CMAP_PROC_SPLIT_ARGS(map, keys, proc_ctx, args...) \
+  cmap_proc_split(map, keys, proc_ctx, args, NULL)
+#define CMAP_LPROC_SPLIT(map, keys, proc_ctx, args) \
+  cmap_lproc_split(map, keys, proc_ctx, args)
 
-#define CMAP_PROC_GLOBAL(keys) CMAP_PROC_SPLIT(NULL, keys)
-#define CMAP_PROC_GLOBAL_ARGS(keys, args...) \
-  CMAP_PROC_SPLIT_ARGS(NULL, keys, args)
+#define CMAP_PROC_GLOBAL(keys, proc_ctx) CMAP_PROC_SPLIT(NULL, keys, proc_ctx)
+#define CMAP_PROC_GLOBAL_ARGS(keys, proc_ctx, args...) \
+  CMAP_PROC_SPLIT_ARGS(NULL, keys, proc_ctx, args)
 
-#define CMAP_PROC_CHAIN(map, args...) cmap_proc_chain(map, args, NULL)
-#define CMAP_PROC_CHAIN_GLOBAL(args...) CMAP_PROC_CHAIN(NULL, args)
+#define CMAP_PROC_CHAIN(proc_ctx, map, args...) \
+  cmap_proc_chain(proc_ctx, map, args, NULL)
+#define CMAP_PROC_CHAIN_GLOBAL(proc_ctx, args...) \
+  CMAP_PROC_CHAIN(proc_ctx, NULL, args)
 
-#define CMAP_TO_LIST(aisle, maps...) cmap_to_list(aisle, maps, NULL)
-#define CMAP_TO_LOCAL_LIST(maps...) CMAP_TO_LIST(CMAP_AISLE_LOCAL, maps)
+#define CMAP_TO_LIST(proc_ctx, aisle, maps...) \
+  cmap_to_list(proc_ctx, aisle, maps, NULL)
+#define CMAP_TO_LOCAL_LIST(proc_ctx, maps...) \
+  CMAP_TO_LIST(proc_ctx, CMAP_AISLE_LOCAL, maps)
 
-#define CMAP_TO_MAP(aisle, key_maps...) cmap_to_map(aisle, key_maps, NULL)
-#define CMAP_TO_LOCAL_MAP(key_maps...) CMAP_TO_MAP(CMAP_AISLE_LOCAL, key_maps)
+#define CMAP_TO_MAP(proc_ctx, aisle, key_maps...) \
+  cmap_to_map(proc_ctx, aisle, key_maps, NULL)
+#define CMAP_TO_LOCAL_MAP(proc_ctx, key_maps...) \
+  CMAP_TO_MAP(proc_ctx, CMAP_AISLE_LOCAL, key_maps)
 
-#define CMAP_DELETE_AISLE(aisle) cmap_delete_aisle(aisle)
+#define CMAP_DELETE_AISLE(proc_ctx, aisle) cmap_delete_aisle(proc_ctx, aisle)
 
 #endif

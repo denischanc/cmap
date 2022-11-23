@@ -39,14 +39,15 @@ static void type##_delete(CMAP_POOL_##TYPE * this) \
   CMAP_MEM_FREE(this, mem); \
 } \
  \
-static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this) \
+static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
   CMAP_LIST * list = internal -> list; \
  \
   if(CMAP_CALL(list, size) <= 0) \
   { \
-    return cmap_pool_handler_##type##_public.create(); \
+    return cmap_pool_handler_##type##_public.create(proc_ctx); \
   } \
   else \
   { \
@@ -70,14 +71,14 @@ static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
   } \
 } \
  \
-CMAP_POOL_##TYPE * type##_create(int size) \
+CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
   CMAP_MEM * mem = cmap_kernel_public.mem(); \
   CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##TYPE, mem); \
  \
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem); \
   internal -> size = size; \
-  internal -> list = CMAP_LIST(size, NULL); \
+  internal -> list = CMAP_LIST(size, proc_ctx, NULL); \
  \
   pool -> internal = internal; \
   pool -> delete = type##_delete; \

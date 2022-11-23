@@ -2,8 +2,9 @@
 #define __CMAP_STRING_H__
 
 #include <cmap/core.h>
-#include "cmap-map.h"
 #include <cmap/nature.h>
+#include <cmap/proc-ctx.h>
+#include "cmap-map.h"
 
 struct CMAP_STRING_s
 {
@@ -22,7 +23,8 @@ struct CMAP_STRING_s
 
 typedef struct
 {
-  CMAP_STRING * (*create)(const char * val, int size_inc, const char * aisle);
+  CMAP_STRING * (*create)(const char * val, int size_inc,
+    CMAP_PROC_CTX * proc_ctx, const char * aisle);
   void (*init)(CMAP_STRING * string, const char * val, int size_inc);
   CMAP_MAP * (*delete)(CMAP_STRING * string);
 

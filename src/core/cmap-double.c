@@ -72,11 +72,12 @@ static void init(CMAP_DOUBLE * double_, double val)
   double_ -> set = set;
 }
 
-static CMAP_DOUBLE * create(double val, const char * aisle)
+static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx,
+  const char * aisle)
 {
-  CMAP_MAP * prototype_double = cmap_prototype_double_public.instance();
+  CMAP_MAP * prototype_double = cmap_prototype_double_public.instance(proc_ctx);
   CMAP_DOUBLE * double_ = (CMAP_DOUBLE *)CMAP_CALL_ARGS(prototype_double, new,
-    sizeof(CMAP_DOUBLE), aisle);
+    sizeof(CMAP_DOUBLE), proc_ctx, aisle);
   init(double_, val);
   return double_;
 }

@@ -4,6 +4,7 @@
 #include <cmap/core.h>
 #include "cmap-map-define.h"
 #include <cmap/nature.h>
+#include <cmap/proc-ctx.h>
 
 typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP ** val,
   void * data);
@@ -19,10 +20,12 @@ struct CMAP_MAP_s
   void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
-  void * (*new)(CMAP_MAP * this, int size, const char * aisle);
+  void * (*new)(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
+    const char * aisle);
 
   char (*is_key)(CMAP_MAP * this, const char * key);
-  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
+  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx,
+    const char * aisle);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
 
@@ -31,18 +34,20 @@ struct CMAP_MAP_s
 
 typedef struct
 {
-  CMAP_MAP * (*create)(const char * aisle);
-  CMAP_MAP * (*create_root)(const char * aisle);
+  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx, const char * aisle);
+  CMAP_MAP * (*create_root)(CMAP_PROC_CTX * proc_ctx, const char * aisle);
   void (*init)(CMAP_MAP * map);
   CMAP_MAP * (*delete)(CMAP_MAP * map);
 
   void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
-  void * (*new)(CMAP_MAP * this, int size, const char * aisle);
+  void * (*new)(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
+    const char * aisle);
 
   char (*is_key)(CMAP_MAP * this, const char * key);
-  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, const char * aisle);
+  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx,
+    const char * aisle);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
 

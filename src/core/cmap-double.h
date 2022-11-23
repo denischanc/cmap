@@ -4,6 +4,7 @@
 #include <cmap/core.h>
 #include "cmap-map.h"
 #include <cmap/nature.h>
+#include "cmap-proc-ctx.h"
 
 struct CMAP_DOUBLE_s
 {
@@ -17,7 +18,8 @@ struct CMAP_DOUBLE_s
 
 typedef struct
 {
-  CMAP_DOUBLE * (*create)(double val, const char * aisle);
+  CMAP_DOUBLE * (*create)(double val, CMAP_PROC_CTX * proc_ctx,
+    const char * aisle);
   void (*init)(CMAP_DOUBLE * double_, double val);
   CMAP_MAP * (*delete)(CMAP_DOUBLE * double_);
 

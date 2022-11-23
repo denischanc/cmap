@@ -5,6 +5,7 @@
 #include "cmap-common.h"
 #include "cmap-aisle.h"
 #include "cmap-prototype-map.h"
+#include "cmap-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -38,13 +39,13 @@ static char args_to_map_fn(CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require_map(CMAP_MAP ** proto)
+static CMAP_MAP * require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
   if(*proto == NULL)
   {
-    CMAP_MAP * proto_map = cmap_prototype_map_public.require();
-    *proto = CMAP_MAP_NEW_MAP(proto_map, CMAP_AISLE_KERNEL);
-    cmap_prototype_map_public.instance();
+    CMAP_MAP * proto_map = cmap_prototype_map_public.require(proc_ctx);
+    *proto = CMAP_MAP_NEW_MAP(proto_map, proc_ctx, CMAP_AISLE_KERNEL);
+    cmap_prototype_map_public.instance(proc_ctx);
   }
   return *proto;
 }
@@ -53,13 +54,14 @@ static CMAP_MAP * require_map(CMAP_MAP ** proto)
 *******************************************************************************/
 
 static CMAP_MAP * instance(CMAP_MAP ** proto, char * ok,
-  CMAP_MAP * (*require)(), void (*init)())
+  CMAP_MAP * (*require)(CMAP_PROC_CTX *), void (*init)(CMAP_PROC_CTX *),
+  CMAP_PROC_CTX * proc_ctx)
 {
   if(!*ok)
   {
     *ok = CMAP_T;
-    require();
-    init();
+    require(proc_ctx);
+    init(proc_ctx);
   }
   return *proto;
 }

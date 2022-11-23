@@ -7,9 +7,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * list_create()
+static CMAP_LIST * list_create(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_LIST(0, NULL);
+  return CMAP_LIST(0, proc_ctx, NULL);
 }
 
 static void list_delete(CMAP_LIST * list)
@@ -32,9 +32,9 @@ const CMAP_POOL_HANDLER_LIST_PUBLIC cmap_pool_handler_list_public =
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STRING * string_create()
+static CMAP_STRING * string_create(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_STRING("", 0, NULL);
+  return CMAP_STRING("", 0, proc_ctx, NULL);
 }
 
 static void string_delete(CMAP_STRING * string)
