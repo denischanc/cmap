@@ -28,20 +28,19 @@ static CMAP_ENV * envs = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static void main_(CMAP_ENV * this, int argc, char * argv[],
+static CMAP_MAP * main_(CMAP_ENV * this, int argc, char * argv[],
   CMAP_MAP * definitions, const char * impl)
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(this);
-
   CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
 
-  cmap_parser_util_public.proc_impl(proc_ctx, impl);
+  CMAP_MAP * ret =
+    cmap_parser_util_public.proc_impl(proc_ctx, definitions, impl);
 
-  CMAP_CALL(proc_ctx, pop_definitions);
   CMAP_CALL(proc_ctx, pop_local_stack);
-
   CMAP_CALL(proc_ctx, delete);
+
+  return ret;
 }
 
 /*******************************************************************************

@@ -46,11 +46,6 @@ void * cmap_ptr_get(CMAP_PTR * ptr);
 
 const char * cmap_string_val(CMAP_STRING * string);
 
-void cmap_set_split(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  const char * keys, CMAP_MAP * val);
-CMAP_MAP * cmap_get_split(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  const char * keys);
-
 CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   const char * aisle, ...);
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
@@ -64,13 +59,6 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
 CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
   CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args);
 
-CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * keys,
-  CMAP_PROC_CTX * proc_ctx, ...);
-CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
-  CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args);
-
-CMAP_MAP * cmap_proc_chain(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map, ...);
-
 CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...);
 CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...);
 
@@ -78,7 +66,8 @@ CMAP_MEM_STATE * cmap_mem_state();
 
 void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
-void cmap$$(CMAP_PROC_CTX * proc_ctx, const char * impl);
+CMAP_MAP * cmap$$(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
+  const char * impl);
 
 CMAP_ENV * cmap_env();
 void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
@@ -86,5 +75,8 @@ void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env);
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx);
+
+CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx);
+CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx);
 
 #endif

@@ -12,10 +12,16 @@
 
 typedef struct
 {
-  CMAP_LIST * scanners, * local_stacks, * definitions_list;
+  CMAP_LIST * scanners, * local_stacks, * definitions;
 
   CMAP_ENV * env;
 } INTERNAL;
+
+typedef struct
+{
+  CMAP_MAP * definitions;
+  char delete;
+} DEFS_CTR;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -87,27 +93,53 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 static void push_definitions(CMAP_PROC_CTX * this, CMAP_MAP * definitions)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  if(internal -> definitions_list == NULL)
-    internal -> definitions_list = CMAP_LIST(0, this, NULL);
+  if(internal -> definitions == NULL)
+    internal -> definitions = CMAP_LIST(0, this, NULL);
 
-  CMAP_LIST_PUSH(internal -> definitions_list, definitions);
+  CMAP_KERNEL_ALLOC_PTR(defs_ctr, DEFS_CTR);
+  defs_ctr -> definitions = definitions;
+  defs_ctr -> delete = CMAP_F;
+  CMAP_LIST_PUSH(internal -> definitions, defs_ctr);
 }
 
 static void pop_definitions(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  CMAP_LIST_POP(internal -> definitions_list);
+  DEFS_CTR * defs_ctr = (DEFS_CTR *)CMAP_LIST_POP(internal -> definitions);
+  if(defs_ctr -> delete) CMAP_DELETE(defs_ctr -> definitions);
+  CMAP_KERNEL_FREE(defs_ctr);
+}
+
+static DEFS_CTR * defs_ctr_(CMAP_PROC_CTX * this)
+{
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  if(internal -> definitions == NULL) return NULL;
+  else
+  {
+    int size = CMAP_CALL(internal -> definitions, size);
+    return (DEFS_CTR *)CMAP_LIST_GET(internal -> definitions, size - 1);
+  }
+}
+
+static CMAP_MAP * require_definitions(CMAP_PROC_CTX * this)
+{
+  DEFS_CTR * defs_ctr = defs_ctr_(this);
+  if(defs_ctr == NULL) return NULL;
+  else
+  {
+    if(defs_ctr -> definitions == NULL)
+    {
+      defs_ctr -> definitions = cmap_map_public.create_root(this, NULL);
+      defs_ctr -> delete = CMAP_T;
+    }
+    return defs_ctr -> definitions;
+  }
 }
 
 static CMAP_MAP * definitions(CMAP_PROC_CTX * this)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  if(internal -> definitions_list == NULL) return NULL;
-  else
-  {
-    int size = CMAP_CALL(internal -> definitions_list, size);
-    return CMAP_LIST_GET(internal -> definitions_list, size - 1);
-  }
+  DEFS_CTR * defs_ctr = defs_ctr_(this);
+  return ((defs_ctr == NULL) ? NULL : defs_ctr -> definitions);
 }
 
 /*******************************************************************************
@@ -150,8 +182,7 @@ static void delete(CMAP_PROC_CTX * this)
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> scanners != NULL) CMAP_DELETE(internal -> scanners);
   if(internal -> local_stacks != NULL) CMAP_DELETE(internal -> local_stacks);
-  if(internal -> definitions_list != NULL)
-    CMAP_DELETE(internal -> definitions_list);
+  if(internal -> definitions != NULL) CMAP_DELETE(internal -> definitions);
 
   CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);
@@ -162,7 +193,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> scanners = NULL;
   internal -> local_stacks = NULL;
-  internal -> definitions_list = NULL;
+  internal -> definitions = NULL;
   internal -> env = env_;
 
   CMAP_KERNEL_ALLOC_PTR(proc_ctx, CMAP_PROC_CTX);
@@ -176,6 +207,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   proc_ctx -> local_stack = local_stack;
   proc_ctx -> push_definitions = push_definitions;
   proc_ctx -> pop_definitions = pop_definitions;
+  proc_ctx -> require_definitions = require_definitions;
   proc_ctx -> definitions = definitions;
   proc_ctx -> env = env;
   proc_ctx -> aislestore = aislestore;

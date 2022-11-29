@@ -21,8 +21,11 @@ static CMAP_MAP * init_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * schedule_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  $G_$_A("cmap.scheduler.addJob", proc_ctx, map);
-  return map;
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
+  CMAP_SET(definitions, "this", map);
+  return cmap$$(proc_ctx, definitions,
+    "cmap.scheduler.addJob(this);"
+    "return this;");
 }
 
 /*******************************************************************************

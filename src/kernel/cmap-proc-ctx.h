@@ -12,6 +12,8 @@ struct CMAP_PROC_CTX_s
 {
   void * internal;
 
+  CMAP_MAP * ret;
+
   void (*delete)(CMAP_PROC_CTX * this);
 
   void (*push_scanner)(CMAP_PROC_CTX * this);
@@ -24,6 +26,7 @@ struct CMAP_PROC_CTX_s
 
   void (*push_definitions)(CMAP_PROC_CTX * this, CMAP_MAP * definitions);
   void (*pop_definitions)(CMAP_PROC_CTX * this);
+  CMAP_MAP * (*require_definitions)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*definitions)(CMAP_PROC_CTX * this);
 
   CMAP_ENV * (*env)(CMAP_PROC_CTX * this);

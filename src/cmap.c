@@ -169,63 +169,6 @@ const char * cmap_string_val(CMAP_STRING * string)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_set_split(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  const char * keys, CMAP_MAP * val)
-{
-  CMAP_STRING * key;
-  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
-
-  if(map == NULL) map = CMAP_CALL(proc_ctx, global_env);
-
-  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.', proc_ctx);
-
-  int i = 0, i_stop = (CMAP_CALL(keys_split, size) - 1);
-  for(; (i < i_stop) && (map != NULL); i++)
-  {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
-    map = CMAP_GET(map, CMAP_CALL(key, val));
-    CMAP_CALL_ARGS(pool_string, release, key);
-  }
-
-  if(map != NULL)
-  {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
-    CMAP_SET(map, CMAP_CALL(key, val), val);
-    CMAP_CALL_ARGS(pool_string, release, key);
-  }
-
-  cmap_util_public.release_pool_list_n_strings(keys_split, proc_ctx);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_MAP * cmap_get_split(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  const char * keys)
-{
-  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
-
-  if(map == NULL) map = CMAP_CALL(proc_ctx, global_env);
-
-  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.', proc_ctx);
-
-  CMAP_STRING * key;
-  int i = 0, i_stop = CMAP_CALL(keys_split, size);
-  for(; (i < i_stop) && (map != NULL); i++)
-  {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
-    map = CMAP_GET(map, CMAP_CALL(key, val));
-    CMAP_CALL_ARGS(pool_string, release, key);
-  }
-
-  cmap_util_public.release_pool_list_n_strings(keys_split, proc_ctx);
-
-  return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   const char * aisle, CMAP_LIST * args)
 {
@@ -334,86 +277,6 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_lproc_split(CMAP_MAP * map, const char * keys,
-  CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args)
-{
-  CMAP_STRING * key;
-  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
-
-  if(map == NULL) map = CMAP_CALL(proc_ctx, global_env);
-
-  CMAP_LIST * keys_split = cmap_util_public.split_w_pool(keys, '.', proc_ctx);
-
-  int i = 0, i_stop = CMAP_CALL(keys_split, size) - 1;
-  for(; (i < i_stop) && (map != NULL); i++)
-  {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
-    map = CMAP_GET(map, CMAP_CALL(key, val));
-    CMAP_CALL_ARGS(pool_string, release, key);
-  }
-
-  if(map != NULL)
-  {
-    key = (CMAP_STRING *)CMAP_CALL(keys_split, shift);
-    map = cmap_lproc(map, CMAP_CALL(key, val), proc_ctx, args);
-    CMAP_CALL_ARGS(pool_string, release, key);
-  }
-
-  cmap_util_public.release_pool_list_n_strings(keys_split, proc_ctx);
-
-  return map;
-}
-
-static CMAP_MAP * vproc_split(CMAP_MAP * map, const char * keys,
-  CMAP_PROC_CTX * proc_ctx, va_list args)
-{
-  CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
-  CMAP_LIST * args_list = CMAP_CALL_ARGS(pool, take, proc_ctx);
-  cmap_util_public.vfill_list(args_list, args);
-
-  CMAP_MAP * ret = cmap_lproc_split(map, keys, proc_ctx, args_list);
-
-  CMAP_CALL_ARGS(pool, release, args_list);
-
-  return ret;
-}
-
-CMAP_MAP * cmap_proc_split(CMAP_MAP * map, const char * keys,
-  CMAP_PROC_CTX * proc_ctx, ...)
-{
-  va_list args;
-  va_start(args, proc_ctx);
-  CMAP_MAP * ret = vproc_split(map, keys, proc_ctx, args);
-  va_end(args);
-  return ret;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_MAP * cmap_proc_chain(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map, ...)
-{
-  if(map == NULL) map = CMAP_CALL(proc_ctx, global_env);
-
-  va_list chain;
-  va_start(chain, map);
-
-  const char * keys;
-  for(keys = va_arg(chain, char *); (keys != NULL) && (map != NULL);
-    keys = va_arg(chain, char *))
-  {
-    CMAP_LIST * args = va_arg(chain, CMAP_LIST *);
-    map = (args == NULL) ? NULL : cmap_lproc_split(map, keys, proc_ctx, args);
-  }
-
-  va_end(chain);
-
-  return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
 {
   va_list maps;
@@ -455,9 +318,10 @@ void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap$$(CMAP_PROC_CTX * proc_ctx, const char * impl)
+CMAP_MAP * cmap$$(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
+  const char * impl)
 {
-  cmap_parser_util_public.proc_impl(proc_ctx, impl);
+  return cmap_parser_util_public.proc_impl(proc_ctx, definitions, impl);
 }
 
 /*******************************************************************************
@@ -485,4 +349,17 @@ CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env)
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_CALL(proc_ctx, delete);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
+{
+  return CMAP_CALL(proc_ctx, global_env);
+}
+
+CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
+{
+  return CMAP_CALL(proc_ctx, definitions);
 }

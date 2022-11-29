@@ -52,13 +52,6 @@
 
 #define CMAP_STRING_VAL(s) cmap_string_val(s)
 
-#define CMAP_SET_SPLIT(map, keys, val) \
-  cmap_set_split(map, keys, (CMAP_MAP *)val)
-#define CMAP_GET_SPLIT(map, keys) cmap_get_split(map, keys)
-
-#define CMAP_SET_GLOBAL(keys, val) CMAP_SET_SPLIT(NULL, keys, val)
-#define CMAP_GET_GLOBAL(keys) CMAP_GET_SPLIT(NULL, keys)
-
 #define CMAP_NEW(prototype, proc_ctx, aisle) \
   cmap_new(prototype, proc_ctx, aisle, NULL)
 #define CMAP_NEW_ARGS(prototype, proc_ctx, aisle, args...) \
@@ -77,22 +70,6 @@
   cmap_proc((CMAP_MAP *)map, key, proc_ctx, args, NULL)
 #define CMAP_LPROC(map, key, proc_ctx, args) \
   cmap_lproc((CMAP_MAP *)map, key, proc_ctx, args)
-
-#define CMAP_PROC_SPLIT(map, keys, proc_ctx) \
-  cmap_proc_split(map, keys, proc_ctx, NULL)
-#define CMAP_PROC_SPLIT_ARGS(map, keys, proc_ctx, args...) \
-  cmap_proc_split(map, keys, proc_ctx, args, NULL)
-#define CMAP_LPROC_SPLIT(map, keys, proc_ctx, args) \
-  cmap_lproc_split(map, keys, proc_ctx, args)
-
-#define CMAP_PROC_GLOBAL(keys, proc_ctx) CMAP_PROC_SPLIT(NULL, keys, proc_ctx)
-#define CMAP_PROC_GLOBAL_ARGS(keys, proc_ctx, args...) \
-  CMAP_PROC_SPLIT_ARGS(NULL, keys, proc_ctx, args)
-
-#define CMAP_PROC_CHAIN(proc_ctx, map, args...) \
-  cmap_proc_chain(proc_ctx, map, args, NULL)
-#define CMAP_PROC_CHAIN_GLOBAL(proc_ctx, args...) \
-  CMAP_PROC_CHAIN(proc_ctx, NULL, args)
 
 #define CMAP_TO_LIST(proc_ctx, aisle, maps...) \
   cmap_to_list(proc_ctx, aisle, maps, NULL)

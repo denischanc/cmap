@@ -39,12 +39,6 @@
 
 #define $STRV(s) CMAP_STRING_VAL(s)
 
-#define $K_SET(map, keys, val) CMAP_SET_SPLIT(map, keys, val)
-#define $K_GET(map, keys) CMAP_GET_SPLIT(map, keys)
-
-#define $K_SET_G(keys, val) CMAP_SET_GLOBAL(keys, val)
-#define $K_GET_G(keys) CMAP_GET_GLOBAL(keys)
-
 #define $NEW(prototype, proc_ctx, aisle) CMAP_NEW(prototype, proc_ctx, aisle)
 #define $NEW_A(prototype, proc_ctx, aisle, args...) \
   CMAP_NEW_ARGS(prototype, proc_ctx, aisle, args)
@@ -59,19 +53,6 @@
 #define $$_A(map, key, proc_ctx, args...) \
   CMAP_PROC_ARGS(map, key, proc_ctx, args)
 #define $$_L(map, key, proc_ctx, args) CMAP_LPROC(map, key, proc_ctx, args)
-
-#define $K_$(map, keys, proc_ctx) CMAP_PROC_SPLIT(map, keys, proc_ctx)
-#define $K_$_A(map, keys, proc_ctx, args...) \
-  CMAP_PROC_SPLIT_ARGS(map, keys, proc_ctx, args)
-#define $K_$_L(map, keys, proc_ctx, args) \
-  CMAP_LPROC_SPLIT(map, keys, proc_ctx, args)
-
-#define $G_$(keys, proc_ctx) CMAP_PROC_GLOBAL(keys, proc_ctx)
-#define $G_$_A(keys, proc_ctx, args...) \
-  CMAP_PROC_GLOBAL_ARGS(keys, proc_ctx, args)
-
-#define $$$(proc_ctx, map, args...) CMAP_PROC_CHAIN(proc_ctx, map, args)
-#define $G_$$(proc_ctx, args...) CMAP_PROC_CHAIN_GLOBAL(proc_ctx, args)
 
 #define $$LIST(proc_ctx, aisle, maps...) CMAP_TO_LIST(proc_ctx, aisle, maps)
 #define $$LIST_L(proc_ctx, maps...) CMAP_TO_LOCAL_LIST(proc_ctx, maps)

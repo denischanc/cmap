@@ -38,7 +38,7 @@ static const char * nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> definitions == NULL)
@@ -54,13 +54,16 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
+  CMAP_MAP * definitions = cmap_util_public.copy(
+    cmap_map_public.create_root(proc_ctx, NULL), internal -> definitions);
   CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_CALL_ARGS(proc_ctx, push_definitions, internal -> definitions);
+  CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
 
   CMAP_MAP * ret = internal -> process(proc_ctx, map, args);
 
   CMAP_CALL(proc_ctx, pop_definitions);
   CMAP_CALL(proc_ctx, pop_local_stack);
+  CMAP_DELETE(definitions);
 
   return ret;
 }
@@ -117,7 +120,7 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
   internal -> definitions = NULL;
 
   fn -> internal = internal;
-  fn -> definitions = definitions;
+  fn -> require_definitions = require_definitions;
   fn -> process = process;
   fn -> new = new;
 }

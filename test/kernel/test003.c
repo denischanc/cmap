@@ -15,10 +15,9 @@
 static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  cmap$$(proc_ctx,
+  return cmap$$(proc_ctx, NULL,
     "cmap.console.info(\"Hello \"<t>, \"World \"<t>, \"!!!\"<t>).info();"
     "cmap.console.info();");
-  return NULL;
 }
 
 int main(int argc, char * argv[])

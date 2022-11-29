@@ -39,6 +39,8 @@ SPACE_D [[:space:]]+
 
 "local" { name_scanner(yylval, yytext); return LOCAL; }
 "new" { name_scanner(yylval, yytext); return NEW; }
+"return" { name_scanner(yylval, yytext); return RETURN; }
+"null" { name_scanner(yylval, yytext); return NULL_PTR; }
 
 {NAME_D} { name_scanner(yylval, yytext); return NAME; }
 

@@ -67,9 +67,19 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * delete_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  CMAP_DELETE(map);
+  return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
-  if(!CMAP_CALL(*val, is_ref))
+  if((*val != NULL) && !CMAP_CALL(*val, is_ref))
   {
     CMAP_CALL_ARGS(*val, apply, delete_apply_fn, data);
     CMAP_DELETE(*val);
@@ -99,6 +109,7 @@ static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
 static void init(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "delete", delete_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref_fn, proc_ctx);
 }
 

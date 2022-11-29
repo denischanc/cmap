@@ -9,22 +9,28 @@
 #include "cmap-fn.h"
 #include "cmap-parser.h"
 #include "cmap-pool.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void proc_impl(CMAP_PROC_CTX * proc_ctx, const char * impl)
+static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
+  const char * impl)
 {
-  if((impl == NULL) || !strcmp(impl, "")) return;
+  if((impl == NULL) || !strcmp(impl, "")) return NULL;
 
+  CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
   CMAP_CALL(proc_ctx, push_scanner);
-  yyscan_t scanner = CMAP_CALL(proc_ctx, scanner);
 
+  yyscan_t scanner = CMAP_CALL(proc_ctx, scanner);
   cmap_parser_set_in(fmemopen((void *)impl, strlen(impl), "r"), scanner);
   cmap_parser_parse(scanner, proc_ctx);
   fclose(cmap_parser_get_in(scanner));
 
   CMAP_CALL(proc_ctx, pop_scanner);
+  CMAP_CALL(proc_ctx, pop_definitions);
+
+  return proc_ctx -> ret;
 }
 
 /*******************************************************************************
@@ -60,8 +66,8 @@ static CMAP_MAP * path(CMAP_MAP * map, const char * name)
 static void set_local(CMAP_PROC_CTX * proc_ctx, const char * name,
   CMAP_MAP * map)
 {
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
-  if(definitions != NULL) CMAP_SET(definitions, name, map);
+  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, require_definitions);
+  CMAP_SET(definitions, name, map);
   CMAP_KERNEL_FREE(name);
 }
 
@@ -244,35 +250,26 @@ static CMAP_MAP * new(CMAP_MAP * map, const char * fn_name, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * $$_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+static CMAP_MAP * proc_impl_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
   CMAP_STRING * impl = (CMAP_STRING *)CMAP_GET(definitions, "cmap-fn-impl");
-  proc_impl(proc_ctx, CMAP_CALL(impl, val));
-
-  return NULL;
+  return proc_impl(proc_ctx, definitions, CMAP_CALL(impl, val));
 }
 
-static void copy_definitions(const char * key, CMAP_MAP ** val, void * data)
-{
-  CMAP_SET(data, key, *val);
-}
-
-/* TODO : impl = const char * ... */
 static CMAP_FN * fn_with_impl(CMAP_STRING * impl, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_FN * fn = CMAP_FN($$_impl, proc_ctx, aisle);
+  CMAP_FN * fn = CMAP_FN(proc_impl_fn, proc_ctx, aisle);
+
+  CMAP_MAP * definitions = CMAP_CALL_ARGS(fn, require_definitions, proc_ctx);
+  const char * impl_ = CMAP_CALL(impl, val);
+  CMAP_SET(definitions, "cmap-fn-impl", CMAP_STRING(impl_, 0, proc_ctx, aisle));
+
   CMAP_KERNEL_FREE(aisle);
-  CMAP_MAP * definitions_fn = CMAP_CALL_ARGS(fn, definitions, proc_ctx);
 
-  CMAP_SET(definitions_fn, "cmap-fn-impl", impl);
-
-  CMAP_MAP * definitions_ctx = NULL;
-  if(proc_ctx != NULL) definitions_ctx = CMAP_CALL(proc_ctx, definitions);
-  if(definitions_ctx != NULL)
-    CMAP_CALL_ARGS(definitions_ctx, apply, copy_definitions, definitions_fn);
+  cmap_util_public.copy(definitions, CMAP_CALL(proc_ctx, definitions));
 
   return fn;
 }

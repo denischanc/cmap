@@ -13,7 +13,7 @@ struct CMAP_ENV_s
 
   void (*delete)(CMAP_ENV * this);
 
-  void (*main)(CMAP_ENV * this, int argc, char * argv[],
+  CMAP_MAP * (*main)(CMAP_ENV * this, int argc, char * argv[],
     CMAP_MAP * definitions, const char * impl);
 
   CMAP_AISLESTORE * (*aislestore)(CMAP_ENV * this);

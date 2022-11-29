@@ -28,7 +28,7 @@ static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
 }
 
 %token ERROR
-%token<name> NAME LOCAL NEW
+%token<name> NAME LOCAL NEW RETURN NULL_PTR
 %token<string> STRING
 
 %type<map> cmap creator path process process_chain new
@@ -40,7 +40,7 @@ static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
-start: instructions;
+start: instructions { proc_ctx -> ret = NULL; };
 
 instructions: instruction ';'
 | instructions instruction ';';
@@ -48,7 +48,7 @@ instructions: instruction ';'
 /*******************************************************************************
 *******************************************************************************/
 
-name: NAME | LOCAL | NEW;
+name: NAME | LOCAL | NEW | RETURN;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -60,7 +60,8 @@ instruction: LOCAL name '=' cmap
 }
 | name '=' cmap { cmap_parser_util_public.set_global(proc_ctx, $1, $3); }
 | path '.' name '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
-| process;
+| process
+| RETURN cmap { CMAP_KERNEL_FREE($1); proc_ctx -> ret = $2; YYACCEPT; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -103,7 +104,8 @@ args: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: creator | path | process | new;
+cmap: creator | path | process | new
+| NULL_PTR { CMAP_KERNEL_FREE($1); $$ = NULL; };
 
 /*******************************************************************************
 *******************************************************************************/

@@ -13,7 +13,7 @@ struct CMAP_FN_s
 
   void * internal;
 
-  CMAP_MAP * (*definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
+  CMAP_MAP * (*require_definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
 
   CMAP_MAP * (*process)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);

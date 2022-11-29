@@ -24,102 +24,6 @@ static void delete_list_vals(CMAP_LIST * list)
 /*******************************************************************************
 *******************************************************************************/
 
-static void release_pool_list_n_strings(CMAP_LIST * list,
-  CMAP_PROC_CTX * proc_ctx)
-{
-  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
-  CMAP_POOL_LIST * pool_list = CMAP_CALL(proc_ctx, pool_list);
-
-  CMAP_MAP * val;
-  while((val = CMAP_LIST_POP(list)) != NULL)
-  {
-    if(CMAP_NATURE(val) == CMAP_NATURE_STRING)
-    {
-      CMAP_CALL_ARGS(pool_string, release, (CMAP_STRING *)val);
-    }
-  }
-
-  CMAP_CALL_ARGS(pool_list, release, list);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void split_w_handler(CMAP_LIST * list, const char * line, char sep,
-  CMAP_STRING * (*create)(void * data), void * data)
-{
-  int i = 0, off = 0;
-  while(CMAP_T)
-  {
-    if((line[i] == sep) || (line[i] == 0))
-    {
-      CMAP_STRING * sub = create(data);
-      CMAP_CALL_ARGS(sub, append_sub, line, off, i);
-      CMAP_LIST_PUSH(list, sub);
-
-      if(line[i] == 0) return;
-
-      off = i + 1;
-    }
-
-    i++;
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-typedef struct
-{
-  const char * aisle;
-  CMAP_PROC_CTX * proc_ctx;
-} SPLIT_HANDLER_DATA;
-
-static CMAP_STRING * create_handler_from_aisle(void * data)
-{
-  SPLIT_HANDLER_DATA * data_ = (SPLIT_HANDLER_DATA *)data;
-  return CMAP_STRING("", 0, data_ -> proc_ctx, data_ -> aisle);
-}
-
-static CMAP_STRING * create_handler_from_pool(void * data)
-{
-  SPLIT_HANDLER_DATA * data_ = (SPLIT_HANDLER_DATA *)data;
-  CMAP_POOL_STRING * pool = CMAP_CALL(data_ -> proc_ctx, pool_string);
-  return CMAP_CALL_ARGS(pool, take, data_ -> proc_ctx);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_LIST * split_w_aisle(const char * line, char sep,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
-{
-  CMAP_LIST * list = CMAP_LIST(0, proc_ctx, aisle);
-
-  SPLIT_HANDLER_DATA data;
-  data.proc_ctx = proc_ctx;
-  data.aisle = aisle;
-  split_w_handler(list, line, sep, create_handler_from_aisle, &data);
-
-  return list;
-}
-
-static CMAP_LIST * split_w_pool(const char * line, char sep,
-  CMAP_PROC_CTX * proc_ctx)
-{
-  CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
-  CMAP_LIST * list = CMAP_CALL_ARGS(pool, take, proc_ctx);
-
-  SPLIT_HANDLER_DATA data;
-  data.proc_ctx = proc_ctx;
-  split_w_handler(list, line, sep, create_handler_from_pool, &data);
-
-  return list;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static CMAP_LIST * vfill_list(CMAP_LIST * list, va_list maps)
 {
   CMAP_MAP * map;
@@ -203,12 +107,24 @@ static void uv_dummy(uv_work_t * req)
 /*******************************************************************************
 *******************************************************************************/
 
+static void copy_apply_fn(const char * key, CMAP_MAP ** val, void * data)
+{
+  CMAP_MAP * dst = (CMAP_MAP *)data;
+  if(dst != NULL) CMAP_SET(dst, key, *val);
+}
+
+static CMAP_MAP * copy(CMAP_MAP * dst, CMAP_MAP * src)
+{
+  if(src != NULL) CMAP_CALL_ARGS(src, apply, copy_apply_fn, dst);
+  return dst;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
-  release_pool_list_n_strings,
-  split_w_aisle,
-  split_w_pool,
   fill_list,
   vfill_list,
   to_list,
@@ -216,5 +132,6 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   to_map,
   vto_map,
   uv_error,
-  uv_dummy
+  uv_dummy,
+  copy
 };
