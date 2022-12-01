@@ -13,7 +13,7 @@ noinst_HEADERS = \
   cmap-scanner.h \
   cmap-parser-util.h
 
-lib_LTLIBRARIES = libparser.la
+noinst_LTLIBRARIES = libparser.la
 
 libparser_la_SOURCES = \
   cmap-scanner.l \

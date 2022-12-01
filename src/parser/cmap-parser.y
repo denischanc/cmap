@@ -11,10 +11,13 @@
 static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
   const char * msg);
 
+int cmap_parser_debug = 1;
+
 %}
 
 %define api.pure full
 %define api.push-pull both
+/*%define parse.trace*/
 
 %param {yyscan_t yyscanner}
 %parse-param {CMAP_PROC_CTX * proc_ctx}
@@ -27,13 +30,13 @@ static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
   CMAP_STRING * string;
 }
 
-%token ERROR
+%token ERROR FUNCTION
 %token<name> NAME LOCAL NEW RETURN NULL_PTR
 %token<string> STRING
 
-%type<map> cmap creator path process process_chain new
+%type<map> cmap creator path process process_chain new function
 %type<name> aisle name
-%type<list> args args_name_cmap
+%type<list> args args_name args_name_cmap
 
 %%
 
@@ -87,16 +90,6 @@ path: name { $$ = cmap_parser_util_public.name(proc_ctx, $1); }
 /*******************************************************************************
 *******************************************************************************/
 
-args_name_cmap: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
-| name ',' cmap { $$ = cmap_parser_util_public.args_map(proc_ctx, $1, $3); }
-| args_name_cmap ',' name ',' cmap
-{
-  $$ = cmap_parser_util_public.args_map_push(proc_ctx, $1, $3, $5);
-};
-
-/*******************************************************************************
-*******************************************************************************/
-
 args: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 | cmap { $$ = cmap_parser_util_public.args(proc_ctx, $1); }
 | args ',' cmap { $$ = cmap_parser_util_public.args_push($1, $3); };
@@ -104,7 +97,27 @@ args: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: creator | path | process | new
+args_name: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
+| name { $$ = cmap_parser_util_public.args_name(proc_ctx, $1); }
+| args_name ',' name
+{
+  $$ = cmap_parser_util_public.args_name_push(proc_ctx, $1, $3);
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
+args_name_cmap: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
+| name ':' cmap { $$ = cmap_parser_util_public.args_map(proc_ctx, $1, $3); }
+| args_name_cmap ',' name ':' cmap
+{
+  $$ = cmap_parser_util_public.args_map_push(proc_ctx, $1, $3, $5);
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
+cmap: creator | path | process | new | function
 | NULL_PTR { CMAP_KERNEL_FREE($1); $$ = NULL; };
 
 /*******************************************************************************
@@ -148,10 +161,19 @@ new: NEW name '(' args ')' aisle
 /*******************************************************************************
 *******************************************************************************/
 
+function: FUNCTION '(' args_name ')' aisle STRING
+{
+  $$ = cmap_parser_util_public.function(proc_ctx, $5, $3, $6);
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
 %%
 
 static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
   const char * msg)
 {
-  cmap_log_public.error(msg);
+  cmap_log_public.error("[%d:%d] %s", cmap_parser_get_lineno(yyscanner),
+    cmap_parser_get_column(yyscanner), msg);
 }

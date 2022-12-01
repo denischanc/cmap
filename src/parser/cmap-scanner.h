@@ -18,4 +18,7 @@ int cmap_parser_lex_destroy(yyscan_t scanner);
 void cmap_parser_set_in(FILE * in, yyscan_t scanner);
 FILE * cmap_parser_get_in(yyscan_t scanner);
 
+int cmap_parser_get_lineno(yyscan_t scanner);
+int cmap_parser_get_column(yyscan_t scanner);
+
 #endif

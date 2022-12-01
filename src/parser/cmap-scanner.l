@@ -14,7 +14,8 @@ static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
-%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S
+%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S IMPL_S
+%s FUNCTION_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
 SPACE_D [[:space:]]+
@@ -22,25 +23,37 @@ SPACE_D [[:space:]]+
 %%
 
 "/*" { BEGIN(COMMENT_MULTI_S); }
-<COMMENT_MULTI_S>"*/" { BEGIN(INITIAL); }
-<COMMENT_MULTI_S>"\n" {}
-<COMMENT_MULTI_S>. {}
+<COMMENT_MULTI_S>{
+  "*/" { BEGIN(INITIAL); }
+  .
+}
 
 "//" { BEGIN(COMMENT_SIMPLE_S); }
-<COMMENT_SIMPLE_S>"\n" { BEGIN(INITIAL); }
-<COMMENT_SIMPLE_S>. {}
+<COMMENT_SIMPLE_S>{
+  "\n" { BEGIN(INITIAL); }
+  .
+}
 
 "\"" { BEGIN(STRING_S); string_scanner(yyscanner, yylval); }
-<STRING_S>"\"" { BEGIN(INITIAL); return STRING; }
-<STRING_S>"\\t" { scanner_append(yylval, "\t"); }
-<STRING_S>"\\n" { scanner_append(yylval, "\n"); }
-<STRING_S>"\\". { scanner_append(yylval, yytext + 1); }
-<STRING_S>. { scanner_append(yylval, yytext); }
+<STRING_S>{
+  "\"" { BEGIN(INITIAL); return STRING; }
+  "\\t" { scanner_append(yylval, "\t"); }
+  "\\n" { scanner_append(yylval, "\n"); }
+  "\\". { scanner_append(yylval, yytext + 1); }
+  . { scanner_append(yylval, yytext); }
+}
+
+<FUNCTION_S>"{" { BEGIN(IMPL_S); string_scanner(yyscanner, yylval); }
+<IMPL_S>{
+  "}" { BEGIN(INITIAL); return STRING; }
+  . { scanner_append(yylval, yytext); }
+}
 
 "local" { name_scanner(yylval, yytext); return LOCAL; }
 "new" { name_scanner(yylval, yytext); return NEW; }
 "return" { name_scanner(yylval, yytext); return RETURN; }
 "null" { name_scanner(yylval, yytext); return NULL_PTR; }
+"$$" { BEGIN(FUNCTION_S); return FUNCTION; }
 
 {NAME_D} { name_scanner(yylval, yytext); return NAME; }
 
@@ -56,6 +69,7 @@ SPACE_D [[:space:]]+
 "}" { return '}'; }
 "<" { return '<'; }
 ">" { return '>'; }
+":" { return ':'; }
 
 {SPACE_D} {}
 "\n" {}

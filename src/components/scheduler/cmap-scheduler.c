@@ -53,24 +53,11 @@ static void schedule(CMAP_ENV * env)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * add_job_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+static CMAP_MAP * schedule_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
-  CMAP_SET(definitions, "this", map);
-  CMAP_SET(definitions, "args", args);
-
-  CMAP_MAP * job;
-  while((job = cmap$$(proc_ctx, definitions,
-    "return args.shift();")) != NULL)
-  {
-    CMAP_SET(definitions, "job", job);
-    cmap$$(proc_ctx, definitions, "this.internal.jobs.push(job);");
-  }
-
   schedule(CMAP_CALL(proc_ctx, env));
-
-  return map;
+  return NULL;
 }
 
 /*******************************************************************************
@@ -98,16 +85,31 @@ static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * internal = $$MAP(proc_ctx, CMAP_AISLE_GLOBAL,
-    "jobs", $LIST(0, proc_ctx, CMAP_AISLE_GLOBAL),
+  CMAP_MAP * definitions = $$MAP(proc_ctx, NULL,
+    "schedule", $FN(schedule_fn, proc_ctx, CMAP_AISLE_GLOBAL),
     "process", $FN(process_fn, proc_ctx, CMAP_AISLE_GLOBAL),
-    NULL);
-
-  return $$MAP(proc_ctx, CMAP_AISLE_GLOBAL,
-    "internal", internal,
-    "addJob", $FN(add_job_fn, proc_ctx, CMAP_AISLE_GLOBAL),
     "job", cmap_job_public.create(proc_ctx),
     NULL);
+
+  CMAP_MAP * scheduler = cmap$$(proc_ctx, definitions,
+    "local internal = {"
+    "  jobs: []<global>,"
+    "  process: process"
+    "}<global>;"
+    "local scheduler = {"
+    "  internal: internal,"
+    "  addJob: $$()<global>{"
+    "    local job = args.shift();"
+    "    this.internal.jobs.push(job);"
+    "    schedule();"
+    "  },"
+    "  job: job"
+    "}<global>;"
+    "return scheduler;");
+
+  CMAP_DELETE(definitions);
+
+  return scheduler;
 }
 
 /*******************************************************************************

@@ -22,6 +22,10 @@ typedef struct
   CMAP_LIST * (*args_push)(CMAP_LIST * list, CMAP_MAP * map);
   CMAP_LIST * (*args)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map);
 
+  CMAP_LIST * (*args_name_push)(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * list,
+    const char * name);
+  CMAP_LIST * (*args_name)(CMAP_PROC_CTX * proc_ctx, const char * name);
+
   CMAP_LIST * (*args_map_push)(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * list,
     const char * name, CMAP_MAP * map);
   CMAP_LIST * (*args_map)(CMAP_PROC_CTX * proc_ctx, const char * name,
@@ -44,8 +48,8 @@ typedef struct
   CMAP_MAP * (*new)(CMAP_MAP * map, const char * fn_name, CMAP_LIST * args,
     CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
-  CMAP_FN * (*fn_with_impl)(CMAP_STRING * impl, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  CMAP_MAP * (*function)(CMAP_PROC_CTX * proc_ctx, const char * aisle,
+    CMAP_LIST * args, CMAP_STRING * impl);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;
