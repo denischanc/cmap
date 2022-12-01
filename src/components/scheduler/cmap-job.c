@@ -10,12 +10,12 @@
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap$$(proc_ctx, NULL,
-    "local job = $$(process)<global>{"
+  return cmap_proc_impl(proc_ctx, NULL,
+    "local job = function(process)<global>{"
     "  this.process = process;"
     "};"
     "job.prototype = {"
-    "  schedule: $$()<global>{"
+    "  schedule: function()<global>{"
     "    cmap.scheduler.addJob(this);"
     "    return this;"
     "  }"

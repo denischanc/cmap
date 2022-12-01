@@ -66,11 +66,11 @@ CMAP_MEM_STATE * cmap_mem_state();
 
 void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
-CMAP_MAP * cmap$$(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
+CMAP_MAP * cmap_proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
   const char * impl);
 
 CMAP_ENV * cmap_env();
-void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
+CMAP_MAP * cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
   CMAP_MAP * definitions, const char * impl);
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env);

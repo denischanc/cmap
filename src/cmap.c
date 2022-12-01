@@ -318,7 +318,7 @@ void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap$$(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
+CMAP_MAP * cmap_proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
   const char * impl)
 {
   return cmap_parser_util_public.proc_impl(proc_ctx, definitions, impl);
@@ -332,10 +332,10 @@ CMAP_ENV * cmap_env()
   return cmap_env_public.create();
 }
 
-void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
+CMAP_MAP * cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
   CMAP_MAP * definitions, const char * impl)
 {
-  CMAP_CALL_ARGS(env, main, argc, argv, definitions, impl);
+  return CMAP_CALL_ARGS(env, main, argc, argv, definitions, impl);
 }
 
 /*******************************************************************************

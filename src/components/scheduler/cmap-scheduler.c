@@ -38,6 +38,8 @@ static void on_schedule(uv_work_t * req, int status)
   CMAP_CALL(proc_ctx, delete);
 }
 
+/* TODO : long time processing ... */
+
 static void schedule(CMAP_ENV * env)
 {
   if(!internal.scheduled)
@@ -69,11 +71,12 @@ static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_MAP * definitions = cmap_definitions(proc_ctx);
   CMAP_SET(definitions, "this", map);
 
-  CMAP_MAP * job = cmap$$(proc_ctx, definitions, "return this.jobs.shift();");
+  CMAP_MAP * job = cmap_proc_impl(proc_ctx, definitions,
+    "return this.jobs.shift();");
   if(job != NULL)
   {
     CMAP_SET(definitions, "job", job);
-    cmap$$(proc_ctx, definitions, "job.process();");
+    cmap_proc_impl(proc_ctx, definitions, "job.process();");
 
     schedule(CMAP_CALL(proc_ctx, env));
   }
@@ -83,6 +86,8 @@ static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
+/* TODO : while((local job = args.shift()) != null) ... */
+
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * definitions = $$MAP(proc_ctx, NULL,
@@ -91,14 +96,14 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
     "job", cmap_job_public.create(proc_ctx),
     NULL);
 
-  CMAP_MAP * scheduler = cmap$$(proc_ctx, definitions,
+  CMAP_MAP * scheduler = cmap_proc_impl(proc_ctx, definitions,
     "local internal = {"
     "  jobs: []<global>,"
     "  process: process"
     "}<global>;"
     "local scheduler = {"
     "  internal: internal,"
-    "  addJob: $$()<global>{"
+    "  addJob: function()<global>{"
     "    local job = args.shift();"
     "    this.internal.jobs.push(job);"
     "    schedule();"

@@ -17,7 +17,7 @@ int main(int argc, char * argv[])
   cmap_bootstrap(NULL);
 
   cmap_env_main(cmap_env(), argc, argv, NULL,
-    "local test = $$()<t>{"
+    "local test = function()<t>{"
     "  cmap.console.info(\"Hello \"<t>, \"World \"<t>, \"!!!\"<t>).info();"
     "  cmap.console.info();"
     "};"

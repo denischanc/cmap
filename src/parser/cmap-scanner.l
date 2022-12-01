@@ -53,7 +53,7 @@ SPACE_D [[:space:]]+
 "new" { name_scanner(yylval, yytext); return NEW; }
 "return" { name_scanner(yylval, yytext); return RETURN; }
 "null" { name_scanner(yylval, yytext); return NULL_PTR; }
-"$$" { BEGIN(FUNCTION_S); return FUNCTION; }
+"function" { BEGIN(FUNCTION_S); return FUNCTION; }
 
 {NAME_D} { name_scanner(yylval, yytext); return NAME; }
 
