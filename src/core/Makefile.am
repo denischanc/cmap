@@ -11,6 +11,7 @@ noinst_HEADERS = \
   cmap-fn.h \
   cmap-string.h \
   cmap-int.h \
+  cmap-int-define.h \
   cmap-double.h \
   cmap-ptr.h
 

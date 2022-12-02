@@ -37,11 +37,28 @@ static int64_t get(CMAP_INT * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set(CMAP_INT * this, int64_t val)
-{
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  internal -> val = val;
+#define OP_IMPL(name, op) \
+static CMAP_INT * name(CMAP_INT * this, int64_t val) \
+{ \
+  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  internal -> val op val; \
+  return this; \
 }
+
+CMAP_INT_OP_LOOP(OP_IMPL)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define STEP_IMPL(name, op) \
+static CMAP_INT * name(CMAP_INT * this) \
+{ \
+  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  internal -> val op; \
+  return this; \
+}
+
+CMAP_INT_STEP_LOOP(STEP_IMPL)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -58,6 +75,8 @@ static CMAP_MAP * delete_(CMAP_MAP * int_)
   return delete((CMAP_INT *)int_);
 }
 
+#define OP_STEP_INIT(name, op) int_ -> name = name;
+
 static void init(CMAP_INT * int_, int64_t val)
 {
   CMAP_MAP * super = (CMAP_MAP *)int_;
@@ -69,7 +88,8 @@ static void init(CMAP_INT * int_, int64_t val)
 
   int_ -> internal = internal;
   int_ -> get = get;
-  int_ -> set = set;
+  CMAP_INT_OP_LOOP(OP_STEP_INIT)
+  CMAP_INT_STEP_LOOP(OP_STEP_INIT)
 }
 
 static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx,
@@ -85,11 +105,14 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
+#define OP_STEP_SET(name, op) name,
+
 const CMAP_INT_PUBLIC cmap_int_public =
 {
   create,
   init,
   delete,
   get,
-  set
+  CMAP_INT_OP_LOOP(OP_STEP_SET)
+  CMAP_INT_STEP_LOOP(OP_STEP_SET)
 };

@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "cmap-common.h"
 #include "cmap-prototype-util.h"
+#include "cmap-int.h"
+#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -22,8 +24,41 @@ static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+#define OP_FN(name, op) \
+static CMAP_MAP * name##_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map, \
+  CMAP_LIST * args) \
+{ \
+  CMAP_MAP * arg = CMAP_LIST_SHIFT(args); \
+  if(CMAP_NATURE(arg) == CMAP_NATURE_INT) \
+    return (CMAP_MAP *)CMAP_CALL_ARGS((CMAP_INT *)map, name, \
+      CMAP_CALL((CMAP_INT *)arg, get)); \
+  else return map; \
+}
+
+CMAP_INT_OP_LOOP(OP_FN)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define STEP_FN(name, op) \
+static CMAP_MAP * name##_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map, \
+  CMAP_LIST * args) \
+{ \
+  return (CMAP_MAP *)CMAP_CALL((CMAP_INT *)map, name); \
+}
+
+CMAP_INT_STEP_LOOP(STEP_FN)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define OP_STEP_INIT_FN(name, op) \
+  CMAP_PROTO_SET_FN(proto, #name, name##_fn, proc_ctx);
+
 static void init(CMAP_PROC_CTX * proc_ctx)
 {
+  CMAP_INT_OP_LOOP(OP_STEP_INIT_FN)
+  CMAP_INT_STEP_LOOP(OP_STEP_INIT_FN)
 }
 
 static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)

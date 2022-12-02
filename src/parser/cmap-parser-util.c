@@ -10,6 +10,7 @@
 #include "cmap-parser.h"
 #include "cmap-pool.h"
 #include "cmap-util.h"
+#include "cmap-int.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -226,6 +227,16 @@ static CMAP_MAP * string(CMAP_STRING * string, CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * int_(int64_t i, CMAP_PROC_CTX * proc_ctx, const char * aisle)
+{
+  CMAP_MAP * ret = (CMAP_MAP *)CMAP_INT(i, proc_ctx, aisle);
+  CMAP_KERNEL_FREE(aisle);
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_FN * get_fn(CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, const char * fn_name)
 {
@@ -341,6 +352,19 @@ static CMAP_MAP * function(CMAP_PROC_CTX * proc_ctx, const char * aisle,
 /*******************************************************************************
 *******************************************************************************/
 
+#define CMP_IMPL(name, op) \
+static CMAP_MAP * name(CMAP_MAP * map_l, CMAP_MAP * map_r) \
+{ \
+  return NULL; \
+}
+
+CMAP_PARSER_UTIL_CMP_LOOP(CMP_IMPL)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMP_SET(name, op) name,
+
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   proc_impl,
@@ -361,7 +385,9 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   string_scanner,
   scanner_append,
   string,
+  int_,
   process,
   new,
-  function
+  function,
+  CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
 };

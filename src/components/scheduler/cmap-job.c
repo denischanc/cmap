@@ -11,15 +11,15 @@
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   return cmap_proc_impl(proc_ctx, NULL,
-    "local job = function(process)<global>{"
+    "local job = function(process)/global/{"
     "  this.process = process;"
     "};"
     "job.prototype = {"
-    "  schedule: function()<global>{"
+    "  schedule: function()/global/{"
     "    cmap.scheduler.addJob(this);"
     "    return this;"
     "  }"
-    "}<global>;"
+    "}/global/;"
     "return job;");
 }
 

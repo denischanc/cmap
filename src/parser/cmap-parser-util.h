@@ -3,6 +3,7 @@
 
 #include <cmap/core.h>
 #include "cmap-proc-ctx.h"
+#include "cmap-parser-util-define.h"
 
 typedef struct
 {
@@ -42,6 +43,8 @@ typedef struct
   CMAP_MAP * (*string)(CMAP_STRING * string, CMAP_PROC_CTX * proc_ctx,
     const char * aisle);
 
+  CMAP_MAP * (*int_)(int64_t i, CMAP_PROC_CTX * proc_ctx, const char * aisle);
+
   CMAP_MAP * (*process)(CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, const char * fn_name, CMAP_LIST * args);
 
@@ -50,6 +53,8 @@ typedef struct
 
   CMAP_MAP * (*function)(CMAP_PROC_CTX * proc_ctx, const char * aisle,
     CMAP_LIST * args, CMAP_STRING * impl);
+
+  CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

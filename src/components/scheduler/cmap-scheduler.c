@@ -98,18 +98,18 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 
   CMAP_MAP * scheduler = cmap_proc_impl(proc_ctx, definitions,
     "local internal = {"
-    "  jobs: []<global>,"
+    "  jobs: []/global/,"
     "  process: process"
-    "}<global>;"
+    "}/global/;"
     "local scheduler = {"
     "  internal: internal,"
-    "  addJob: function()<global>{"
+    "  addJob: function()/global/{"
     "    local job = args.shift();"
     "    this.internal.jobs.push(job);"
     "    schedule();"
     "  },"
     "  job: job"
-    "}<global>;"
+    "}/global/;"
     "return scheduler;");
 
   CMAP_DELETE(definitions);

@@ -28,13 +28,15 @@ int cmap_parser_debug = 1;
   CMAP_MAP * map;
   CMAP_LIST * list;
   CMAP_STRING * string;
+  int64_t int_;
 }
 
-%token ERROR FUNCTION
+%token ERROR FUNCTION LE GE EQUAL DIFF
 %token<name> NAME LOCAL NEW RETURN NULL_PTR
 %token<string> STRING
+%token<int_> INT
 
-%type<map> cmap creator path process process_chain new function
+%type<map> cmap creator path process process_chain new function comparison
 %type<name> aisle name
 %type<list> args args_name args_name_cmap
 
@@ -43,15 +45,11 @@ int cmap_parser_debug = 1;
 /*******************************************************************************
 *******************************************************************************/
 
-start: instructions { proc_ctx -> ret = NULL; };
+start: instructions { proc_ctx -> ret = NULL; }
+| comparison { proc_ctx -> ret = $1; };
 
 instructions: instruction ';'
 | instructions instruction ';';
-
-/*******************************************************************************
-*******************************************************************************/
-
-name: NAME | LOCAL | NEW | RETURN;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -69,7 +67,10 @@ instruction: LOCAL name '=' cmap
 /*******************************************************************************
 *******************************************************************************/
 
-aisle: { $$ = NULL; } | '<' name '>' { $$ = $2; };
+aisle: { $$ = NULL; } | '/' name '/' { $$ = $2; };
+
+/*******************************************************************************
+*******************************************************************************/
 
 creator: '{' args_name_cmap '}' aisle
 {
@@ -79,13 +80,20 @@ creator: '{' args_name_cmap '}' aisle
 {
   $$ = cmap_parser_util_public.list_args($2, proc_ctx, $4);
 }
-| STRING aisle { $$ = cmap_parser_util_public.string($1, proc_ctx, $2); };
+| STRING aisle { $$ = cmap_parser_util_public.string($1, proc_ctx, $2); }
+| INT aisle { $$ = cmap_parser_util_public.int_($1, proc_ctx, $2); };
 
 /*******************************************************************************
 *******************************************************************************/
 
+name: NAME | LOCAL | NEW | RETURN;
+
 path: name { $$ = cmap_parser_util_public.name(proc_ctx, $1); }
-| path '.' name { $$ = cmap_parser_util_public.path($1, $3); };
+| path '.' name { $$ = cmap_parser_util_public.path($1, $3); }
+| creator;
+
+cmap: path | process | new | function
+| NULL_PTR { CMAP_KERNEL_FREE($1); $$ = NULL; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -113,12 +121,6 @@ args_name_cmap: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 {
   $$ = cmap_parser_util_public.args_map_push(proc_ctx, $1, $3, $5);
 };
-
-/*******************************************************************************
-*******************************************************************************/
-
-cmap: creator | path | process | new | function
-| NULL_PTR { CMAP_KERNEL_FREE($1); $$ = NULL; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -165,6 +167,16 @@ function: FUNCTION '(' args_name ')' aisle STRING
 {
   $$ = cmap_parser_util_public.function(proc_ctx, $5, $3, $6);
 };
+
+/*******************************************************************************
+*******************************************************************************/
+
+comparison: cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
+| cmap '>' cmap { $$ = cmap_parser_util_public.gt($1, $3); }
+| cmap LE cmap { $$ = cmap_parser_util_public.le($1, $3); }
+| cmap GE cmap { $$ = cmap_parser_util_public.ge($1, $3); }
+| cmap EQUAL cmap { $$ = cmap_parser_util_public.equal($1, $3); }
+| cmap DIFF cmap { $$ = cmap_parser_util_public.diff($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/

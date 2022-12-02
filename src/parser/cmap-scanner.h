@@ -3,6 +3,7 @@
 
 typedef void * yyscan_t;
 
+#include <stdint.h>
 #include <cmap/core.h>
 #include "cmap-proc-ctx.h"
 #include "cmap-parser.h"

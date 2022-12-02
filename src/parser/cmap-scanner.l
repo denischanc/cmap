@@ -18,6 +18,7 @@ static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 %s FUNCTION_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
+INT_D [[:digit:]]+
 SPACE_D [[:space:]]+
 
 %%
@@ -56,6 +57,7 @@ SPACE_D [[:space:]]+
 "function" { BEGIN(FUNCTION_S); return FUNCTION; }
 
 {NAME_D} { name_scanner(yylval, yytext); return NAME; }
+{INT_D} { yylval -> int_ = atol(yytext); return INT; }
 
 "." { return '.'; }
 "," { return ','; }
@@ -67,12 +69,18 @@ SPACE_D [[:space:]]+
 "]" { return ']'; }
 "{" { return '{'; }
 "}" { return '}'; }
-"<" { return '<'; }
-">" { return '>'; }
+"/" { return '/'; }
 ":" { return ':'; }
 
-{SPACE_D} {}
-"\n" {}
+"<" { return '<'; }
+">" { return '>'; }
+"<=" { return LE; }
+">=" { return GE; }
+"==" { return EQUAL; }
+"!=" { return DIFF; }
+
+{SPACE_D}
+"\n"
 . { return ERROR; }
 
 %%
