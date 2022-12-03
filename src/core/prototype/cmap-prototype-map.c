@@ -2,12 +2,10 @@
 #include "cmap-prototype-map.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-prototype-util.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
-#include "cmap-common.h"
-#include "cmap-aisle.h"
-#include "cmap-map.h"
 #include "cmap-fn.h"
 
 /*******************************************************************************
@@ -99,7 +97,7 @@ static CMAP_MAP * deep_delete_no_ref_fn(CMAP_PROC_CTX * proc_ctx,
 static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
 {
   if(proto == NULL)
-    proto = cmap_map_public.create_root(proc_ctx, CMAP_AISLE_KERNEL);
+    proto = cmap_map_public.create_root(proc_ctx, CMAP_AISLE_GLOBAL);
   return proto;
 }
 

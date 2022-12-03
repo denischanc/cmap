@@ -1,10 +1,10 @@
 #ifndef __CMAP_ENV_H__
 #define __CMAP_ENV_H__
 
-#include <cmap/env.h>
+#include "cmap-env-type.h"
+#include "cmap-map-type.h"
 #include "cmap-aislestore.h"
-#include "cmap-map.h"
-#include "cmap-proc-ctx.h"
+#include "cmap-proc-ctx-type.h"
 #include "cmap-pool.h"
 
 struct CMAP_ENV_s

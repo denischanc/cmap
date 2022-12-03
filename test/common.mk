@@ -2,11 +2,10 @@
 include $(top_srcdir)/src/common.mk
 
 CMAP_TEST_SRC_PATH = $(top_srcdir)/test
-
 CMAP_TEST_BUILD_PATH = $(top_builddir)/test
 
 CMAP_TEST_CFLAGS = \
-  $(CMAP_KERNEL_CFLAGS) \
+  $(CMAP_CFLAGS) \
   -I$(CMAP_TEST_SRC_PATH)/util
 
 CMAP_TEST_LDADD = \

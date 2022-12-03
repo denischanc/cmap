@@ -2,10 +2,9 @@
 @TEST_DESC@ Alloc/dealloc with 1024 memory
 *******************************************************************************/
 
-#include "cmap-mem.h"
-
-#include "test-assert.h"
 #include <stdlib.h>
+#include "test-assert.h"
+#include "cmap-mem.h"
 
 #define ASSERT_NB_FREE(nb) \
   CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_block_free == nb, \

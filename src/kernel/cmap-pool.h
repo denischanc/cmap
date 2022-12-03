@@ -1,9 +1,9 @@
 #ifndef __CMAP_POOL_H__
 #define __CMAP_POOL_H__
 
-#include <cmap/proc-ctx.h>
-#include "cmap-list.h"
-#include "cmap-string.h"
+#include "cmap-list-type.h"
+#include "cmap-string-type.h"
+#include "cmap-proc-ctx-type.h"
 
 #define CMAP_POOL(TYPE, type) \
 typedef struct CMAP_POOL_##TYPE##_s CMAP_POOL_##TYPE; \

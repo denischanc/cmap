@@ -2,10 +2,11 @@
 #include "cmap-prototype-int.h"
 
 #include <stdlib.h>
-#include "cmap-common.h"
+#include "cmap.h"
 #include "cmap-prototype-util.h"
+#include "cmap-list.h"
+#include "cmap-map.h"
 #include "cmap-int.h"
-#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -29,7 +30,7 @@ static CMAP_MAP * name##_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map, \
   CMAP_LIST * args) \
 { \
   CMAP_MAP * arg = CMAP_LIST_SHIFT(args); \
-  if(CMAP_NATURE(arg) == CMAP_NATURE_INT) \
+  if(CMAP_NATURE(arg) == CMAP_INT_NATURE) \
     return (CMAP_MAP *)CMAP_CALL_ARGS((CMAP_INT *)map, name, \
       CMAP_CALL((CMAP_INT *)arg, get)); \
   else return map; \

@@ -2,15 +2,12 @@
 @TEST_DESC@ Add/rm maps in list
 *******************************************************************************/
 
-#include <cmap/cmap.h>
-#include <cmap/aisle.h>
-#define __CMAP_COMMON_H__
-#include "cmap-common-super-define.h"
-#include "cmap-list.h"
-
-#include "test-assert.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "test-assert.h"
+#include "cmap.h"
+#include "cmap-aisle-ext.h"
+#include "cmap-list.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -39,11 +36,11 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(size >= NB_MIN);
   CMAP_TEST_ASSERT_NOMSG(size <= NB_MAX);
 
-  CMAP_LIST * list = CMAP_LIST(size, proc_ctx, NULL);
+  CMAP_LIST * list = cmap_list(size, proc_ctx, NULL);
 
   static CMAP_MAP * elmts[NB_MAX];
   int i = 0;
-  for(; i < size; i++) elmts[i] = CMAP_MAP(proc_ctx, CMAP_AISLE_LOCAL);
+  for(; i < size; i++) elmts[i] = cmap_map(proc_ctx, CMAP_AISLE_LOCAL);
 
   /********** push/unshift */
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);
@@ -117,16 +114,14 @@ int main(int argc, char * argv[])
   cmap_bootstrap(NULL);
 
   CMAP_ENV * env = cmap_env();
+
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
-  CMAP_MAP * definitions = CMAP_MAP(proc_ctx, NULL);
-  CMAP_FN * test_fn = CMAP_FN(test, proc_ctx, NULL);
-
-  CMAP_SET(definitions, "test", test_fn);
-  cmap_env_main(env, argc, argv, definitions, "test();");
-
-  CMAP_DELETE(test_fn);
-  CMAP_DELETE(definitions);
+  CMAP_MAP * definitions = cmap_map(proc_ctx, CMAP_AISLE_GLOBAL);
+  CMAP_FN * test_fn = cmap_fn(test, proc_ctx, CMAP_AISLE_GLOBAL);
   cmap_delete_proc_ctx(proc_ctx);
+
+  cmap_set(definitions, "test", (CMAP_MAP *)test_fn);
+  cmap_env_main(env, argc, argv, definitions, "test();");
 
   return cmap_main();
 }

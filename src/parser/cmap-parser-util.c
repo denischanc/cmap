@@ -4,13 +4,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 #include "cmap-fn.h"
-#include "cmap-parser.h"
 #include "cmap-pool.h"
 #include "cmap-util.h"
 #include "cmap-int.h"
+#include "cmap-proc-ctx.h"
+#include "cmap-scanner.h"
+#include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -46,13 +49,13 @@ static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
 static CMAP_MAP * name(CMAP_PROC_CTX * proc_ctx, const char * name)
 {
   CMAP_MAP * map = NULL;
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
 
   if((definitions != NULL) && CMAP_CALL_ARGS(definitions, is_key, name))
     map = definitions;
-  else map = CMAP_CALL(proc_ctx, global_env);
+  else map = cmap_global_env(proc_ctx);
 
-  CMAP_MAP * ret = CMAP_GET(map, name);
+  CMAP_MAP * ret = cmap_get(map, name);
   CMAP_KERNEL_FREE(name);
   return ret;
 }
@@ -62,7 +65,7 @@ static CMAP_MAP * name(CMAP_PROC_CTX * proc_ctx, const char * name)
 
 static CMAP_MAP * path(CMAP_MAP * map, const char * name)
 {
-  CMAP_MAP * ret = CMAP_GET(map, name);
+  CMAP_MAP * ret = cmap_get(map, name);
   CMAP_KERNEL_FREE(name);
   return ret;
 }
@@ -73,8 +76,8 @@ static CMAP_MAP * path(CMAP_MAP * map, const char * name)
 static void set_local(CMAP_PROC_CTX * proc_ctx, const char * name,
   CMAP_MAP * map)
 {
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, require_definitions);
-  CMAP_SET(definitions, name, map);
+  CMAP_MAP * definitions = cmap_require_definitions(proc_ctx);
+  cmap_set(definitions, name, map);
   CMAP_KERNEL_FREE(name);
 }
 
@@ -84,8 +87,8 @@ static void set_local(CMAP_PROC_CTX * proc_ctx, const char * name,
 static void set_global(CMAP_PROC_CTX * proc_ctx, const char * name,
   CMAP_MAP * map)
 {
-  CMAP_MAP * global_env = CMAP_CALL(proc_ctx, global_env);
-  CMAP_SET(global_env, name, map);
+  CMAP_MAP * global_env = cmap_global_env(proc_ctx);
+  cmap_set(global_env, name, map);
   CMAP_KERNEL_FREE(name);
 }
 
@@ -94,7 +97,7 @@ static void set_global(CMAP_PROC_CTX * proc_ctx, const char * name,
 
 static void set_path(CMAP_MAP * src, const char * name, CMAP_MAP * map)
 {
-  CMAP_SET(src, name, map);
+  cmap_set(src, name, map);
   CMAP_KERNEL_FREE(name);
 }
 
@@ -157,7 +160,7 @@ static CMAP_LIST * args_map(CMAP_PROC_CTX * proc_ctx, const char * name,
 static CMAP_MAP * map_args(CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_MAP * map = CMAP_MAP(proc_ctx, aisle);
+  CMAP_MAP * map = cmap_map(proc_ctx, aisle);
   CMAP_KERNEL_FREE(aisle);
 
   CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
@@ -165,7 +168,7 @@ static CMAP_MAP * map_args(CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx,
   while((key = (CMAP_STRING *)CMAP_LIST_SHIFT(args)) != NULL)
   {
     CMAP_MAP * val = CMAP_LIST_SHIFT(args);
-    CMAP_SET(map, CMAP_CALL(key, val), val);
+    cmap_set(map, cmap_string_val(key), val);
     CMAP_CALL_ARGS(pool_string, release, key);
   }
 
@@ -181,7 +184,7 @@ static CMAP_MAP * map_args(CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx,
 static CMAP_MAP * list_args(CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_LIST * list = CMAP_LIST(0, proc_ctx, aisle);
+  CMAP_LIST * list = cmap_list(0, proc_ctx, aisle);
   CMAP_KERNEL_FREE(aisle);
 
   int size = CMAP_CALL(args, size);
@@ -216,7 +219,7 @@ static void scanner_append(CMAP_STRING * string, const char * txt)
 static CMAP_MAP * string(CMAP_STRING * string, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_STRING * string_ret = CMAP_STRING(CMAP_CALL(string, val), 0,
+  CMAP_STRING * string_ret = cmap_string(cmap_string_val(string), 0,
     proc_ctx, aisle);
   CMAP_KERNEL_FREE(aisle);
   CMAP_POOL_STRING * pool = CMAP_CALL(proc_ctx, pool_string);
@@ -229,7 +232,7 @@ static CMAP_MAP * string(CMAP_STRING * string, CMAP_PROC_CTX * proc_ctx,
 
 static CMAP_MAP * int_(int64_t i, CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * ret = (CMAP_MAP *)CMAP_INT(i, proc_ctx, aisle);
+  CMAP_MAP * ret = (CMAP_MAP *)cmap_int(i, proc_ctx, aisle);
   CMAP_KERNEL_FREE(aisle);
   return ret;
 }
@@ -244,7 +247,7 @@ static CMAP_FN * get_fn(CMAP_PROC_CTX * proc_ctx,
   if(map == NULL) fn = (CMAP_FN *)name(proc_ctx, fn_name);
   else
   {
-    fn = (CMAP_FN *)CMAP_GET(map, fn_name);
+    fn = (CMAP_FN *)cmap_get(map, fn_name);
     CMAP_KERNEL_FREE(fn_name);
   }
   return fn;
@@ -254,7 +257,7 @@ static CMAP_MAP * process(CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, const char * fn_name, CMAP_LIST * args)
 {
   CMAP_FN * fn = get_fn(proc_ctx, map, fn_name);
-  CMAP_MAP * ret = CMAP_FN_PROC(fn, proc_ctx, map, args);
+  CMAP_MAP * ret = cmap_lfn_proc(fn, proc_ctx, map, args);
 
   CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
   CMAP_CALL_ARGS(pool, release, args);
@@ -269,7 +272,7 @@ static CMAP_MAP * new(CMAP_MAP * map, const char * fn_name, CMAP_LIST * args,
   CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
   CMAP_FN * fn = get_fn(proc_ctx, map, fn_name);
-  CMAP_MAP * ret = CMAP_CALL_ARGS(fn, new, args, proc_ctx, aisle);
+  CMAP_MAP * ret = cmap_lnew(fn, proc_ctx, aisle, args);
   CMAP_KERNEL_FREE(aisle);
 
   CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
@@ -284,21 +287,21 @@ static CMAP_MAP * new(CMAP_MAP * map, const char * fn_name, CMAP_LIST * args,
 static CMAP_MAP * proc_impl_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
 
-  CMAP_SET(definitions, "this", map);
-  CMAP_SET(definitions, "args", args);
+  cmap_set(definitions, "this", map);
+  cmap_set(definitions, "args", (CMAP_MAP *)args);
 
-  CMAP_LIST * args_name = (CMAP_LIST *)CMAP_GET(definitions, FN_ARGS_KEY);
+  CMAP_LIST * args_name = (CMAP_LIST *)cmap_get(definitions, FN_ARGS_KEY);
   int size = CMAP_CALL(args_name, size);
   for(int i = 0; i < size; i++)
   {
-    CMAP_STRING * arg = (CMAP_STRING *)CMAP_LIST_GET(args_name, i);
-    CMAP_SET(definitions, CMAP_CALL(arg, val), CMAP_LIST_GET(args, i));
+    CMAP_STRING * arg = (CMAP_STRING *)cmap_list_get(args_name, i);
+    cmap_set(definitions, cmap_string_val(arg), cmap_list_get(args, i));
   }
 
-  CMAP_STRING * impl = (CMAP_STRING *)CMAP_GET(definitions, FN_IMPL_KEY);
-  return proc_impl(proc_ctx, definitions, CMAP_CALL(impl, val));
+  CMAP_STRING * impl = (CMAP_STRING *)cmap_get(definitions, FN_IMPL_KEY);
+  return proc_impl(proc_ctx, definitions, cmap_string_val(impl));
 }
 
 /*******************************************************************************
@@ -309,12 +312,12 @@ static CMAP_MAP * function_delete(CMAP_MAP * map)
   CMAP_FN * fn = (CMAP_FN *)map;
   CMAP_MAP * definitions = CMAP_CALL(fn, definitions);
 
-  CMAP_MAP * impl = CMAP_GET(definitions, FN_IMPL_KEY);
-  CMAP_DELETE(impl);
+  CMAP_MAP * impl = cmap_get(definitions, FN_IMPL_KEY);
+  cmap_delete(impl);
 
-  CMAP_LIST * args = (CMAP_LIST *)CMAP_GET(definitions, FN_ARGS_KEY);
+  CMAP_LIST * args = (CMAP_LIST *)cmap_get(definitions, FN_ARGS_KEY);
   cmap_util_public.delete_list_vals(args);
-  CMAP_DELETE(args);
+  cmap_delete((CMAP_MAP *)args);
 
   return cmap_fn_public.delete(fn);
 }
@@ -325,26 +328,26 @@ static CMAP_MAP * function(CMAP_PROC_CTX * proc_ctx, const char * aisle,
   CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
   CMAP_POOL_LIST * pool_list = CMAP_CALL(proc_ctx, pool_list);
 
-  CMAP_FN * fn = CMAP_FN(proc_impl_fn, proc_ctx, aisle);
+  CMAP_FN * fn = cmap_fn(proc_impl_fn, proc_ctx, aisle);
   CMAP_KERNEL_FREE(aisle);
   ((CMAP_MAP *)fn) -> delete = function_delete;
   CMAP_MAP * definitions = CMAP_CALL_ARGS(fn, require_definitions, proc_ctx);
 
-  CMAP_SET(definitions, FN_IMPL_KEY,
-    CMAP_STRING(CMAP_CALL(impl, val), 0, proc_ctx, NULL));
+  cmap_set(definitions, FN_IMPL_KEY,
+    (CMAP_MAP *)cmap_string(cmap_string_val(impl), 0, proc_ctx, NULL));
   CMAP_CALL_ARGS(pool_string, release, impl);
 
-  CMAP_LIST * args_ = CMAP_LIST(0, proc_ctx, NULL);
+  CMAP_LIST * args_ = cmap_list(0, proc_ctx, NULL);
   CMAP_STRING * arg;
   while((arg = (CMAP_STRING *)CMAP_LIST_SHIFT(args)) != NULL)
   {
-    CMAP_LIST_PUSH(args_, CMAP_STRING(CMAP_CALL(arg, val), 0, proc_ctx, NULL));
+    CMAP_LIST_PUSH(args_, cmap_string(cmap_string_val(arg), 0, proc_ctx, NULL));
     CMAP_CALL_ARGS(pool_string, release, arg);
   }
   CMAP_CALL_ARGS(pool_list, release, args);
-  CMAP_SET(definitions, FN_ARGS_KEY, args_);
+  cmap_set(definitions, FN_ARGS_KEY, (CMAP_MAP *)args_);
 
-  cmap_util_public.copy(definitions, CMAP_CALL(proc_ctx, definitions));
+  cmap_util_public.copy(definitions, cmap_definitions(proc_ctx));
 
   return (CMAP_MAP *)fn;
 }

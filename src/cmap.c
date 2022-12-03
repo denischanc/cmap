@@ -1,9 +1,7 @@
 
-#include <cmap/cmap.h>
-#define __CMAP_COMMON_H__
+#include "cmap.h"
 
 #include <stdlib.h>
-#include "cmap-common-super-define.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-fn.h"
@@ -16,6 +14,7 @@
 #include "cmap-parser-util.h"
 #include "cmap-env.h"
 #include "cmap-kernel.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -202,7 +201,7 @@ CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
+CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
   return CMAP_CALL_ARGS(fn, process, proc_ctx, map, args);
@@ -241,7 +240,7 @@ CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
   CMAP_MAP * ret = NULL;
 
   CMAP_MAP * fn_tmp = CMAP_GET(map, key);
-  if((fn_tmp != NULL) && (CMAP_CALL(fn_tmp, nature) == CMAP_NATURE_FN))
+  if((fn_tmp != NULL) && (CMAP_NATURE(fn_tmp) == CMAP_FN_NATURE))
   {
     CMAP_FN * fn = (CMAP_FN *)fn_tmp;
     ret = cmap_lfn_proc(fn, proc_ctx, map, args);
@@ -362,4 +361,9 @@ CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
 {
   return CMAP_CALL(proc_ctx, definitions);
+}
+
+CMAP_MAP * cmap_require_definitions(CMAP_PROC_CTX * proc_ctx)
+{
+  return CMAP_CALL(proc_ctx, require_definitions);
 }

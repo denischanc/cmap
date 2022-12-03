@@ -23,4 +23,4 @@ libprototype_la_SOURCES = \
   cmap-prototype-double.c \
   cmap-prototype-ptr.c \
   cmap-prototype-util.c
-libprototype_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
+libprototype_la_CFLAGS = $(CMAP_CFLAGS)

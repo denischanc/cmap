@@ -20,4 +20,4 @@ libparser_la_SOURCES = \
   cmap-scanner.l \
   cmap-parser.y \
   cmap-parser-util.c
-libparser_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
+libparser_la_CFLAGS = $(CMAP_CFLAGS)

@@ -4,9 +4,8 @@
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
 #include "cmap-log.h"
-#include "cmap-common.h"
-#include "cmap-string.h"
 #include "cmap-kernel.h"
+#include "cmap-proc-ctx.h"
 
 static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
   const char * msg);

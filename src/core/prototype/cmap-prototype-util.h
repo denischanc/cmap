@@ -1,9 +1,10 @@
 #ifndef __CMAP_PROTOTYPE_UTIL__
 #define __CMAP_PROTOTYPE_UTIL__
 
-#include <cmap/core.h>
 #include "cmap-prototype-util-define.h"
-#include "cmap-proc-ctx.h"
+#include "cmap-map-type.h"
+#include "cmap-fn-type.h"
+#include "cmap-proc-ctx-type.h"
 
 typedef struct
 {

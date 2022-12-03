@@ -1,8 +1,8 @@
 #ifndef __CMAP_CMAP_H__
 #define __CMAP_CMAP_H__
 
-#include <cmap/core.h>
-#include <cmap/proc-ctx.h>
+#include "cmap-map-type.h"
+#include "cmap-proc-ctx-type.h"
 
 typedef struct
 {

@@ -1,10 +1,11 @@
 #ifndef __CMAP_DOUBLE_H__
 #define __CMAP_DOUBLE_H__
 
-#include <cmap/core.h>
+#include "cmap-double-type.h"
+#include "cmap-double-define.h"
+#include "cmap-double-ext.h"
 #include "cmap-map.h"
-#include <cmap/nature.h>
-#include "cmap-proc-ctx.h"
+#include "cmap-proc-ctx-type.h"
 
 struct CMAP_DOUBLE_s
 {

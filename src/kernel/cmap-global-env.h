@@ -1,8 +1,8 @@
 #ifndef __CMAP_GLOBAL_ENV_H__
 #define __CMAP_GLOBAL_ENV_H__
 
-#include "cmap-map.h"
-#include "cmap-proc-ctx.h"
+#include "cmap-map-type.h"
+#include "cmap-proc-ctx-type.h"
 
 typedef struct
 {

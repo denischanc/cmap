@@ -2,12 +2,8 @@
 @TEST_DESC@ Call console info/error fns
 *******************************************************************************/
 
-#include <cmap/cmap.h>
-#include <cmap/aisle.h>
-#include <cmap/define-min.h>
-
 #include <stdlib.h>
-#include "test-assert.h"
+#include "cmap-ext.h"
 
 /*******************************************************************************
 *******************************************************************************/

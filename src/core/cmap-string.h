@@ -1,9 +1,9 @@
 #ifndef __CMAP_STRING_H__
 #define __CMAP_STRING_H__
 
-#include <cmap/core.h>
-#include <cmap/nature.h>
-#include <cmap/proc-ctx.h>
+#include "cmap-string-type.h"
+#include "cmap-string-define.h"
+#include "cmap-string-ext.h"
 #include "cmap-map.h"
 
 struct CMAP_STRING_s

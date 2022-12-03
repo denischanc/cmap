@@ -2,10 +2,7 @@
 #include "cmap-aislestore.h"
 
 #include <stdlib.h>
-#include "cmap-list.h"
-#include "cmap-string.h"
 #include "cmap-kernel.h"
-#include "cmap-common.h"
 
 /*******************************************************************************
 *******************************************************************************/

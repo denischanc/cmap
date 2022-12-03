@@ -2,10 +2,11 @@
 #include "cmap-pool.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-pool-handlers.h"
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
-#include "cmap-common.h"
+#include "cmap-list.h"
 
 /*******************************************************************************
 *******************************************************************************/

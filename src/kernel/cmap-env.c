@@ -2,10 +2,10 @@
 #include "cmap-env.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-common.h"
 #include "cmap-parser-util.h"
 
 /*******************************************************************************

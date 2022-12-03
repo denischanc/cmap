@@ -1,7 +1,7 @@
 #ifndef __CMAP_LOG_H__
 #define __CMAP_LOG_H__
 
-#include <cmap/log.h>
+#include "cmap-log-type.h"
 #include "cmap-log-define.h"
 
 typedef struct

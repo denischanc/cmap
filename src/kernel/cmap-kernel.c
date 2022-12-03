@@ -2,8 +2,9 @@
 #include "cmap-kernel.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-util.h"
-#include "cmap-parser-util.h"
+#include "cmap-log.h"
 #include "cmap-env.h"
 
 /*******************************************************************************

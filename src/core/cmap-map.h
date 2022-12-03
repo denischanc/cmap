@@ -1,10 +1,9 @@
 #ifndef __CMAP_MAP_H__
 #define __CMAP_MAP_H__
 
-#include <cmap/core.h>
+#include "cmap-map-type.h"
 #include "cmap-map-define.h"
-#include <cmap/nature.h>
-#include <cmap/proc-ctx.h>
+#include "cmap-map-ext.h"
 
 typedef void (*CMAP_MAP_ENTRY_FN)(const char * key, CMAP_MAP ** val,
   void * data);

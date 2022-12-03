@@ -2,7 +2,7 @@
 #include "cmap-mem.h"
 
 #include <stdlib.h>
-#include <stdio.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-log.h"
 #include "cmap-tree.h"

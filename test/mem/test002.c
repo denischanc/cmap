@@ -2,13 +2,12 @@
 @TEST_DESC@ Check memory with tree
 *******************************************************************************/
 
-#include "cmap-mem.h"
-#include "cmap-tree.h"
-#include "cmap-common.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include "test-assert.h"
+#include "cmap.h"
+#include "cmap-mem.h"
+#include "cmap-tree.h"
 
 /*******************************************************************************
 *******************************************************************************/

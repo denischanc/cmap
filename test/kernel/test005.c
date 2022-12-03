@@ -2,13 +2,10 @@
 @TEST_DESC@ Free ptr 2 times
 *******************************************************************************/
 
-#include <cmap/cmap.h>
-#define __CMAP_COMMON_H__
-#include <cmap/aisle.h>
-#include <cmap/define-min.h>
-#include "cmap-kernel.h"
-
 #include <stdlib.h>
+#include "cmap-ext.h"
+#include "cmap-aisle-ext.h"
+#include "cmap-kernel.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -16,8 +13,8 @@
 static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * tmp = $MAP(proc_ctx, NULL);
-  CMAP_DELETE(tmp);
+  CMAP_MAP * tmp = cmap_map(proc_ctx, NULL);
+  cmap_delete(tmp);
   CMAP_KERNEL_FREE(tmp);
 
   return NULL;
@@ -28,16 +25,14 @@ int main(int argc, char * argv[])
   cmap_bootstrap(NULL);
 
   CMAP_ENV * env = cmap_env();
+
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
-  CMAP_MAP * definitions = CMAP_MAP(proc_ctx, NULL);
-  CMAP_FN * test_fn = CMAP_FN(test, proc_ctx, NULL);
-
-  CMAP_SET(definitions, "test", test_fn);
-  cmap_env_main(env, argc, argv, definitions, "test();");
-
-  CMAP_DELETE(test_fn);
-  CMAP_DELETE(definitions);
+  CMAP_MAP * definitions = cmap_map(proc_ctx, CMAP_AISLE_GLOBAL);
+  CMAP_FN * test_fn = cmap_fn(test, proc_ctx, CMAP_AISLE_GLOBAL);
   cmap_delete_proc_ctx(proc_ctx);
+
+  cmap_set(definitions, "test", (CMAP_MAP *)test_fn);
+  cmap_env_main(env, argc, argv, definitions, "test();");
 
   return cmap_main();
 }

@@ -1,12 +1,12 @@
 #ifndef __CMAP_INT_H__
 #define __CMAP_INT_H__
 
-#include <cmap/core.h>
+#include "cmap-int-type.h"
+#include "cmap-int-define.h"
+#include "cmap-int-ext.h"
 #include "cmap-map.h"
 #include <stdint.h>
-#include <cmap/nature.h>
-#include "cmap-proc-ctx.h"
-#include "cmap-int-define.h"
+#include "cmap-proc-ctx-type.h"
 
 struct CMAP_INT_s
 {

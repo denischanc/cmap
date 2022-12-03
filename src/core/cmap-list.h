@@ -1,11 +1,10 @@
 #ifndef __CMAP_LIST_H__
 #define __CMAP_LIST_H__
 
-#include <cmap/core.h>
-#include <cmap/nature.h>
-#include <cmap/proc-ctx.h>
-#include "cmap-map.h"
+#include "cmap-list-type.h"
 #include "cmap-list-define.h"
+#include "cmap-list-ext.h"
+#include "cmap-map.h"
 
 struct CMAP_LIST_s
 {

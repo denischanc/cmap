@@ -2,7 +2,7 @@
 #include "cmap-prototype-double.h"
 
 #include <stdlib.h>
-#include "cmap-common.h"
+#include "cmap.h"
 #include "cmap-prototype-util.h"
 
 /*******************************************************************************

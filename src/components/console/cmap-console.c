@@ -2,17 +2,17 @@
 #include "cmap-console.h"
 
 #include <stdio.h>
-#include <cmap/cmap.h>
-#include <cmap/define-min.h>
+#include "cmap-ext.h"
+#include "cmap-aisle-ext.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void display(FILE * f, CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_STRING * line = $STR_L("", proc_ctx);
-  $$_L(line, "append", proc_ctx, args);
-  fprintf(f, "%s\n", $STRV(line));
+  CMAP_STRING * line = cmap_string("", 0, proc_ctx, CMAP_AISLE_LOCAL);
+  cmap_lproc((CMAP_MAP *)line, "append", proc_ctx, args);
+  fprintf(f, "%s\n", cmap_string_val(line));
 }
 
 /*******************************************************************************
@@ -40,9 +40,9 @@ static CMAP_MAP * error_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  return $$MAP(proc_ctx, CMAP_AISLE_GLOBAL,
-    "info", $FN(info_fn, proc_ctx, CMAP_AISLE_GLOBAL),
-    "error", $FN(error_fn, proc_ctx, CMAP_AISLE_GLOBAL),
+  return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL,
+    "info", cmap_fn(info_fn, proc_ctx, CMAP_AISLE_GLOBAL),
+    "error", cmap_fn(error_fn, proc_ctx, CMAP_AISLE_GLOBAL),
     NULL);
 }
 

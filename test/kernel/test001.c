@@ -2,9 +2,8 @@
 @TEST_DESC@ Instantiate kernel
 *******************************************************************************/
 
-#include <cmap/cmap.h>
-
 #include <stdlib.h>
+#include "cmap-ext.h"
 
 int main(int argc, char * argv[])
 {

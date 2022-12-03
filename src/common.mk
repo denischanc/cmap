@@ -1,11 +1,10 @@
 
-CMAP_SRC_PATH = $(top_srcdir)/src
-CMAP_INCLUDE_PATH = $(CMAP_SRC_PATH)/include
+include_cmapdir = $(includedir)/cmap
 
+CMAP_SRC_PATH = $(top_srcdir)/src
 CMAP_BUILD_PATH = $(top_builddir)/src
 
-CMAP_KERNEL_CFLAGS = \
-  -I$(CMAP_INCLUDE_PATH) \
+CMAP_CFLAGS = \
   -I$(CMAP_SRC_PATH) \
   -I$(CMAP_SRC_PATH)/parser \
   -I$(CMAP_SRC_PATH)/util \
@@ -15,5 +14,5 @@ CMAP_KERNEL_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/components/console \
   -I$(CMAP_SRC_PATH)/components/scheduler \
-  -I$(top_builddir)/src/parser \
+  -I$(CMAP_BUILD_PATH)/parser \
   -Wall

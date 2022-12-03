@@ -1,10 +1,9 @@
 #ifndef __CMAP_PTR_H__
 #define __CMAP_PTR_H__
 
-#include <cmap/core.h>
+#include "cmap-ptr-type.h"
+#include "cmap-ptr-ext.h"
 #include "cmap-map.h"
-#include <cmap/nature.h>
-#include "cmap-proc-ctx.h"
 
 struct CMAP_PTR_s
 {

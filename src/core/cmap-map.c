@@ -2,11 +2,15 @@
 #include "cmap-map.h"
 
 #include <string.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
-#include "cmap-common.h"
-#include "cmap-aisle.h"
 #include "cmap-prototype-map.h"
+#include "cmap-aisle.h"
+#include "cmap-list.h"
+#include "cmap-log.h"
+#include "cmap-proc-ctx.h"
+#include "cmap-string.h"
 
 /* TODO : annotations */
 
@@ -33,7 +37,7 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_NATURE_MAP = "cmap.nature.map";
+const char * CMAP_MAP_NATURE = "map";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -80,7 +84,7 @@ static void fill_aislestore(CMAP_PROC_CTX * proc_ctx, const char * aisle,
 
 static const char * nature(CMAP_MAP * this)
 {
-  return CMAP_NATURE_MAP;
+  return CMAP_MAP_NATURE;
 }
 
 /*******************************************************************************
@@ -267,10 +271,7 @@ static void init(CMAP_MAP * map)
 
 static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_KERNEL_ALLOC_PTR(map, CMAP_MAP);
-  init(map);
-  if(aisle != NULL) fill_aislestore(proc_ctx, aisle, map);
-  return map;
+  return (CMAP_MAP *)new(NULL, sizeof(CMAP_MAP), proc_ctx, aisle);
 }
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, const char * aisle)

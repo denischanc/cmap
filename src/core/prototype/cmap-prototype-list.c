@@ -2,13 +2,11 @@
 #include "cmap-prototype-list.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-prototype-util.h"
-#include "cmap-prototype-map.h"
-#include "cmap-common.h"
-#include "cmap-list.h"
 #include "cmap-map.h"
+#include "cmap-list.h"
 #include "cmap-int.h"
-#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -22,7 +20,7 @@ static char proto_ok = CMAP_F;
 static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
@@ -51,12 +49,12 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * add_all_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
 
     CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
-    if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_NATURE_LIST))
+    if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_LIST_NATURE))
     {
       CMAP_LIST * list2 = (CMAP_LIST *)tmp;
 
@@ -76,7 +74,7 @@ static CMAP_MAP * add_all_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * size_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) != CMAP_NATURE_LIST) return NULL;
+  if(CMAP_NATURE(map) != CMAP_LIST_NATURE) return NULL;
   else
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
@@ -90,7 +88,7 @@ static CMAP_MAP * size_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * push_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
     CMAP_MAP * e;
@@ -108,7 +106,7 @@ static CMAP_MAP * push_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * pop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     return CMAP_LIST_POP((CMAP_LIST *)map);
   }
@@ -121,7 +119,7 @@ static CMAP_MAP * pop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * unshift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_LIST * list = (CMAP_LIST *)map;
     CMAP_MAP * e;
@@ -139,7 +137,7 @@ static CMAP_MAP * unshift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * shift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     return CMAP_LIST_SHIFT((CMAP_LIST *)map);
   }
@@ -152,7 +150,7 @@ static CMAP_MAP * shift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_SHIFT(args), get);
     CMAP_MAP * e = CMAP_LIST_SHIFT(args);
@@ -167,7 +165,7 @@ static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * rm_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if(CMAP_NATURE(map) == CMAP_NATURE_LIST)
+  if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     int i = CMAP_CALL((CMAP_INT *)CMAP_LIST_SHIFT(args), get);
     CMAP_LIST_RM((CMAP_LIST *)map, i);

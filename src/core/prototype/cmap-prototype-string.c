@@ -3,10 +3,9 @@
 
 #include <stdlib.h>
 #include "cmap-prototype-util.h"
-#include "cmap-common.h"
+#include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
-#include "cmap-fn.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -21,12 +20,12 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   if((map != NULL) && (args != NULL) &&
-    (CMAP_NATURE(map) == CMAP_NATURE_STRING))
+    (CMAP_NATURE(map) == CMAP_STRING_NATURE))
   {
     CMAP_MAP * tmp;
     while((tmp = CMAP_LIST_SHIFT(args)) != NULL)
     {
-      if(CMAP_NATURE(tmp) == CMAP_NATURE_STRING)
+      if(CMAP_NATURE(tmp) == CMAP_STRING_NATURE)
       {
         CMAP_STRING * append = (CMAP_STRING *)tmp;
         CMAP_STRING * string = (CMAP_STRING *)map;

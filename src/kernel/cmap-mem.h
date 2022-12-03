@@ -1,8 +1,8 @@
 #ifndef __CMAP_MEM_H__
 #define __CMAP_MEM_H__
 
+#include "cmap-mem-type.h"
 #include "cmap-mem-define.h"
-#include <cmap/mem.h>
 
 typedef struct
 {

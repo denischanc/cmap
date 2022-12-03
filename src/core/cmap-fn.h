@@ -1,11 +1,12 @@
 #ifndef __CMAP_FN_H__
 #define __CMAP_FN_H__
 
-#include <cmap/core.h>
+#include "cmap-fn-type.h"
+#include "cmap-fn-define.h"
+#include "cmap-fn-ext.h"
 #include "cmap-map.h"
-#include <cmap/fn.h>
-#include <cmap/nature.h>
-#include "cmap-proc-ctx.h"
+#include "cmap-proc-ctx-type.h"
+#include "cmap-list-type.h"
 
 struct CMAP_FN_s
 {

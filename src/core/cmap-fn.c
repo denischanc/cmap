@@ -2,13 +2,12 @@
 #include "cmap-fn.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-prototype-fn.h"
-#include "cmap-list.h"
-#include "cmap-aisle.h"
+#include "cmap-string.h"
 #include "cmap-util.h"
-#include "cmap-aislestore.h"
-#include "cmap-common.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -23,7 +22,7 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_NATURE_FN = "cmap.nature.fn";
+const char * CMAP_FN_NATURE = "fn";
 
 const char * CMAP_PROTOTYPE_NAME = "prototype";
 
@@ -32,7 +31,7 @@ const char * CMAP_PROTOTYPE_NAME = "prototype";
 
 static const char * nature(CMAP_MAP * this)
 {
-  return CMAP_NATURE_FN;
+  return CMAP_FN_NATURE;
 }
 
 /*******************************************************************************
@@ -59,16 +58,17 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  CMAP_MAP * definitions = cmap_util_public.copy(
-    cmap_map_public.create_root(proc_ctx, NULL), internal -> definitions);
   CMAP_CALL(proc_ctx, push_local_stack);
+  CMAP_MAP * definitions = NULL;
+  if(internal -> definitions != NULL) definitions = cmap_util_public.copy(
+    cmap_map_public.create_root(proc_ctx, NULL), internal -> definitions);
   CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
 
   CMAP_MAP * ret = internal -> process(proc_ctx, map, args);
 
   CMAP_CALL(proc_ctx, pop_definitions);
+  if(definitions != NULL) CMAP_DELETE(definitions);
   CMAP_CALL(proc_ctx, pop_local_stack);
-  CMAP_DELETE(definitions);
 
   return ret;
 }

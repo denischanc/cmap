@@ -42,7 +42,6 @@ AC_CONFIG_FILES([ \
   Makefile \
   src/Makefile \
   src/parser/Makefile \
-  src/include/cmap/Makefile \
   src/util/Makefile \
   src/core/Makefile \
   src/core/prototype/Makefile \

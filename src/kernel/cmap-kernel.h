@@ -1,11 +1,8 @@
 #ifndef __CMAP_KERNEL_H__
 #define __CMAP_KERNEL_H__
 
-#include <cmap/kernel.h>
+#include "cmap-kernel-type.h"
 #include "cmap-kernel-define.h"
-#include "cmap-map.h"
-#include "cmap-mem.h"
-#include "cmap-log.h"
 #include <uv.h>
 
 #define CMAP_KERNEL_S_UNKNOWN 0

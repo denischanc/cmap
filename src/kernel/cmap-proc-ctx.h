@@ -1,10 +1,10 @@
 #ifndef __CMAP_PROC_CTX_H__
 #define __CMAP_PROC_CTX_H__
 
-#include <cmap/core.h>
-#include <cmap/proc-ctx.h>
-#include <cmap/env.h>
+#include "cmap-proc-ctx-type.h"
 #include "cmap-scanner.h"
+#include "cmap-list-type.h"
+#include "cmap-env-type.h"
 #include "cmap-aislestore.h"
 #include "cmap-pool.h"
 

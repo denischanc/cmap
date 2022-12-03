@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include "cmap-kernel.h"
 #include "cmap-map.h"
-#include "cmap-pool.h"
-#include "cmap-common.h"
-#include "cmap-fn.h"
-#include "cmap-proc-ctx.h"
+#include "cmap-list.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/

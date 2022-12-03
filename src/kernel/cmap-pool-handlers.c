@@ -2,7 +2,9 @@
 #include "cmap-pool-handlers.h"
 
 #include <stdlib.h>
-#include "cmap-common.h"
+#include "cmap.h"
+#include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/

@@ -1,9 +1,12 @@
 #ifndef __CMAP_PARSER_UTIL_H__
 #define __CMAP_PARSER_UTIL_H__
 
-#include <cmap/core.h>
-#include "cmap-proc-ctx.h"
 #include "cmap-parser-util-define.h"
+#include "cmap-map-type.h"
+#include "cmap-proc-ctx-type.h"
+#include "cmap-list-type.h"
+#include "cmap-string-type.h"
+#include <stdint.h>
 
 typedef struct
 {

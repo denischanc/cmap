@@ -1,5 +1,5 @@
-#ifndef ___CMAP_LOG_H___
-#define ___CMAP_LOG_H___
+#ifndef __CMAP_LOG_TYPE_H__
+#define __CMAP_LOG_TYPE_H__
 
 #include <stdarg.h>
 

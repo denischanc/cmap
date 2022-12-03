@@ -1,7 +1,16 @@
 
 include $(top_srcdir)/src/common.mk
 
+include_cmap_HEADERS = \
+  cmap-aisle-ext.h \
+  cmap-mem-type.h \
+  cmap-log-type.h \
+  cmap-env-type.h \
+  cmap-proc-ctx-type.h \
+  cmap-kernel-type.h
+
 noinst_HEADERS = \
+  cmap-aisle.h \
   cmap-mem.h \
   cmap-mem-define.h \
   cmap-kernel.h \
@@ -10,7 +19,6 @@ noinst_HEADERS = \
   cmap-aislestore.h \
   cmap-pool.h \
   cmap-pool-handlers.h \
-  cmap-aisle.h \
   cmap-log.h \
   cmap-log-define.h \
   cmap-env.h \
@@ -29,4 +37,4 @@ libkernel_la_SOURCES = \
   cmap-log.c \
   cmap-env.c \
   cmap-proc-ctx.c
-libkernel_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
+libkernel_la_CFLAGS = $(CMAP_CFLAGS)

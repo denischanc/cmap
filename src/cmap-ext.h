@@ -1,15 +1,17 @@
-#ifndef ___CMAP_H___
-#define ___CMAP_H___
+#ifndef __CMAP_EXT_H__
+#define __CMAP_EXT_H__
 
-#include <stdarg.h>
+#include "cmap-kernel-type.h"
+#include "cmap-proc-ctx-type.h"
+#include "cmap-map-type.h"
+#include "cmap-fn-type.h"
+#include "cmap-string-type.h"
+#include "cmap-int-type.h"
+#include "cmap-double-type.h"
+#include "cmap-ptr-type.h"
+#include "cmap-env-type.h"
+#include "cmap-define-ext.h"
 #include <stdint.h>
-
-#include <cmap/kernel.h>
-#include <cmap/core.h>
-#include <cmap/fn.h>
-#include <cmap/define.h>
-#include <cmap/proc-ctx.h>
-#include <cmap/env.h>
 
 void cmap_bootstrap(CMAP_KERNEL_CFG * cfg);
 int cmap_main();
@@ -51,6 +53,8 @@ CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   const char * aisle, CMAP_LIST * args);
 
+CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
+  CMAP_MAP * map, CMAP_LIST * args);
 CMAP_MAP * cmap_fn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   ...);
 
@@ -78,5 +82,6 @@ void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx);
 
 CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx);
+CMAP_MAP * cmap_require_definitions(CMAP_PROC_CTX * proc_ctx);
 
 #endif

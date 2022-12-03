@@ -1,7 +1,7 @@
 
 #include "cmap-proc-ctx.h"
 
-#include "cmap-common.h"
+#include "cmap.h"
 #include "cmap-util.h"
 #include "cmap-list.h"
 #include "cmap-kernel.h"

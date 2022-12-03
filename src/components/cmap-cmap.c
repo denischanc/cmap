@@ -1,10 +1,8 @@
 
 #include "cmap-cmap.h"
 
-#include <cmap/cmap.h>
-#define __CMAP_COMMON_H__
-#include <cmap/define-min.h>
-#include <cmap/aisle.h>
+#include "cmap-ext.h"
+#include "cmap-aisle-ext.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
 #include "cmap-prototype-fn.h"
@@ -14,21 +12,22 @@
 #include "cmap-prototype-ptr.h"
 #include "cmap-console.h"
 #include "cmap-scheduler.h"
+#include <stdlib.h>
 
 /*******************************************************************************
 *******************************************************************************/
 
 static CMAP_MAP * create_prototype(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * prototype = $MAP(proc_ctx, CMAP_AISLE_GLOBAL);
-  $SET(prototype, "map", cmap_prototype_map_public.instance(proc_ctx));
-  $SET(prototype, "list", cmap_prototype_list_public.instance(proc_ctx));
-  $SET(prototype, "fn", cmap_prototype_fn_public.instance(proc_ctx));
-  $SET(prototype, "string", cmap_prototype_string_public.instance(proc_ctx));
-  $SET(prototype, "int", cmap_prototype_int_public.instance(proc_ctx));
-  $SET(prototype, "double", cmap_prototype_double_public.instance(proc_ctx));
-  $SET(prototype, "ptr", cmap_prototype_ptr_public.instance(proc_ctx));
-  return prototype;
+  return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL,
+    "map", cmap_prototype_map_public.instance(proc_ctx),
+    "list", cmap_prototype_list_public.instance(proc_ctx),
+    "fn", cmap_prototype_fn_public.instance(proc_ctx),
+    "string", cmap_prototype_string_public.instance(proc_ctx),
+    "int", cmap_prototype_int_public.instance(proc_ctx),
+    "double", cmap_prototype_double_public.instance(proc_ctx),
+    "ptr", cmap_prototype_ptr_public.instance(proc_ctx),
+    NULL);
 }
 
 /*******************************************************************************
@@ -36,11 +35,11 @@ static CMAP_MAP * create_prototype(CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * cmap = $MAP(proc_ctx, CMAP_AISLE_GLOBAL);
-  $SET(cmap, "prototype", create_prototype(proc_ctx));
-  $SET(cmap, "console", cmap_console_public.create(proc_ctx));
-  $SET(cmap, "scheduler", cmap_scheduler_public.create(proc_ctx));
-  return cmap;
+  return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL,
+    "prototype", create_prototype(proc_ctx),
+    "console", cmap_console_public.create(proc_ctx),
+    "scheduler", cmap_scheduler_public.create(proc_ctx),
+    NULL);
 }
 
 /*******************************************************************************

@@ -1,8 +1,7 @@
 
 #include "cmap-job.h"
 
-#include <cmap/cmap.h>
-#include <cmap/define-min.h>
+#include "cmap-ext.h"
 #include <stdlib.h>
 
 /*******************************************************************************

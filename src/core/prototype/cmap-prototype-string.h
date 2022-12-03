@@ -1,8 +1,8 @@
 #ifndef __CMAP_PROTOTYPE_STRING_H__
 #define __CMAP_PROTOTYPE_STRING_H__
 
-#include <cmap/core.h>
-#include "cmap-proc-ctx.h"
+#include "cmap-map-type.h"
+#include "cmap-proc-ctx-type.h"
 
 typedef struct
 {

@@ -3,16 +3,35 @@ include $(top_srcdir)/src/common.mk
 
 SUBDIRS = prototype
 
+include_cmap_HEADERS = \
+  cmap-map-type.h \
+  cmap-map-ext.h \
+  cmap-list-type.h \
+  cmap-list-ext.h \
+  cmap-fn-type.h \
+  cmap-fn-ext.h \
+  cmap-string-type.h \
+  cmap-string-ext.h \
+  cmap-int-type.h \
+  cmap-int-ext.h \
+  cmap-double-type.h \
+  cmap-double-ext.h \
+  cmap-ptr-type.h \
+  cmap-ptr-ext.h
+
 noinst_HEADERS = \
   cmap-map.h \
   cmap-map-define.h \
   cmap-list.h \
   cmap-list-define.h \
   cmap-fn.h \
+  cmap-fn-define.h \
   cmap-string.h \
+  cmap-string-define.h \
   cmap-int.h \
   cmap-int-define.h \
   cmap-double.h \
+  cmap-double-define.h \
   cmap-ptr.h
 
 noinst_LTLIBRARIES = libcore.la
@@ -25,5 +44,5 @@ libcore_la_SOURCES = \
   cmap-int.c \
   cmap-double.c \
   cmap-ptr.c
-libcore_la_CFLAGS = $(CMAP_KERNEL_CFLAGS)
+libcore_la_CFLAGS = $(CMAP_CFLAGS)
 libcore_la_LIBADD = prototype/libprototype.la
