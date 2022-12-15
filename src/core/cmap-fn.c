@@ -45,11 +45,6 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
   return internal -> definitions;
 }
 
-static CMAP_MAP * definitions(CMAP_FN * this)
-{
-  return ((INTERNAL *)this -> internal) -> definitions;
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -126,7 +121,6 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 
   fn -> internal = internal;
   fn -> require_definitions = require_definitions;
-  fn -> definitions = definitions;
   fn -> process = process;
   fn -> new = new;
 }

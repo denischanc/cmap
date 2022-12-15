@@ -310,7 +310,7 @@ static CMAP_MAP * proc_impl_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * function_delete(CMAP_MAP * map)
 {
   CMAP_FN * fn = (CMAP_FN *)map;
-  CMAP_MAP * definitions = CMAP_CALL(fn, definitions);
+  CMAP_MAP * definitions = CMAP_CALL_ARGS(fn, require_definitions, NULL);
 
   CMAP_MAP * impl = cmap_get(definitions, FN_IMPL_KEY);
   cmap_delete(impl);
