@@ -34,13 +34,13 @@ static void push_scanner(CMAP_PROC_CTX * this)
 
   yyscan_t scanner;
   cmap_parser_lex_init_extra(this, &scanner);
-  CMAP_LIST_PUSH(internal -> scanners, scanner);
+  CMAP_LIST_UNSHIFT(internal -> scanners, scanner);
 }
 
 static void pop_scanner(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  yyscan_t scanner = (yyscan_t)CMAP_LIST_POP(internal -> scanners);
+  yyscan_t scanner = (yyscan_t)CMAP_LIST_SHIFT(internal -> scanners);
   cmap_parser_lex_destroy(scanner);
 }
 
@@ -48,11 +48,7 @@ static yyscan_t scanner(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> scanners == NULL) return NULL;
-  else
-  {
-    int size = CMAP_CALL(internal -> scanners, size);
-    return (yyscan_t)CMAP_LIST_GET(internal -> scanners, size - 1);
-  }
+  else return (yyscan_t)CMAP_LIST_GET(internal -> scanners, 0);
 }
 
 /*******************************************************************************
@@ -64,14 +60,13 @@ static void push_local_stack(CMAP_PROC_CTX * this)
   if(internal -> local_stacks == NULL)
     internal -> local_stacks = CMAP_LIST(0, this, NULL);
 
-  CMAP_LIST_PUSH(internal -> local_stacks, CMAP_LIST(0, this, NULL));
+  CMAP_LIST_UNSHIFT(internal -> local_stacks, CMAP_LIST(0, this, NULL));
 }
 
 static void pop_local_stack(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  CMAP_LIST * stack = (CMAP_LIST *)CMAP_LIST_POP(internal -> local_stacks);
-
+  CMAP_LIST * stack = (CMAP_LIST *)CMAP_LIST_SHIFT(internal -> local_stacks);
   cmap_util_public.delete_list_vals(stack);
   CMAP_DELETE(stack);
 }
@@ -80,11 +75,7 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> local_stacks == NULL) return NULL;
-  else
-  {
-    int size = CMAP_CALL(internal -> local_stacks, size);
-    return (CMAP_LIST *)CMAP_LIST_GET(internal -> local_stacks, size - 1);
-  }
+  else return (CMAP_LIST *)CMAP_LIST_GET(internal -> local_stacks, 0);
 }
 
 /*******************************************************************************
@@ -99,13 +90,13 @@ static void push_definitions(CMAP_PROC_CTX * this, CMAP_MAP * definitions)
   CMAP_KERNEL_ALLOC_PTR(defs_ctr, DEFS_CTR);
   defs_ctr -> definitions = definitions;
   defs_ctr -> delete = CMAP_F;
-  CMAP_LIST_PUSH(internal -> definitions, defs_ctr);
+  CMAP_LIST_UNSHIFT(internal -> definitions, defs_ctr);
 }
 
 static void pop_definitions(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  DEFS_CTR * defs_ctr = (DEFS_CTR *)CMAP_LIST_POP(internal -> definitions);
+  DEFS_CTR * defs_ctr = (DEFS_CTR *)CMAP_LIST_SHIFT(internal -> definitions);
   if(defs_ctr -> delete) CMAP_DELETE(defs_ctr -> definitions);
   CMAP_KERNEL_FREE(defs_ctr);
 }
@@ -114,11 +105,7 @@ static DEFS_CTR * defs_ctr_(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> definitions == NULL) return NULL;
-  else
-  {
-    int size = CMAP_CALL(internal -> definitions, size);
-    return (DEFS_CTR *)CMAP_LIST_GET(internal -> definitions, size - 1);
-  }
+  else return (DEFS_CTR *)CMAP_LIST_GET(internal -> definitions, 0);
 }
 
 static CMAP_MAP * require_definitions(CMAP_PROC_CTX * this)
