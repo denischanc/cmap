@@ -12,15 +12,20 @@ struct CMAP_PTR_s
   void * internal;
 
   void * (*get)(CMAP_PTR * this);
+
+  void ** (*ref)(CMAP_PTR * this);
 };
 
 typedef struct
 {
-  CMAP_PTR * (*create)(int size, CMAP_PROC_CTX * proc_ctx, const char * aisle);
-  void (*init)(CMAP_PTR * ptr, int size);
+  CMAP_PTR * (*create)(int size, CMAP_PTR_DELETE delete_ptr,
+    CMAP_PROC_CTX * proc_ctx, const char * aisle);
+  void (*init)(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr);
   CMAP_MAP * (*delete)(CMAP_PTR * ptr);
 
-  void * (*get)(CMAP_PTR * this);
+  void * (*get)(CMAP_PTR * ptr);
+
+  void ** (*ref)(CMAP_PTR * ptr);
 } CMAP_PTR_PUBLIC;
 
 extern const CMAP_PTR_PUBLIC cmap_ptr_public;

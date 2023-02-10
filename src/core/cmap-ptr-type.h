@@ -3,4 +3,6 @@
 
 typedef struct CMAP_PTR_s CMAP_PTR;
 
+typedef void (*CMAP_PTR_DELETE)(void * ptr);
+
 #endif

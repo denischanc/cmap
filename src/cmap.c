@@ -82,9 +82,10 @@ CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx,
   return cmap_double_public.create(val, proc_ctx, aisle);
 }
 
-CMAP_PTR * cmap_ptr(int size, CMAP_PROC_CTX * proc_ctx, const char * aisle)
+CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
+  CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  return cmap_ptr_public.create(size, proc_ctx, aisle);
+  return cmap_ptr_public.create(size, delete_ptr, proc_ctx, aisle);
 }
 
 /*******************************************************************************
@@ -155,6 +156,11 @@ double cmap_double_get(CMAP_DOUBLE * d)
 void * cmap_ptr_get(CMAP_PTR * ptr)
 {
   return CMAP_CALL(ptr, get);
+}
+
+void ** cmap_ptr_ref(CMAP_PTR * ptr)
+{
+  return CMAP_CALL(ptr, ref);
 }
 
 /*******************************************************************************

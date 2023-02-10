@@ -28,7 +28,8 @@ CMAP_STRING * cmap_string(const char * val, int size_inc,
 CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx, const char * aisle);
 CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx,
   const char * aisle);
-CMAP_PTR * cmap_ptr(int size, CMAP_PROC_CTX * proc_ctx, const char * aisle);
+CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
+  CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
 const char * cmap_nature(CMAP_MAP * map);
 CMAP_MAP * cmap_delete(CMAP_MAP * map);
@@ -45,6 +46,7 @@ void cmap_double_set(CMAP_DOUBLE * d, double val);
 double cmap_double_get(CMAP_DOUBLE * d);
 
 void * cmap_ptr_get(CMAP_PTR * ptr);
+void ** cmap_ptr_ref(CMAP_PTR * ptr);
 
 const char * cmap_string_val(CMAP_STRING * string);
 
