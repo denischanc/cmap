@@ -16,6 +16,12 @@ struct CMAP_PROC_CTX_s
 
   void (*delete)(CMAP_PROC_CTX * this);
 
+  CMAP_ENV * (*env)(CMAP_PROC_CTX * this);
+  CMAP_AISLESTORE * (*aislestore)(CMAP_PROC_CTX * this);
+  CMAP_POOL_LIST * (*pool_list)(CMAP_PROC_CTX * this);
+  CMAP_POOL_STRING * (*pool_string)(CMAP_PROC_CTX * this);
+  CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
+
   void (*push_scanner)(CMAP_PROC_CTX * this);
   void (*pop_scanner)(CMAP_PROC_CTX * this);
   yyscan_t (*scanner)(CMAP_PROC_CTX * this);
@@ -28,12 +34,6 @@ struct CMAP_PROC_CTX_s
   void (*pop_definitions)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*require_definitions)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*definitions)(CMAP_PROC_CTX * this);
-
-  CMAP_ENV * (*env)(CMAP_PROC_CTX * this);
-  CMAP_AISLESTORE * (*aislestore)(CMAP_PROC_CTX * this);
-  CMAP_POOL_LIST * (*pool_list)(CMAP_PROC_CTX * this);
-  CMAP_POOL_STRING * (*pool_string)(CMAP_PROC_CTX * this);
-  CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
 };
 
 typedef struct
