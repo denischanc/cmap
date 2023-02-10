@@ -52,7 +52,7 @@ static CMAP_MAP * delete_(CMAP_MAP * ptr)
 
 static void init(CMAP_PTR * ptr, int size)
 {
-  CMAP_MAP * super = (CMAP_MAP *)ptr;
+  CMAP_MAP * super = &ptr -> super;
   super -> nature = nature;
   super -> delete = delete_;
 

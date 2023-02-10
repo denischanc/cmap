@@ -168,6 +168,14 @@ const char * cmap_string_val(CMAP_STRING * string)
 /*******************************************************************************
 *******************************************************************************/
 
+CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx)
+{
+  return CMAP_CALL_ARGS(fn, require_definitions, proc_ctx);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   const char * aisle, CMAP_LIST * args)
 {

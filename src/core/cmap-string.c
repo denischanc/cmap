@@ -131,7 +131,7 @@ static CMAP_MAP * delete_(CMAP_MAP * string)
 
 static void init(CMAP_STRING * string, const char * val_, int size_inc)
 {
-  CMAP_MAP * super = (CMAP_MAP *)string;
+  CMAP_MAP * super = &string -> super;
   super -> nature = nature;
   super -> delete = delete_;
 

@@ -79,7 +79,7 @@ static CMAP_MAP * delete_(CMAP_MAP * int_)
 
 static void init(CMAP_INT * int_, int64_t val)
 {
-  CMAP_MAP * super = (CMAP_MAP *)int_;
+  CMAP_MAP * super = &int_ -> super;
   super -> nature = nature;
   super -> delete = delete_;
 

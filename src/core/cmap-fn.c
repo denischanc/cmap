@@ -59,13 +59,23 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     cmap_map_public.create_root(proc_ctx, NULL), internal -> definitions);
   CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
 
-  CMAP_MAP * ret = internal -> process(proc_ctx, map, args);
+  CMAP_MAP * ret = CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args);
 
   CMAP_CALL(proc_ctx, pop_definitions);
   if(definitions != NULL) CMAP_DELETE(definitions);
   CMAP_CALL(proc_ctx, pop_local_stack);
 
   return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
+  CMAP_MAP * map, CMAP_LIST * args)
+{
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  return internal -> process(proc_ctx, map, args);
 }
 
 /*******************************************************************************
@@ -111,7 +121,7 @@ static CMAP_MAP * delete_(CMAP_MAP * fn)
 
 static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 {
-  CMAP_MAP * super = (CMAP_MAP *)fn;
+  CMAP_MAP * super = &fn -> super;
   super -> nature = nature;
   super -> delete = delete_;
 
@@ -122,6 +132,7 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
   fn -> internal = internal;
   fn -> require_definitions = require_definitions;
   fn -> process = process;
+  fn -> do_process = do_process;
   fn -> new = new;
 }
 
@@ -144,5 +155,6 @@ const CMAP_FN_PUBLIC cmap_fn_public =
   init,
   delete,
   process,
+  do_process,
   new
 };

@@ -67,8 +67,7 @@ static void pop_local_stack(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   CMAP_LIST * stack = (CMAP_LIST *)CMAP_LIST_SHIFT(internal -> local_stacks);
-  cmap_util_public.delete_list_vals(stack);
-  CMAP_DELETE(stack);
+  cmap_util_public.delete_list_n_vals(stack);
 }
 
 static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)

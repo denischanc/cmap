@@ -11,6 +11,7 @@
 #include "cmap-log.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-string.h"
+#include "cmap-util.h"
 
 /* TODO : annotations */
 
@@ -97,10 +98,8 @@ static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
   if(entry == NULL)
   {
-    CMAP_MEM * mem = cmap_kernel_public.mem();
-    entry = (ENTRY *)mem -> alloc(sizeof(ENTRY));
-    entry -> key = (char *)mem -> alloc((strlen(key) + 1) * sizeof(char));
-    strcpy(entry -> key, key);
+    entry = CMAP_KERNEL_ALLOC(ENTRY);
+    entry -> key = cmap_util_public.strdup(key);
 
     CMAP_TREE_ADDFN(entry, &internal -> entry_tree, entry, key);
   }

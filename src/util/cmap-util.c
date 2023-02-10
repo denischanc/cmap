@@ -2,10 +2,13 @@
 #include "cmap-util.h"
 
 #include <stdlib.h>
+#include <string.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-log.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -17,6 +20,15 @@ static void delete_list_vals(CMAP_LIST * list)
     CMAP_MAP * val = CMAP_LIST_SHIFT(list);
     if(val != NULL) CMAP_DELETE(val);
   }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void delete_list_n_vals(CMAP_LIST * list)
+{
+  delete_list_vals(list);
+  CMAP_DELETE(list);
 }
 
 /*******************************************************************************
@@ -120,9 +132,37 @@ static CMAP_MAP * copy(CMAP_MAP * dst, CMAP_MAP * src)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_LIST * dup_string(CMAP_LIST * dst, CMAP_LIST * src,
+  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+{
+  int size = CMAP_CALL(src, size);
+  for(int i = 0; i < size; i++)
+  {
+    CMAP_STRING * string = (CMAP_STRING *)CMAP_LIST_GET(src, i);
+    const char * string_val = CMAP_CALL(string, val);
+    CMAP_LIST_PUSH(dst, CMAP_STRING(string_val, 0, proc_ctx, aisle));
+  }
+  return dst;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * strdup_(const char * src)
+{
+  int size = (strlen(src) + 1) * sizeof(char);
+  char * dst = (char *)cmap_kernel_public.mem() -> alloc(size);
+  memcpy(dst, src, size);
+  return dst;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
+  delete_list_n_vals,
   fill_list,
   vfill_list,
   to_list,
@@ -131,5 +171,7 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   vto_map,
   uv_error,
   uv_dummy,
-  copy
+  copy,
+  dup_string,
+  strdup_
 };

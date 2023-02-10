@@ -5,6 +5,7 @@
 #include "cmap-scanner.h"
 #include "cmap-parser-util.h"
 #include "cmap-kernel.h"
+#include "cmap-util.h"
 
 static void string_scanner(yyscan_t scanner, YYSTYPE * yylval_p);
 static void scanner_append(YYSTYPE * yylval_p, const char * txt);
@@ -98,7 +99,5 @@ static void scanner_append(YYSTYPE * yylval_p, const char * txt)
 
 static void name_scanner(YYSTYPE * yylval_p, const char * txt)
 {
-  int size = (strlen(txt) + 1) * sizeof(char);
-  yylval_p -> name = (char *)cmap_kernel_public.mem() -> alloc(size);
-  memcpy(yylval_p -> name, txt, size);
+  yylval_p -> name = cmap_util_public.strdup(txt);
 }

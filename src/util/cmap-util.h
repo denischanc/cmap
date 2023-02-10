@@ -10,6 +10,7 @@
 typedef struct
 {
   void (*delete_list_vals)(CMAP_LIST * list);
+  void (*delete_list_n_vals)(CMAP_LIST * list);
 
   CMAP_LIST * (*fill_list)(CMAP_LIST * list, ...);
   CMAP_LIST * (*vfill_list)(CMAP_LIST * list, va_list maps);
@@ -26,6 +27,11 @@ typedef struct
   void (*uv_dummy)(uv_work_t * req);
 
   CMAP_MAP * (*copy)(CMAP_MAP * dst, CMAP_MAP * src);
+
+  CMAP_LIST * (*dup_string)(CMAP_LIST * dst, CMAP_LIST * src,
+    CMAP_PROC_CTX * proc_ctx, const char * aisle);
+
+  char * (*strdup)(const char * src);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

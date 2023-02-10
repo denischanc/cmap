@@ -37,7 +37,7 @@ int cmap_parser_debug = 1;
 
 %type<map> cmap creator path process process_chain new function comparison
 %type<name> aisle name
-%type<list> args args_name args_name_cmap
+%type<list> args arg_names arg_names_cmap
 
 %%
 
@@ -71,7 +71,7 @@ aisle: { $$ = NULL; } | '/' name '/' { $$ = $2; };
 /*******************************************************************************
 *******************************************************************************/
 
-creator: '{' args_name_cmap '}' aisle
+creator: '{' arg_names_cmap '}' aisle
 {
   $$ = cmap_parser_util_public.map_args($2, proc_ctx, $4);
 }
@@ -104,19 +104,19 @@ args: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 /*******************************************************************************
 *******************************************************************************/
 
-args_name: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
-| name { $$ = cmap_parser_util_public.args_name(proc_ctx, $1); }
-| args_name ',' name
+arg_names: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
+| name { $$ = cmap_parser_util_public.arg_names(proc_ctx, $1); }
+| arg_names ',' name
 {
-  $$ = cmap_parser_util_public.args_name_push(proc_ctx, $1, $3);
+  $$ = cmap_parser_util_public.arg_names_push(proc_ctx, $1, $3);
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-args_name_cmap: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
+arg_names_cmap: { $$ = cmap_parser_util_public.args_empty(proc_ctx); }
 | name ':' cmap { $$ = cmap_parser_util_public.args_map(proc_ctx, $1, $3); }
-| args_name_cmap ',' name ':' cmap
+| arg_names_cmap ',' name ':' cmap
 {
   $$ = cmap_parser_util_public.args_map_push(proc_ctx, $1, $3, $5);
 };
@@ -162,7 +162,7 @@ new: NEW name '(' args ')' aisle
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' args_name ')' aisle STRING
+function: FUNCTION '(' arg_names ')' aisle STRING
 {
   $$ = cmap_parser_util_public.function(proc_ctx, $5, $3, $6);
 };

@@ -349,7 +349,7 @@ static CMAP_LIST * push(CMAP_LIST * this, CMAP_MAP * val)
 
 static CMAP_MAP * pop(CMAP_LIST * this)
 {
-  return CMAP_CALL_ARGS(this, rm, CMAP_CALL(this, size) - 1);
+  return CMAP_LIST_RM(this, CMAP_CALL(this, size) - 1);
 }
 
 /*******************************************************************************
@@ -363,7 +363,7 @@ static CMAP_LIST * unshift(CMAP_LIST * this, CMAP_MAP * val)
 
 static CMAP_MAP * shift(CMAP_LIST * this)
 {
-  return CMAP_CALL_ARGS(this, rm, 0);
+  return CMAP_LIST_RM(this, 0);
 }
 
 /*******************************************************************************
@@ -397,7 +397,7 @@ static CMAP_MAP * delete_(CMAP_MAP * list)
 
 static void init(CMAP_LIST * list, int size_inc)
 {
-  CMAP_MAP * super = (CMAP_MAP *)list;
+  CMAP_MAP * super = &list -> super;
   super -> nature = nature;
   super -> delete = delete_;
 
