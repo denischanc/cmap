@@ -1,17 +1,16 @@
 #ifndef __CMAP_IMPL_FN_H__
 #define __CMAP_IMPL_FN_H__
 
-#include "cmap-impl-fn-type.h"
 #include "cmap-fn.h"
 #include "cmap-list-type.h"
 #include "cmap-proc-ctx-type.h"
 
-struct CMAP_IMPL_FN_s
+typedef struct
 {
   CMAP_FN super;
 
   void * internal;
-};
+} CMAP_IMPL_FN;
 
 typedef struct {
   CMAP_IMPL_FN * (*create)(CMAP_LIST * arg_names, const char * impl,
