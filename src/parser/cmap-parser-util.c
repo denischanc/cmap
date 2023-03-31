@@ -19,6 +19,16 @@
 /*******************************************************************************
 *******************************************************************************/
 
+/*
+
+TODO
+====
+
+* push/pull parser reentrant with difference between current/ctx scanner
+* add cmap_proc_ctx as arg with %param
+
+*/
+
 static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
   const char * impl)
 {
