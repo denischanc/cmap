@@ -321,7 +321,7 @@ static void free_(void * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM * init(int chunk_size)
+static CMAP_MEM * instance(int chunk_size)
 {
   if(mem_ptr == NULL)
   {
@@ -397,7 +397,7 @@ static char is_this(CMAP_MEM * mem_)
 
 const CMAP_MEM_PUBLIC cmap_mem_public =
 {
-  init,
+  instance,
   state,
   is_this
 };

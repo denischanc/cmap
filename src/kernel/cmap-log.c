@@ -67,7 +67,7 @@ CMAP_LOG_LOOP(FN)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LOG * init()
+static CMAP_LOG * instance()
 {
   if(log_ptr == NULL)
   {
@@ -86,6 +86,6 @@ static CMAP_LOG * init()
 
 const CMAP_LOG_PUBLIC cmap_log_public =
 {
-  init,
+  instance,
   CMAP_LOG_LOOP(SET)
 };

@@ -59,7 +59,7 @@ static CMAP_MEM * mem()
   if(internal.mem == NULL)
   {
     internal.mem = cfg() -> mem;
-    if(internal.mem == NULL) internal.mem = cmap_mem_public.init(0);
+    if(internal.mem == NULL) internal.mem = cmap_mem_public.instance(0);
   }
   return internal.mem;
 }
@@ -72,7 +72,7 @@ static CMAP_LOG * log_()
   if(internal.log == NULL)
   {
     internal.log = cfg() -> log;
-    if(internal.log == NULL) internal.log = cmap_log_public.init();
+    if(internal.log == NULL) internal.log = cmap_log_public.instance();
   }
   return internal.log;
 }

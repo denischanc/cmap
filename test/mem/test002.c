@@ -107,7 +107,7 @@ CMAP_TREE_APPLY(delete_apply, NULL, NULL, NULL, nb_delete);
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.init(0);
+  CMAP_MEM * mem = cmap_mem_public.instance(0);
   NB * nb_tree = NULL, * tmp;
 
   /********** Fill tree */
