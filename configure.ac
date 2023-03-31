@@ -13,12 +13,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_PROG_CC
 LT_INIT([win32-dll])
 AC_PROG_LEX([noyywrap])
-AX_PROG_FLEX(
-  [AC_MSG_NOTICE([LEX = $LEX])],
-  [AC_MSG_ERROR([flex not found])])
-AX_PROG_BISON(
-  [AC_MSG_NOTICE([YACC = $YACC])],
-  [AC_MSG_ERROR([bison not found])])
+AC_PROG_YACC
 
 # Checks for libraries.
 AC_SEARCH_LIBS([uv_run], [uv])
