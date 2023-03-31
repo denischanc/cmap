@@ -10,7 +10,7 @@ typedef struct \
 { \
   CMAP_##TYPE * (*create)(CMAP_PROC_CTX * proc_ctx); \
   void (*delete)(CMAP_##TYPE * e); \
-  void (*clean)(CMAP_##TYPE * s); \
+  void (*clean)(CMAP_##TYPE * e); \
 } CMAP_POOL_HANDLER_##TYPE##_PUBLIC; \
  \
 extern const CMAP_POOL_HANDLER_##TYPE##_PUBLIC \
