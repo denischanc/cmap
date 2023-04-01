@@ -7,10 +7,11 @@
 #include "cmap-kernel.h"
 #include "cmap-proc-ctx.h"
 
-static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
-  const char * msg);
+#define proc_ctx cmap_parser_get_extra(yyscanner)
 
 int cmap_parser_debug = 1;
+
+static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 
 %}
 
@@ -19,7 +20,6 @@ int cmap_parser_debug = 1;
 /*%define parse.trace*/
 
 %param {yyscan_t yyscanner}
-%parse-param {CMAP_PROC_CTX * proc_ctx}
 
 %union
 {
@@ -182,8 +182,7 @@ comparison: cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
 
 %%
 
-static void cmap_parser_error(yyscan_t yyscanner, CMAP_PROC_CTX * proc_ctx,
-  const char * msg)
+static void cmap_parser_error(yyscan_t yyscanner, const char * msg)
 {
   cmap_log_public.error("[%d:%d] %s", cmap_parser_get_lineno(yyscanner),
     cmap_parser_get_column(yyscanner), msg);

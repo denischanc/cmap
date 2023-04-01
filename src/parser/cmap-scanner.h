@@ -23,5 +23,6 @@ FILE * cmap_parser_get_in(yyscan_t scanner);
 
 int cmap_parser_get_lineno(yyscan_t scanner);
 int cmap_parser_get_column(yyscan_t scanner);
+YY_EXTRA_TYPE cmap_parser_get_extra(yyscan_t scanner);
 
 #endif

@@ -19,15 +19,8 @@
 /*******************************************************************************
 *******************************************************************************/
 
-/*
-
-TODO
-====
-
-* push/pull parser reentrant with difference between current/ctx scanner
-* add cmap_proc_ctx as arg with %param
-
-*/
+/* TODO : keep scanner in proc_ctx for push parser reentrance,
+          diff current/ctx scanner */
 
 static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
   const char * impl)
@@ -39,7 +32,7 @@ static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
 
   yyscan_t scanner = CMAP_CALL(proc_ctx, scanner);
   cmap_parser_set_in(fmemopen((void *)impl, strlen(impl), "r"), scanner);
-  cmap_parser_parse(scanner, proc_ctx);
+  cmap_parser_parse(scanner);
   fclose(cmap_parser_get_in(scanner));
 
   CMAP_CALL(proc_ctx, pop_scanner);

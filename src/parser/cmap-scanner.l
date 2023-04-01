@@ -7,7 +7,7 @@
 #include "cmap-kernel.h"
 #include "cmap-util.h"
 
-static void string_scanner(yyscan_t scanner, YYSTYPE * yylval_p);
+static void string_scanner(YYSTYPE * yylval_p, CMAP_PROC_CTX * proc_ctx);
 static void scanner_append(YYSTYPE * yylval_p, const char * txt);
 static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 
@@ -36,7 +36,7 @@ SPACE_D [[:space:]]+
   .
 }
 
-"\"" { BEGIN(STRING_S); string_scanner(yyscanner, yylval); }
+"\"" { BEGIN(STRING_S); string_scanner(yylval, yyextra); }
 <STRING_S>{
   "\"" { BEGIN(INITIAL); return STRING; }
   "\\t" { scanner_append(yylval, "\t"); }
@@ -45,7 +45,7 @@ SPACE_D [[:space:]]+
   . { scanner_append(yylval, yytext); }
 }
 
-<FUNCTION_S>"{" { BEGIN(IMPL_S); string_scanner(yyscanner, yylval); }
+<FUNCTION_S>"{" { BEGIN(IMPL_S); string_scanner(yylval, yyextra); }
 <IMPL_S>{
   "}" { BEGIN(INITIAL); return STRING; }
   . { scanner_append(yylval, yytext); }
@@ -86,9 +86,8 @@ SPACE_D [[:space:]]+
 
 %%
 
-static void string_scanner(yyscan_t scanner, YYSTYPE * yylval_p)
+static void string_scanner(YYSTYPE * yylval_p, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_parser_get_extra(scanner);
   yylval_p -> string = cmap_parser_util_public.string_scanner(proc_ctx);
 }
 
