@@ -331,10 +331,9 @@ void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
-  const char * impl)
+CMAP_MAP * cmap_proc_impl(const char * impl, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_parser_util_public.proc_impl(proc_ctx, definitions, impl);
+  return cmap_parser_util_public.proc_impl(impl, proc_ctx);
 }
 
 /*******************************************************************************
@@ -375,9 +374,4 @@ CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
 {
   return CMAP_CALL(proc_ctx, definitions);
-}
-
-CMAP_MAP * cmap_require_definitions(CMAP_PROC_CTX * proc_ctx)
-{
-  return CMAP_CALL(proc_ctx, require_definitions);
 }

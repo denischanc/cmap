@@ -29,7 +29,7 @@ static void on_schedule(uv_work_t * req, int status)
   internal.scheduled = CMAP_F;
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx((CMAP_ENV *)req -> data);
-  cmap_proc_impl(proc_ctx, NULL, "cmap.scheduler.internal.process();");
+  cmap_proc_impl("cmap.scheduler.internal.process();", proc_ctx);
   cmap_delete_proc_ctx(proc_ctx);
 }
 
@@ -63,18 +63,18 @@ static CMAP_MAP * schedule_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * definitions = cmap_require_definitions(proc_ctx);
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
   cmap_set(definitions, "this", map);
 
-  CMAP_MAP * job = cmap_proc_impl(proc_ctx, definitions,
-    "return this.jobs.shift();");
+  CMAP_MAP * job = cmap_proc_impl("return this.jobs.shift();", proc_ctx);
   if(job != NULL)
   {
     cmap_set(definitions, "job", job);
-    cmap_proc_impl(proc_ctx, definitions, "job.process();");
+    cmap_proc_impl("job.process();", proc_ctx);
 
     schedule(CMAP_CALL(proc_ctx, env));
   }
+
   return map;
 }
 
@@ -85,13 +85,16 @@ static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * definitions = cmap_to_map(proc_ctx, NULL,
-    "schedule", cmap_fn(schedule_fn, proc_ctx, CMAP_AISLE_GLOBAL),
-    "process", cmap_fn(process_fn, proc_ctx, CMAP_AISLE_GLOBAL),
-    "job", cmap_job_public.create(proc_ctx),
-    NULL);
+  CMAP_CALL(proc_ctx, push_definitions);
 
-  CMAP_MAP * scheduler = cmap_proc_impl(proc_ctx, definitions,
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
+  cmap_set(definitions, "schedule",
+    (CMAP_MAP *)cmap_fn(schedule_fn, proc_ctx, CMAP_AISLE_GLOBAL));
+  cmap_set(definitions, "process",
+    (CMAP_MAP *)cmap_fn(process_fn, proc_ctx, CMAP_AISLE_GLOBAL));
+  cmap_set(definitions, "job", cmap_job_public.create(proc_ctx));
+
+  CMAP_MAP * scheduler = cmap_proc_impl(
     "local internal = {"
     "  jobs: []/global/,"
     "  process: process"
@@ -105,9 +108,9 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
     "  },"
     "  job: job"
     "}/global/;"
-    "return scheduler;");
+    "return scheduler;", proc_ctx);
 
-  cmap_delete(definitions);
+  CMAP_CALL(proc_ctx, pop_definitions);
 
   return scheduler;
 }

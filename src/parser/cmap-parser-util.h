@@ -10,8 +10,7 @@
 
 typedef struct
 {
-  CMAP_MAP * (*proc_impl)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
-    const char * impl);
+  CMAP_MAP * (*proc_impl)(const char * impl, CMAP_PROC_CTX * proc_ctx);
 
   CMAP_MAP * (*name)(CMAP_PROC_CTX * proc_ctx, const char * name);
   CMAP_MAP * (*path)(CMAP_MAP * map, const char * name);

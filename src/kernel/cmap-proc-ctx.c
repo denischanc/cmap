@@ -23,12 +23,6 @@ typedef struct
   CMAP_ENV * env;
 } INTERNAL;
 
-typedef struct
-{
-  CMAP_MAP * definitions;
-  char delete;
-} DEFS_CTR;
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -121,20 +115,9 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_definitions(void * ptr)
+static void push_definitions(CMAP_PROC_CTX * this)
 {
-  DEFS_CTR * defs_ctr = (DEFS_CTR *)ptr;
-  if(defs_ctr -> delete) CMAP_DELETE(defs_ctr -> definitions);
-}
-
-static void push_definitions(CMAP_PROC_CTX * this, CMAP_MAP * definitions)
-{
-  CMAP_PTR * ptr = cmap_ptr_public.create(
-    sizeof(DEFS_CTR), delete_definitions, this, AISLE_DEFINITIONS);
-
-  DEFS_CTR * defs_ctr = (DEFS_CTR *)CMAP_CALL(ptr, get);
-  defs_ctr -> definitions = definitions;
-  defs_ctr -> delete = CMAP_F;
+  cmap_map_public.create_root(this, AISLE_DEFINITIONS);
 }
 
 static void pop_definitions(CMAP_PROC_CTX * this)
@@ -143,33 +126,10 @@ static void pop_definitions(CMAP_PROC_CTX * this)
   CMAP_CALL_ARGS(as, delete_last, AISLE_DEFINITIONS);
 }
 
-static DEFS_CTR * defs_ctr_(CMAP_PROC_CTX * this)
-{
-  CMAP_AISLESTORE * as = aislestore(this);
-  CMAP_PTR * ptr = (CMAP_PTR *)CMAP_GET(as, AISLE_DEFINITIONS);
-  if(ptr == NULL) return NULL;
-  else return (DEFS_CTR *)CMAP_CALL(ptr, get);
-}
-
-static CMAP_MAP * require_definitions(CMAP_PROC_CTX * this)
-{
-  DEFS_CTR * defs_ctr = defs_ctr_(this);
-  if(defs_ctr == NULL) return NULL;
-  else
-  {
-    if(defs_ctr -> definitions == NULL)
-    {
-      defs_ctr -> definitions = cmap_map_public.create_root(this, NULL);
-      defs_ctr -> delete = CMAP_T;
-    }
-    return defs_ctr -> definitions;
-  }
-}
-
 static CMAP_MAP * definitions(CMAP_PROC_CTX * this)
 {
-  DEFS_CTR * defs_ctr = defs_ctr_(this);
-  return ((defs_ctr == NULL) ? NULL : defs_ctr -> definitions);
+  CMAP_AISLESTORE * as = aislestore(this);
+  return CMAP_GET(as, AISLE_DEFINITIONS);
 }
 
 /*******************************************************************************
@@ -202,7 +162,6 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   proc_ctx -> local_stack = local_stack;
   proc_ctx -> push_definitions = push_definitions;
   proc_ctx -> pop_definitions = pop_definitions;
-  proc_ctx -> require_definitions = require_definitions;
   proc_ctx -> definitions = definitions;
 
   return proc_ctx;

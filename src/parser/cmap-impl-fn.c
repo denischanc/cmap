@@ -26,7 +26,7 @@ typedef struct
 static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_MAP * definitions = cmap_require_definitions(proc_ctx);
+  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
 
   cmap_set(definitions, "this", map);
   cmap_set(definitions, "args", (CMAP_MAP *)args);
@@ -41,7 +41,7 @@ static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     cmap_set(definitions, cmap_string_val(arg_name), cmap_list_get(args, i));
   }
 
-  return cmap_proc_impl(proc_ctx, definitions, internal -> impl);
+  return cmap_proc_impl(internal -> impl, proc_ctx);
 }
 
 /*******************************************************************************

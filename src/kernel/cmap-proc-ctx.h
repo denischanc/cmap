@@ -30,9 +30,8 @@ struct CMAP_PROC_CTX_s
   void (*pop_local_stack)(CMAP_PROC_CTX * this);
   CMAP_LIST * (*local_stack)(CMAP_PROC_CTX * this);
 
-  void (*push_definitions)(CMAP_PROC_CTX * this, CMAP_MAP * definitions);
+  void (*push_definitions)(CMAP_PROC_CTX * this);
   void (*pop_definitions)(CMAP_PROC_CTX * this);
-  CMAP_MAP * (*require_definitions)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*definitions)(CMAP_PROC_CTX * this);
 };
 

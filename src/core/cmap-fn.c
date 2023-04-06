@@ -54,15 +54,14 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
   CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_MAP * definitions = NULL;
-  if(internal -> definitions != NULL) definitions = cmap_util_public.copy(
-    cmap_map_public.create_root(proc_ctx, NULL), internal -> definitions);
-  CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
+  CMAP_CALL(proc_ctx, push_definitions);
+
+  cmap_util_public.copy(
+    CMAP_CALL(proc_ctx, definitions), internal -> definitions);
 
   CMAP_MAP * ret = CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args);
 
   CMAP_CALL(proc_ctx, pop_definitions);
-  if(definitions != NULL) CMAP_DELETE(definitions);
   CMAP_CALL(proc_ctx, pop_local_stack);
 
   return ret;

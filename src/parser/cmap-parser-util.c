@@ -22,12 +22,10 @@
 /* TODO : keep scanner in proc_ctx for push parser reentrance,
           diff current/ctx scanner */
 
-static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
-  const char * impl)
+static CMAP_MAP * proc_impl(const char * impl, CMAP_PROC_CTX * proc_ctx)
 {
   if((impl == NULL) || !strcmp(impl, "")) return NULL;
 
-  CMAP_CALL_ARGS(proc_ctx, push_definitions, definitions);
   CMAP_CALL(proc_ctx, push_scanner);
 
   yyscan_t scanner = CMAP_CALL(proc_ctx, scanner);
@@ -36,7 +34,6 @@ static CMAP_MAP * proc_impl(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * definitions,
   fclose(cmap_parser_get_in(scanner));
 
   CMAP_CALL(proc_ctx, pop_scanner);
-  CMAP_CALL(proc_ctx, pop_definitions);
 
   return proc_ctx -> ret;
 }
@@ -74,8 +71,7 @@ static CMAP_MAP * path(CMAP_MAP * map, const char * name)
 static void set_local(CMAP_PROC_CTX * proc_ctx, const char * name,
   CMAP_MAP * map)
 {
-  CMAP_MAP * definitions = cmap_require_definitions(proc_ctx);
-  cmap_set(definitions, name, map);
+  cmap_set(cmap_definitions(proc_ctx), name, map);
   CMAP_KERNEL_FREE(name);
 }
 
