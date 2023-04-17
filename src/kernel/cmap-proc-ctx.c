@@ -49,6 +49,12 @@ static CMAP_POOL_STRING * pool_string(CMAP_PROC_CTX * this)
   return CMAP_CALL_ARGS(env_, pool_string, this);
 }
 
+static CMAP_POOL_INT * pool_int(CMAP_PROC_CTX * this)
+{
+  CMAP_ENV * env_ = env(this);
+  return CMAP_CALL_ARGS(env_, pool_int, this);
+}
+
 static CMAP_MAP * global_env(CMAP_PROC_CTX * this)
 {
   CMAP_ENV * env_ = env(this);
@@ -153,6 +159,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   proc_ctx -> aislestore = aislestore;
   proc_ctx -> pool_list = pool_list;
   proc_ctx -> pool_string = pool_string;
+  proc_ctx -> pool_int = pool_int;
   proc_ctx -> global_env = global_env;
   proc_ctx -> push_scanner = push_scanner;
   proc_ctx -> pop_scanner = pop_scanner;

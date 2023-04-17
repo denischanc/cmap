@@ -62,6 +62,7 @@ AC_CONFIG_FILES([
   src/core/prototype/Makefile
   src/kernel/Makefile
   src/parser/Makefile
+  src/parser/cmp/Makefile
   src/util/Makefile
   test/Makefile
   test/kernel/Makefile

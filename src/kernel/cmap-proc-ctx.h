@@ -20,6 +20,7 @@ struct CMAP_PROC_CTX_s
   CMAP_AISLESTORE * (*aislestore)(CMAP_PROC_CTX * this);
   CMAP_POOL_LIST * (*pool_list)(CMAP_PROC_CTX * this);
   CMAP_POOL_STRING * (*pool_string)(CMAP_PROC_CTX * this);
+  CMAP_POOL_INT * (*pool_int)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
 
   void (*push_scanner)(CMAP_PROC_CTX * this);

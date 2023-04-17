@@ -5,6 +5,7 @@
 #include "cmap.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-int.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -54,4 +55,29 @@ const CMAP_POOL_HANDLER_STRING_PUBLIC cmap_pool_handler_string_public =
   string_create,
   string_delete,
   string_clean
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_INT * int_create(CMAP_PROC_CTX * proc_ctx)
+{
+  return CMAP_INT(0, proc_ctx, NULL);
+}
+
+static void int_delete(CMAP_INT * i)
+{
+  CMAP_DELETE(i);
+}
+
+static void int_clean(CMAP_INT * i)
+{
+  CMAP_CALL_ARGS(i, set, 0);
+}
+
+const CMAP_POOL_HANDLER_INT_PUBLIC cmap_pool_handler_int_public =
+{
+  int_create,
+  int_delete,
+  int_clean
 };

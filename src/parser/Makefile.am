@@ -1,6 +1,8 @@
 
 include $(top_srcdir)/src/common.mk
 
+SUBDIRS = cmp
+
 BUILT_SOURCES = cmap-parser.h
 
 AM_LFLAGS = --prefix=cmap_parser_

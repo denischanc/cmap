@@ -99,3 +99,4 @@ const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public = \
 
 CMAP_POOL_IMPL(LIST, list)
 CMAP_POOL_IMPL(STRING, string)
+CMAP_POOL_IMPL(INT, int)

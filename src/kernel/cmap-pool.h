@@ -3,6 +3,7 @@
 
 #include "cmap-list-type.h"
 #include "cmap-string-type.h"
+#include "cmap-int-type.h"
 #include "cmap-proc-ctx-type.h"
 
 #define CMAP_POOL(TYPE, type) \
@@ -27,5 +28,6 @@ extern const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public;
 
 CMAP_POOL(LIST, list)
 CMAP_POOL(STRING, string)
+CMAP_POOL(INT, int)
 
 #endif

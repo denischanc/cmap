@@ -20,6 +20,7 @@ struct CMAP_ENV_s
 
   CMAP_POOL_LIST * (*pool_list)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
   CMAP_POOL_STRING * (*pool_string)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
+  CMAP_POOL_INT * (*pool_int)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
 
   CMAP_MAP * (*global)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
 };

@@ -18,6 +18,7 @@ typedef struct
 
   CMAP_POOL_LIST * pool_list;
   CMAP_POOL_STRING * pool_string;
+  CMAP_POOL_INT * pool_int;
 
   CMAP_MAP * global;
 
@@ -86,6 +87,16 @@ static CMAP_POOL_STRING * pool_string(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   return internal -> pool_string;
 }
 
+static CMAP_POOL_INT * pool_int(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
+{
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  if(internal -> pool_int == NULL)
+  {
+    internal -> pool_int = cmap_pool_int_public.create(20, proc_ctx);
+  }
+  return internal -> pool_int;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -114,6 +125,7 @@ static void delete(CMAP_ENV * this)
   if(internal -> pool_list != NULL) CMAP_CALL(internal -> pool_list, delete);
   if(internal -> pool_string != NULL)
     CMAP_CALL(internal -> pool_string, delete);
+  if(internal -> pool_int != NULL) CMAP_CALL(internal -> pool_int, delete);
 
   CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);
@@ -125,6 +137,7 @@ static CMAP_ENV * create()
   internal -> aislestore = NULL;
   internal -> pool_list = NULL;
   internal -> pool_string = NULL;
+  internal -> pool_int = NULL;
   internal -> global = NULL;
   internal -> prev = NULL;
   internal -> next = envs;
@@ -136,6 +149,7 @@ static CMAP_ENV * create()
   env -> aislestore = aislestore;
   env -> pool_list = pool_list;
   env -> pool_string = pool_string;
+  env -> pool_int = pool_int;
   env -> global = global;
 
   if(envs != NULL) ((INTERNAL *)envs -> internal) -> prev = env;

@@ -7,6 +7,7 @@ CMAP_BUILD_PATH = $(top_builddir)/src
 CMAP_CFLAGS = \
   -I$(CMAP_SRC_PATH) \
   -I$(CMAP_SRC_PATH)/parser \
+  -I$(CMAP_SRC_PATH)/parser/cmp \
   -I$(CMAP_SRC_PATH)/util \
   -I$(CMAP_SRC_PATH)/core \
   -I$(CMAP_SRC_PATH)/core/prototype \
