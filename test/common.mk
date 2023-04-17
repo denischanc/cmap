@@ -8,6 +8,6 @@ CMAP_TEST_CFLAGS = \
   $(CMAP_CFLAGS) \
   -I$(CMAP_TEST_SRC_PATH)/util
 
-CMAP_TEST_LDADD = \
+CMAP_TEST_LDADD_COMMON = \
   $(CMAP_TEST_BUILD_PATH)/util/libtest.la \
   $(CMAP_BUILD_PATH)/libcmap.la
