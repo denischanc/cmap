@@ -6,6 +6,7 @@
 #include "cmap-log.h"
 #include "cmap-kernel.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-cmp.h"
 
 #define proc_ctx cmap_parser_get_extra(yyscanner)
 
@@ -170,12 +171,12 @@ function: FUNCTION '(' arg_names ')' aisle STRING
 /*******************************************************************************
 *******************************************************************************/
 
-comparison: cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
-| cmap '>' cmap { $$ = cmap_parser_util_public.gt($1, $3); }
-| cmap LE cmap { $$ = cmap_parser_util_public.le($1, $3); }
-| cmap GE cmap { $$ = cmap_parser_util_public.ge($1, $3); }
-| cmap EQUAL cmap { $$ = cmap_parser_util_public.equal($1, $3); }
-| cmap DIFF cmap { $$ = cmap_parser_util_public.diff($1, $3); };
+comparison: cmap '<' cmap { $$ = cmap_cmp_public.lt($1, $3, proc_ctx); }
+| cmap '>' cmap { $$ = cmap_cmp_public.gt($1, $3, proc_ctx); }
+| cmap LE cmap { $$ = cmap_cmp_public.le($1, $3, proc_ctx); }
+| cmap GE cmap { $$ = cmap_cmp_public.ge($1, $3, proc_ctx); }
+| cmap EQUAL cmap { $$ = cmap_cmp_public.equal($1, $3, proc_ctx); }
+| cmap DIFF cmap { $$ = cmap_cmp_public.diff($1, $3, proc_ctx); };
 
 /*******************************************************************************
 *******************************************************************************/

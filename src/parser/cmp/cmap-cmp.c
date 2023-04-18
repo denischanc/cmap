@@ -37,7 +37,7 @@ static CMAP_INT * take(CMAP_PROC_CTX * proc_ctx)
 *******************************************************************************/
 
 #define CMP_IMPL(name, cmp_) \
-static CMAP_INT * name(CMAP_MAP * map_l, CMAP_MAP * map_r, \
+static CMAP_MAP * name(CMAP_MAP * map_l, CMAP_MAP * map_r, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
   const CMAP_CMP_HANDLER * handler_ = handler(CMAP_NATURE(map_l), \
@@ -46,7 +46,7 @@ static CMAP_INT * name(CMAP_MAP * map_l, CMAP_MAP * map_r, \
   { \
     CMAP_INT * i = take(proc_ctx); \
     CMAP_CALL_ARGS(i, set, handler_ -> cmp(map_l, map_r) cmp_ 0); \
-    return i; \
+    return (CMAP_MAP *)i; \
   } \
   return NULL; \
 }

@@ -14,7 +14,6 @@ AM_YFLAGS = -d --name-prefix=cmap_parser_
 noinst_HEADERS = \
   cmap-scanner.h \
   cmap-parser-util.h \
-  cmap-parser-util-define.h \
   cmap-impl-fn.h
 
 noinst_LTLIBRARIES = libparser.la
@@ -25,3 +24,4 @@ libparser_la_SOURCES = \
   cmap-parser-util.c \
   cmap-impl-fn.c
 libparser_la_CFLAGS = $(CMAP_CFLAGS)
+libparser_la_LIBADD = cmp/libcmp.la

@@ -1,7 +1,6 @@
 #ifndef __CMAP_PARSER_UTIL_H__
 #define __CMAP_PARSER_UTIL_H__
 
-#include "cmap-parser-util-define.h"
 #include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-list-type.h"
@@ -55,8 +54,6 @@ typedef struct
 
   CMAP_MAP * (*function)(CMAP_PROC_CTX * proc_ctx, const char * aisle,
     CMAP_LIST * arg_names, CMAP_STRING * impl);
-
-  CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

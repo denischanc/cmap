@@ -304,19 +304,6 @@ static CMAP_MAP * function(CMAP_PROC_CTX * proc_ctx, const char * aisle,
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMP_IMPL(name, op) \
-static CMAP_MAP * name(CMAP_MAP * map_l, CMAP_MAP * map_r) \
-{ \
-  return NULL; \
-}
-
-CMAP_PARSER_UTIL_CMP_LOOP(CMP_IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define CMP_SET(name, op) name,
-
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   proc_impl,
@@ -340,6 +327,5 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   int_,
   process,
   new,
-  function,
-  CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
+  function
 };
