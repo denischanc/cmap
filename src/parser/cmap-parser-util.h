@@ -54,6 +54,10 @@ typedef struct
 
   CMAP_MAP * (*function)(CMAP_PROC_CTX * proc_ctx, const char * aisle,
     CMAP_LIST * arg_names, CMAP_STRING * impl);
+
+  CMAP_LIST * (*if_)(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * desc,
+    CMAP_STRING * cmp, CMAP_STRING * impl);
+  CMAP_MAP * (*if_process)(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * desc);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

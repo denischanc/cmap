@@ -40,15 +40,15 @@ static CMAP_INT * take(CMAP_PROC_CTX * proc_ctx)
 static CMAP_MAP * name(CMAP_MAP * map_l, CMAP_MAP * map_r, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
+  int cmp; \
   const CMAP_CMP_HANDLER * handler_ = handler(CMAP_NATURE(map_l), \
     CMAP_NATURE(map_r)); \
-  if(handler_ != NULL) \
-  { \
-    CMAP_INT * i = take(proc_ctx); \
-    CMAP_CALL_ARGS(i, set, handler_ -> cmp(map_l, map_r) cmp_ 0); \
-    return (CMAP_MAP *)i; \
-  } \
-  return NULL; \
+  if(handler_ != NULL) cmp = handler_ -> cmp(map_l, map_r); \
+  else cmp = map_l - map_r; \
+ \
+  CMAP_INT * i = take(proc_ctx); \
+  CMAP_CALL_ARGS(i, set, cmp cmp_ 0); \
+  return (CMAP_MAP *)i; \
 }
 
 CMAP_CMP_LOOP(CMP_IMPL)

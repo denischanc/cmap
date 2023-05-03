@@ -7,7 +7,11 @@
 #include "cmap-kernel.h"
 #include "cmap-util.h"
 
+#define YY_USER_ACTION yycolumn += yyleng;
+
 static void string_scanner(YYSTYPE * yylval_p, CMAP_PROC_CTX * proc_ctx);
+static void string_scanner_with_txt(YYSTYPE * yylval_p,
+  CMAP_PROC_CTX * proc_ctx, const char * txt);
 static void scanner_append(YYSTYPE * yylval_p, const char * txt);
 static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 
@@ -15,8 +19,8 @@ static void name_scanner(YYSTYPE * yylval_p, const char * txt);
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
-%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S IMPL_S
-%s FUNCTION_S
+%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S IMPL_S CMP_S
+%s BLOCK_S IF_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
 INT_D [[:digit:]]+
@@ -45,17 +49,28 @@ SPACE_D [[:space:]]+
   . { scanner_append(yylval, yytext); }
 }
 
-<FUNCTION_S>"{" { BEGIN(IMPL_S); string_scanner(yylval, yyextra); }
-<IMPL_S>{
-  "}" { BEGIN(INITIAL); return STRING; }
-  . { scanner_append(yylval, yytext); }
+<BLOCK_S>"{" { BEGIN(IMPL_S); return '{'; }
+<IMPL_S>[^}]* {
+  BEGIN(INITIAL);
+  string_scanner_with_txt(yylval, yyextra, yytext);
+  return STRING;
+}
+
+<IF_S>"(" { BEGIN(CMP_S); return '('; }
+<CMP_S>[^)]* {
+  BEGIN(BLOCK_S);
+  string_scanner_with_txt(yylval, yyextra, yytext);
+  return STRING;
 }
 
 "local" { name_scanner(yylval, yytext); return LOCAL; }
 "new" { name_scanner(yylval, yytext); return NEW; }
 "return" { name_scanner(yylval, yytext); return RETURN; }
-"null" { name_scanner(yylval, yytext); return NULL_PTR; }
-"function" { BEGIN(FUNCTION_S); return FUNCTION; }
+
+"null" { return NULL_PTR; }
+"function" { BEGIN(BLOCK_S); return FUNCTION; }
+"if" { BEGIN(IF_S); return IF; }
+"else" { BEGIN(BLOCK_S); return ELSE; }
 
 {NAME_D} { name_scanner(yylval, yytext); return NAME; }
 {INT_D} { yylval -> int_ = atol(yytext); return INT; }
@@ -81,7 +96,7 @@ SPACE_D [[:space:]]+
 "!=" { return DIFF; }
 
 {SPACE_D}
-"\n"
+
 . { return ERROR; }
 
 %%
@@ -89,6 +104,13 @@ SPACE_D [[:space:]]+
 static void string_scanner(YYSTYPE * yylval_p, CMAP_PROC_CTX * proc_ctx)
 {
   yylval_p -> string = cmap_parser_util_public.string_scanner(proc_ctx);
+}
+
+static void string_scanner_with_txt(YYSTYPE * yylval_p,
+  CMAP_PROC_CTX * proc_ctx, const char * txt)
+{
+  string_scanner(yylval_p, proc_ctx);
+  scanner_append(yylval_p, txt);
 }
 
 static void scanner_append(YYSTYPE * yylval_p, const char * txt)

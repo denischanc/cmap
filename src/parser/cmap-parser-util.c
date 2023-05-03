@@ -19,6 +19,12 @@
 /*******************************************************************************
 *******************************************************************************/
 
+#define IF_CMP_K "cmp"
+#define IF_IMPL_K "impl"
+
+/*******************************************************************************
+*******************************************************************************/
+
 /* TODO : keep scanner in proc_ctx for push parser reentrance,
           diff current/ctx scanner */
 
@@ -304,6 +310,66 @@ static CMAP_MAP * function(CMAP_PROC_CTX * proc_ctx, const char * aisle,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_LIST * if_(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * desc,
+    CMAP_STRING * cmp, CMAP_STRING * impl)
+{
+  if(desc == NULL)
+  {
+    CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
+    desc = CMAP_CALL_ARGS(pool, take, proc_ctx);
+  }
+
+  CMAP_MAP * cmp_impl = cmap_map_public.create_root(proc_ctx, NULL);
+  CMAP_SET(cmp_impl, IF_CMP_K, cmp);
+  CMAP_SET(cmp_impl, IF_IMPL_K, impl);
+  CMAP_CALL_ARGS(desc, unshift, cmp_impl);
+
+  return desc;
+}
+
+static CMAP_MAP * if_process(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * desc)
+{
+  CMAP_POOL_LIST * pool_list = CMAP_CALL(proc_ctx, pool_list);
+  CMAP_POOL_STRING * pool_string = CMAP_CALL(proc_ctx, pool_string);
+  CMAP_POOL_INT * pool_int = CMAP_CALL(proc_ctx, pool_int);
+
+  CMAP_MAP * cmp_impl;
+  char done = CMAP_F, cmp_ok = CMAP_F;
+
+  while((cmp_impl = CMAP_CALL(desc, shift)) != NULL)
+  {
+    CMAP_STRING * cmp = (CMAP_STRING *)CMAP_GET(cmp_impl, IF_CMP_K);
+    if(cmp == NULL) cmp_ok = CMAP_T;
+    else
+    {
+      if(!cmp_ok && !done)
+      {
+        CMAP_INT * cmp_ret =
+          (CMAP_INT *)proc_impl(CMAP_CALL(cmp, val), proc_ctx);
+        cmp_ok = CMAP_CALL(cmp_ret, get);
+        CMAP_CALL_ARGS(pool_int, release, cmp_ret);
+      }
+      CMAP_CALL_ARGS(pool_string, release, cmp);
+    }
+
+    CMAP_STRING * impl = (CMAP_STRING *)CMAP_GET(cmp_impl, IF_IMPL_K);
+    if(cmp_ok && !done)
+    {
+      proc_impl(CMAP_CALL(impl, val), proc_ctx);
+      done = CMAP_T;
+    }
+    CMAP_CALL_ARGS(pool_string, release, impl);
+
+    CMAP_DELETE(cmp_impl);
+  }
+  CMAP_CALL_ARGS(pool_list, release, desc);
+
+  return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   proc_impl,
@@ -327,5 +393,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   int_,
   process,
   new,
-  function
+  function,
+  if_,
+  if_process
 };

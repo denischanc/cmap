@@ -31,14 +31,14 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   int64_t int_;
 }
 
-%token ERROR FUNCTION LE GE EQUAL DIFF
-%token<name> NAME LOCAL NEW RETURN NULL_PTR
+%token ERROR NULL_PTR FUNCTION IF ELSE LE GE EQUAL DIFF
+%token<name> NAME LOCAL NEW RETURN
 %token<string> STRING
 %token<int_> INT
 
 %type<map> cmap creator path process process_chain new function comparison
 %type<name> aisle name
-%type<list> args arg_names arg_names_cmap
+%type<list> args arg_names arg_names_cmap if else
 
 %%
 
@@ -48,8 +48,9 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 start: instructions { proc_ctx -> ret = NULL; }
 | comparison { proc_ctx -> ret = $1; };
 
-instructions: instruction ';'
-| instructions instruction ';';
+instructions:
+| instructions instruction ';'
+| instructions if { cmap_parser_util_public.if_process(proc_ctx, $2); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -93,7 +94,7 @@ path: name { $$ = cmap_parser_util_public.name(proc_ctx, $1); }
 | creator;
 
 cmap: path | process | new | function
-| NULL_PTR { CMAP_KERNEL_FREE($1); $$ = NULL; };
+| NULL_PTR { $$ = NULL; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -163,9 +164,9 @@ new: NEW name '(' args ')' aisle
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' arg_names ')' aisle STRING
+function: FUNCTION '(' arg_names ')' aisle '{' STRING '}'
 {
-  $$ = cmap_parser_util_public.function(proc_ctx, $5, $3, $6);
+  $$ = cmap_parser_util_public.function(proc_ctx, $5, $3, $7);
 };
 
 /*******************************************************************************
@@ -177,6 +178,21 @@ comparison: cmap '<' cmap { $$ = cmap_cmp_public.lt($1, $3, proc_ctx); }
 | cmap GE cmap { $$ = cmap_cmp_public.ge($1, $3, proc_ctx); }
 | cmap EQUAL cmap { $$ = cmap_cmp_public.equal($1, $3, proc_ctx); }
 | cmap DIFF cmap { $$ = cmap_cmp_public.diff($1, $3, proc_ctx); };
+
+/*******************************************************************************
+*******************************************************************************/
+
+if: IF '(' STRING ')' '{' STRING '}' else
+{
+  $$ = cmap_parser_util_public.if_(proc_ctx, $8, $3, $6);
+};
+
+else: { $$ = NULL; }
+| ELSE '{' STRING '}'
+{
+  $$ = cmap_parser_util_public.if_(proc_ctx, NULL, NULL, $3);
+}
+| ELSE if { $$ = $2; };
 
 /*******************************************************************************
 *******************************************************************************/
