@@ -5,15 +5,16 @@
 #include "cmap-string-type.h"
 #include "cmap-int-type.h"
 #include "cmap-proc-ctx-type.h"
+#include "cmap-lifecycle.h"
 
 #define CMAP_POOL(TYPE, type) \
-typedef struct CMAP_POOL_##TYPE##_s CMAP_POOL_##TYPE; \
+typedef struct CMAP_POOL_##TYPE CMAP_POOL_##TYPE; \
  \
-struct CMAP_POOL_##TYPE##_s \
+struct CMAP_POOL_##TYPE \
 { \
-  void * internal; \
+  CMAP_LIFECYCLE super; \
  \
-  void (*delete)(CMAP_POOL_##TYPE * this); \
+  void * internal; \
  \
   CMAP_##TYPE * (*take)(CMAP_POOL_##TYPE * this, CMAP_PROC_CTX * proc_ctx); \
   void (*release)(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e); \

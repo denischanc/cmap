@@ -122,10 +122,6 @@ static void delete(CMAP_ENV * this)
   else envs = next;
 
   if(internal -> aislestore != NULL) CMAP_DELETE(internal -> aislestore);
-  if(internal -> pool_list != NULL) CMAP_CALL(internal -> pool_list, delete);
-  if(internal -> pool_string != NULL)
-    CMAP_CALL(internal -> pool_string, delete);
-  if(internal -> pool_int != NULL) CMAP_CALL(internal -> pool_int, delete);
 
   CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);

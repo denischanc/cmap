@@ -3,9 +3,9 @@
 
 #include "cmap-map.h"
 
-typedef struct CMAP_AISLESTORE_s CMAP_AISLESTORE;
+typedef struct CMAP_AISLESTORE CMAP_AISLESTORE;
 
-struct CMAP_AISLESTORE_s
+struct CMAP_AISLESTORE
 {
   CMAP_MAP super;
 

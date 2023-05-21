@@ -7,6 +7,7 @@
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
 #include "cmap-list.h"
+#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -21,23 +22,21 @@ typedef struct
 *******************************************************************************/
 
 #define CMAP_POOL_IMPL(TYPE, type) \
-static void type##_delete(CMAP_POOL_##TYPE * this) \
+static CMAP_LIFECYCLE * type##_delete(CMAP_LIFECYCLE * lc) \
 { \
-  CMAP_MEM * mem = cmap_kernel_public.mem(); \
- \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  INTERNAL * internal = (INTERNAL *)((CMAP_POOL_##TYPE *)lc) -> internal; \
   CMAP_LIST * list = internal -> list; \
  \
   CMAP_##TYPE * e; \
-  while((e = (CMAP_##TYPE *)CMAP_CALL(list, pop)) != NULL) \
+  while((e = (CMAP_##TYPE *)CMAP_LIST_SHIFT(list)) != NULL) \
   { \
     cmap_pool_handler_##type##_public.delete(e); \
   } \
  \
   CMAP_DELETE(list); \
-  CMAP_MEM_FREE(internal, mem); \
+  CMAP_KERNEL_FREE(internal); \
  \
-  CMAP_MEM_FREE(this, mem); \
+  return cmap_lifecycle_public.delete(lc); \
 } \
  \
 static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
@@ -77,12 +76,14 @@ static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
   CMAP_MEM * mem = cmap_kernel_public.mem(); \
   CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##TYPE, mem); \
  \
+  cmap_lifecycle_public.init(&pool -> super, proc_ctx, CMAP_AISLE_GLOBAL); \
+  pool -> super.delete = type##_delete; \
+ \
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem); \
   internal -> size = size; \
   internal -> list = CMAP_LIST(size, proc_ctx, NULL); \
  \
   pool -> internal = internal; \
-  pool -> delete = type##_delete; \
   pool -> take = type##_take; \
   pool -> release = type##_release; \
  \
