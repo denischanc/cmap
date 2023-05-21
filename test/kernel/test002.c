@@ -95,7 +95,7 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, pop) == NULL);
 
-  CMAP_CALL(((CMAP_MAP *)list), delete);
+  CMAP_DELETE(list);
 }
 
 static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,

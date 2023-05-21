@@ -98,7 +98,7 @@ const char * cmap_nature(CMAP_MAP * map)
 
 CMAP_MAP * cmap_delete(CMAP_MAP * map)
 {
-  return CMAP_CALL(map, delete);
+  return (CMAP_MAP *)CMAP_DELETE(map);
 }
 
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)

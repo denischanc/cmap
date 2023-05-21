@@ -6,10 +6,7 @@
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
 #include "cmap-prototype-map.h"
-#include "cmap-aisle.h"
 #include "cmap-list.h"
-#include "cmap-log.h"
-#include "cmap-proc-ctx.h"
 #include "cmap-string.h"
 #include "cmap-util.h"
 
@@ -28,11 +25,9 @@ typedef struct
 
 typedef struct
 {
-  char is_ref;
-
   ENTRY * entry_tree;
 
-  CMAP_MAP * prototype, * next;
+  CMAP_MAP * prototype;
 } INTERNAL;
 
 /*******************************************************************************
@@ -51,34 +46,6 @@ static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node,
 }
 
 CMAP_TREE_RUNNER(entry, NULL, false, false);
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void fill_aislestore(CMAP_PROC_CTX * proc_ctx, const char * aisle,
-  CMAP_MAP * map)
-{
-  INTERNAL * internal = (INTERNAL *)map -> internal;
-
-  internal -> is_ref = CMAP_T;
-
-  if(!strcmp(aisle, CMAP_AISLE_LOCAL))
-  {
-    CMAP_LIST * local_stack = CMAP_CALL(proc_ctx, local_stack);
-    if(local_stack != NULL) CMAP_LIST_PUSH(local_stack, map);
-    else
-    {
-      cmap_log_public.fatal("Try to create local cmap outside fn !!!");
-      CMAP_KERNEL_INSTANCE -> fatal();
-    }
-  }
-  else
-  {
-    CMAP_MAP * as = (CMAP_MAP *)CMAP_CALL(proc_ctx, aislestore);
-    internal -> next = CMAP_GET(as, aisle);
-    CMAP_SET(as, aisle, map);
-  }
-}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -126,17 +93,16 @@ static CMAP_MAP * get(CMAP_MAP * this, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * map);
+static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
 static void * new(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
   CMAP_MAP * map = (CMAP_MAP *)cmap_kernel_public.mem() -> alloc(size);
-  init(map);
+  init(map, proc_ctx, aisle);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
-  if(aisle != NULL) fill_aislestore(proc_ctx, aisle, map);
-  return (void *)map;
+  return map;
 }
 
 /*******************************************************************************
@@ -216,14 +182,6 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_ref(CMAP_MAP * this)
-{
-  return ((INTERNAL *)this -> internal) -> is_ref;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
@@ -234,38 +192,41 @@ static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 
 CMAP_TREE_APPLY(delete_apply, NULL, NULL, NULL, entry_delete);
 
-static CMAP_MAP * delete(CMAP_MAP * map)
+static CMAP_LIFECYCLE * delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
-  CMAP_MAP * next = internal -> next;
   CMAP_MEM * mem = cmap_kernel_public.mem();
 
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply, CMAP_T, mem);
 
   CMAP_MEM_FREE(internal, mem);
-  CMAP_MEM_FREE(map, mem);
 
-  return next;
+  return cmap_lifecycle_public.delete(&map -> super);
 }
 
-static void init(CMAP_MAP * map)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * map)
 {
+  return delete((CMAP_MAP *)map);
+}
+
+static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle)
+{
+  CMAP_LIFECYCLE * lc = &map -> super;
+  cmap_lifecycle_public.init(lc, proc_ctx, aisle);
+  lc -> delete = delete_;
+
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> is_ref = CMAP_F;
   internal -> entry_tree = NULL;
   internal -> prototype = NULL;
-  internal -> next = NULL;
 
   map -> internal = internal;
   map -> nature = nature;
-  map -> delete = delete;
   map -> set = set;
   map -> get = get;
   map -> new = new;
   map -> is_key = is_key;
   map -> keys = keys;
   map -> apply = apply;
-  map -> is_ref = is_ref;
 }
 
 static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx, const char * aisle)
@@ -276,7 +237,7 @@ static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
   CMAP_MAP * prototype_map = cmap_prototype_map_public.instance(proc_ctx);
-  return CMAP_MAP_NEW_MAP(prototype_map, proc_ctx, aisle);
+  return CMAP_PROTOTYPE_NEW(prototype_map, CMAP_MAP, proc_ctx, aisle);
 }
 
 /*******************************************************************************
@@ -293,6 +254,5 @@ const CMAP_MAP_PUBLIC cmap_map_public =
   new,
   is_key,
   keys,
-  apply,
-  is_ref
+  apply
 };

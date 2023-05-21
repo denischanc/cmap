@@ -46,14 +46,14 @@ static void set(CMAP_DOUBLE * this, double val)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete(CMAP_DOUBLE * double_)
+static CMAP_LIFECYCLE * delete(CMAP_DOUBLE * double_)
 {
   CMAP_KERNEL_FREE(double_ -> internal);
 
-  return cmap_map_public.delete((CMAP_MAP *)double_);
+  return cmap_map_public.delete(&double_ -> super);
 }
 
-static CMAP_MAP * delete_(CMAP_MAP * double_)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * double_)
 {
   return delete((CMAP_DOUBLE *)double_);
 }
@@ -62,7 +62,7 @@ static void init(CMAP_DOUBLE * double_, double val)
 {
   CMAP_MAP * super = &double_ -> super;
   super -> nature = nature;
-  super -> delete = delete_;
+  super -> super.delete = delete_;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
@@ -76,8 +76,8 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
   CMAP_MAP * prototype_double = cmap_prototype_double_public.instance(proc_ctx);
-  CMAP_DOUBLE * double_ = (CMAP_DOUBLE *)CMAP_CALL_ARGS(prototype_double, new,
-    sizeof(CMAP_DOUBLE), proc_ctx, aisle);
+  CMAP_DOUBLE * double_ =
+    CMAP_PROTOTYPE_NEW(prototype_double, CMAP_DOUBLE, proc_ctx, aisle);
   init(double_, val);
   return double_;
 }

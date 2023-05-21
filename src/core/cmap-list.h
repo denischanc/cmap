@@ -5,6 +5,7 @@
 #include "cmap-list-define.h"
 #include "cmap-list-ext.h"
 #include "cmap-map.h"
+#include "cmap-lifecycle.h"
 
 struct CMAP_LIST_s
 {
@@ -34,7 +35,7 @@ typedef struct
   CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx,
     const char * aisle);
   void (*init)(CMAP_LIST * list, int size_inc);
-  CMAP_MAP * (*delete)(CMAP_LIST * list);
+  CMAP_LIFECYCLE * (*delete)(CMAP_LIST * list);
 
   int (*size)(CMAP_LIST * this);
 

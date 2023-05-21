@@ -7,6 +7,7 @@
 #include "cmap-kernel.h"
 #include "cmap-env.h"
 #include "cmap-ptr.h"
+#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -93,9 +94,9 @@ static yyscan_t scanner(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete_local_stack(CMAP_MAP * map)
+static CMAP_LIFECYCLE * delete_local_stack(CMAP_LIFECYCLE * lc)
 {
-  CMAP_LIST * local_stack = (CMAP_LIST *)map;
+  CMAP_LIST * local_stack = (CMAP_LIST *)lc;
   cmap_util_public.delete_list_vals(local_stack);
   return cmap_list_public.delete(local_stack);
 }
@@ -103,7 +104,7 @@ static CMAP_MAP * delete_local_stack(CMAP_MAP * map)
 static void push_local_stack(CMAP_PROC_CTX * this)
 {
   CMAP_LIST * local_stack = CMAP_LIST(0, this, AISLE_LOCAL_STACK);
-  local_stack -> super.delete = delete_local_stack;
+  local_stack -> super.super.delete = delete_local_stack;
 }
 
 static void pop_local_stack(CMAP_PROC_CTX * this)

@@ -63,14 +63,14 @@ CMAP_INT_STEP_LOOP(STEP_IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete(CMAP_INT * int_)
+static CMAP_LIFECYCLE * delete(CMAP_INT * int_)
 {
   CMAP_KERNEL_FREE(int_ -> internal);
 
-  return cmap_map_public.delete((CMAP_MAP *)int_);
+  return cmap_map_public.delete(&int_ -> super);
 }
 
-static CMAP_MAP * delete_(CMAP_MAP * int_)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * int_)
 {
   return delete((CMAP_INT *)int_);
 }
@@ -81,7 +81,7 @@ static void init(CMAP_INT * int_, int64_t val)
 {
   CMAP_MAP * super = &int_ -> super;
   super -> nature = nature;
-  super -> delete = delete_;
+  super -> super.delete = delete_;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
@@ -96,8 +96,8 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
   CMAP_MAP * prototype_int = cmap_prototype_int_public.instance(proc_ctx);
-  CMAP_INT * int_ = (CMAP_INT *)CMAP_CALL_ARGS(prototype_int, new,
-    sizeof(CMAP_INT), proc_ctx, aisle);
+  CMAP_INT * int_ =
+    CMAP_PROTOTYPE_NEW(prototype_int, CMAP_INT, proc_ctx, aisle);
   init(int_, val);
   return int_;
 }

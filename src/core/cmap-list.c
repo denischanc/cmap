@@ -380,17 +380,17 @@ static void clear(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete(CMAP_LIST * list)
+static CMAP_LIFECYCLE * delete(CMAP_LIST * list)
 {
   INTERNAL * internal = (INTERNAL *)list -> internal;
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_FREE(internal -> list, mem);
   CMAP_MEM_FREE(internal, mem);
 
-  return cmap_map_public.delete((CMAP_MAP *)list);
+  return cmap_map_public.delete(&list -> super);
 }
 
-static CMAP_MAP * delete_(CMAP_MAP * list)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * list)
 {
   return delete((CMAP_LIST *)list);
 }
@@ -399,7 +399,7 @@ static void init(CMAP_LIST * list, int size_inc)
 {
   CMAP_MAP * super = &list -> super;
   super -> nature = nature;
-  super -> delete = delete_;
+  super -> super.delete = delete_;
 
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
@@ -428,8 +428,8 @@ static CMAP_LIST * create(int size_inc, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
   CMAP_MAP * prototype_list = cmap_prototype_list_public.instance(proc_ctx);
-  CMAP_LIST * list = (CMAP_LIST *)CMAP_CALL_ARGS(prototype_list, new,
-    sizeof(CMAP_LIST), proc_ctx, aisle);
+  CMAP_LIST * list =
+    CMAP_PROTOTYPE_NEW(prototype_list, CMAP_LIST, proc_ctx, aisle);
   init(list, size_inc);
   return list;
 }

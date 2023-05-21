@@ -4,6 +4,7 @@
 #include "cmap-ptr-type.h"
 #include "cmap-ptr-ext.h"
 #include "cmap-map.h"
+#include "cmap-lifecycle.h"
 
 struct CMAP_PTR_s
 {
@@ -21,7 +22,7 @@ typedef struct
   CMAP_PTR * (*create)(int size, CMAP_PTR_DELETE delete_ptr,
     CMAP_PROC_CTX * proc_ctx, const char * aisle);
   void (*init)(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr);
-  CMAP_MAP * (*delete)(CMAP_PTR * ptr);
+  CMAP_LIFECYCLE * (*delete)(CMAP_PTR * ptr);
 
   void * (*get)(CMAP_PTR * ptr);
 

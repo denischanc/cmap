@@ -7,6 +7,7 @@
 #include "cmap-map.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-list-type.h"
+#include "cmap-lifecycle.h"
 
 struct CMAP_FN_s
 {
@@ -30,7 +31,7 @@ typedef struct {
   CMAP_FN * (*create)(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
     const char * aisle);
   void (*init)(CMAP_FN * fn, CMAP_FN_TPL process);
-  CMAP_MAP * (*delete)(CMAP_FN * fn);
+  CMAP_LIFECYCLE * (*delete)(CMAP_FN * fn);
 
   CMAP_MAP * (*process)(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);

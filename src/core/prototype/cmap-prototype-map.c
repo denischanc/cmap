@@ -7,6 +7,7 @@
 #include "cmap-list.h"
 #include "cmap-string.h"
 #include "cmap-fn.h"
+#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -77,7 +78,7 @@ static CMAP_MAP * delete_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
-  if((*val != NULL) && !CMAP_CALL(*val, is_ref))
+  if((*val != NULL) && !CMAP_CALL((CMAP_LIFECYCLE *)*val, is_ref))
   {
     CMAP_CALL_ARGS(*val, apply, delete_apply_fn, data);
     CMAP_DELETE(*val);

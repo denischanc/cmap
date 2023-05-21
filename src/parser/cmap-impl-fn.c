@@ -43,17 +43,17 @@ static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete(CMAP_IMPL_FN * fn)
+static CMAP_LIFECYCLE * delete(CMAP_IMPL_FN * fn)
 {
   INTERNAL * internal = (INTERNAL *)fn -> internal;
   cmap_util_public.delete_list_n_vals(internal -> arg_names);
   CMAP_KERNEL_FREE(internal -> impl);
   CMAP_KERNEL_FREE(internal);
 
-  return cmap_fn_public.delete((CMAP_FN *)fn);
+  return cmap_fn_public.delete(&fn -> super);
 }
 
-static CMAP_MAP * delete_(CMAP_MAP * fn)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * fn)
 {
   return delete((CMAP_IMPL_FN *)fn);
 }
@@ -65,7 +65,7 @@ static void init(CMAP_IMPL_FN * fn, CMAP_LIST * arg_names, const char * impl,
   cmap_fn_public.init(super, NULL);
   super -> do_process = do_process;
 
-  (&super -> super) -> delete = delete_;
+  super -> super.super.delete = delete_;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> arg_names = cmap_util_public.dup_string(
@@ -79,8 +79,8 @@ static CMAP_IMPL_FN * create(CMAP_LIST * arg_names, const char * impl,
   CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
   CMAP_MAP * prototype_fn = cmap_prototype_fn_public.instance(proc_ctx);
-  CMAP_IMPL_FN * fn = (CMAP_IMPL_FN *)CMAP_CALL_ARGS(prototype_fn, new,
-    sizeof(CMAP_IMPL_FN), proc_ctx, aisle);
+  CMAP_IMPL_FN * fn =
+    CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_IMPL_FN, proc_ctx, aisle);
   init(fn, arg_names, impl, proc_ctx);
   return fn;
 }

@@ -88,7 +88,8 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
   CMAP_MAP * map = NULL;
 
   CMAP_MAP * prototype = CMAP_GET(this, CMAP_PROTOTYPE_NAME);
-  if(prototype != NULL) map = CMAP_MAP_NEW_MAP(prototype, proc_ctx, aisle);
+  if(prototype != NULL)
+    map = CMAP_PROTOTYPE_NEW(prototype, CMAP_MAP, proc_ctx, aisle);
   else map = CMAP_MAP(proc_ctx, aisle);
 
   if(aisle != NULL)
@@ -105,17 +106,17 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete(CMAP_FN * fn)
+static CMAP_LIFECYCLE * delete(CMAP_FN * fn)
 {
   INTERNAL * internal = (INTERNAL *)fn -> internal;
 
   if(internal -> definitions != NULL) CMAP_DELETE(internal -> definitions);
   CMAP_KERNEL_FREE(internal);
 
-  return cmap_map_public.delete((CMAP_MAP *)fn);
+  return cmap_map_public.delete(&fn -> super);
 }
 
-static CMAP_MAP * delete_(CMAP_MAP * fn)
+static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * fn)
 {
   return delete((CMAP_FN *)fn);
 }
@@ -124,7 +125,7 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 {
   CMAP_MAP * super = &fn -> super;
   super -> nature = nature;
-  super -> delete = delete_;
+  super -> super.delete = delete_;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> process = process_;
@@ -141,8 +142,7 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
   CMAP_MAP * prototype_fn = cmap_prototype_fn_public.instance(proc_ctx);
-  CMAP_FN * fn = (CMAP_FN *)CMAP_CALL_ARGS(prototype_fn, new,
-    sizeof(CMAP_FN), proc_ctx, aisle);
+  CMAP_FN * fn = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx, aisle);
   init(fn, process);
   return fn;
 }

@@ -46,7 +46,8 @@ static CMAP_MAP * require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
   if(*proto == NULL)
   {
     CMAP_MAP * proto_map = cmap_prototype_map_public.require(proc_ctx);
-    *proto = CMAP_MAP_NEW_MAP(proto_map, proc_ctx, CMAP_AISLE_GLOBAL);
+    *proto =
+      CMAP_PROTOTYPE_NEW(proto_map, CMAP_MAP, proc_ctx, CMAP_AISLE_GLOBAL);
     cmap_prototype_map_public.instance(proc_ctx);
   }
   return *proto;
