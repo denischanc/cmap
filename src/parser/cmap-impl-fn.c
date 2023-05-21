@@ -27,10 +27,6 @@ static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
   CMAP_MAP * definitions = cmap_definitions(proc_ctx);
-
-  cmap_set(definitions, "this", map);
-  cmap_set(definitions, "args", (CMAP_MAP *)args);
-
   INTERNAL * internal = (INTERNAL *)((CMAP_IMPL_FN *)this) -> internal;
 
   int size = CMAP_CALL(internal -> arg_names, size);

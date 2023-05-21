@@ -59,15 +59,17 @@ SPACE_D [[:space:]]+
 <IF_S>"(" { BEGIN(CMP_S); return '('; }
 <CMP_S>[^)]* {
   BEGIN(BLOCK_S);
-  string_scanner_with_txt(yylval, yyextra, yytext);
+  string_scanner_with_txt(yylval, yyextra, "(");
+  scanner_append(yylval, yytext);
+  scanner_append(yylval, ")");
   return STRING;
 }
 
-"local" { name_scanner(yylval, yytext); return LOCAL; }
-"new" { name_scanner(yylval, yytext); return NEW; }
-"return" { name_scanner(yylval, yytext); return RETURN; }
-
+"local" { return LOCAL; }
+"new" { return NEW; }
+"return" { return RETURN; }
 "null" { return NULL_PTR; }
+
 "function" { BEGIN(BLOCK_S); return FUNCTION; }
 "if" { BEGIN(IF_S); return IF; }
 "else" { BEGIN(BLOCK_S); return ELSE; }

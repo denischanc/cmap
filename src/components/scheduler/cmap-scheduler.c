@@ -63,25 +63,17 @@ static CMAP_MAP * schedule_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * process_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * definitions = cmap_definitions(proc_ctx);
-  cmap_set(definitions, "this", map);
-
-  CMAP_MAP * job = cmap_proc_impl("return this.jobs.shift();", proc_ctx);
-  if(job != NULL)
-  {
-    cmap_set(definitions, "job", job);
-    cmap_proc_impl("job.process();", proc_ctx);
-
-    schedule(CMAP_CALL(proc_ctx, env));
-  }
-
+  cmap_proc_impl(
+    "local job = this.jobs.shift();"
+    "if(job != null) {"
+    "  job.process();"
+    "  this.schedule();"
+    "}", proc_ctx);
   return map;
 }
 
 /*******************************************************************************
 *******************************************************************************/
-
-/* TODO : while((local job = args.shift()) != null) ... */
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
@@ -97,7 +89,8 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
   CMAP_MAP * scheduler = cmap_proc_impl(
     "local internal = {"
     "  jobs: []/global/,"
-    "  process: process"
+    "  process: process,"
+    "  schedule: schedule"
     "}/global/;"
     "local scheduler = {"
     "  internal: internal,"

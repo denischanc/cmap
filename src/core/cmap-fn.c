@@ -51,13 +51,15 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-
   CMAP_CALL(proc_ctx, push_local_stack);
   CMAP_CALL(proc_ctx, push_definitions);
 
-  cmap_util_public.copy(
-    CMAP_CALL(proc_ctx, definitions), internal -> definitions);
+  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
+  CMAP_SET(definitions, "this", map);
+  CMAP_SET(definitions, "args", args);
+
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  cmap_util_public.copy(definitions, internal -> definitions);
 
   CMAP_MAP * ret = CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args);
 

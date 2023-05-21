@@ -31,12 +31,13 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   int64_t int_;
 }
 
-%token ERROR NULL_PTR FUNCTION IF ELSE LE GE EQUAL DIFF
-%token<name> NAME LOCAL NEW RETURN
+%token ERROR LOCAL NEW RETURN NULL_PTR FUNCTION IF ELSE LE GE EQUAL DIFF
+%token<name> NAME
 %token<string> STRING
 %token<int_> INT
 
-%type<map> cmap creator path process process_chain new function comparison
+%type<map> cmap creator path process process_chain new function
+%type<map> comparison comparison_int
 %type<name> aisle name
 %type<list> args arg_names arg_names_cmap if else
 
@@ -57,13 +58,12 @@ instructions:
 
 instruction: LOCAL name '=' cmap
 {
-  CMAP_KERNEL_FREE($1);
   cmap_parser_util_public.set_local(proc_ctx, $2, $4);
 }
 | name '=' cmap { cmap_parser_util_public.set_global(proc_ctx, $1, $3); }
 | path '.' name '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
 | process
-| RETURN cmap { CMAP_KERNEL_FREE($1); proc_ctx -> ret = $2; YYACCEPT; };
+| RETURN cmap { proc_ctx -> ret = $2; YYACCEPT; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -87,7 +87,7 @@ creator: '{' arg_names_cmap '}' aisle
 /*******************************************************************************
 *******************************************************************************/
 
-name: NAME | LOCAL | NEW | RETURN;
+name: NAME;
 
 path: name { $$ = cmap_parser_util_public.name(proc_ctx, $1); }
 | path '.' name { $$ = cmap_parser_util_public.path($1, $3); }
@@ -147,17 +147,14 @@ process_chain: process
 
 new: NEW name '(' args ')' aisle
 {
-  CMAP_KERNEL_FREE($1);
   $$ = cmap_parser_util_public.new(NULL, $2, $4, proc_ctx, $6);
 }
 | NEW path '.' name '(' args ')' aisle
 {
-  CMAP_KERNEL_FREE($1);
   $$ = cmap_parser_util_public.new($2, $4, $6, proc_ctx, $8);
 }
 | NEW process_chain '.' name '(' args ')' aisle
 {
-  CMAP_KERNEL_FREE($1);
   $$ = cmap_parser_util_public.new($2, $4, $6, proc_ctx, $8);
 };
 
@@ -172,7 +169,9 @@ function: FUNCTION '(' arg_names ')' aisle '{' STRING '}'
 /*******************************************************************************
 *******************************************************************************/
 
-comparison: cmap '<' cmap { $$ = cmap_cmp_public.lt($1, $3, proc_ctx); }
+comparison: '(' comparison_int ')' { $$ = $2; };
+
+comparison_int: cmap '<' cmap { $$ = cmap_cmp_public.lt($1, $3, proc_ctx); }
 | cmap '>' cmap { $$ = cmap_cmp_public.gt($1, $3, proc_ctx); }
 | cmap LE cmap { $$ = cmap_cmp_public.le($1, $3, proc_ctx); }
 | cmap GE cmap { $$ = cmap_cmp_public.ge($1, $3, proc_ctx); }
