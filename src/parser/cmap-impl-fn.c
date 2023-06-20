@@ -8,7 +8,8 @@
 #include "cmap-util.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
-#include "cmap-prototype-fn.h"
+#include "cmap-prototypestore.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -78,7 +79,8 @@ static void init(CMAP_IMPL_FN * fn, CMAP_LIST * arg_names, const char * impl,
 static CMAP_IMPL_FN * create(CMAP_LIST * arg_names, const char * impl,
   CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * prototype_fn = cmap_prototype_fn_public.instance(proc_ctx);
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * prototype_fn = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
   CMAP_IMPL_FN * fn =
     CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_IMPL_FN, proc_ctx, aisle);
   init(fn, arg_names, impl, proc_ctx);

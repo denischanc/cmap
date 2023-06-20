@@ -1,13 +1,13 @@
 
 #include "cmap-prototype-util.h"
 
-#include <stdlib.h>
 #include "cmap.h"
 #include "cmap-list.h"
 #include "cmap-map.h"
 #include "cmap-fn.h"
 #include "cmap-aisle.h"
-#include "cmap-prototype-map.h"
+#include "cmap-prototypestore.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -41,32 +41,12 @@ static char args_to_map_fn(CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
+static void require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
-  if(*proto == NULL)
-  {
-    CMAP_MAP * proto_map = cmap_prototype_map_public.require(proc_ctx);
-    *proto =
-      CMAP_PROTOTYPE_NEW(proto_map, CMAP_MAP, proc_ctx, CMAP_AISLE_GLOBAL);
-    cmap_prototype_map_public.instance(proc_ctx);
-  }
-  return *proto;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * instance(CMAP_MAP ** proto, char * ok,
-  CMAP_MAP * (*require)(CMAP_PROC_CTX *), void (*init)(CMAP_PROC_CTX *),
-  CMAP_PROC_CTX * proc_ctx)
-{
-  if(!*ok)
-  {
-    *ok = CMAP_T;
-    require(proc_ctx);
-    init(proc_ctx);
-  }
-  return *proto;
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * proto_map = CMAP_CALL_ARGS(ps, require_map, proc_ctx);
+  *proto = CMAP_PROTOTYPE_NEW(proto_map, CMAP_MAP, proc_ctx, CMAP_AISLE_GLOBAL);
+  CMAP_CALL_ARGS(ps, map_, proc_ctx);
 }
 
 /*******************************************************************************
@@ -75,6 +55,5 @@ static CMAP_MAP * instance(CMAP_MAP ** proto, char * ok,
 const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public =
 {
   args_to_map_fn,
-  require_map,
-  instance
+  require_map
 };

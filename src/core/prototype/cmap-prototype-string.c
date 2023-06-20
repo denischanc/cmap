@@ -10,12 +10,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * proto = NULL;
-static char proto_ok = CMAP_F;
-
-/*******************************************************************************
-*******************************************************************************/
-
 static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
@@ -39,23 +33,17 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
+static void require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.require_map(&proto, proc_ctx);
+  cmap_prototype_util_public.require_map(proto, proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_PROC_CTX * proc_ctx)
+static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "append", append_fn, proc_ctx);
-}
-
-static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
-{
-  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init,
-    proc_ctx);
 }
 
 /*******************************************************************************
@@ -64,5 +52,5 @@ static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
 const CMAP_PROTOTYPE_STRING_PUBLIC cmap_prototype_string_public =
 {
   require,
-  instance
+  init
 };

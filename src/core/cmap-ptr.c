@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-prototype-ptr.h"
+#include "cmap-prototypestore.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -97,7 +98,8 @@ static void init(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr)
 static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * prototype_ptr = cmap_prototype_ptr_public.instance(proc_ctx);
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * prototype_ptr = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
   CMAP_PTR * ptr =
     CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx, aisle);
   init(ptr, size, delete_ptr);

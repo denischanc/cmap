@@ -16,6 +16,8 @@ typedef struct
 {
   CMAP_AISLESTORE * aislestore;
 
+  CMAP_PROTOTYPESTORE * prototypestore;
+
   CMAP_POOL_LIST * pool_list;
   CMAP_POOL_STRING * pool_string;
   CMAP_POOL_INT * pool_int;
@@ -58,10 +60,20 @@ static CMAP_AISLESTORE * aislestore(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> aislestore == NULL)
-  {
     internal -> aislestore = cmap_aislestore_public.create();
-  }
   return internal -> aislestore;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
+  CMAP_PROC_CTX * proc_ctx)
+{
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  if(internal -> prototypestore == NULL)
+    internal -> prototypestore = cmap_prototypestore_public.create(proc_ctx);
+  return internal -> prototypestore;
 }
 
 /*******************************************************************************
@@ -131,6 +143,7 @@ static CMAP_ENV * create()
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> aislestore = NULL;
+  internal -> prototypestore = NULL;
   internal -> pool_list = NULL;
   internal -> pool_string = NULL;
   internal -> pool_int = NULL;
@@ -143,6 +156,7 @@ static CMAP_ENV * create()
   env -> delete = delete;
   env -> main = main_;
   env -> aislestore = aislestore;
+  env -> prototypestore = prototypestore;
   env -> pool_list = pool_list;
   env -> pool_string = pool_string;
   env -> pool_int = pool_int;

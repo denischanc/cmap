@@ -10,7 +10,9 @@ noinst_HEADERS = \
   cmap-prototype-double.h \
   cmap-prototype-ptr.h \
   cmap-prototype-util.h \
-  cmap-prototype-util-define.h
+  cmap-prototype-util-define.h \
+  cmap-prototypestore.h \
+  cmap-prototypestore-define.h
 
 noinst_LTLIBRARIES = libprototype.la
 
@@ -22,5 +24,6 @@ libprototype_la_SOURCES = \
   cmap-prototype-int.c \
   cmap-prototype-double.c \
   cmap-prototype-ptr.c \
-  cmap-prototype-util.c
+  cmap-prototype-util.c \
+  cmap-prototypestore.c
 libprototype_la_CFLAGS = $(CMAP_CFLAGS)

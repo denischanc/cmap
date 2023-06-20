@@ -12,12 +12,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * proto = NULL;
-static char proto_ok = CMAP_F;
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct
 {
   CMAP_PROTOTYPE_UTIL_MAP_FN map_fn;
@@ -95,27 +89,19 @@ static CMAP_MAP * deep_delete_no_ref_fn(CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
+static void require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 {
-  if(proto == NULL)
-    proto = cmap_map_public.create_root(proc_ctx, CMAP_AISLE_GLOBAL);
-  return proto;
+  *proto = cmap_map_public.create_root(proc_ctx, CMAP_AISLE_GLOBAL);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_PROC_CTX * proc_ctx)
+static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "delete", delete_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref_fn, proc_ctx);
-}
-
-static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
-{
-  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init,
-    proc_ctx);
 }
 
 /*******************************************************************************
@@ -124,5 +110,5 @@ static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
 const CMAP_PROTOTYPE_MAP_PUBLIC cmap_prototype_map_public =
 {
   require,
-  instance
+  init
 };

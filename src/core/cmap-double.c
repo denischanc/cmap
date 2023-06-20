@@ -2,7 +2,8 @@
 #include "cmap-double.h"
 
 #include "cmap-kernel.h"
-#include "cmap-prototype-double.h"
+#include "cmap-prototypestore.h"
+#include "cmap-proc-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -75,7 +76,8 @@ static void init(CMAP_DOUBLE * double_, double val)
 static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_MAP * prototype_double = cmap_prototype_double_public.instance(proc_ctx);
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * prototype_double = CMAP_CALL_ARGS(ps, double_, proc_ctx);
   CMAP_DOUBLE * double_ =
     CMAP_PROTOTYPE_NEW(prototype_double, CMAP_DOUBLE, proc_ctx, aisle);
   init(double_, val);

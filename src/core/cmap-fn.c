@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-prototype-fn.h"
 #include "cmap-string.h"
 #include "cmap-util.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-prototypestore.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -141,7 +141,8 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
 static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
   const char * aisle)
 {
-  CMAP_MAP * prototype_fn = cmap_prototype_fn_public.instance(proc_ctx);
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * prototype_fn = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
   CMAP_FN * fn = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx, aisle);
   init(fn, process);
   return fn;

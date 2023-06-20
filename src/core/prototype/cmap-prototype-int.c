@@ -11,15 +11,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * proto = NULL;
-static char proto_ok = CMAP_F;
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * require(CMAP_PROC_CTX * proc_ctx)
+static void require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_prototype_util_public.require_map(&proto, proc_ctx);
+  cmap_prototype_util_public.require_map(proto, proc_ctx);
 }
 
 /*******************************************************************************
@@ -56,16 +50,10 @@ CMAP_INT_STEP_LOOP(STEP_FN)
 #define OP_STEP_INIT_FN(name, op) \
   CMAP_PROTO_SET_FN(proto, #name, name##_fn, proc_ctx);
 
-static void init(CMAP_PROC_CTX * proc_ctx)
+static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INT_OP_LOOP(OP_STEP_INIT_FN)
   CMAP_INT_STEP_LOOP(OP_STEP_INIT_FN)
-}
-
-static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
-{
-  return cmap_prototype_util_public.instance(&proto, &proto_ok, require, init,
-    proc_ctx);
 }
 
 /*******************************************************************************
@@ -74,5 +62,5 @@ static CMAP_MAP * instance(CMAP_PROC_CTX * proc_ctx)
 const CMAP_PROTOTYPE_INT_PUBLIC cmap_prototype_int_public =
 {
   require,
-  instance
+  init
 };

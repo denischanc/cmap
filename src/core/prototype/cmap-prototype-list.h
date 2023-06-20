@@ -6,8 +6,8 @@
 
 typedef struct
 {
-  CMAP_MAP * (*require)(CMAP_PROC_CTX * proc_ctx);
-  CMAP_MAP * (*instance)(CMAP_PROC_CTX * proc_ctx);
+  void (*require)(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx);
+  void (*init)(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx);
 } CMAP_PROTOTYPE_LIST_PUBLIC;
 
 extern const CMAP_PROTOTYPE_LIST_PUBLIC cmap_prototype_list_public;

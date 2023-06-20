@@ -5,10 +5,11 @@
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-tree.h"
-#include "cmap-prototype-map.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
 #include "cmap-util.h"
+#include "cmap-prototypestore.h"
+#include "cmap-proc-ctx.h"
 
 /* TODO : annotations */
 
@@ -236,7 +237,8 @@ static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 {
-  CMAP_MAP * prototype_map = cmap_prototype_map_public.instance(proc_ctx);
+  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_MAP * prototype_map = CMAP_CALL_ARGS(ps, map_, proc_ctx);
   return CMAP_PROTOTYPE_NEW(prototype_map, CMAP_MAP, proc_ctx, aisle);
 }
 

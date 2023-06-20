@@ -6,6 +6,7 @@
 #include "cmap-aislestore.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-pool.h"
+#include "cmap-prototypestore.h"
 
 struct CMAP_ENV_s
 {
@@ -17,6 +18,9 @@ struct CMAP_ENV_s
     CMAP_MAP * definitions, const char * impl);
 
   CMAP_AISLESTORE * (*aislestore)(CMAP_ENV * this);
+
+  CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_ENV * this,
+    CMAP_PROC_CTX * proc_ctx);
 
   CMAP_POOL_LIST * (*pool_list)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
   CMAP_POOL_STRING * (*pool_string)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
