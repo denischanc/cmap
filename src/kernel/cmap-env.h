@@ -8,7 +8,7 @@
 #include "cmap-pool.h"
 #include "cmap-prototypestore.h"
 
-struct CMAP_ENV_s
+struct CMAP_ENV
 {
   void * internal;
 

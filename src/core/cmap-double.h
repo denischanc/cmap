@@ -8,7 +8,7 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-lifecycle.h"
 
-struct CMAP_DOUBLE_s
+struct CMAP_DOUBLE
 {
   CMAP_MAP super;
 

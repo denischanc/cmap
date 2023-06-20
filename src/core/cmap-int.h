@@ -9,7 +9,7 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-lifecycle.h"
 
-struct CMAP_INT_s
+struct CMAP_INT
 {
   CMAP_MAP super;
 

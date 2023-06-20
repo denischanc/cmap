@@ -7,7 +7,7 @@
 #include "cmap-map.h"
 #include "cmap-lifecycle.h"
 
-struct CMAP_STRING_s
+struct CMAP_STRING
 {
   CMAP_MAP super;
 

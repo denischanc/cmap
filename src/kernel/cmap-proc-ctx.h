@@ -9,7 +9,7 @@
 #include "cmap-prototypestore.h"
 #include "cmap-pool.h"
 
-struct CMAP_PROC_CTX_s
+struct CMAP_PROC_CTX
 {
   void * internal;
 

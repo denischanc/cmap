@@ -8,9 +8,9 @@ typedef struct
   CMAP_TREE_LOOP(CMAP_TREE_WAY_FIELD)
 } CMAP_TREE_NODE;
 
-typedef struct CMAP_TREE_RUNNER_s CMAP_TREE_RUNNER;
+typedef struct CMAP_TREE_RUNNER CMAP_TREE_RUNNER;
 
-struct CMAP_TREE_RUNNER_s
+struct CMAP_TREE_RUNNER
 {
   void * internal;
 
@@ -21,11 +21,11 @@ struct CMAP_TREE_RUNNER_s
   char (*gt_usable)(CMAP_TREE_RUNNER * this);
 };
 
-typedef struct CMAP_TREE_APPLY_s CMAP_TREE_APPLY;
+typedef struct CMAP_TREE_APPLY CMAP_TREE_APPLY;
 typedef void (*CMAP_TREE_APPLY_FN)(CMAP_TREE_APPLY * this, void ** node,
   void * data);
 
-struct CMAP_TREE_APPLY_s
+struct CMAP_TREE_APPLY
 {
   void * internal;
 

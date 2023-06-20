@@ -9,7 +9,7 @@
 #include "cmap-list-type.h"
 #include "cmap-lifecycle.h"
 
-struct CMAP_FN_s
+struct CMAP_FN
 {
   CMAP_MAP super;
 
