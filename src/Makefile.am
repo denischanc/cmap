@@ -3,6 +3,7 @@ include $(top_srcdir)/src/common.mk
 
 SUBDIRS = \
   parser \
+  parser2 \
   util \
   core \
   kernel \

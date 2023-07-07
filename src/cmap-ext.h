@@ -35,6 +35,7 @@ const char * cmap_nature(CMAP_MAP * map);
 CMAP_MAP * cmap_delete(CMAP_MAP * map);
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
+char cmap_is_key(CMAP_MAP * map, const char * key);
 
 void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val);
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);

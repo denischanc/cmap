@@ -111,6 +111,11 @@ CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key)
   return CMAP_CALL_ARGS(map, get, key);
 }
 
+char cmap_is_key(CMAP_MAP * map, const char * key)
+{
+  return CMAP_CALL_ARGS(map, is_key, key);
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
