@@ -56,6 +56,30 @@ static char * def_n_global_env_decl_()
 /*******************************************************************************
 *******************************************************************************/
 
+static void add_args(char * args)
+{
+  if(args != NULL)
+  {
+    APPEND_ARGS(instructions, ", %s", args);
+    free(args);
+  }
+
+  APPEND(instructions, ", NULL);\n\n");
+}
+
+static void add_aisle(char * aisle)
+{
+  if(aisle != NULL)
+  {
+    APPEND_ARGS(instructions, "\"%s\"", aisle);
+    free(aisle);
+  }
+  else APPEND(instructions, "NULL");
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void include(char * name)
 {
   APPEND_ARGS(includes, "#include %s\n", name);
@@ -181,6 +205,29 @@ static char * args_push(char * list, char * map)
 /*******************************************************************************
 *******************************************************************************/
 
+static char * arg_names(char * name)
+{
+  char * ret = cmap_parser_string_public.create_args("\"%s\"", name);
+
+  free(name);
+
+  return ret;
+}
+
+static char * arg_names_push(char * list, char * name)
+{
+  char * ret = cmap_parser_string_public.create_args("%s, \"%s\"",
+    list, name);
+
+  free(list);
+  free(name);
+
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static char * args_map(char * name, char * map)
 {
   char * ret = cmap_parser_string_public.create_args("\"%s\", %s", name, map);
@@ -211,17 +258,9 @@ static char * map_args(char * args, char * aisle)
   char * map_name = next_name();
 
   APPEND_ARGS(instructions,
-    "  CMAP_MAP * %s = cmap_to_map(proc_ctx, \"%s\"",
-    map_name, aisle);
-  free(aisle);
-
-  if(args != NULL)
-  {
-    APPEND_ARGS(instructions, ", %s", args);
-    free(args);
-  }
-
-  APPEND(instructions, ", NULL);\n\n");
+    "  CMAP_MAP * %s = cmap_to_map(proc_ctx, ", map_name);
+  add_aisle(aisle);
+  add_args(args);
 
   return map_name;
 }
@@ -234,17 +273,9 @@ static char * list_args(char * args, char * aisle)
   char * map_name = next_name();
 
   APPEND_ARGS(instructions,
-    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_to_list(proc_ctx, \"%s\"",
-    map_name, aisle);
-  free(aisle);
-
-  if(args != NULL)
-  {
-    APPEND_ARGS(instructions, ", %s", args);
-    free(args);
-  }
-
-  APPEND(instructions, ", NULL);\n\n");
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_to_list(proc_ctx, ", map_name);
+  add_aisle(aisle);
+  add_args(args);
 
   return map_name;
 }
@@ -257,11 +288,12 @@ static char * string(char * string, char * aisle)
   char * map_name = next_name();
 
   APPEND_ARGS(instructions,
-    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_string(%s, 0, proc_ctx, \"%s\");\n\n",
-    map_name, string, aisle);
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_string(%s, 0, proc_ctx, ",
+    map_name, string);
+  add_aisle(aisle);
+  APPEND(instructions, ");\n\n");
 
   free(string);
-  free(aisle);
 
   return map_name;
 }
@@ -274,11 +306,12 @@ static char * int_(char * i, char * aisle)
   char * map_name = next_name();
 
   APPEND_ARGS(instructions,
-    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_int(%s, proc_ctx, \"%s\");\n\n",
-    map_name, i, aisle);
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_int(%s, proc_ctx, ",
+    map_name, i);
+  add_aisle(aisle);
+  APPEND(instructions, ");\n\n");
 
   free(i);
-  free(aisle);
 
   return map_name;
 }
@@ -309,13 +342,7 @@ static char * process(char * map, char * fn_name, char * args)
   free(map_fn);
   free(map_keep);
 
-  if(args != NULL)
-  {
-    APPEND_ARGS(instructions, ", %s", args);
-    free(args);
-  }
-
-  APPEND(instructions, ", NULL);\n\n");
+  add_args(args);
 
   return map_name;
 }
@@ -332,13 +359,7 @@ static char * process_fn(char * fn, char * args)
     map_name, fn);
   free(fn);
 
-  if(args != NULL)
-  {
-    APPEND_ARGS(instructions, ", %s", args);
-    free(args);
-  }
-
-  APPEND(instructions, ", NULL);\n\n");
+  add_args(args);
 
   return map_name;
 }
@@ -370,7 +391,7 @@ static char * process_c(char * fn_name, char need_ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * function(char * aisle, char * fn_name)
+static char * function(char * args, char * aisle, char * fn_name)
 {
   char * map_name = next_name();
 
@@ -391,16 +412,18 @@ static char * function(char * aisle, char * fn_name)
   APPEND_ARGS(instructions,
     "  CMAP_MAP * %s = (CMAP_MAP *)cmap_fn(%s, proc_ctx, ",
     map_name, fn_name);
+  add_aisle(aisle);
+  APPEND(instructions, ");\n");
+
   free(fn_name);
 
-  if(aisle != NULL)
+  if(args != NULL)
   {
-    APPEND_ARGS(instructions, "\"%s\"", aisle);
-    free(aisle);
+    APPEND_ARGS(instructions,
+      "  cmap_add_arg_names((CMAP_FN *)%s, proc_ctx", map_name);
+    add_args(args);
   }
-  else APPEND(instructions, "NULL");
-
-  APPEND(instructions, ");\n\n");
+  else APPEND(instructions, "\n");
 
   return map_name;
 }
@@ -427,6 +450,8 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   set_global,
   set_path,
   args_push,
+  arg_names,
+  arg_names_push,
   args_map,
   args_map_push,
   map_args,

@@ -28,7 +28,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token ERROR
 %token<name> STRING C_IMPL NAME INT
 
-%type<name> cmap aisle arg_names_cmap creator args process function
+%type<name> cmap aisle arg_names_cmap creator args process function arg_names
 
 %%
 
@@ -115,6 +115,16 @@ args: { $$ = NULL; }
 /*******************************************************************************
 *******************************************************************************/
 
+arg_names: { $$ = NULL; }
+| NAME { $$ = cmap_parser_util_public.arg_names($1); }
+| arg_names ',' NAME
+{
+  $$ = cmap_parser_util_public.arg_names_push($1, $3);
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
 arg_names_cmap: { $$ = NULL; }
 | NAME ':' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
 | arg_names_cmap ',' NAME ':' cmap
@@ -138,13 +148,13 @@ process: NAME '(' args ')'
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' ')' aisle '{' instructions '}'
+function: FUNCTION '(' arg_names ')' aisle '{' instructions '}'
 {
-  $$ = cmap_parser_util_public.function($4, NULL);
+  $$ = cmap_parser_util_public.function($3, $5, NULL);
 }
-| FUNCTION '(' ')' aisle '{' '{' NAME '}' '}'
+| FUNCTION '(' arg_names ')' aisle '(' NAME ')'
 {
-  $$ = cmap_parser_util_public.function($4, $7);
+  $$ = cmap_parser_util_public.function($3, $5, $7);
 };
 
 /*******************************************************************************
