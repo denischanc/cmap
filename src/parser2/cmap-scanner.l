@@ -45,9 +45,11 @@ SPACE_D [[:space:]]+
 "#include" { return INCLUDE; }
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
-"local" { return LOCAL; }
+"LOCAL" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
+"function" { return FUNCTION; }
+"@PROC" { return PROC; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

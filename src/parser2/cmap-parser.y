@@ -24,11 +24,11 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   char * name;
 }
 
-%token INCLUDE FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN ERROR
+%token INCLUDE FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
+%token ERROR
 %token<name> STRING NAME INT
 
-%type<name> name cmap aisle arg_names_cmap creator path args
-%type<name> process process_chain
+%type<name> cmap aisle arg_names_cmap creator args process function
 
 %%
 
@@ -69,16 +69,17 @@ instructions: { cmap_parser_part_public.push_instructions(); }
 /*******************************************************************************
 *******************************************************************************/
 
-instruction: LOCAL name '=' cmap { cmap_parser_util_public.set_local($2, $4); }
-| name '=' cmap { cmap_parser_util_public.set_global($1, $3); }
-| path '.' name '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
+instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
+| NAME '=' cmap { cmap_parser_util_public.set_global($1, $3); }
+| cmap '.' NAME '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
 | process { free($1); }
-| RETURN cmap { cmap_parser_util_public.return_($2); };
+| RETURN cmap { cmap_parser_util_public.return_($2); }
+| PROC '(' NAME ')' { cmap_parser_util_public.process_c($3, (1 == 0)); };
 
 /*******************************************************************************
 *******************************************************************************/
 
-aisle: { $$ = NULL; } | '/' name '/' { $$ = $2; };
+aisle: { $$ = NULL; } | '/' NAME '/' { $$ = $2; };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -92,18 +93,16 @@ creator: '{' arg_names_cmap '}' aisle
   $$ = cmap_parser_util_public.list_args($2, $4);
 }
 | STRING aisle { $$ = cmap_parser_util_public.string($1, $2); }
-| INT aisle { $$ = cmap_parser_util_public.int_($1, $2); };
+| INT aisle { $$ = cmap_parser_util_public.int_($1, $2); }
+| function;
 
 /*******************************************************************************
 *******************************************************************************/
 
-name: NAME;
-
-path: name { $$ = cmap_parser_util_public.name($1); }
-| path '.' name { $$ = cmap_parser_util_public.path($1, $3); }
-| creator;
-
-cmap: path | process | NULL_PTR { $$ = strdup("NULL"); };
+cmap: NULL_PTR { $$ = strdup("NULL"); } | creator | process
+| NAME { $$ = cmap_parser_util_public.name($1); }
+| cmap '.' NAME { $$ = cmap_parser_util_public.path($1, $3); }
+| PROC '(' NAME ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -116,8 +115,8 @@ args: { $$ = NULL; }
 *******************************************************************************/
 
 arg_names_cmap: { $$ = NULL; }
-| name ':' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
-| arg_names_cmap ',' name ':' cmap
+| NAME ':' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
+| arg_names_cmap ',' NAME ':' cmap
 {
   $$ = cmap_parser_util_public.args_map_push($1, $3, $5);
 };
@@ -125,21 +124,27 @@ arg_names_cmap: { $$ = NULL; }
 /*******************************************************************************
 *******************************************************************************/
 
-process: name '(' args ')'
+process: NAME '(' args ')'
 {
   $$ = cmap_parser_util_public.process(NULL, $1, $3);
 }
-| path '.' name '(' args ')'
+| cmap '.' NAME '(' args ')'
 {
   $$ = cmap_parser_util_public.process($1, $3, $5);
 }
-| process_chain '.' name '(' args ')'
-{
-  $$ = cmap_parser_util_public.process($1, $3, $5);
-};
+| function '(' args ')' { $$ = cmap_parser_util_public.process_fn($1, $3); };
 
-process_chain: process
-| process_chain '.' name { $$ = cmap_parser_util_public.path($1, $3); };
+/*******************************************************************************
+*******************************************************************************/
+
+function: FUNCTION '(' ')' aisle '{' instructions '}'
+{
+  $$ = cmap_parser_util_public.function($4, NULL);
+}
+| FUNCTION '(' ')' aisle '{' '{' NAME '}' '}'
+{
+  $$ = cmap_parser_util_public.function($4, $7);
+};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -148,6 +153,6 @@ process_chain: process
 
 static void cmap_parser_error(yyscan_t yyscanner, const char * msg)
 {
-  fprintf(stderr, "[%d:%d] %s", cmap_parser_get_lineno(yyscanner),
+  fprintf(stderr, "[%d:%d] %s\n", cmap_parser_get_lineno(yyscanner),
     cmap_parser_get_column(yyscanner), msg);
 }

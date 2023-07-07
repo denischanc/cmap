@@ -27,6 +27,10 @@ typedef struct
   void (*return_)(char * map);
 
   char * (*process)(char * map, char * fn_name, char * args);
+  char * (*process_fn)(char * fn, char * args);
+  char * (*process_c)(char * fn_name, char need_ret);
+
+  char * (*function)(char * aisle, char * fn_name);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;
