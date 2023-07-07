@@ -3,6 +3,7 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
+#include "cmap-parser-part.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -54,7 +55,10 @@ function_c: FUNCTION_C '(' NAME ')' '{' instructions '}'
   cmap_parser_util_public.function_c($3);
 };
 
-instructions:
+/*******************************************************************************
+*******************************************************************************/
+
+instructions: { cmap_parser_part_public.push_instructions(); }
 | instructions instruction ';';
 
 /*******************************************************************************

@@ -82,25 +82,25 @@ SPACE_D [[:space:]]+
 
 %%
 
-static CMAP_PARSER_STRING * string_;
+static char * string;
 
 static void string_start()
 {
-  string_ = cmap_parser_string_create("\"");
+  string = cmap_parser_string_public.create("\"");
 }
 
 static void string_append(const char * txt)
 {
-  cmap_parser_string_append(string_, txt);
+  cmap_parser_string_public.append(&string, txt);
 }
 
 static void string_end(YYSTYPE * yylval_p)
 {
-  cmap_parser_string_append(string_, "\"");
-  yylval_p -> name = cmap_parser_string_dupndel(string_);
+  cmap_parser_string_public.append(&string, "\"");
+  yylval_p -> name = string;
 }
 
 static void set_name(YYSTYPE * yylval_p, const char * name)
 {
-  yylval_p -> name = strdup(name);
+  yylval_p -> name = cmap_parser_string_public.create(name);
 }

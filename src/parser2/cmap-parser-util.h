@@ -1,15 +1,8 @@
 #ifndef __CMAP_PARSER_UTIL_H__
 #define __CMAP_PARSER_UTIL_H__
 
-#include "cmap-parser-string.h"
-
 typedef struct
 {
-  CMAP_PARSER_STRING * (*include_string)();
-  CMAP_PARSER_STRING * (*function_string)();
-  CMAP_PARSER_STRING * (*main_string)();
-  CMAP_PARSER_STRING * (*instructions_string)();
-
   void (*include)(char * name);
 
   void (*function_c)(char * name);

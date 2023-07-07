@@ -4,8 +4,7 @@
 #include <string.h>
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
-#include "cmap-parser-string.h"
-#include "cmap-parser-util.h"
+#include "cmap-parser-part.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -34,15 +33,15 @@ static void finalize_c(const char * out_name)
   snprintf(buffer, sizeof(buffer), "%s.c", out_name);
   FILE * out = fopen(buffer, "w");
 
-  CMAP_PARSER_STRING * include = cmap_parser_util_public.include_string();
-  cmap_parser_string_fprintf(out, include);
-  cmap_parser_string_delete(include);
-
+  fprintf(out, "%s", *cmap_parser_part_public.includes());
+  free(*cmap_parser_part_public.includes());
   fprintf(out, "\n");
 
-  CMAP_PARSER_STRING * main = cmap_parser_util_public.main_string();
-  cmap_parser_string_fprintf(out, main);
-  cmap_parser_string_delete(main);
+  fprintf(out, "%s", *cmap_parser_part_public.functions());
+  free(*cmap_parser_part_public.functions());
+
+  fprintf(out, "%s", *cmap_parser_part_public.main());
+  free(*cmap_parser_part_public.main());
 
   fclose(out);
 }
