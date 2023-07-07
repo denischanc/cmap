@@ -9,14 +9,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * create(const char * txt)
-{
-  return strdup(txt);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static char * create_args(const char * txt, ...)
 {
   va_list args;
@@ -25,7 +17,7 @@ static char * create_args(const char * txt, ...)
   vsnprintf(buffer, sizeof(buffer), txt, args);
   va_end(args);
 
-  return create(buffer);
+  return strdup(buffer);
 }
 
 /*******************************************************************************
@@ -56,7 +48,6 @@ static void append_args(char ** src, const char * txt, ...)
 
 const CMAP_PARSER_STRING_PUBLIC cmap_parser_string_public =
 {
-  create,
   create_args,
   append,
   append_args

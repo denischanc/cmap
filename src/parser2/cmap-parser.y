@@ -23,8 +23,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   char * name;
 }
 
-%token INCLUDE FUNCTION_C LOCAL NEW RETURN NULL_PTR FUNCTION IF ELSE LE GE EQUAL
-%token DIFF ERROR
+%token INCLUDE FUNCTION_C LOCAL NULL_PTR ERROR
 %token<name> STRING NAME INT
 
 %type<name> name cmap aisle arg_names_cmap creator path args

@@ -3,7 +3,6 @@
 
 typedef struct
 {
-  char * (*create)(const char * txt);
   char * (*create_args)(const char * txt, ...);
 
   void (*append)(char ** src, const char * txt);

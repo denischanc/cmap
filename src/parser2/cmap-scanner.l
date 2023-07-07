@@ -44,12 +44,7 @@ SPACE_D [[:space:]]+
 "#include" { return INCLUDE; }
 "@FUNCTION" { return FUNCTION_C; }
 "local" { return LOCAL; }
-"new" { return NEW; }
-"return" { return RETURN; }
 "null" { return NULL_PTR; }
-"function" { return FUNCTION; }
-"if" { return IF; }
-"else" { return ELSE; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }
@@ -67,16 +62,7 @@ SPACE_D [[:space:]]+
 "/" { return '/'; }
 ":" { return ':'; }
 
-"<" { return '<'; }
-">" { return '>'; }
-"<=" { return LE; }
-">=" { return GE; }
-"==" { return EQUAL; }
-"!=" { return DIFF; }
-
 {SPACE_D}
-
-"\n"
 
 . { return ERROR; }
 
@@ -86,7 +72,7 @@ static char * string;
 
 static void string_start()
 {
-  string = cmap_parser_string_public.create("\"");
+  string = strdup("\"");
 }
 
 static void string_append(const char * txt)
@@ -102,5 +88,5 @@ static void string_end(YYSTYPE * yylval_p)
 
 static void set_name(YYSTYPE * yylval_p, const char * name)
 {
-  yylval_p -> name = cmap_parser_string_public.create(name);
+  yylval_p -> name = strdup(name);
 }

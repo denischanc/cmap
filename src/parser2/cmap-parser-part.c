@@ -2,6 +2,7 @@
 #include "cmap-parser-part.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include "cmap-parser-string.h"
 
 /*******************************************************************************
@@ -27,7 +28,7 @@ static INSTRUCTIONS * instructions = NULL;
 
 static char ** includes_()
 {
-  if(includes == NULL) includes = cmap_parser_string_public.create("");
+  if(includes == NULL) includes = strdup("");
   return &includes;
 }
 
@@ -36,7 +37,7 @@ static char ** includes_()
 
 static char ** functions_()
 {
-  if(functions == NULL) functions = cmap_parser_string_public.create("");
+  if(functions == NULL) functions = strdup("");
   return &functions;
 }
 
@@ -45,7 +46,7 @@ static char ** functions_()
 
 static char ** main_()
 {
-  if(main == NULL) main = cmap_parser_string_public.create("");
+  if(main == NULL) main = strdup("");
   return &main;
 }
 
@@ -63,7 +64,7 @@ static char ** instructions_()
 static void push_instructions()
 {
   INSTRUCTIONS * tmp = (INSTRUCTIONS *)malloc(sizeof(INSTRUCTIONS));
-  tmp -> instructions = cmap_parser_string_public.create("");
+  tmp -> instructions = strdup("");
   tmp -> next = instructions;
   instructions = tmp;
 }
