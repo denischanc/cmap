@@ -5,6 +5,17 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-part.h"
+#include "cmap-parser-string.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void add_include(const char * out_h_name)
+{
+  cmap_parser_string_public.append_args(
+    cmap_parser_part_public.includes(),
+    "#include \"%s\"\n\n#include <stdlib.h>\n", out_h_name);
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -27,11 +38,12 @@ static void parse(const char * in_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void finalize_c(const char * out_name)
+static void generate_c(const char * out_name)
 {
-  char buffer[1000];
-  snprintf(buffer, sizeof(buffer), "%s.c", out_name);
-  FILE * out = fopen(buffer, "w");
+  FILE * out = fopen(out_name, "w");
+  printf("==[[ Generate : _%s_\n", out_name);
+
+  fprintf(out, "\n");
 
   fprintf(out, "%s", *cmap_parser_part_public.includes());
   free(*cmap_parser_part_public.includes());
@@ -46,9 +58,12 @@ static void finalize_c(const char * out_name)
   fclose(out);
 }
 
-static char * format_out_h(const char * out_name)
+/*******************************************************************************
+*******************************************************************************/
+
+static char * create_upper(const char * name)
 {
-  char * ret = strdup(out_name);
+  char * ret = strdup(name);
 
   for(char * cur = ret; *cur != 0; cur++)
   {
@@ -60,31 +75,25 @@ static char * format_out_h(const char * out_name)
   return ret;
 }
 
-static void finalize_h(const char * out_name)
+static void generate_h(const char * out_name)
 {
-  char buffer[1000];
-  snprintf(buffer, sizeof(buffer), "%s.h", out_name);
-  FILE * out = fopen(buffer, "w");
+  FILE * out = fopen(out_name, "w");
+  printf("==[[ Generate : _%s_\n", out_name);
 
-  char * formatted_out = format_out_h(out_name);
+  char * upper_out_name = create_upper(out_name);
 
   fprintf(out,
-    "#ifndef __%s_H__\n"
-    "#define __%s_H__\n\n"
+    "#ifndef __%s__\n"
+    "#define __%s__\n\n"
     "#include <cmap-ext.h>\n\n"
-    "CMAP_MAP * TODO(CMAP_PROC_CTX * proc_ctx);\n\n"
+    "%s\n"
     "#endif\n",
-    formatted_out, formatted_out);
+    upper_out_name, upper_out_name, *cmap_parser_part_public.definitions());
+  free(*cmap_parser_part_public.definitions());
 
-  free(formatted_out);
+  free(upper_out_name);
 
   fclose(out);
-}
-
-static void finalize(const char * out_name)
-{
-  finalize_c(out_name);
-  finalize_h(out_name);
 }
 
 /*******************************************************************************
@@ -93,9 +102,14 @@ static void finalize(const char * out_name)
 int main(int argc, char * argv[])
 {
   char * in_name = argv[1], * out_name = argv[2];
+  static char out_c_name[1000], out_h_name[1000];
+  snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);
+  snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
 
+  add_include(out_h_name);
   parse(in_name);
-  finalize(out_name);
+  generate_c(out_c_name);
+  generate_h(out_h_name);
 
   return EXIT_SUCCESS;
 }

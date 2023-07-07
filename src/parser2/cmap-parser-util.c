@@ -18,31 +18,11 @@ static int id = 1;
 /*******************************************************************************
 *******************************************************************************/
 
-static char * next_nature_name(const char * nature)
+static char * next_name()
 {
-  char buffer[30];
-  snprintf(buffer, sizeof(buffer), "%s_%d", nature, id++);
+  static char buffer[30];
+  snprintf(buffer, sizeof(buffer), "map_%d", id++);
   return strdup(buffer);
-}
-
-static char * next_map_name()
-{
-  return next_nature_name("map");
-}
-
-static char * next_list_name()
-{
-  return next_nature_name("list");
-}
-
-static char * next_string_name()
-{
-  return next_nature_name("string");
-}
-
-static char * next_int_name()
-{
-  return next_nature_name("int");
 }
 
 /*******************************************************************************
@@ -58,15 +38,26 @@ static void include(char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void function_c(char * name)
+static void function_c(char * name, char is_static)
 {
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.main(),
-    "void %s(CMAP_PROC_CTX * proc_ctx)\n"
+    "%s%s %s(CMAP_PROC_CTX * proc_ctx)\n"
     "{\n"
     "  CMAP_MAP * %s = cmap_definitions(proc_ctx);\n"
     "  CMAP_MAP * %s = cmap_global_env(proc_ctx);\n\n",
+    is_static ? "static " : "",
+    cmap_parser_part_public.is_return() ? "CMAP_MAP *" : "void",
     name, DEFINITIONS_VAR_NAME, GLOBAL_ENV_VAR_NAME);
+
+  if(!is_static)
+  {
+    cmap_parser_string_public.append_args(
+      cmap_parser_part_public.definitions(),
+      "%s %s(CMAP_PROC_CTX * proc_ctx);\n",
+      cmap_parser_part_public.is_return() ? "CMAP_MAP *" : "void", name);
+  }
+
   free(name);
 
   char * instructions = cmap_parser_part_public.pop_instructions();
@@ -82,7 +73,7 @@ static void function_c(char * name)
 
 static char * name(char * name)
 {
-  char * map_name = next_map_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
@@ -103,7 +94,7 @@ static char * name(char * name)
 
 static char * path(char * map, char * name)
 {
-  char * map_name = next_map_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
@@ -202,7 +193,7 @@ static char * args_map_push(char * list, char * name, char * map)
 
 static char * map_args(char * args, char * aisle)
 {
-  char * map_name = next_map_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
@@ -228,12 +219,12 @@ static char * map_args(char * args, char * aisle)
 
 static char * list_args(char * args, char * aisle)
 {
-  char * list_name = next_list_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
-    "  CMAP_LIST * %s = cmap_to_list(proc_ctx, \"%s\"",
-    list_name, aisle);
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_to_list(proc_ctx, \"%s\"",
+    map_name, aisle);
   free(aisle);
 
   if(args != NULL)
@@ -246,7 +237,7 @@ static char * list_args(char * args, char * aisle)
   cmap_parser_string_public.append(
     cmap_parser_part_public.instructions(), ");\n\n");
 
-  return list_name;
+  return map_name;
 }
 
 /*******************************************************************************
@@ -254,17 +245,17 @@ static char * list_args(char * args, char * aisle)
 
 static char * string(char * string, char * aisle)
 {
-  char * string_name = next_string_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
-    "  CMAP_STRING * %s = cmap_string(%s, 0, proc_ctx, \"%s\");\n\n",
-    string_name, string, aisle);
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_string(%s, 0, proc_ctx, \"%s\");\n\n",
+    map_name, string, aisle);
 
   free(string);
   free(aisle);
 
-  return string_name;
+  return map_name;
 }
 
 /*******************************************************************************
@@ -272,17 +263,59 @@ static char * string(char * string, char * aisle)
 
 static char * int_(char * i, char * aisle)
 {
-  char * int_name = next_int_name();
+  char * map_name = next_name();
 
   cmap_parser_string_public.append_args(
     cmap_parser_part_public.instructions(),
-    "  CMAP_INT * %s = cmap_int(%s, proc_ctx, \"%s\");\n\n",
-    int_name, i, aisle);
+    "  CMAP_MAP * %s = (CMAP_MAP *)cmap_int(%s, proc_ctx, \"%s\");\n\n",
+    map_name, i, aisle);
 
   free(i);
   free(aisle);
 
-  return int_name;
+  return map_name;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void return_(char * map)
+{
+  cmap_parser_string_public.append_args(
+    cmap_parser_part_public.instructions(),
+    "  return %s;\n", map);
+  free(map);
+
+  cmap_parser_part_public.return_();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * process(char * map, char * fn_name, char * args)
+{
+  char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
+    * map_fn = (map == NULL) ? name(fn_name) : path(map, fn_name),
+    * map_name = next_name();
+
+  cmap_parser_string_public.append_args(
+    cmap_parser_part_public.instructions(),
+    "CMAP_MAP * %s = cmap_fn_proc(%s, proc_ctx, %s",
+    map_name, map_fn, map_keep);
+  free(map_fn);
+  free(map_keep);
+
+  if(args != NULL)
+  {
+    cmap_parser_string_public.append_args(
+      cmap_parser_part_public.instructions(), ", %s", args);
+    free(args);
+  }
+
+  cmap_parser_string_public.append(
+    cmap_parser_part_public.instructions(), ");\n\n");
+
+  return map_name;
 }
 
 /*******************************************************************************
@@ -303,5 +336,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   map_args,
   list_args,
   string,
-  int_
+  int_,
+  return_,
+  process
 };

@@ -7,6 +7,10 @@ typedef struct
   char ** (*functions)();
   char ** (*main)();
   char ** (*instructions)();
+  char ** (*definitions)();
+
+  void (*return_)();
+  char (*is_return)();
 
   void (*push_instructions)();
   char * (*pop_instructions)();

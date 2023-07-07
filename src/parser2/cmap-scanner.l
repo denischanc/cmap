@@ -27,6 +27,7 @@ SPACE_D [[:space:]]+
 <COMMENT_MULTI_S>{
   "*/" { BEGIN(INITIAL); }
   .
+  "\n"
 }
 
 "//" { BEGIN(COMMENT_SIMPLE_S); }
@@ -43,8 +44,10 @@ SPACE_D [[:space:]]+
 
 "#include" { return INCLUDE; }
 "@FUNCTION" { return FUNCTION_C; }
+"@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
 "local" { return LOCAL; }
 "null" { return NULL_PTR; }
+"return" { return RETURN; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

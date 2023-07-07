@@ -13,13 +13,16 @@ typedef struct INSTRUCTIONS INSTRUCTIONS;
 struct INSTRUCTIONS
 {
   char * instructions;
+  char return_;
+
   INSTRUCTIONS * next;
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * includes = NULL, * functions = NULL, * main = NULL;
+static char * includes = NULL, * functions = NULL, * main = NULL,
+  * definitions = NULL;
 
 static INSTRUCTIONS * instructions = NULL;
 
@@ -61,10 +64,36 @@ static char ** instructions_()
 /*******************************************************************************
 *******************************************************************************/
 
+static char ** definitions_()
+{
+  if(definitions == NULL) definitions = strdup("");
+  return &definitions;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void return_()
+{
+  instructions -> return_ = (1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_return()
+{
+  return instructions -> return_;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void push_instructions()
 {
   INSTRUCTIONS * tmp = (INSTRUCTIONS *)malloc(sizeof(INSTRUCTIONS));
   tmp -> instructions = strdup("");
+  tmp -> return_ = (1 == 0);
   tmp -> next = instructions;
   instructions = tmp;
 }
@@ -90,6 +119,9 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   functions_,
   main_,
   instructions_,
+  definitions_,
+  return_,
+  is_return,
   push_instructions,
   pop_instructions
 };

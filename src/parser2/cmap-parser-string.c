@@ -13,7 +13,7 @@ static char * create_args(const char * txt, ...)
 {
   va_list args;
   va_start(args, txt);
-  char buffer[1000];
+  static char buffer[1000];
   vsnprintf(buffer, sizeof(buffer), txt, args);
   va_end(args);
 
@@ -36,7 +36,7 @@ static void append_args(char ** src, const char * txt, ...)
 {
   va_list args;
   va_start(args, txt);
-  char buffer[1000];
+  static char buffer[1000];
   vsnprintf(buffer, sizeof(buffer), txt, args);
   va_end(args);
 

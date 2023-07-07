@@ -5,7 +5,7 @@ typedef struct
 {
   void (*include)(char * name);
 
-  void (*function_c)(char * name);
+  void (*function_c)(char * name, char is_static);
 
   char * (*name)(char * name);
   char * (*path)(char * map, char * name);
@@ -20,12 +20,13 @@ typedef struct
   char * (*args_map_push)(char * list, char * name, char * map);
 
   char * (*map_args)(char * args, char * aisle);
-
   char * (*list_args)(char * args, char * aisle);
-
   char * (*string)(char * string, char * aisle);
-
   char * (*int_)(char * i, char * aisle);
+
+  void (*return_)(char * map);
+
+  char * (*process)(char * map, char * fn_name, char * args);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;
