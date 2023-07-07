@@ -31,6 +31,8 @@ typedef struct
   char * (*process_c)(char * fn_name, char need_ret);
 
   char * (*function)(char * aisle, char * fn_name);
+
+  void (*c_impl)(char * impl);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

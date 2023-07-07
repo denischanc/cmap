@@ -408,6 +408,15 @@ static char * function(char * aisle, char * fn_name)
 /*******************************************************************************
 *******************************************************************************/
 
+static void c_impl(char * impl)
+{
+  APPEND_ARGS(instructions, "  %s\n\n", impl);
+  free(impl);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   include,
@@ -428,5 +437,6 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   process,
   process_fn,
   process_c,
-  function
+  function,
+  c_impl
 };

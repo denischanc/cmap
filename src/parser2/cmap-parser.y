@@ -26,7 +26,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 
 %token INCLUDE FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
 %token ERROR
-%token<name> STRING NAME INT
+%token<name> STRING C_IMPL NAME INT
 
 %type<name> cmap aisle arg_names_cmap creator args process function
 
@@ -64,7 +64,8 @@ function_c: FUNCTION_C '(' NAME ')' '{' instructions '}'
 *******************************************************************************/
 
 instructions: { cmap_parser_part_public.push_instructions(); }
-| instructions instruction ';';
+| instructions instruction ';'
+| instructions C_IMPL { cmap_parser_util_public.c_impl($2); };
 
 /*******************************************************************************
 *******************************************************************************/

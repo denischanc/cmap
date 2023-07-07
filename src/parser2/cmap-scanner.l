@@ -5,9 +5,9 @@
 
 #define YY_USER_ACTION yycolumn += yyleng;
 
-static void string_start();
+static void string_start(const char * txt);
 static void string_append(const char * txt);
-static void string_end(YYSTYPE * yylval_p);
+static void string_end(YYSTYPE * yylval_p, const char * txt);
 
 static void set_name(YYSTYPE * yylval_p, const char * name);
 
@@ -15,7 +15,7 @@ static void set_name(YYSTYPE * yylval_p, const char * name);
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
-%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S
+%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
 INT_D [[:digit:]]+
@@ -36,10 +36,18 @@ SPACE_D [[:space:]]+
   .
 }
 
-"\"" { BEGIN(STRING_S); string_start(); }
+"\"" { BEGIN(STRING_S); string_start("\""); }
 <STRING_S>{
-  "\"" { BEGIN(INITIAL); string_end(yylval); return STRING; }
+  "\"" { BEGIN(INITIAL); string_end(yylval, "\""); return STRING; }
   . { string_append(yytext); }
+  "\n" { string_append(yytext); }
+}
+
+[[:space:]]*"[C["[[:space:]]* { BEGIN(C_IMPL_S); string_start(""); }
+<C_IMPL_S>{
+  [[:space:]]*"]]" { BEGIN(INITIAL); string_end(yylval, ""); return C_IMPL; }
+  . { string_append(yytext); }
+  "\n" { string_append(yytext); }
 }
 
 "#include" { return INCLUDE; }
@@ -75,9 +83,9 @@ SPACE_D [[:space:]]+
 
 static char * string;
 
-static void string_start()
+static void string_start(const char * txt)
 {
-  string = strdup("\"");
+  string = strdup(txt);
 }
 
 static void string_append(const char * txt)
@@ -85,9 +93,9 @@ static void string_append(const char * txt)
   cmap_parser_string_public.append(&string, txt);
 }
 
-static void string_end(YYSTYPE * yylval_p)
+static void string_end(YYSTYPE * yylval_p, const char * txt)
 {
-  cmap_parser_string_public.append(&string, "\"");
+  cmap_parser_string_public.append(&string, txt);
   yylval_p -> name = string;
 }
 
