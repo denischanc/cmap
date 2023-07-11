@@ -1,8 +1,6 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = cmp
-
 BUILT_SOURCES = cmap-parser.h
 
 AM_LFLAGS = --prefix=cmap_parser_
@@ -24,4 +22,3 @@ libparser_la_SOURCES = \
   cmap-parser-util.c \
   cmap-impl-fn.c
 libparser_la_CFLAGS = $(CMAP_CFLAGS)
-libparser_la_LIBADD = cmp/libcmp.la

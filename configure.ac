@@ -60,9 +60,9 @@ AC_CONFIG_FILES([
   src/components/scheduler/Makefile
   src/core/Makefile
   src/core/prototype/Makefile
+  src/core/cmp/Makefile
   src/kernel/Makefile
   src/parser/Makefile
-  src/parser/cmp/Makefile
   src/parser2/Makefile
   src/util/Makefile
   test/Makefile
