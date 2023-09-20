@@ -3,6 +3,6 @@
 
 #include "cmap-cmp-handler.h"
 
-extern const CMAP_CMP_HANDLER cmap_cmp_string_handler;
+extern const CMAP_CMP_HANDLER_PUBLIC cmap_cmp_string_handler_public;
 
 #endif

@@ -15,6 +15,7 @@
 #include "cmap-env.h"
 #include "cmap-kernel.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-cmp.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -93,7 +94,8 @@ CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
 
 const char * cmap_nature(CMAP_MAP * map)
 {
-  return CMAP_CALL(map, nature);
+  if(map == NULL) return NULL;
+  else return CMAP_CALL(map, nature);
 }
 
 CMAP_MAP * cmap_delete(CMAP_MAP * map)
@@ -197,6 +199,22 @@ void cmap_add_arg_names(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, ...)
     CMAP_CALL_ARGS(fn, add_arg_name, arg_name, proc_ctx);
 
   va_end(args);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
+{
+  return cmap_util_public.copy(dst, src);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+int cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
+{
+  return cmap_cmp_public.cmp(map_l, map_r);
 }
 
 /*******************************************************************************

@@ -58,6 +58,8 @@ SPACE_D [[:space:]]+
 "return" { return RETURN; }
 "function" { return FUNCTION; }
 "@PROC" { return PROC; }
+"if" { return IF; }
+"else" { return ELSE; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }
@@ -74,6 +76,13 @@ SPACE_D [[:space:]]+
 "}" { return '}'; }
 "/" { return '/'; }
 ":" { return ':'; }
+
+"<" { return '<'; }
+">" { return '>'; }
+"<=" { return LE; }
+">=" { return GE; }
+"==" { return EQUAL; }
+"!=" { return DIFF; }
 
 {SPACE_D}
 

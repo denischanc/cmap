@@ -18,4 +18,4 @@ static int cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CMP_HANDLER cmap_cmp_double_handler = {cmp};
+const CMAP_CMP_HANDLER_PUBLIC cmap_cmp_double_handler_public = {cmp};

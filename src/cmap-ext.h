@@ -54,6 +54,10 @@ const char * cmap_string_val(CMAP_STRING * string);
 CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx);
 void cmap_add_arg_names(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, ...);
 
+CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
+
+int cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r);
+
 CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   const char * aisle, ...);
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,

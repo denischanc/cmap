@@ -12,9 +12,9 @@
 
 static void add_include(const char * out_h_name)
 {
-  cmap_parser_string_public.append_args(
-    cmap_parser_part_public.includes(),
-    "#include \"%s\"\n\n#include <stdlib.h>\n", out_h_name);
+  cmap_parser_string_public.append_args(cmap_parser_part_public.includes(),
+    "#include \"%s\"\n\n#include <stdlib.h>\n#include <cmap-int-ext.h>\n",
+    out_h_name);
 }
 
 /*******************************************************************************

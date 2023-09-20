@@ -1,6 +1,8 @@
 #ifndef __CMAP_PARSER_UTIL_H__
 #define __CMAP_PARSER_UTIL_H__
 
+#include "cmap-parser-util-define.h"
+
 typedef struct
 {
   void (*include)(char * name);
@@ -36,6 +38,14 @@ typedef struct
   char * (*function)(char * args, char * aisle, char * fn_name);
 
   void (*c_impl)(char * impl);
+
+  void (*if_)(char * cmp_name);
+  void (*else_empty)();
+  void (*else_if)();
+  void (*else_)();
+
+  CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
+  char * (*cmp_unique)(char * map);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

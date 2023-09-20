@@ -33,7 +33,7 @@ static int id = 1;
 static char * next_name()
 {
   static char buffer[30];
-  snprintf(buffer, sizeof(buffer), "name_%d", id++);
+  snprintf(buffer, sizeof(buffer), "cmap_gen_name__%d", id++);
   return strdup(buffer);
 }
 
@@ -399,14 +399,15 @@ static char * function(char * args, char * aisle, char * fn_name)
   {
     fn_name = next_name();
 
-    char is_return = cmap_parser_part_public.is_return(),
-      * instructions = cmap_parser_part_public.pop_instructions();
     APPEND_ARGS(functions,
       "static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx,\n"
-      "  CMAP_MAP * map, CMAP_LIST * args)\n{\n%s%s%s}\n\n",
-      fn_name, def_n_global_env_decl_(), instructions,
-      is_return ? "" : "  return NULL;\n");
+      "  CMAP_MAP * map, CMAP_LIST * args)\n{\n%s",
+      fn_name, def_n_global_env_decl_());
+    char is_return = cmap_parser_part_public.is_return(),
+      * instructions = cmap_parser_part_public.pop_instructions();
+    APPEND(functions, instructions);
     free(instructions);
+    APPEND_ARGS(functions, "%s}\n\n", is_return ? "" : "  return NULL;\n");
   }
 
   APPEND_ARGS(instructions,
@@ -416,6 +417,10 @@ static char * function(char * args, char * aisle, char * fn_name)
   APPEND(instructions, ");\n");
 
   free(fn_name);
+
+  APPEND_ARGS(instructions,
+    "  cmap_copy_map(cmap_fn_require_definitions((CMAP_FN *)%s, proc_ctx),\n"
+    "    cmap_definitions(proc_ctx));\n", map_name);
 
   if(args != NULL)
   {
@@ -440,6 +445,90 @@ static void c_impl(char * impl)
 /*******************************************************************************
 *******************************************************************************/
 
+static void if_(char * bool_name)
+{
+  char is_return = cmap_parser_part_public.is_return(),
+    * instructions = cmap_parser_part_public.pop_instructions();
+
+  if(is_return) cmap_parser_part_public.return_();
+
+  APPEND_ARGS(instructions, "  if(%s)\n  {\n", bool_name);
+  free(bool_name);
+  APPEND(instructions, instructions);
+  free(instructions);
+  APPEND(instructions, "  }\n");
+}
+
+static void else_empty()
+{
+  APPEND(instructions, "\n");
+}
+
+static void else_if()
+{
+  APPEND(instructions, "  else ");
+}
+
+static void else_()
+{
+  char is_return = cmap_parser_part_public.is_return(),
+    * instructions = cmap_parser_part_public.pop_instructions();
+
+  if(is_return) cmap_parser_part_public.return_();
+
+  APPEND(instructions, "  else\n  {\n");
+  APPEND(instructions, instructions);
+  free(instructions);
+  APPEND(instructions, "  }\n\n");
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * cmp_to_bool(char * cmp_name, char * op)
+{
+  char * bool_name = next_name();
+  APPEND_ARGS(instructions, "  char %s = (%s %s 0);\n",
+    bool_name, cmp_name, op);
+  free(cmp_name);
+  return bool_name;
+}
+
+#define CMP_IMPL(name, op) \
+static char * name(char * map_l, char * map_r) \
+{ \
+  char * cmp_name = next_name(); \
+ \
+  APPEND_ARGS(instructions, "  int %s = cmap_cmp(%s, %s);\n", \
+    cmp_name, map_l, map_r); \
+  free(map_l); \
+  free(map_r); \
+ \
+  return cmp_to_bool(cmp_name, #op); \
+}
+
+CMAP_PARSER_UTIL_CMP_LOOP(CMP_IMPL)
+
+static char * cmp_unique(char * map)
+{
+  char * cmp_name = next_name();
+
+  APPEND_ARGS(instructions,
+    "  int %s;\n"
+    "  if(cmap_nature(%s) == CMAP_INT_NATURE)\n"
+    "    %s = (cmap_int_get((CMAP_INT *)%s) == 0) ? 0 : 1;\n"
+    "  else %s = (%s == NULL) ? 0 : 1;\n",
+    cmp_name, map, cmp_name, map, cmp_name, map);
+  free(map);
+
+  return cmp_to_bool(cmp_name, "!=");
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMP_SET(name, op) name,
+
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   include,
@@ -463,5 +552,11 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   process_fn,
   process_c,
   function,
-  c_impl
+  c_impl,
+  if_,
+  else_empty,
+  else_if,
+  else_,
+  CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
+  cmp_unique
 };
