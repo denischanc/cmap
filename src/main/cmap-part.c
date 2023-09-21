@@ -1,9 +1,9 @@
 
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include "cmap-parser-string.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/

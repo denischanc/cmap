@@ -1,10 +1,8 @@
-#ifndef __CMAP_PARSER_STRING_H__
-#define __CMAP_PARSER_STRING_H__
+#ifndef __CMAP_STRING_H__
+#define __CMAP_STRING_H__
 
 typedef struct
 {
-  char * (*create_args)(const char * txt, ...);
-
   void (*append)(char ** src, const char * txt);
   void (*append_args)(char ** src, const char * txt, ...);
 } CMAP_PARSER_STRING_PUBLIC;

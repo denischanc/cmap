@@ -9,18 +9,18 @@ AM_YFLAGS = -d --name-prefix=cmap_parser_
 
 noinst_HEADERS = \
   cmap-scanner.h \
-  cmap-parser-string.h \
+  cmap-string.h \
   cmap-parser-util.h \
   cmap-parser-util-define.h \
-  cmap-parser-part.h
+  cmap-part.h
 
-bin_PROGRAMS = cmap-parser
+bin_PROGRAMS = cmap-main
 
-cmap_parser_SOURCES = \
+cmap_main_SOURCES = \
   cmap-scanner.l \
   cmap-parser.y \
-  cmap-parser-string.c \
+  cmap-string.c \
   cmap-parser-util.c \
-  cmap-parser-part.c \
+  cmap-part.c \
   cmap-main.c
 cmap_CFLAGS = -Wall

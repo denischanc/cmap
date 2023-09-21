@@ -2,8 +2,8 @@
 include $(top_srcdir)/src/common.mk
 
 SUBDIRS = \
+  main \
   parser \
-  parser2 \
   util \
   core \
   kernel \

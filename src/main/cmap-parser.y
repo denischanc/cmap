@@ -3,7 +3,7 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

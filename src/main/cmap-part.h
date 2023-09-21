@@ -1,5 +1,5 @@
-#ifndef __CMAP_PARSER_PART_H__
-#define __CMAP_PARSER_PART_H__
+#ifndef __CMAP_PART_H__
+#define __CMAP_PART_H__
 
 typedef struct
 {

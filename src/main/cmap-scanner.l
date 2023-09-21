@@ -1,7 +1,7 @@
 %{
 
 #include "cmap-scanner.h"
-#include "cmap-parser-string.h"
+#include "cmap-string.h"
 
 #define YY_USER_ACTION yycolumn += yyleng;
 

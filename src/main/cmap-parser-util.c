@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "cmap-parser-string.h"
-#include "cmap-parser-part.h"
+#include "cmap-string.h"
+#include "cmap-part.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -194,7 +194,8 @@ static void set_path(char * src, char * name, char * map)
 
 static char * args_push(char * list, char * map)
 {
-  char * ret = cmap_parser_string_public.create_args("%s, %s", list, map);
+  char * ret = NULL;
+  cmap_parser_string_public.append_args(&ret, "%s, %s", list, map);
 
   free(list);
   free(map);
@@ -207,7 +208,8 @@ static char * args_push(char * list, char * map)
 
 static char * arg_names(char * name)
 {
-  char * ret = cmap_parser_string_public.create_args("\"%s\"", name);
+  char * ret = NULL;
+  cmap_parser_string_public.append_args(&ret, "\"%s\"", name);
 
   free(name);
 
@@ -216,8 +218,8 @@ static char * arg_names(char * name)
 
 static char * arg_names_push(char * list, char * name)
 {
-  char * ret = cmap_parser_string_public.create_args("%s, \"%s\"",
-    list, name);
+  char * ret = NULL;
+  cmap_parser_string_public.append_args(&ret, "%s, \"%s\"", list, name);
 
   free(list);
   free(name);
@@ -230,7 +232,8 @@ static char * arg_names_push(char * list, char * name)
 
 static char * args_map(char * name, char * map)
 {
-  char * ret = cmap_parser_string_public.create_args("\"%s\", %s", name, map);
+  char * ret = NULL;
+  cmap_parser_string_public.append_args(&ret, "\"%s\", %s", name, map);
 
   free(name);
   free(map);
@@ -240,8 +243,9 @@ static char * args_map(char * name, char * map)
 
 static char * args_map_push(char * list, char * name, char * map)
 {
-  char * ret = cmap_parser_string_public.create_args("%s, \"%s\", %s",
-    list, name, map);
+  char * ret = NULL;
+  cmap_parser_string_public.append_args(&ret,
+    "%s, \"%s\", %s", list, name, map);
 
   free(list);
   free(name);

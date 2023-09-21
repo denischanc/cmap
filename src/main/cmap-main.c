@@ -4,8 +4,8 @@
 #include <string.h>
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
-#include "cmap-parser-part.h"
-#include "cmap-parser-string.h"
+#include "cmap-part.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
