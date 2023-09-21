@@ -6,6 +6,7 @@
 #include "cmap-parser.h"
 #include "cmap-part.h"
 #include "cmap-string.h"
+#include "cmap-main-usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -99,17 +100,44 @@ static void generate_h(const char * out_name)
 /*******************************************************************************
 *******************************************************************************/
 
+static int main_gen(int argc, char * argv[])
+{
+  if(argc < 4) cmap_main_usage_public.usage_gen(argv);
+  else
+  {
+    char * in_name = argv[2], * out_name = argv[3];
+    static char out_c_name[1000], out_h_name[1000];
+    snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);
+    snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
+
+    add_include(out_h_name);
+    parse(in_name);
+    generate_c(out_c_name);
+    generate_h(out_h_name);
+  }
+  return EXIT_SUCCESS;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int main_prj(int argc, char * argv[])
+{
+  cmap_main_usage_public.usage_prj(argv);
+  return EXIT_SUCCESS;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 int main(int argc, char * argv[])
 {
-  char * in_name = argv[1], * out_name = argv[2];
-  static char out_c_name[1000], out_h_name[1000];
-  snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);
-  snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
+  if(argc > 1)
+  {
+    if(!strcmp(argv[1], "gen")) return main_gen(argc, argv);
+    else if(!strcmp(argv[1], "prj")) return main_prj(argc, argv);
+  }
 
-  add_include(out_h_name);
-  parse(in_name);
-  generate_c(out_c_name);
-  generate_h(out_h_name);
-
+  cmap_main_usage_public.usage(argv);
   return EXIT_SUCCESS;
 }

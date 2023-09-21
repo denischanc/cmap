@@ -12,7 +12,8 @@ noinst_HEADERS = \
   cmap-string.h \
   cmap-parser-util.h \
   cmap-parser-util-define.h \
-  cmap-part.h
+  cmap-part.h \
+  cmap-main-usage.h
 
 bin_PROGRAMS = cmap-main
 
@@ -22,5 +23,6 @@ cmap_main_SOURCES = \
   cmap-string.c \
   cmap-parser-util.c \
   cmap-part.c \
-  cmap-main.c
+  cmap-main.c \
+  cmap-main-usage.c
 cmap_CFLAGS = -Wall
