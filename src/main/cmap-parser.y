@@ -25,7 +25,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token INCLUDE FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF
+%token IF ELSE LE GE EQUAL DIFF NEW
 %token ERROR
 %token<name> STRING C_IMPL NAME INT
 
@@ -98,7 +98,8 @@ creator: '{' arg_names_cmap '}' aisle
 }
 | STRING aisle { $$ = cmap_parser_util_public.string($1, $2); }
 | INT aisle { $$ = cmap_parser_util_public.int_($1, $2); }
-| function;
+| function
+| NEW cmap '{' args '}' aisle { $$ = cmap_parser_util_public.new($2, $4, $6); };
 
 /*******************************************************************************
 *******************************************************************************/

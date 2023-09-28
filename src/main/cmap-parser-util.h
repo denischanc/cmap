@@ -46,6 +46,8 @@ typedef struct
 
   CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
   char * (*cmp_unique)(char * map);
+
+  char * (*new)(char * map, char * args, char * aisle);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

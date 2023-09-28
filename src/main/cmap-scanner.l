@@ -53,13 +53,14 @@ SPACE_D [[:space:]]+
 "#include" { return INCLUDE; }
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
-"LOCAL" { return LOCAL; }
+"local" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
 "@PROC" { return PROC; }
 "if" { return IF; }
 "else" { return ELSE; }
+"new" { return NEW; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

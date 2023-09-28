@@ -85,6 +85,8 @@ CMAP_MAP * cmap_proc_impl(const char * impl, CMAP_PROC_CTX * proc_ctx);
 CMAP_ENV * cmap_env();
 CMAP_MAP * cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
   CMAP_MAP * definitions, const char * impl);
+void cmap_env_main_2(CMAP_ENV * env, int argc, char * argv[],
+  void (*init)(CMAP_PROC_CTX *));
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env);
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx);

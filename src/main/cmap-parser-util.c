@@ -531,6 +531,23 @@ static char * cmp_unique(char * map)
 /*******************************************************************************
 *******************************************************************************/
 
+static char * new(char * map, char * args, char * aisle)
+{
+  char * map_name = next_name();
+
+  APPEND_ARGS(instructions,
+    "  CMAP_MAP * %s = cmap_new((CMAP_FN *)%s, proc_ctx, ", map_name, map);
+  add_aisle(aisle);
+  add_args(args);
+
+  free(map);
+
+  return map_name;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define CMP_SET(name, op) name,
 
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
@@ -562,5 +579,6 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   else_if,
   else_,
   CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
-  cmp_unique
+  cmp_unique,
+  new
 };

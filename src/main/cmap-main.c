@@ -14,14 +14,15 @@
 static void add_include(const char * out_h_name)
 {
   cmap_parser_string_public.append_args(cmap_parser_part_public.includes(),
-    "#include \"%s\"\n\n#include <stdlib.h>\n#include <cmap-int-ext.h>\n",
+    "#include \"%s\"\n\n#include <stdlib.h>\n"
+    "#include <cmap/cmap-int-ext.h>\n",
     out_h_name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void parse(const char * in_name)
+static int parse(const char * in_name)
 {
   yyscan_t scanner;
   cmap_parser_lex_init(&scanner);
@@ -29,11 +30,13 @@ static void parse(const char * in_name)
   FILE * in = fopen(in_name, "r");
   cmap_parser_set_in(in, scanner);
 
-  cmap_parser_parse(scanner);
+  int ret = cmap_parser_parse(scanner);
 
   fclose(in);
 
   cmap_parser_lex_destroy(scanner);
+
+  return ret;
 }
 
 /*******************************************************************************
@@ -86,7 +89,7 @@ static void generate_h(const char * out_name)
   fprintf(out,
     "#ifndef __%s__\n"
     "#define __%s__\n\n"
-    "#include <cmap-ext.h>\n\n"
+    "#include <cmap/cmap-ext.h>\n\n"
     "%s\n"
     "#endif\n",
     upper_out_name, upper_out_name, *cmap_parser_part_public.definitions());
@@ -111,7 +114,7 @@ static int main_gen(int argc, char * argv[])
     snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
 
     add_include(out_h_name);
-    parse(in_name);
+    if(parse(in_name) != 0) return EXIT_FAILURE;
     generate_c(out_c_name);
     generate_h(out_h_name);
   }
