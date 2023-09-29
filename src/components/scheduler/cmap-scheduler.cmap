@@ -1,0 +1,47 @@
+[C[
+
+#include "cmap-scheduler-ep.h"
+#include "cmap-job.h"
+
+]]
+
+/*******************************************************************************
+*******************************************************************************/
+
+@FUNCTION(cmap_scheduler_public_create)
+{
+  LOCAL schedule = function()/global/(cmap_scheduler_ep_public_schedule);
+
+  LOCAL internal =
+  {
+    jobs: []/global/,
+    process: function()/global/
+    {
+      LOCAL job = this.jobs.shift();
+      if(job != null)
+      {
+        job.process();
+        schedule();
+      }
+    }
+  }/global/;
+
+  return
+  {
+    internal: internal,
+    addJob: function(job)/global/
+    {
+      this.internal.jobs.push(job);
+      schedule();
+    },
+    job: @PROC(cmap_job_public_create)
+  }/global/;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+@FUNCTION(cmap_scheduler_public_process)
+{
+  cmap.scheduler.internal.process();
+}

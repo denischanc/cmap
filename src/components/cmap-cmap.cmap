@@ -1,0 +1,20 @@
+[C[
+
+#include "cmap-console.h"
+#include "cmap-scheduler.h"
+#include "cmap-cmap-ep.h"
+
+]]
+
+/*******************************************************************************
+*******************************************************************************/
+
+@FUNCTION(cmap_cmap_public_create)
+{
+  return
+  {
+    console: @PROC(cmap_console_public_create),
+    scheduler: @PROC(cmap_scheduler_public_create),
+    prototype: @PROC(cmap_cmap_ep_public_prototype)
+  }/global/;
+}

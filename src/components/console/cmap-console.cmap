@@ -1,39 +1,6 @@
 [C[
 
-#include <stdio.h>
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void display(FILE * f, CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx)
-{
-  CMAP_STRING * line = cmap_string("", 0, proc_ctx, CMAP_AISLE_LOCAL);
-  cmap_lproc((CMAP_MAP *)line, "append", proc_ctx, args);
-  fprintf(f, "%s\n", cmap_string_val(line));
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * info_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  CMAP_LIST * args)
-{
-  display(stdout, args, proc_ctx);
-  return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * error_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  CMAP_LIST * args)
-{
-  display(stderr, args, proc_ctx);
-  return map;
-}
-
-/*******************************************************************************
-*******************************************************************************/
+#include "cmap-console-ep.h"
 
 ]]
 
@@ -44,7 +11,7 @@ static CMAP_MAP * error_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 {
   return
   {
-    info: function()/global/(info_fn),
-    error: function()/global/(error_fn)
+    info: function()/global/(cmap_console_ep_public_info),
+    error: function()/global/(cmap_console_ep_public_error)
   }/global/;
 }

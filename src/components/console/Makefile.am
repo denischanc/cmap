@@ -4,10 +4,12 @@ include $(top_srcdir)/src/common.mk
 EXTRA_DIST = cmap-console.cmap
 
 nodist_noinst_HEADERS = cmap-console.h
+noinst_HEADERS = cmap-console-ep.h
 
 noinst_LTLIBRARIES = libconsole.la
 
 nodist_libconsole_la_SOURCES = cmap-console.c
+libconsole_la_SOURCES = cmap-console-ep.c
 libconsole_la_CFLAGS = $(CMAP_CFLAGS)
 
 CLEANFILES = cmap-console.c cmap-console.h

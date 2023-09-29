@@ -1,21 +1,11 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = \
-  main \
-  parser \
-  util \
-  core \
-  kernel \
-  components
+SUBDIRS = main parser util core components kernel
 
-include_cmap_HEADERS = \
-  cmap-ext.h \
-  cmap-define-ext.h
+include_cmap_HEADERS = cmap-ext.h cmap-define-ext.h
 
-noinst_HEADERS = \
-  cmap.h \
-  cmap-define.h
+noinst_HEADERS = cmap.h cmap-define.h
 
 lib_LTLIBRARIES = libcmap.la
 
