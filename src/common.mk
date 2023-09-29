@@ -16,5 +16,7 @@ CMAP_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components/console \
   -I$(CMAP_SRC_PATH)/components/scheduler \
   -I$(CMAP_BUILD_PATH)/parser \
-  -I$(CMAP_BUILD_PATH)/src \
+  -I$(CMAP_BUILD_PATH)/components/console \
   -Wall
+
+CMAP_MAIN = $(CMAP_BUILD_PATH)/main/cmap-main

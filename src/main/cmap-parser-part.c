@@ -200,6 +200,14 @@ static void add_include(const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
+static void add_relative_include(const char * name)
+{
+  cmap_string_public.append_args(&includes, "#include \"%s\"\n", name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void add_include_lf()
 {
   cmap_string_public.append(&includes, "\n");
@@ -233,6 +241,7 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   return_,
   is_return,
   add_include,
+  add_relative_include,
   add_include_lf,
   includes_
 };

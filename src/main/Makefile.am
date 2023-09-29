@@ -13,6 +13,7 @@ noinst_HEADERS = \
   cmap-parser-util.h \
   cmap-parser-util-define.h \
   cmap-parser-part.h \
+  cmap-main.h \
   cmap-main-usage.h
 
 bin_PROGRAMS = cmap-main

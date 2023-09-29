@@ -23,7 +23,7 @@ char relative_inc = (0 == 1);
 
 static void add_include(const char * out_h_name)
 {
-  cmap_parser_part_public.add_include(out_h_name);
+  cmap_parser_part_public.add_relative_include(out_h_name);
   cmap_parser_part_public.add_include_lf();
   cmap_parser_part_public.add_include("stdlib.h");
   cmap_parser_part_public.add_include("cmap-int-ext.h");
@@ -59,9 +59,14 @@ static int parse(const char * in_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void generate_c(const char * out_name)
+static int generate_c(const char * out_name)
 {
   FILE * out = fopen(out_name, "w");
+  if(out == NULL)
+  {
+    fprintf(stderr, "[%s] %s\n", out_name, strerror(errno));
+    return 1;
+  }
   printf("==[[ Generate : _%s_\n", out_name);
 
   fprintf(out, "\n");
@@ -79,6 +84,8 @@ static void generate_c(const char * out_name)
   free(*cmap_parser_part_public.main());
 
   fclose(out);
+
+  return 0;
 }
 
 /*******************************************************************************
@@ -98,9 +105,14 @@ static char * create_upper(const char * name)
   return ret;
 }
 
-static void generate_h(const char * out_name)
+static int generate_h(const char * out_name)
 {
   FILE * out = fopen(out_name, "w");
+  if(out == NULL)
+  {
+    fprintf(stderr, "[%s] %s\n", out_name, strerror(errno));
+    return 1;
+  }
   printf("==[[ Generate : _%s_\n", out_name);
 
   char * upper_out_name = create_upper(out_name);
@@ -119,6 +131,8 @@ static void generate_h(const char * out_name)
   free(upper_out_name);
 
   fclose(out);
+
+  return 0;
 }
 
 /*******************************************************************************
@@ -160,8 +174,8 @@ static int main_gen(int argc, char * argv[])
 
     add_include(out_h_name);
     if(parse(in_name) != 0) return EXIT_FAILURE;
-    generate_c(out_c_name);
-    generate_h(out_h_name);
+    if(generate_c(out_c_name) != 0) return EXIT_FAILURE;
+    if(generate_h(out_h_name) != 0) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }

@@ -25,6 +25,7 @@ typedef struct
   char (*is_return)();
 
   void (*add_include)(const char * name);
+  void (*add_relative_include)(const char * name);
   void (*add_include_lf)();
   char * (*includes)();
 } CMAP_PARSER_PART_PUBLIC;
