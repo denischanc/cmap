@@ -13,3 +13,5 @@ missing
 test-driver
 *~
 ylwrap
+cmap-console.c
+cmap-console.h

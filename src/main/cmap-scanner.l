@@ -50,10 +50,9 @@ SPACE_D [[:space:]]+
   "\n" { string_append(yytext); }
 }
 
-"#include" { return INCLUDE; }
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
-"local" { return LOCAL; }
+"LOCAL" { return LOCAL; } // because of 'local' aisle
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
@@ -100,12 +99,12 @@ static void string_start(const char * txt)
 
 static void string_append(const char * txt)
 {
-  cmap_parser_string_public.append(&string, txt);
+  cmap_string_public.append(&string, txt);
 }
 
 static void string_end(YYSTYPE * yylval_p, const char * txt)
 {
-  cmap_parser_string_public.append(&string, txt);
+  cmap_string_public.append(&string, txt);
   yylval_p -> name = string;
 }
 

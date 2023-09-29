@@ -3,7 +3,7 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
-#include "cmap-part.h"
+#include "cmap-parser-part.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +24,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   char * name;
 }
 
-%token INCLUDE FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
+%token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
 %token IF ELSE LE GE EQUAL DIFF NEW
 %token ERROR
 %token<name> STRING C_IMPL NAME INT
@@ -37,18 +37,11 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 /*******************************************************************************
 *******************************************************************************/
 
-start: includes function_cs;
+start: parts;
 
-includes:
-| includes include;
-
-function_cs:
-| function_cs function_c;
-
-/*******************************************************************************
-*******************************************************************************/
-
-include: INCLUDE STRING { cmap_parser_util_public.include($2); };
+parts:
+| parts C_IMPL { cmap_parser_util_public.c_impl_root($2); }
+| parts function_c;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -152,7 +145,8 @@ process: NAME '(' args ')'
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' arg_names ')' aisle '{' instructions '}'
+function: FUNCTION '(' arg_names ')' aisle '{'
+{ cmap_parser_part_public.new_ctx(); } instructions '}'
 {
   $$ = cmap_parser_util_public.function($3, $5, NULL);
 }

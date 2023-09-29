@@ -14,7 +14,8 @@ static void append(char ** src, const char * txt)
   if(*src == NULL) *src = strdup(txt);
   else
   {
-    *src = (char *)realloc(*src, (strlen(*src) + strlen(txt) + 1) * sizeof(char));
+    *src = (char *)realloc(*src,
+      (strlen(*src) + strlen(txt) + 1) * sizeof(char));
     strcat(*src, txt);
   }
 }
@@ -36,7 +37,7 @@ static void append_args(char ** src, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PARSER_STRING_PUBLIC cmap_parser_string_public =
+const CMAP_STRING_PUBLIC cmap_string_public =
 {
   append,
   append_args

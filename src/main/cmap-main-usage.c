@@ -18,7 +18,11 @@ static void usage(char * argv[])
 
 static void usage_gen(char * argv[])
 {
-  printf("usage: %s gen [cmap file] [c/h root file]\n", argv[0]);
+  printf(
+    "usage: %s gen [cmap file] [c/h root file] (options)\n"
+    "options:\n"
+    "  -i,--relative-inc                    Relative include\n",
+    argv[0]);
 }
 
 /*******************************************************************************

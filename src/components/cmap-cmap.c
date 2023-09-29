@@ -35,7 +35,7 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL,
     "prototype", create_prototype(proc_ctx),
-    "console", cmap_console_public.create(proc_ctx),
+    "console", cmap_console_public_create(proc_ctx),
     "scheduler", cmap_scheduler_public.create(proc_ctx),
     NULL);
 }

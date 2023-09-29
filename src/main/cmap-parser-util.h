@@ -5,8 +5,6 @@
 
 typedef struct
 {
-  void (*include)(char * name);
-
   void (*function_c)(char * name, char is_static);
 
   char * (*name)(char * name);
@@ -38,6 +36,7 @@ typedef struct
   char * (*function)(char * args, char * aisle, char * fn_name);
 
   void (*c_impl)(char * impl);
+  void (*c_impl_root)(char * impl);
 
   void (*if_)(char * cmp_name);
   void (*else_empty)();

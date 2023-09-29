@@ -1,22 +1,34 @@
 
+#include "cmap-main.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <errno.h>
+#include <getopt.h>
+#include <unistd.h>
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
-#include "cmap-part.h"
+#include "cmap-parser-part.h"
 #include "cmap-string.h"
 #include "cmap-main-usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
+char relative_inc = (0 == 1);
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void add_include(const char * out_h_name)
 {
-  cmap_parser_string_public.append_args(cmap_parser_part_public.includes(),
-    "#include \"%s\"\n\n#include <stdlib.h>\n"
-    "#include <cmap/cmap-int-ext.h>\n",
-    out_h_name);
+  cmap_parser_part_public.add_include(out_h_name);
+  cmap_parser_part_public.add_include_lf();
+  cmap_parser_part_public.add_include("stdlib.h");
+  cmap_parser_part_public.add_include("cmap-int-ext.h");
+  cmap_parser_part_public.add_include("cmap-aisle-ext.h");
+  cmap_parser_part_public.add_include_lf();
 }
 
 /*******************************************************************************
@@ -24,17 +36,22 @@ static void add_include(const char * out_h_name)
 
 static int parse(const char * in_name)
 {
+  FILE * in = fopen(in_name, "r");
+  if(in == NULL)
+  {
+    fprintf(stderr, "[%s] %s\n", in_name, strerror(errno));
+    return 1;
+  }
+
   yyscan_t scanner;
   cmap_parser_lex_init(&scanner);
-
-  FILE * in = fopen(in_name, "r");
   cmap_parser_set_in(in, scanner);
 
   int ret = cmap_parser_parse(scanner);
 
-  fclose(in);
-
   cmap_parser_lex_destroy(scanner);
+
+  fclose(in);
 
   return ret;
 }
@@ -49,9 +66,11 @@ static void generate_c(const char * out_name)
 
   fprintf(out, "\n");
 
-  fprintf(out, "%s", *cmap_parser_part_public.includes());
-  free(*cmap_parser_part_public.includes());
-  fprintf(out, "\n");
+  fprintf(out, "%s", cmap_parser_part_public.includes());
+  free(cmap_parser_part_public.includes());
+
+  fprintf(out, "%s", *cmap_parser_part_public.c_impl());
+  free(*cmap_parser_part_public.c_impl());
 
   fprintf(out, "%s", *cmap_parser_part_public.functions());
   free(*cmap_parser_part_public.functions());
@@ -89,11 +108,13 @@ static void generate_h(const char * out_name)
   fprintf(out,
     "#ifndef __%s__\n"
     "#define __%s__\n\n"
-    "#include <cmap/cmap-ext.h>\n\n"
+    "#include %s\n\n"
     "%s\n"
     "#endif\n",
-    upper_out_name, upper_out_name, *cmap_parser_part_public.definitions());
-  free(*cmap_parser_part_public.definitions());
+    upper_out_name, upper_out_name,
+    (relative_inc) ? "\"cmap-ext.h\"" : "<cmap/cmap-ext.h>",
+    *cmap_parser_part_public.headers());
+  free(*cmap_parser_part_public.headers());
 
   free(upper_out_name);
 
@@ -103,11 +124,35 @@ static void generate_h(const char * out_name)
 /*******************************************************************************
 *******************************************************************************/
 
+static struct option gen_long_options[] =
+{
+  {"relative-inc", no_argument, NULL, 'i'},
+  {NULL, 0, NULL, 0}
+};
+
+static const char * gen_short_options = "i";
+
+static void main_gen_options(int argc, char * argv[])
+{
+  int o;
+  while((o = getopt_long(argc, argv, gen_short_options, gen_long_options,
+    NULL)) != -1)
+  {
+    switch(o)
+    {
+      case 'i': relative_inc = (1 == 1); break;
+    }
+  }
+}
+
 static int main_gen(int argc, char * argv[])
 {
   if(argc < 4) cmap_main_usage_public.usage_gen(argv);
   else
   {
+    optind = 4;
+    main_gen_options(argc, argv);
+
     char * in_name = argv[2], * out_name = argv[3];
     static char out_c_name[1000], out_h_name[1000];
     snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);

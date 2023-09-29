@@ -5,8 +5,8 @@ typedef struct
 {
   void (*append)(char ** src, const char * txt);
   void (*append_args)(char ** src, const char * txt, ...);
-} CMAP_PARSER_STRING_PUBLIC;
+} CMAP_STRING_PUBLIC;
 
-extern const CMAP_PARSER_STRING_PUBLIC cmap_parser_string_public;
+extern const CMAP_STRING_PUBLIC cmap_string_public;
 
 #endif
