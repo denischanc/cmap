@@ -1,6 +1,8 @@
 #ifndef __CMAP_PART_H__
 #define __CMAP_PART_H__
 
+#include "cmap-kv.h"
+
 #define SPACE "  "
 
 typedef struct
@@ -16,9 +18,11 @@ typedef struct
   char ** (*instructions)();
   void (*add_instruction)(const char * instruction);
   void (*add_lf)();
+  void (*prepend_instruction)(const char * instruction);
   void (*add_definitions)(const char * instruction);
   void (*add_global_env)(const char * instruction);
   void (*add_prefix)();
+  KV * (*name2map)();
   char * (*pop_instructions)();
 
   void (*return_)();

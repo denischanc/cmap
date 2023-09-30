@@ -5,6 +5,7 @@
 #include <string.h>
 #include "cmap-string.h"
 #include "cmap-main.h"
+#include "cmap-kv.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -23,6 +24,8 @@ typedef struct INSTRUCTIONS INSTRUCTIONS;
 struct INSTRUCTIONS
 {
   char * instructions, definitions, global_env, return_, * prefix;
+
+  KV * name2map;
 
   INSTRUCTIONS * next, * ctx;
 };
@@ -73,12 +76,14 @@ static void push_instructions()
     is_new_ctx = (1 == 0);
     tmp -> prefix = strdup(SPACE);
     tmp -> ctx = tmp;
+    tmp -> name2map = cmap_kv_create();
   }
   else
   {
     tmp -> prefix = strdup(instructions -> prefix);
     cmap_string_public.append(&tmp -> prefix, SPACE);
     tmp -> ctx = instructions -> ctx;
+    tmp -> name2map = NULL;
   }
   tmp -> next = instructions;
   instructions = tmp;
@@ -158,11 +163,20 @@ static void add_prefix()
 /*******************************************************************************
 *******************************************************************************/
 
+static KV * name2map()
+{
+  return instructions -> ctx -> name2map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static char * pop_instructions()
 {
   char * ret = instructions -> instructions;
   INSTRUCTIONS * tmp = instructions;
   instructions = instructions -> next;
+  if(tmp -> name2map != NULL) cmap_kv_delete(tmp -> name2map);
   free(tmp -> prefix);
   free(tmp);
   return ret;
@@ -234,9 +248,11 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   instructions_,
   add_instruction,
   add_lf,
+  prepend_instruction,
   add_definitions,
   add_global_env,
   add_prefix,
+  name2map,
   pop_instructions,
   return_,
   is_return,
