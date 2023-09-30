@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-string.h"
-#include "cmap-main.h"
 #include "cmap-kv.h"
+#include "cmap-gen.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,7 +25,7 @@ struct INSTRUCTIONS
 {
   char * instructions, definitions, global_env, return_, * prefix;
 
-  KV * name2map;
+  CMAP_KV * name2map;
 
   INSTRUCTIONS * next, * ctx;
 };
@@ -76,7 +76,7 @@ static void push_instructions()
     is_new_ctx = (1 == 0);
     tmp -> prefix = strdup(SPACE);
     tmp -> ctx = tmp;
-    tmp -> name2map = cmap_kv_create();
+    tmp -> name2map = cmap_kv_public.create();
   }
   else
   {
@@ -163,7 +163,7 @@ static void add_prefix()
 /*******************************************************************************
 *******************************************************************************/
 
-static KV * name2map()
+static CMAP_KV * name2map()
 {
   return instructions -> ctx -> name2map;
 }
@@ -176,7 +176,7 @@ static char * pop_instructions()
   char * ret = instructions -> instructions;
   INSTRUCTIONS * tmp = instructions;
   instructions = instructions -> next;
-  if(tmp -> name2map != NULL) cmap_kv_delete(tmp -> name2map);
+  if(tmp -> name2map != NULL) cmap_kv_public.delete(tmp -> name2map);
   free(tmp -> prefix);
   free(tmp);
   return ret;
@@ -206,7 +206,8 @@ static void add_include(const char * name)
   if(!strncmp(name, "cmap", 4))
   {
     cmap_string_public.append_args(&includes,
-      (relative_inc) ? "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
+      (cmap_gen_public.relative_inc()) ?
+        "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
   }
   else cmap_string_public.append_args(&includes, "#include <%s>\n", name);
 }

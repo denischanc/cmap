@@ -7,18 +7,18 @@
 /*******************************************************************************
 *******************************************************************************/
 
-struct KV
+struct CMAP_KV
 {
   const char * key, * val;
-  KV * next;
+  CMAP_KV * next;
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-KV * cmap_kv_create()
+CMAP_KV * create()
 {
-  KV * kv = (KV *)malloc(sizeof(KV));
+  CMAP_KV * kv = (CMAP_KV *)malloc(sizeof(CMAP_KV));
   kv -> key = NULL;
   kv -> val = NULL;
   kv -> next = NULL;
@@ -28,9 +28,9 @@ KV * cmap_kv_create()
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_kv_put(KV * kv, const char * key, const char * val)
+void put(CMAP_KV * kv, const char * key, const char * val)
 {
-  KV ** kv_ptr = &kv;
+  CMAP_KV ** kv_ptr = &kv;
 
   while(*kv_ptr != NULL)
   {
@@ -50,7 +50,7 @@ void cmap_kv_put(KV * kv, const char * key, const char * val)
     kv_ptr = &(*kv_ptr) -> next;
   }
 
-  *kv_ptr = (KV *)malloc(sizeof(KV));
+  *kv_ptr = (CMAP_KV *)malloc(sizeof(CMAP_KV));
   (*kv_ptr) -> key = strdup(key);
   (*kv_ptr) -> val = strdup(val);
   (*kv_ptr) -> next = NULL;
@@ -59,7 +59,7 @@ void cmap_kv_put(KV * kv, const char * key, const char * val)
 /*******************************************************************************
 *******************************************************************************/
 
-const char * cmap_kv_get(KV * kv, const char * key)
+const char * get(CMAP_KV * kv, const char * key)
 {
   while(kv != NULL)
   {
@@ -72,11 +72,11 @@ const char * cmap_kv_get(KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_kv_delete(KV * kv)
+void delete(CMAP_KV * kv)
 {
   while(kv != NULL)
   {
-    KV * tmp = kv;
+    CMAP_KV * tmp = kv;
     kv = kv -> next;
 
     if(tmp -> key != NULL)
@@ -87,3 +87,14 @@ void cmap_kv_delete(KV * kv)
     free(tmp);
   }
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_KV_PUBLIC cmap_kv_public =
+{
+  create,
+  put,
+  get,
+  delete
+};

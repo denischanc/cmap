@@ -22,7 +22,7 @@ typedef struct
   void (*add_definitions)(const char * instruction);
   void (*add_global_env)(const char * instruction);
   void (*add_prefix)();
-  KV * (*name2map)();
+  CMAP_KV * (*name2map)();
   char * (*pop_instructions)();
 
   void (*return_)();

@@ -1,11 +1,16 @@
 #ifndef __CMAP_KV_H__
 #define __CMAP_KV_H__
 
-typedef struct KV KV;
+typedef struct CMAP_KV CMAP_KV;
 
-KV * cmap_kv_create();
-void cmap_kv_put(KV * kv, const char * key, const char * val);
-const char * cmap_kv_get(KV * kv, const char * key);
-void cmap_kv_delete(KV * kv);
+typedef struct
+{
+  CMAP_KV * (*create)();
+  void (*put)(CMAP_KV * kv, const char * key, const char * val);
+  const char * (*get)(CMAP_KV * kv, const char * key);
+  void (*delete)(CMAP_KV * kv);
+} CMAP_KV_PUBLIC;
+
+extern const CMAP_KV_PUBLIC cmap_kv_public;
 
 #endif

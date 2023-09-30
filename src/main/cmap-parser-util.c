@@ -156,7 +156,8 @@ static void function_c(char * name, char is_static)
 
 static char * name(char * name)
 {
-  const char * tmp = cmap_kv_get(cmap_parser_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(
+    cmap_parser_part_public.name2map(), name);
   if(tmp != NULL) return strdup(tmp);
   else
   {
@@ -201,7 +202,7 @@ static char * path(char * map, char * name)
 
 static void set_local(char * name, char * map)
 {
-  cmap_kv_put(cmap_parser_part_public.name2map(), name, map);
+  cmap_kv_public.put(cmap_parser_part_public.name2map(), name, map);
 
   char * instruction = NULL;
   add_definitions();
@@ -218,12 +219,13 @@ static void set_local(char * name, char * map)
 
 static void set_global(char * name, char * map)
 {
-  const char * tmp = cmap_kv_get(cmap_parser_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(
+    cmap_parser_part_public.name2map(), name);
   char * instruction = NULL;
 
   if(tmp != NULL)
   {
-    cmap_kv_put(cmap_parser_part_public.name2map(), name, map);
+    cmap_kv_public.put(cmap_parser_part_public.name2map(), name, map);
 
     APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);",
       DEFINITIONS_VAR_NAME, name, map);
