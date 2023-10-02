@@ -31,4 +31,8 @@ cmap_main_SOURCES = \
   cmap-prj.c \
   cmap-scanner.l \
   cmap-string.c
-cmap_main_CFLAGS = -Wall
+cmap_main_CFLAGS = \
+  -Wall \
+  -DCMAP_INSTALL_BINDIR="\"$(bindir)\"" \
+  -DCMAP_INSTALL_LIBDIR="\"$(libdir)\"" \
+  -DCMAP_INSTALL_INCLUDEDIR="\"$(includedir)\""
