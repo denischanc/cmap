@@ -1,6 +1,8 @@
 
 include $(top_srcdir)/test/common.mk
 
+EXTRA_DIST = test003.cmap
+
 noinst_PROGRAMS = \
   test001 \
   test002 \
@@ -13,6 +15,13 @@ LDADD = $(CMAP_TEST_LDADD_COMMON)
 
 test001_SOURCES = test001.c
 test002_SOURCES = test002.c
-test003_SOURCES = test003.c
+nodist_test003_SOURCES = test003.c
 test004_SOURCES = test004.c
 test005_SOURCES = test005.c
+
+CLEANFILES = test003.c
+
+TEST003_FILE = $(CMAP_TEST_SRC_PATH)/kernel/test003.cmap
+
+test003.c: $(TEST003_FILE) $(CMAP_MAIN)
+	$(CMAP_MAIN) gen $(TEST003_FILE) test003 -i -c

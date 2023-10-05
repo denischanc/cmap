@@ -11,7 +11,6 @@
 #include "cmap-ptr.h"
 #include "cmap-mem.h"
 #include "cmap-util.h"
-#include "cmap-parser-util.h"
 #include "cmap-env.h"
 #include "cmap-kernel.h"
 #include "cmap-proc-ctx.h"
@@ -369,33 +368,21 @@ void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_proc_impl(const char * impl, CMAP_PROC_CTX * proc_ctx)
-{
-  return cmap_parser_util_public.proc_impl(impl, proc_ctx);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 CMAP_ENV * cmap_env()
 {
   return cmap_env_public.create();
 }
 
-CMAP_MAP * cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
-  CMAP_MAP * definitions, const char * impl)
-{
-  return CMAP_CALL_ARGS(env, main, argc, argv, definitions, impl);
-}
-
-void cmap_env_main_2(CMAP_ENV * env, int argc, char * argv[],
+void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
   void (*init)(CMAP_PROC_CTX *))
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
 
+  CMAP_CALL(proc_ctx, push_local_stack);
   CMAP_CALL(proc_ctx, push_definitions);
   init(proc_ctx);
   CMAP_CALL(proc_ctx, pop_definitions);
+  CMAP_CALL(proc_ctx, pop_local_stack);
 
   CMAP_CALL(proc_ctx, delete);
 }

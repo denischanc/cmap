@@ -12,7 +12,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * AISLE_SCANNER = "cmap-internal-scanner";
 static const char * AISLE_LOCAL_STACK = "cmap-internal-local-stack";
 static const char * AISLE_DEFINITIONS = "cmap-internal-definitions";
 
@@ -66,35 +65,6 @@ static CMAP_MAP * global_env(CMAP_PROC_CTX * this)
 {
   CMAP_ENV * env_ = env(this);
   return CMAP_CALL_ARGS(env_, global, this);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void delete_scanner(void * ptr)
-{
-  cmap_parser_lex_destroy(*(yyscan_t *)ptr);
-}
-
-static void push_scanner(CMAP_PROC_CTX * this)
-{
-  CMAP_PTR * scanner = cmap_ptr_public.create(
-    sizeof(yyscan_t), delete_scanner, this, AISLE_SCANNER);
-  cmap_parser_lex_init_extra(this, (yyscan_t *)CMAP_CALL(scanner, get));
-}
-
-static void pop_scanner(CMAP_PROC_CTX * this)
-{
-  CMAP_AISLESTORE * as = aislestore(this);
-  CMAP_CALL_ARGS(as, delete_last, AISLE_SCANNER);
-}
-
-static yyscan_t scanner(CMAP_PROC_CTX * this)
-{
-  CMAP_AISLESTORE * as = aislestore(this);
-  CMAP_PTR * scanner = (CMAP_PTR *)CMAP_GET(as, AISLE_SCANNER);
-  if(scanner == NULL) return NULL;
-  else return *(yyscan_t *)CMAP_CALL(scanner, get);
 }
 
 /*******************************************************************************
@@ -169,9 +139,6 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   proc_ctx -> pool_string = pool_string;
   proc_ctx -> pool_int = pool_int;
   proc_ctx -> global_env = global_env;
-  proc_ctx -> push_scanner = push_scanner;
-  proc_ctx -> pop_scanner = pop_scanner;
-  proc_ctx -> scanner = scanner;
   proc_ctx -> push_local_stack = push_local_stack;
   proc_ctx -> pop_local_stack = pop_local_stack;
   proc_ctx -> local_stack = local_stack;

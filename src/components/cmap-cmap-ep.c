@@ -1,6 +1,7 @@
 
 #include "cmap-cmap-ep.h"
 
+#include <stdlib.h>
 #include "cmap.h"
 #include "cmap-aisle-ext.h"
 #include "cmap-prototypestore.h"

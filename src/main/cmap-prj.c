@@ -41,7 +41,7 @@ static const char * main_c =
   "int main(int argc, char * argv[])\n"
   "{\n"
   "  cmap_bootstrap(NULL);\n"
-  "  cmap_env_main_2(cmap_env(), argc, argv, hello_world);\n"
+  "  cmap_env_main(cmap_env(), argc, argv, hello_world);\n"
   "  return cmap_main();\n"
   "}\n";
 

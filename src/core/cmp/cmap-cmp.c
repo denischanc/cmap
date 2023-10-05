@@ -1,6 +1,7 @@
 
 #include "cmap-cmp.h"
 
+#include <stdlib.h>
 #include "cmap-proc-ctx.h"
 #include "cmap-int.h"
 #include "cmap-cmp-int-handler.h"

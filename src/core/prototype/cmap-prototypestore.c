@@ -15,7 +15,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define STRUCT_INTERNAL(type) CMAP_MAP * type##_;
+#define STRUCT_INTERNAL(type) \
+  CMAP_MAP * type##_; \
+  char type##_ok;
 
 typedef struct
 {
@@ -38,9 +40,11 @@ static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
 static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, CMAP_PROC_CTX * proc_ctx) \
 { \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
-  if(internal -> type##_ == NULL) \
+  if((internal -> type##_ == NULL) || !internal -> type##_ok) \
   { \
     require_##type(this, proc_ctx); \
+ \
+    internal -> type##_ok = (1 == 1); \
     cmap_prototype_##type##_public.init(internal -> type##_, proc_ctx); \
   } \
   return internal -> type##_; \
@@ -57,7 +61,9 @@ static CMAP_LIFECYCLE * delete(CMAP_LIFECYCLE * lc)
   return cmap_lifecycle_public.delete(lc);
 }
 
-#define INIT_INTERNAL(type) internal -> type##_ = NULL;
+#define INIT_INTERNAL(type) \
+  internal -> type##_ = NULL; \
+  internal -> type##_ok = (1 == 0);
 
 #define INIT_PS(type) \
   ps -> require_##type = require_##type; \

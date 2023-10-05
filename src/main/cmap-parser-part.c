@@ -11,7 +11,6 @@
 *******************************************************************************/
 
 #define PART_LOOP(macro) \
-  macro(c_impl) \
   macro(functions) \
   macro(main) \
   macro(headers)

@@ -14,15 +14,19 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char relative_inc = (1 == 0);
+static char relative_inc = (1 == 0), only_c = (1 == 0);
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void add_include(const char * out_h_name)
 {
-  cmap_parser_part_public.add_relative_include(out_h_name);
-  cmap_parser_part_public.add_include_lf();
+  if(!only_c)
+  {
+    cmap_parser_part_public.add_relative_include(out_h_name);
+    cmap_parser_part_public.add_include_lf();
+  }
+  else cmap_parser_part_public.add_include("cmap-ext.h");
   cmap_parser_part_public.add_include("stdlib.h");
   cmap_parser_part_public.add_include("cmap-int-ext.h");
   cmap_parser_part_public.add_include("cmap-aisle-ext.h");
@@ -71,9 +75,6 @@ static int generate_c(const char * out_name)
 
   fprintf(out, "%s", cmap_parser_part_public.includes());
   free(cmap_parser_part_public.includes());
-
-  fprintf(out, "%s", *cmap_parser_part_public.c_impl());
-  free(*cmap_parser_part_public.c_impl());
 
   fprintf(out, "%s", *cmap_parser_part_public.functions());
   free(*cmap_parser_part_public.functions());
@@ -139,10 +140,11 @@ static int generate_h(const char * out_name)
 static struct option gen_long_options[] =
 {
   {"relative-inc", no_argument, NULL, 'i'},
+  {"only-c", no_argument, NULL, 'c'},
   {NULL, 0, NULL, 0}
 };
 
-static const char * gen_short_options = "i";
+static const char * gen_short_options = "ic";
 
 static void mng_options(int argc, char * argv[])
 {
@@ -153,6 +155,7 @@ static void mng_options(int argc, char * argv[])
     switch(o)
     {
       case 'i': relative_inc = (1 == 1); break;
+      case 'c': only_c = (1 == 1); break;
     }
   }
 }
@@ -165,7 +168,8 @@ static void usage(const char * this_name)
   printf(
     "usage: %s gen [cmap file] [c/h root file] (options)\n"
     "options:\n"
-    "  -i,--relative-inc                    Relative include\n",
+    "  -i,--relative-inc                    Relative include\n"
+    "  -c,--only-c                          Only c generation\n",
     this_name);
 }
 
@@ -183,12 +187,13 @@ static int main_(int argc, char * argv[])
     char * in_name = argv[2], * out_name = argv[3];
     static char out_c_name[1000], out_h_name[1000];
     snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);
-    snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
+    if(!only_c) snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
 
     add_include(out_h_name);
     if(parse(in_name) != 0) return EXIT_FAILURE;
     if(generate_c(out_c_name) != 0) return EXIT_FAILURE;
-    if(generate_h(out_h_name) != 0) return EXIT_FAILURE;
+    if(only_c) free(*cmap_parser_part_public.headers());
+    else if(generate_h(out_h_name) != 0) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }

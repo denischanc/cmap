@@ -7,7 +7,6 @@
 
 typedef struct
 {
-  char ** (*c_impl)();
   char ** (*functions)();
   char ** (*main)();
 

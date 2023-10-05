@@ -2,7 +2,6 @@
 #define __CMAP_PROC_CTX_H__
 
 #include "cmap-proc-ctx-type.h"
-#include "cmap-scanner.h"
 #include "cmap-list-type.h"
 #include "cmap-env-type.h"
 #include "cmap-aislestore.h"
@@ -24,10 +23,6 @@ struct CMAP_PROC_CTX
   CMAP_POOL_STRING * (*pool_string)(CMAP_PROC_CTX * this);
   CMAP_POOL_INT * (*pool_int)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
-
-  void (*push_scanner)(CMAP_PROC_CTX * this);
-  void (*pop_scanner)(CMAP_PROC_CTX * this);
-  yyscan_t (*scanner)(CMAP_PROC_CTX * this);
 
   void (*push_local_stack)(CMAP_PROC_CTX * this);
   void (*pop_local_stack)(CMAP_PROC_CTX * this);

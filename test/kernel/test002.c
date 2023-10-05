@@ -98,30 +98,17 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_DELETE(list);
 }
 
-static CMAP_MAP * test(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  CMAP_LIST * args)
+static void test(CMAP_PROC_CTX * proc_ctx)
 {
   test_list(3, proc_ctx);
   test_list(4, proc_ctx);
   test_list(5, proc_ctx);
   test_list(7, proc_ctx);
-
-  return NULL;
 }
 
 int main(int argc, char * argv[])
 {
   cmap_bootstrap(NULL);
-
-  CMAP_ENV * env = cmap_env();
-
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
-  CMAP_MAP * definitions = cmap_map(proc_ctx, CMAP_AISLE_GLOBAL);
-  CMAP_FN * test_fn = cmap_fn(test, proc_ctx, CMAP_AISLE_GLOBAL);
-  cmap_delete_proc_ctx(proc_ctx);
-
-  cmap_set(definitions, "test", (CMAP_MAP *)test_fn);
-  cmap_env_main(env, argc, argv, definitions, "test();");
-
+  cmap_env_main(cmap_env(), argc, argv, test);
   return cmap_main();
 }

@@ -6,7 +6,6 @@
 #include "cmap-kernel.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-parser-util.h"
 #include "cmap-util.h"
 
 /*******************************************************************************
@@ -28,30 +27,6 @@ typedef struct
 } INTERNAL;
 
 static CMAP_ENV * envs = NULL;
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * main_(CMAP_ENV * this, int argc, char * argv[],
-  CMAP_MAP * definitions, const char * impl)
-{
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(this);
-  CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_CALL(proc_ctx, push_definitions);
-
-  CMAP_MAP * defs_ctx = CMAP_CALL(proc_ctx, definitions);
-  if(definitions != NULL) cmap_util_public.copy(defs_ctx, definitions);
-
-  CMAP_MAP * ret = cmap_parser_util_public.proc_impl(impl, proc_ctx);
-
-  if(definitions != NULL) cmap_util_public.copy(definitions, defs_ctx);
-
-  CMAP_CALL(proc_ctx, pop_definitions);
-  CMAP_CALL(proc_ctx, pop_local_stack);
-  CMAP_CALL(proc_ctx, delete);
-
-  return ret;
-}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -154,7 +129,6 @@ static CMAP_ENV * create()
   CMAP_KERNEL_ALLOC_PTR(env, CMAP_ENV);
   env -> internal = internal;
   env -> delete = delete;
-  env -> main = main_;
   env -> aislestore = aislestore;
   env -> prototypestore = prototypestore;
   env -> pool_list = pool_list;

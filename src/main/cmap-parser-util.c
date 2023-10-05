@@ -521,8 +521,8 @@ static void c_impl(char * impl)
 
 static void c_impl_root(char * impl)
 {
-  APPEND(c_impl, impl);
-  APPEND(c_impl, "\n\n");
+  APPEND(main, impl);
+  APPEND(main, "\n\n");
   free(impl);
 }
 
