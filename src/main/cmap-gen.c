@@ -72,15 +72,9 @@ static int generate_c(const char * out_name)
   printf("==[[ Generate : _%s_\n", out_name);
 
   fprintf(out, "\n");
-
   fprintf(out, "%s", cmap_parser_part_public.includes());
-  free(cmap_parser_part_public.includes());
-
   fprintf(out, "%s", *cmap_parser_part_public.functions());
-  free(*cmap_parser_part_public.functions());
-
   fprintf(out, "%s", *cmap_parser_part_public.main());
-  free(*cmap_parser_part_public.main());
 
   fclose(out);
 
@@ -125,7 +119,6 @@ static int generate_h(const char * out_name)
     upper_out_name, upper_out_name,
     (relative_inc) ? "\"cmap-ext.h\"" : "<cmap/cmap-ext.h>",
     *cmap_parser_part_public.headers());
-  free(*cmap_parser_part_public.headers());
 
   free(upper_out_name);
 
@@ -192,8 +185,9 @@ static int main_(int argc, char * argv[])
     add_include(out_h_name);
     if(parse(in_name) != 0) return EXIT_FAILURE;
     if(generate_c(out_c_name) != 0) return EXIT_FAILURE;
-    if(only_c) free(*cmap_parser_part_public.headers());
-    else if(generate_h(out_h_name) != 0) return EXIT_FAILURE;
+    if(!only_c && (generate_h(out_h_name) != 0)) return EXIT_FAILURE;
+
+    cmap_parser_part_public.clean();
   }
   return EXIT_SUCCESS;
 }

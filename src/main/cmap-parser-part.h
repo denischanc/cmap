@@ -7,6 +7,8 @@
 
 typedef struct
 {
+  void (*clean)();
+
   char ** (*functions)();
   char ** (*main)();
 
@@ -18,8 +20,8 @@ typedef struct
   void (*add_instruction)(const char * instruction);
   void (*add_lf)();
   void (*prepend_instruction)(const char * instruction);
-  void (*add_definitions)(const char * instruction);
-  void (*add_global_env)(const char * instruction);
+  char (*is_definitions)();
+  char (*is_global_env)();
   void (*add_prefix)();
   CMAP_KV * (*name2map)();
   char * (*pop_instructions)();

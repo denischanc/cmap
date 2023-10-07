@@ -71,6 +71,7 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 | cmap '.' NAME '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
 | process { free($1); }
 | RETURN cmap { cmap_parser_util_public.return_($2); }
+| RETURN { cmap_parser_util_public.return_(NULL); }
 | PROC '(' NAME ')' { cmap_parser_util_public.process_c($3, (1 == 0)); };
 
 /*******************************************************************************
@@ -164,7 +165,8 @@ if: IF '(' comparison ')' '{' instructions '}'
 } else;
 
 else: { cmap_parser_util_public.else_empty(); }
-| ELSE { cmap_parser_util_public.else_if(); } if
+| ELSE { cmap_parser_util_public.else_if_start(); }
+  if { cmap_parser_util_public.else_if_stop(); }
 | ELSE '{' instructions '}' { cmap_parser_util_public.else_(); };
 
 /*******************************************************************************

@@ -378,11 +378,9 @@ void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
 
-  CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_CALL(proc_ctx, push_definitions);
+  CMAP_CALL(proc_ctx, push_local);
   init(proc_ctx);
-  CMAP_CALL(proc_ctx, pop_definitions);
-  CMAP_CALL(proc_ctx, pop_local_stack);
+  CMAP_CALL(proc_ctx, pop_local);
 
   CMAP_CALL(proc_ctx, delete);
 }
@@ -393,6 +391,16 @@ void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env)
 {
   return cmap_proc_ctx_public.create(env);
+}
+
+void cmap_push_local_ctx(CMAP_PROC_CTX * proc_ctx)
+{
+  CMAP_CALL(proc_ctx, push_local);
+}
+
+void cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx)
+{
+  CMAP_CALL(proc_ctx, pop_local);
 }
 
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx)
@@ -410,5 +418,5 @@ CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
 
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_CALL(proc_ctx, definitions);
+  return CMAP_CALL(proc_ctx, local_definitions);
 }

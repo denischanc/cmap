@@ -12,8 +12,6 @@ struct CMAP_PROC_CTX
 {
   void * internal;
 
-  CMAP_MAP * ret;
-
   void (*delete)(CMAP_PROC_CTX * this);
 
   CMAP_ENV * (*env)(CMAP_PROC_CTX * this);
@@ -24,13 +22,10 @@ struct CMAP_PROC_CTX
   CMAP_POOL_INT * (*pool_int)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
 
-  void (*push_local_stack)(CMAP_PROC_CTX * this);
-  void (*pop_local_stack)(CMAP_PROC_CTX * this);
+  void (*push_local)(CMAP_PROC_CTX * this);
+  CMAP_MAP * (*local_definitions)(CMAP_PROC_CTX * this);
   CMAP_LIST * (*local_stack)(CMAP_PROC_CTX * this);
-
-  void (*push_definitions)(CMAP_PROC_CTX * this);
-  void (*pop_definitions)(CMAP_PROC_CTX * this);
-  CMAP_MAP * (*definitions)(CMAP_PROC_CTX * this);
+  void (*pop_local)(CMAP_PROC_CTX * this);
 };
 
 typedef struct

@@ -28,22 +28,18 @@ static const char * hello_world_cmap =
   "\n"
   "  LOCAL job = new cmap.scheduler.job{helloWorld}/t/;\n"
   "  job.schedule();\n"
-  "}\n";
-
-/*******************************************************************************
-*******************************************************************************/
-
-static const char * main_c =
+  "}\n"
   "\n"
-  "#include <stdlib.h>\n"
-  "#include \"hello-world.h\"\n"
+  "[C[\n"
   "\n"
   "int main(int argc, char * argv[])\n"
   "{\n"
   "  cmap_bootstrap(NULL);\n"
   "  cmap_env_main(cmap_env(), argc, argv, hello_world);\n"
   "  return cmap_main();\n"
-  "}\n";
+  "}\n"
+  "\n"
+  "]]\n";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -57,14 +53,14 @@ const char * makefile =
   "CFLAGS = -Wall -I" CMAP_INSTALL_INCLUDEDIR "\n"
   "LDFLAGS = -L" CMAP_INSTALL_LIBDIR " -lcmap\n"
   "\n"
-  "hello-world: main.c hello-world.c\n"
+  "hello-world: hello-world.c\n"
   "\tgcc $(CFLAGS) $(LDFLAGS) -o $@ $^\n"
   "\n"
   "hello-world.c: hello-world.cmap $(CMAP_MAIN)\n"
-  "\t$(CMAP_MAIN) gen $< $(@:.c=)\n"
+  "\t$(CMAP_MAIN) gen $< $(@:.c=) --only-c\n"
   "\n"
   "clean:\n"
-  "\trm -f hello-world hello-world.c hello-world.h\n";
+  "\trm -f hello-world hello-world.c\n";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -101,7 +97,6 @@ static int main_(int argc, char * argv[])
 
     if(to_file(dir, "hello-world.cmap", hello_world_cmap) != 0)
       return EXIT_FAILURE;
-    if(to_file(dir, "main.c", main_c) != 0) return EXIT_FAILURE;
     if(to_file(dir, "Makefile", makefile) != 0) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;

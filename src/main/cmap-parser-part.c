@@ -128,25 +128,31 @@ static void prepend_instruction(const char * instruction)
   free(tmp);
 }
 
-static void add_definitions(const char * instruction)
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_definitions()
 {
   INSTRUCTIONS * ctx = instructions -> ctx;
-
-  if(!ctx -> definitions)
+  if(ctx -> definitions) return (1 == 1);
+  else
   {
     ctx -> definitions = (1 == 1);
-    prepend_instruction(instruction);
+    return (1 == 0);
   }
 }
 
-static void add_global_env(const char * instruction)
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_global_env()
 {
   INSTRUCTIONS * ctx = instructions -> ctx;
-
-  if(!ctx -> global_env)
+  if(ctx -> global_env) return (1 == 1);
+  else
   {
     ctx -> global_env = (1 == 1);
-    prepend_instruction(instruction);
+    return (1 == 0);
   }
 }
 
@@ -186,7 +192,7 @@ static char * pop_instructions()
 
 static void return_()
 {
-  instructions -> return_ = (1 == 1);
+  instructions -> ctx -> return_ = (1 == 1);
 }
 
 /*******************************************************************************
@@ -194,7 +200,7 @@ static void return_()
 
 static char is_return()
 {
-  return instructions -> return_;
+  return instructions -> ctx -> return_;
 }
 
 /*******************************************************************************
@@ -238,10 +244,24 @@ static char * includes_()
 /*******************************************************************************
 *******************************************************************************/
 
+#define DELETE_PART(name) free(name); name = NULL;
+
+static void clean()
+{
+  PART_LOOP(DELETE_PART)
+  free(includes); includes = NULL;
+
+  is_new_ctx = (1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define PART_DECL(name) name##_,
 
 const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
 {
+  clean,
   PART_LOOP(PART_DECL)
   new_ctx,
   push_instructions,
@@ -249,8 +269,8 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   add_instruction,
   add_lf,
   prepend_instruction,
-  add_definitions,
-  add_global_env,
+  is_definitions,
+  is_global_env,
   add_prefix,
   name2map,
   pop_instructions,

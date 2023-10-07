@@ -77,17 +77,25 @@ static CMAP_LIFECYCLE * delete_local_stack(CMAP_LIFECYCLE * lc)
   return cmap_list_public.delete(local_stack);
 }
 
-static void push_local_stack(CMAP_PROC_CTX * this)
+static void push_local(CMAP_PROC_CTX * this)
 {
+  cmap_map_public.create_root(this, AISLE_DEFINITIONS);
+
   CMAP_LIST * local_stack = CMAP_LIST(0, this, AISLE_LOCAL_STACK);
   local_stack -> super.super.delete = delete_local_stack;
 }
 
-static void pop_local_stack(CMAP_PROC_CTX * this)
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * local_definitions(CMAP_PROC_CTX * this)
 {
   CMAP_AISLESTORE * as = aislestore(this);
-  CMAP_CALL_ARGS(as, delete_last, AISLE_LOCAL_STACK);
+  return CMAP_GET(as, AISLE_DEFINITIONS);
 }
+
+/*******************************************************************************
+*******************************************************************************/
 
 static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 {
@@ -98,21 +106,11 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void push_definitions(CMAP_PROC_CTX * this)
-{
-  cmap_map_public.create_root(this, AISLE_DEFINITIONS);
-}
-
-static void pop_definitions(CMAP_PROC_CTX * this)
+static void pop_local(CMAP_PROC_CTX * this)
 {
   CMAP_AISLESTORE * as = aislestore(this);
   CMAP_CALL_ARGS(as, delete_last, AISLE_DEFINITIONS);
-}
-
-static CMAP_MAP * definitions(CMAP_PROC_CTX * this)
-{
-  CMAP_AISLESTORE * as = aislestore(this);
-  return CMAP_GET(as, AISLE_DEFINITIONS);
+  CMAP_CALL_ARGS(as, delete_last, AISLE_LOCAL_STACK);
 }
 
 /*******************************************************************************
@@ -139,12 +137,10 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   proc_ctx -> pool_string = pool_string;
   proc_ctx -> pool_int = pool_int;
   proc_ctx -> global_env = global_env;
-  proc_ctx -> push_local_stack = push_local_stack;
-  proc_ctx -> pop_local_stack = pop_local_stack;
+  proc_ctx -> push_local = push_local;
+  proc_ctx -> local_definitions = local_definitions;
   proc_ctx -> local_stack = local_stack;
-  proc_ctx -> push_definitions = push_definitions;
-  proc_ctx -> pop_definitions = pop_definitions;
-  proc_ctx -> definitions = definitions;
+  proc_ctx -> pop_local = pop_local;
 
   return proc_ctx;
 }

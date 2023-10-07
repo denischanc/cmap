@@ -68,12 +68,11 @@ static void add_arg_name(CMAP_FN * this, const char * arg_name,
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_CALL(proc_ctx, push_local_stack);
-  CMAP_CALL(proc_ctx, push_definitions);
+  CMAP_CALL(proc_ctx, push_local);
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, definitions);
+  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, local_definitions);
   CMAP_SET(definitions, "this", map);
   CMAP_SET(definitions, "args", args);
 
@@ -92,8 +91,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * ret = CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args);
 
-  CMAP_CALL(proc_ctx, pop_definitions);
-  CMAP_CALL(proc_ctx, pop_local_stack);
+  CMAP_CALL(proc_ctx, pop_local);
 
   return ret;
 }
