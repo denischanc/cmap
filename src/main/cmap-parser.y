@@ -30,7 +30,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token<name> STRING C_IMPL NAME INT
 
 %type<name> cmap aisle arg_names_cmap creator args process function arg_names
-%type<name> comparison
+%type<name> comparison comparison_
 
 %%
 
@@ -172,7 +172,13 @@ else: { cmap_parser_util_public.else_empty(); }
 /*******************************************************************************
 *******************************************************************************/
 
-comparison: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
+comparison:
+{
+  cmap_parser_part_public.new_ctx();
+  cmap_parser_part_public.push_instructions();
+} comparison_ { $$ = $2; };
+
+comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
 | cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
 | cmap '>' cmap { $$ = cmap_parser_util_public.gt($1, $3); }
 | cmap LE cmap { $$ = cmap_parser_util_public.le($1, $3); }

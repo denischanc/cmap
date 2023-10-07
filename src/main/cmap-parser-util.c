@@ -579,12 +579,22 @@ static void else_()
 /*******************************************************************************
 *******************************************************************************/
 
-static char * cmp_to_bool(char * cmp_name, char * op)
+static char * cmp_to_bool_fn(char * cmp_name, const char * op)
 {
-  char * bool_name = next_name(), * instruction = NULL;
-  APPEND_INSTRUCTION_ARGS("char %s = (%s %s 0);", bool_name, cmp_name, op);
+  char * instruction = NULL;
+  APPEND_INSTRUCTION_ARGS("return (%s %s 0);", cmp_name, op);
   free(cmp_name);
-  return bool_name;
+
+  char * bool_fn_name = next_name(),
+    * instructions = cmap_parser_part_public.pop_instructions();
+  APPEND_ARGS(functions,
+    "static inline char %s(CMAP_PROC_CTX * proc_ctx)\n{\n", bool_fn_name);
+  APPEND(functions, instructions);
+  free(instructions);
+  APPEND(functions, "}\n\n");
+
+  cmap_string_public.append(&bool_fn_name, "(proc_ctx)");
+  return bool_fn_name;
 }
 
 #define CMP_IMPL(name, op) \
@@ -596,8 +606,9 @@ static char * name(char * map_l, char * map_r) \
     cmp_name, map_l, map_r); \
   free(map_l); \
   free(map_r); \
+  APPEND_LF(); \
  \
-  return cmp_to_bool(cmp_name, #op); \
+  return cmp_to_bool_fn(cmp_name, #op); \
 }
 
 CMAP_PARSER_UTIL_CMP_LOOP(CMP_IMPL)
@@ -612,8 +623,9 @@ static char * cmp_unique(char * map)
     SPACE "%s = (cmap_int_get((CMAP_INT *)%s) == 0) ? 0 : 1;", cmp_name, map);
   APPEND_INSTRUCTION_ARGS("else %s = (%s == NULL) ? 0 : 1;", cmp_name, map);
   free(map);
+  APPEND_LF();
 
-  return cmp_to_bool(cmp_name, "!=");
+  return cmp_to_bool_fn(cmp_name, "!=");
 }
 
 /*******************************************************************************
