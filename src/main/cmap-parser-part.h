@@ -5,6 +5,9 @@
 
 #define SPACE "  "
 
+extern const char CMAP_PARSER_PART_CTX_NATURE_DFT;
+extern const char CMAP_PARSER_PART_CTX_NATURE_FN;
+
 typedef struct
 {
   void (*clean)();
@@ -14,7 +17,7 @@ typedef struct
 
   char ** (*headers)();
 
-  void (*new_ctx)();
+  void (*new_ctx)(char nature);
   void (*push_instructions)();
   char ** (*instructions)();
   void (*add_instruction)(const char * instruction);
@@ -28,6 +31,8 @@ typedef struct
 
   void (*return_)();
   char (*is_return)();
+  void (*return_fn)();
+  char (*is_return_fn)();
 
   void (*add_include)(const char * name);
   void (*add_relative_include)(const char * name);

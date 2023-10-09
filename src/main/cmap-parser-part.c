@@ -22,7 +22,7 @@ typedef struct INSTRUCTIONS INSTRUCTIONS;
 
 struct INSTRUCTIONS
 {
-  char * instructions, definitions, global_env, return_, * prefix;
+  char * instructions, definitions, global_env, return_, return_fn, * prefix;
 
   CMAP_KV * name2map;
 
@@ -32,13 +32,17 @@ struct INSTRUCTIONS
 /*******************************************************************************
 *******************************************************************************/
 
+const char CMAP_PARSER_PART_CTX_NATURE_DFT = 0,
+  CMAP_PARSER_PART_CTX_NATURE_FN = 1;
+
 #define PART_VAR(name) static char * name = NULL;
 
 PART_LOOP(PART_VAR)
 
 static INSTRUCTIONS * instructions = NULL;
 
-static char * includes = NULL, is_new_ctx = (1 == 1);
+static char * includes = NULL, is_new_ctx = (1 == 1),
+  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -55,9 +59,10 @@ PART_LOOP(PART_FN)
 /*******************************************************************************
 *******************************************************************************/
 
-static void new_ctx()
+static void new_ctx(char nature)
 {
   is_new_ctx = (1 == 1);
+  ctx_nature = nature;
 }
 
 /*******************************************************************************
@@ -72,13 +77,16 @@ static void push_instructions()
   tmp -> return_ = (1 == 0);
   if(is_new_ctx || (instructions == NULL))
   {
-    is_new_ctx = (1 == 0);
+    if(ctx_nature == CMAP_PARSER_PART_CTX_NATURE_FN)
+      tmp -> return_fn = (1 == 1);
+    else tmp -> return_fn = (1 == 0);
     tmp -> prefix = strdup(SPACE);
     tmp -> ctx = tmp;
     tmp -> name2map = cmap_kv_public.create();
   }
   else
   {
+    tmp -> return_fn = (1 == 0);
     tmp -> prefix = strdup(instructions -> prefix);
     cmap_string_public.append(&tmp -> prefix, SPACE);
     tmp -> ctx = instructions -> ctx;
@@ -86,6 +94,9 @@ static void push_instructions()
   }
   tmp -> next = instructions;
   instructions = tmp;
+
+  is_new_ctx = (1 == 0);
+  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
 }
 
 /*******************************************************************************
@@ -195,12 +206,22 @@ static void return_()
   instructions -> ctx -> return_ = (1 == 1);
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
 static char is_return()
 {
   return instructions -> ctx -> return_;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void return_fn()
+{
+  instructions -> ctx -> return_fn = (1 == 1);
+}
+
+static char is_return_fn()
+{
+  return instructions -> ctx -> return_fn;
 }
 
 /*******************************************************************************
@@ -252,6 +273,7 @@ static void clean()
   free(includes); includes = NULL;
 
   is_new_ctx = (1 == 1);
+  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
 }
 
 /*******************************************************************************
@@ -276,6 +298,8 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   pop_instructions,
   return_,
   is_return,
+  return_fn,
+  is_return_fn,
   add_include,
   add_relative_include,
   add_include_lf,

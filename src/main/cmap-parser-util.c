@@ -135,19 +135,20 @@ static void add_aisle(char ** instruction, char * aisle)
 
 static void function_c(char * name, char is_static)
 {
-  char is_return = cmap_parser_part_public.is_return();
-
+  char is_return_fn = cmap_parser_part_public.is_return_fn();
   APPEND_ARGS(main, "%s%s %s(CMAP_PROC_CTX * proc_ctx)\n{\n",
-    is_static ? "static " : "", is_return ? "CMAP_MAP *" : "void", name);
+    is_static ? "static " : "", is_return_fn ? "CMAP_MAP *" : "void", name);
 
   if(!is_static)
   {
     APPEND_ARGS(headers, "%s %s(CMAP_PROC_CTX * proc_ctx);\n",
-      is_return ? "CMAP_MAP *" : "void", name);
+      is_return_fn ? "CMAP_MAP *" : "void", name);
   }
 
   free(name);
 
+  if(is_return_fn && !cmap_parser_part_public.is_return())
+    APPEND_INSTRUCTION("return NULL;");
   char * instructions = cmap_parser_part_public.pop_instructions();
   APPEND(main, instructions);
   free(instructions);
@@ -392,13 +393,19 @@ static char * int_(char * i, char * aisle)
 
 static void return_(char * map)
 {
-  if(map == NULL) APPEND_INSTRUCTION("return;");
+  if(map == NULL)
+  {
+    if(cmap_parser_part_public.is_return_fn())
+      APPEND_INSTRUCTION("return NULL;");
+    else APPEND_INSTRUCTION("return;");
+  }
   else
   {
     char * instruction = NULL;
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
+    cmap_parser_part_public.return_fn();
     cmap_parser_part_public.return_();
   }
 }
@@ -446,12 +453,13 @@ static char * process_fn(char * fn, char * args)
 
 static char * process_c(char * fn_name, char need_ret)
 {
-  char * instruction = NULL, * map_name = (need_ret) ? next_name() : NULL;
+  char * instruction = NULL, * map_name = NULL;
 
   APPEND_INSTRUCTION("cmap_push_local_ctx(proc_ctx);");
 
   if(need_ret)
   {
+    map_name = next_name();
     PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
     APPEND_INSTRUCTION_ARGS("%s = %s(proc_ctx);", map_name, fn_name);
   }
@@ -459,11 +467,11 @@ static char * process_c(char * fn_name, char need_ret)
   {
     APPEND_INSTRUCTION_ARGS("%s(proc_ctx);", fn_name);
   }
-  APPEND_LF();
 
   free(fn_name);
 
   APPEND_INSTRUCTION("cmap_pop_local_ctx(proc_ctx);");
+  APPEND_LF();
 
   return map_name;
 }
@@ -482,11 +490,14 @@ static char * function(char * args, char * aisle, char * fn_name)
     APPEND_ARGS(functions,
       "static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx,\n"
       "  CMAP_MAP * map, CMAP_LIST * args)\n{\n", fn_name);
-    char is_return = cmap_parser_part_public.is_return(),
-      * instructions = cmap_parser_part_public.pop_instructions();
+
+    if(!cmap_parser_part_public.is_return())
+      APPEND_INSTRUCTION("return NULL;");
+    char * instructions = cmap_parser_part_public.pop_instructions();
     APPEND(functions, instructions);
     free(instructions);
-    APPEND_ARGS(functions, "%s}\n\n", is_return ? "" : "  return NULL;\n");
+
+    APPEND(functions, "}\n\n");
   }
 
   PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);

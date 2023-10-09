@@ -147,7 +147,9 @@ process: NAME '(' args ')'
 *******************************************************************************/
 
 function: FUNCTION '(' arg_names ')' aisle '{'
-{ cmap_parser_part_public.new_ctx(); } instructions '}'
+{
+  cmap_parser_part_public.new_ctx(CMAP_PARSER_PART_CTX_NATURE_FN);
+} instructions '}'
 {
   $$ = cmap_parser_util_public.function($3, $5, NULL);
 }
@@ -174,7 +176,7 @@ else: { cmap_parser_util_public.else_empty(); }
 
 comparison:
 {
-  cmap_parser_part_public.new_ctx();
+  cmap_parser_part_public.new_ctx(CMAP_PARSER_PART_CTX_NATURE_DFT);
   cmap_parser_part_public.push_instructions();
 } comparison_ { $$ = $2; };
 
