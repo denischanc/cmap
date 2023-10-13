@@ -56,9 +56,10 @@ typedef struct
   char * (*sb_string)(char * map, char * string);
   char * (*sb_map)(char * map, char * map_i);
 
-  char * (*aisle_path)(char * path);
+  char * (*aisle_names)(char * names);
   char * (*aisle_map)(char * map);
-  char * (*cat_aisle_path)(char * path, char * name);
+
+  char * (*names)(char * names, char * name);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

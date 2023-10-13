@@ -759,11 +759,11 @@ static char * sb_map(char * map, char * map_i)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * aisle_path(char * path)
+static char * aisle_names(char * names)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "\"%s\"", path);
-  free(path);
+  cmap_string_public.append_args(&ret, "\"%s\"", names);
+  free(names);
   return ret;
 }
 
@@ -776,11 +776,14 @@ static char * aisle_map(char * map)
   return ret;
 }
 
-static char * cat_aisle_path(char * path, char * name)
+/*******************************************************************************
+*******************************************************************************/
+
+static char * names(char * names, char * name)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "%s.%s", path, name);
-  free(path);
+  cmap_string_public.append_args(&ret, "%s.%s", names, name);
+  free(names);
   free(name);
   return ret;
 }
@@ -828,7 +831,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   sb_int,
   sb_string,
   sb_map,
-  aisle_path,
+  aisle_names,
   aisle_map,
-  cat_aisle_path
+  names
 };

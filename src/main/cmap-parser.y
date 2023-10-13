@@ -30,7 +30,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token<name> STRING C_IMPL NAME INT
 
 %type<name> cmap aisle arg_names_cmap creator args process function arg_names
-%type<name> comparison comparison_ cmap_not_creator aisle_path
+%type<name> comparison comparison_ cmap_not_creator names
 
 %%
 
@@ -66,6 +66,9 @@ instructions: { cmap_parser_part_public.push_instructions(); }
 /*******************************************************************************
 *******************************************************************************/
 
+names: NAME
+| names '.' NAME { $$ = cmap_parser_util_public.names($1, $3); };
+
 instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 | NAME '=' cmap { cmap_parser_util_public.set_global($1, $3); }
 | cmap '.' NAME '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
@@ -84,17 +87,14 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 | process { free($1); }
 | RETURN cmap { cmap_parser_util_public.return_($2); }
 | RETURN { cmap_parser_util_public.return_(NULL); }
-| PROC '(' NAME ')' { cmap_parser_util_public.process_c($3, (1 == 0)); };
+| PROC '(' names ')' { cmap_parser_util_public.process_c($3, (1 == 0)); };
 
 /*******************************************************************************
 *******************************************************************************/
 
 aisle: { $$ = NULL; }
-| '#' aisle_path '#' { $$ = cmap_parser_util_public.aisle_path($2); }
+| '#' names '#' { $$ = cmap_parser_util_public.aisle_names($2); }
 | H2 cmap_not_creator H2 { $$ = cmap_parser_util_public.aisle_map($2); };
-
-aisle_path: NAME
-| aisle_path '.' NAME { $$ = cmap_parser_util_public.cat_aisle_path($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -123,7 +123,7 @@ cmap_not_creator: NULL_PTR { $$ = strdup("NULL"); } | process
 | cmap SB2_O INT SB2_C { $$ = cmap_parser_util_public.sb_int($1, $3); }
 | cmap SB2_O STRING SB2_C { $$ = cmap_parser_util_public.sb_string($1, $3); }
 | cmap '[' cmap ']' { $$ = cmap_parser_util_public.sb_map($1, $3); }
-| PROC '(' NAME ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
+| PROC '(' names ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -146,8 +146,8 @@ arg_names: { $$ = NULL; }
 *******************************************************************************/
 
 arg_names_cmap: { $$ = NULL; }
-| NAME ':' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
-| arg_names_cmap ',' NAME ':' cmap
+| names ':' cmap { $$ = cmap_parser_util_public.args_map($1, $3); }
+| arg_names_cmap ',' names ':' cmap
 {
   $$ = cmap_parser_util_public.args_map_push($1, $3, $5);
 };
@@ -175,7 +175,7 @@ function: FUNCTION '(' arg_names ')' aisle '{'
 {
   $$ = cmap_parser_util_public.function($3, $5, NULL);
 }
-| FUNCTION '(' arg_names ')' aisle '(' NAME ')'
+| FUNCTION '(' arg_names ')' aisle '(' names ')'
 {
   $$ = cmap_parser_util_public.function($3, $5, $7);
 };
