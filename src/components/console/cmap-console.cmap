@@ -11,7 +11,7 @@
 {
   return
   {
-    info: function()/global/(cmap_console_ep_public_info),
-    error: function()/global/(cmap_console_ep_public_error)
-  }/global/;
+    info: function()#global#(cmap_console_ep_public_info),
+    error: function()#global#(cmap_console_ep_public_error)
+  }#global#;
 }

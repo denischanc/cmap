@@ -4,14 +4,17 @@
 
 @FUNCTION(test)
 {
-  LOCAL test = function()/t/{
-    cmap.console.info("Hello "/t/, "World "/t/, "!!!"/t/).info();
+  LOCAL aisleT = "aisle.t"#global#;
+
+  LOCAL test = function()##aisleT##{
+    cmap.console.info(
+      "Hello "##aisleT##, "World "##aisleT##, "!!!"##aisleT##).info();
     cmap.console.info();
 
-    cmap.console.error("[ERROR]"/t/);
+    cmap.console.error("[ERROR]"##aisleT##);
   };
 
-  LOCAL job = new cmap.scheduler.job{test}/t/;
+  LOCAL job = new cmap.scheduler.job{test}#aisle.t#;
   job.schedule();
 }
 

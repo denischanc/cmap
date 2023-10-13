@@ -120,11 +120,11 @@ static void add_aisle(char ** instruction, char * aisle)
 {
   if(aisle != NULL)
   {
-    if(!strcmp(aisle, "local"))
+    if(!strcmp(aisle, "\"local\""))
       cmap_string_public.append(instruction, "CMAP_AISLE_LOCAL");
-    else if(!strcmp(aisle, "global"))
+    else if(!strcmp(aisle, "\"global\""))
       cmap_string_public.append(instruction, "CMAP_AISLE_GLOBAL");
-    else cmap_string_public.append_args(instruction, "\"%s\"", aisle);
+    else cmap_string_public.append(instruction, aisle);
     free(aisle);
   }
   else cmap_string_public.append(instruction, "NULL");
@@ -659,6 +659,135 @@ static char * new(char * map, char * args, char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
+static void set_sb_int(char * map, char * i, char * map_src)
+{
+  char * instruction = NULL;
+  APPEND_INSTRUCTION_ARGS(
+    "cmap_list_set((CMAP_LIST *)%s, %s, %s);", map, i, map_src);
+  APPEND_LF();
+
+  free(map);
+  free(i);
+  free(map_src);
+}
+
+static void set_sb_string(char * map, char * string, char * map_src)
+{
+  char * instruction = NULL;
+  APPEND_INSTRUCTION_ARGS(
+    "cmap_set(%s, %s, %s);", map, string, map_src);
+  APPEND_LF();
+
+  free(map);
+  free(string);
+  free(map_src);
+}
+
+static void set_sb_map(char * map, char * map_i, char * map_src)
+{
+  char * instruction = NULL;
+  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);
+  APPEND_INSTRUCTION_ARGS(
+    SPACE "cmap_list_set((CMAP_LIST *)%s, cmap_int_get((CMAP_INT *)%s), %s);",
+    map, map_i, map_src);
+  APPEND_INSTRUCTION_ARGS(
+    "else if(cmap_nature(%s) == CMAP_STRING_NATURE)", map_i);
+  APPEND_INSTRUCTION_ARGS(
+    SPACE "cmap_set(%s, cmap_string_val((CMAP_STRING *)%s), %s);",
+    map, map_i, map_src);
+  APPEND_LF();
+
+  free(map);
+  free(map_i);
+  free(map_src);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * sb_int(char * map, char * i)
+{
+  char * map_name = next_name(), * instruction = NULL;
+
+  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  APPEND_INSTRUCTION_ARGS(
+    "%s = cmap_list_get((CMAP_LIST *)%s, %s);", map_name, map, i);
+  APPEND_LF();
+
+  free(map);
+  free(i);
+
+  return map_name;
+}
+
+static char * sb_string(char * map, char * string)
+{
+  char * map_name = next_name(), * instruction = NULL;
+
+  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, %s);", map_name, map, string);
+  APPEND_LF();
+
+  free(map);
+  free(string);
+
+  return map_name;
+}
+
+static char * sb_map(char * map, char * map_i)
+{
+  char * map_name = next_name(), * instruction = NULL;
+
+  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s = NULL;", map_name);
+  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);
+  APPEND_INSTRUCTION_ARGS(
+    SPACE "%s = cmap_list_get((CMAP_LIST *)%s, cmap_int_get((CMAP_INT *)%s));",
+    map_name, map, map_i);
+  APPEND_INSTRUCTION_ARGS(
+    "else if(cmap_nature(%s) == CMAP_STRING_NATURE)", map_i);
+  APPEND_INSTRUCTION_ARGS(
+    SPACE "%s = cmap_get(%s, cmap_string_val((CMAP_STRING *)%s));",
+    map_name, map, map_i);
+  APPEND_LF();
+
+  free(map);
+  free(map_i);
+
+  return map_name;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * aisle_path(char * path)
+{
+  char * ret = NULL;
+  cmap_string_public.append_args(&ret, "\"%s\"", path);
+  free(path);
+  return ret;
+}
+
+static char * aisle_map(char * map)
+{
+  char * ret = NULL;
+  cmap_string_public.append_args(&ret, "cmap_string_val((CMAP_STRING *)%s)",
+    map);
+  free(map);
+  return ret;
+}
+
+static char * cat_aisle_path(char * path, char * name)
+{
+  char * ret = NULL;
+  cmap_string_public.append_args(&ret, "%s.%s", path, name);
+  free(path);
+  free(name);
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define CMP_SET(name, op) name,
 
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
@@ -692,5 +821,14 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   else_,
   CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
   cmp_unique,
-  new
+  new,
+  set_sb_int,
+  set_sb_string,
+  set_sb_map,
+  sb_int,
+  sb_string,
+  sb_map,
+  aisle_path,
+  aisle_map,
+  cat_aisle_path
 };

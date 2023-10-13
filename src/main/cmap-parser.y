@@ -25,12 +25,12 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW
+%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2
 %token ERROR
 %token<name> STRING C_IMPL NAME INT
 
 %type<name> cmap aisle arg_names_cmap creator args process function arg_names
-%type<name> comparison comparison_
+%type<name> comparison comparison_ cmap_not_creator aisle_path
 
 %%
 
@@ -69,6 +69,18 @@ instructions: { cmap_parser_part_public.push_instructions(); }
 instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 | NAME '=' cmap { cmap_parser_util_public.set_global($1, $3); }
 | cmap '.' NAME '=' cmap { cmap_parser_util_public.set_path($1, $3, $5); }
+| cmap SB2_O INT SB2_C '=' cmap
+{
+  cmap_parser_util_public.set_sb_int($1, $3, $6);
+}
+| cmap SB2_O STRING SB2_C '=' cmap
+{
+  cmap_parser_util_public.set_sb_string($1, $3, $6);
+}
+| cmap '[' cmap ']' '=' cmap
+{
+  cmap_parser_util_public.set_sb_map($1, $3, $6);
+}
 | process { free($1); }
 | RETURN cmap { cmap_parser_util_public.return_($2); }
 | RETURN { cmap_parser_util_public.return_(NULL); }
@@ -77,7 +89,12 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 /*******************************************************************************
 *******************************************************************************/
 
-aisle: { $$ = NULL; } | '/' NAME '/' { $$ = $2; };
+aisle: { $$ = NULL; }
+| '#' aisle_path '#' { $$ = cmap_parser_util_public.aisle_path($2); }
+| H2 cmap_not_creator H2 { $$ = cmap_parser_util_public.aisle_map($2); };
+
+aisle_path: NAME
+| aisle_path '.' NAME { $$ = cmap_parser_util_public.cat_aisle_path($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -98,9 +115,14 @@ creator: '{' arg_names_cmap '}' aisle
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: NULL_PTR { $$ = strdup("NULL"); } | creator | process
+cmap: creator | cmap_not_creator;
+
+cmap_not_creator: NULL_PTR { $$ = strdup("NULL"); } | process
 | NAME { $$ = cmap_parser_util_public.name($1); }
 | cmap '.' NAME { $$ = cmap_parser_util_public.path($1, $3); }
+| cmap SB2_O INT SB2_C { $$ = cmap_parser_util_public.sb_int($1, $3); }
+| cmap SB2_O STRING SB2_C { $$ = cmap_parser_util_public.sb_string($1, $3); }
+| cmap '[' cmap ']' { $$ = cmap_parser_util_public.sb_map($1, $3); }
 | PROC '(' NAME ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
 
 /*******************************************************************************

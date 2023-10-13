@@ -48,6 +48,17 @@ typedef struct
   char * (*cmp_unique)(char * map);
 
   char * (*new)(char * map, char * args, char * aisle);
+
+  void (*set_sb_int)(char * map, char * i, char * map_src);
+  void (*set_sb_string)(char * map, char * string, char * map_src);
+  void (*set_sb_map)(char * map, char * map_i, char * map_src);
+  char * (*sb_int)(char * map, char * i);
+  char * (*sb_string)(char * map, char * string);
+  char * (*sb_map)(char * map, char * map_i);
+
+  char * (*aisle_path)(char * path);
+  char * (*aisle_map)(char * map);
+  char * (*cat_aisle_path)(char * path, char * name);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

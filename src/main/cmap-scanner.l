@@ -64,6 +64,10 @@ SPACE_D [[:space:]]+
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }
 
+"[[" { return SB2_O; }
+"]]" { return SB2_C; }
+"##" { return H2; }
+
 "." { return '.'; }
 "," { return ','; }
 ";" { return ';'; }
@@ -74,7 +78,7 @@ SPACE_D [[:space:]]+
 "]" { return ']'; }
 "{" { return '{'; }
 "}" { return '}'; }
-"/" { return '/'; }
+"#" { return '#'; }
 ":" { return ':'; }
 
 "<" { return '<'; }

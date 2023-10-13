@@ -3,19 +3,19 @@
 
 @FUNCTION(cmap_job_public_create)
 {
-  LOCAL job = function(process)/global/
+  LOCAL job = function(process)#global#
   {
     this.process = process;
   };
 
   job.prototype =
   {
-    schedule: function()/global/
+    schedule: function()#global#
     {
       cmap.scheduler.addJob(this);
       return this;
     }
-  }/global/;
+  }#global#;
 
   return job;
 }
