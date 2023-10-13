@@ -4,6 +4,11 @@
 #include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
 
-CMAP_MAP * cmap_cmap_ep_public_prototype(CMAP_PROC_CTX * proc_ctx);
+typedef struct
+{
+  CMAP_MAP * (*prototype)(CMAP_PROC_CTX * proc_ctx);
+} CMAP_CMAP_EP_PUBLIC;
+
+extern const CMAP_CMAP_EP_PUBLIC cmap_cmap_ep_public;
 
 #endif

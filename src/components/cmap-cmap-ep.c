@@ -10,7 +10,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_cmap_ep_public_prototype(CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * prototype(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
 
@@ -24,3 +24,11 @@ CMAP_MAP * cmap_cmap_ep_public_prototype(CMAP_PROC_CTX * proc_ctx)
     "ptr", CMAP_CALL_ARGS(ps, ptr_, proc_ctx),
     NULL);
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_CMAP_EP_PUBLIC cmap_cmap_ep_public =
+{
+  prototype
+};

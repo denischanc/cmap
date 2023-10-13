@@ -18,8 +18,8 @@ static void display(FILE * f, CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_console_ep_public_info(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
   display(stdout, args, proc_ctx);
   return map;
@@ -28,9 +28,18 @@ CMAP_MAP * cmap_console_ep_public_info(CMAP_PROC_CTX * proc_ctx,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_console_ep_public_error(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * error(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
   display(stderr, args, proc_ctx);
   return map;
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_CONSOLE_EP_PUBLIC cmap_console_ep_public =
+{
+  info,
+  error
+};

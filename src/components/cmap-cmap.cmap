@@ -15,6 +15,6 @@
   {
     console: @PROC(cmap_console_public_create),
     scheduler: @PROC(cmap_scheduler_public_create),
-    prototype: @PROC(cmap_cmap_ep_public_prototype)
+    prototype: @PROC(cmap_cmap_ep_public.prototype)
   }#global#;
 }

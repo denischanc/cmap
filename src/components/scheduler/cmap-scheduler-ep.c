@@ -32,9 +32,7 @@ static void on_schedule(uv_work_t * req, int status)
   cmap_delete_proc_ctx(proc_ctx);
 }
 
-/* TODO : long time processing ... */
-
-static void schedule(CMAP_ENV * env)
+static void do_schedule(CMAP_ENV * env)
 {
   if(!internal.scheduled)
   {
@@ -49,9 +47,17 @@ static void schedule(CMAP_ENV * env)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_scheduler_ep_public_schedule(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args)
+static CMAP_MAP * schedule(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
 {
-  schedule(CMAP_CALL(proc_ctx, env));
+  do_schedule(CMAP_CALL(proc_ctx, env));
   return NULL;
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_SCHEDULER_EP_PUBLIC cmap_scheduler_ep_public =
+{
+  schedule
+};

@@ -10,7 +10,7 @@
 
 @FUNCTION(cmap_scheduler_public_create)
 {
-  LOCAL schedule = function()#global#(cmap_scheduler_ep_public_schedule);
+  LOCAL schedule = function()#global#(cmap_scheduler_ep_public.schedule);
 
   LOCAL internal =
   {

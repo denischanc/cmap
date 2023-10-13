@@ -5,9 +5,14 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-list-type.h"
 
-CMAP_MAP * cmap_console_ep_public_info(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args);
-CMAP_MAP * cmap_console_ep_public_error(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args);
+typedef struct
+{
+  CMAP_MAP * (*info)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+    CMAP_LIST * args);
+  CMAP_MAP * (*error)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+    CMAP_LIST * args);
+} CMAP_CONSOLE_EP_PUBLIC;
+
+extern const CMAP_CONSOLE_EP_PUBLIC cmap_console_ep_public;
 
 #endif
