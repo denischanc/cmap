@@ -10,7 +10,7 @@ struct CMAP_AISLESTORE
   CMAP_MAP super;
 
   void (*delete)(CMAP_AISLESTORE * this, const char * aisle);
-  void (*delete_last)(CMAP_AISLESTORE * this, const char * aisle);
+  CMAP_MAP * (*delete_last)(CMAP_AISLESTORE * this, const char * aisle);
 };
 
 typedef struct

@@ -1,9 +1,11 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = console scheduler
+SUBDIRS = console scheduler cli
 
 EXTRA_DIST = cmap-cmap.cmap
+
+BUILT_SOURCES = cmap-cmap.h
 
 nodist_noinst_HEADERS = cmap-cmap.h
 noinst_HEADERS = cmap-cmap-ep.h
@@ -15,7 +17,8 @@ libcomponents_la_SOURCES = cmap-cmap-ep.c
 libcomponents_la_CFLAGS = $(CMAP_CFLAGS)
 libcomponents_la_LIBADD = \
   console/libconsole.la \
-  scheduler/libscheduler.la
+  scheduler/libscheduler.la \
+  cli/libcli.la
 
 CLEANFILES = cmap-cmap.c cmap-cmap.h
 

@@ -368,19 +368,18 @@ void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_ENV * cmap_env()
+CMAP_ENV * cmap_env(int argc, char ** argv)
 {
-  return cmap_env_public.create();
+  return cmap_env_public.create(argc, argv);
 }
 
-void cmap_env_main(CMAP_ENV * env, int argc, char * argv[],
-  void (*init)(CMAP_PROC_CTX *))
+void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
 
   CMAP_CALL(proc_ctx, push_local);
   init(proc_ctx);
-  CMAP_CALL(proc_ctx, pop_local);
+  CMAP_CALL_ARGS(proc_ctx, pop_local, NULL);
 
   CMAP_CALL(proc_ctx, delete);
 }
@@ -398,9 +397,9 @@ void cmap_push_local_ctx(CMAP_PROC_CTX * proc_ctx)
   CMAP_CALL(proc_ctx, push_local);
 }
 
-void cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx)
+void cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 {
-  CMAP_CALL(proc_ctx, pop_local);
+  CMAP_CALL_ARGS(proc_ctx, pop_local, ret);
 }
 
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx)

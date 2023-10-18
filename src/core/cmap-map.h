@@ -17,7 +17,7 @@ struct CMAP_MAP
 
   const char * (*nature)(CMAP_MAP * this);
 
-  void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
+  CMAP_MAP * (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
   void * (*new)(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
@@ -37,7 +37,7 @@ typedef struct
   void (*init)(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle);
   CMAP_LIFECYCLE * (*delete)(CMAP_MAP * map);
 
-  void (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
+  CMAP_MAP * (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
   void * (*new)(CMAP_MAP * map, int size, CMAP_PROC_CTX * proc_ctx,

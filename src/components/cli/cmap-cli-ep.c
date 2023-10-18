@@ -1,26 +1,28 @@
 
-#include "cmap-global-env.h"
+#include "cmap-cli-ep.h"
 
-#include "cmap-map.h"
+#include <stdlib.h>
+#include "cmap.h"
 #include "cmap-aisle.h"
-#include "cmap-cmap-ep.h"
+#include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
 {
-  CMAP_MAP * global_env =
-    cmap_map_public.create_root(proc_ctx, CMAP_AISLE_GLOBAL);
-  CMAP_SET(global_env, "cmap",
-    cmap_cmap_ep_public.create(proc_ctx, argc, argv));
-  return global_env;
+  CMAP_LIST * args = CMAP_LIST(0, proc_ctx, CMAP_AISLE_GLOBAL);
+  for(int i = 0; i < argc; i++)
+    CMAP_LIST_PUSH(args, CMAP_STRING(argv[i], 0, proc_ctx, CMAP_AISLE_GLOBAL));
+
+  return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL, "args", args, NULL);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_GLOBAL_ENV_PUBLIC cmap_global_env_public =
+const CMAP_CLI_EP_PUBLIC cmap_cli_ep_public =
 {
   create
 };

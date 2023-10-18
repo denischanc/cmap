@@ -12,6 +12,9 @@ struct CMAP_ENV
 {
   void * internal;
 
+  int argc;
+  char ** argv;
+
   void (*delete)(CMAP_ENV * this);
 
   CMAP_AISLESTORE * (*aislestore)(CMAP_ENV * this);
@@ -28,7 +31,7 @@ struct CMAP_ENV
 
 typedef struct
 {
-  CMAP_ENV * (*create)();
+  CMAP_ENV * (*create)(int argc, char ** argv);
   void (*delete_all)();
 } CMAP_ENV_PUBLIC;
 

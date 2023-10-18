@@ -7,6 +7,8 @@
 typedef struct
 {
   CMAP_MAP * (*prototype)(CMAP_PROC_CTX * proc_ctx);
+
+  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv);
 } CMAP_CMAP_EP_PUBLIC;
 
 extern const CMAP_CMAP_EP_PUBLIC cmap_cmap_ep_public;

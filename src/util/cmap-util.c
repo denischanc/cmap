@@ -159,6 +159,16 @@ static char * strdup_(const char * src)
 /*******************************************************************************
 *******************************************************************************/
 
+static int is_val(CMAP_LIST * list, CMAP_MAP * val)
+{
+  int max = CMAP_CALL(list, size);
+  for(int i = 0; i < max; i++) if(CMAP_LIST_GET(list, i) == val) return i;
+  return -1;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   delete_list_vals,
@@ -173,5 +183,6 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   uv_dummy,
   copy,
   dup_string,
-  strdup_
+  strdup_,
+  is_val
 };

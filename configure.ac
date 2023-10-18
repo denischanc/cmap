@@ -56,6 +56,7 @@ AM_CONDITIONAL([CYGWIN], [echo $host_os | grep -q cygwin])
 AC_CONFIG_FILES([Makefile
                  src/Makefile
                  src/components/Makefile
+                 src/components/cli/Makefile
                  src/components/console/Makefile
                  src/components/scheduler/Makefile
                  src/core/Makefile

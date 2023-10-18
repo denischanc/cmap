@@ -106,11 +106,28 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void pop_local(CMAP_PROC_CTX * this)
+static void pop_local(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
   CMAP_AISLESTORE * as = aislestore(this);
+
   CMAP_CALL_ARGS(as, delete_last, AISLE_DEFINITIONS);
-  CMAP_CALL_ARGS(as, delete_last, AISLE_LOCAL_STACK);
+
+  char ret_in_stack = CMAP_F;
+  if(ret != NULL)
+  {
+    CMAP_LIST * old_stack = (CMAP_LIST *)CMAP_GET(as, AISLE_LOCAL_STACK);
+    int i = cmap_util_public.is_val(old_stack, ret);
+    if(i >= 0)
+    {
+      ret_in_stack = CMAP_T;
+      CMAP_LIST_RM(old_stack, i);
+    }
+  }
+
+  CMAP_LIST * new_stack =
+    (CMAP_LIST *)CMAP_CALL_ARGS(as, delete_last, AISLE_LOCAL_STACK);
+
+  if(ret_in_stack) CMAP_LIST_PUSH(new_stack, ret);
 }
 
 /*******************************************************************************

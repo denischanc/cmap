@@ -92,7 +92,8 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> global == NULL)
   {
-    internal -> global = cmap_global_env_public.create(proc_ctx);
+    internal -> global =
+      cmap_global_env_public.create(proc_ctx, this -> argc, this -> argv);
   }
   return internal -> global;
 }
@@ -114,7 +115,7 @@ static void delete(CMAP_ENV * this)
   CMAP_KERNEL_FREE(this);
 }
 
-static CMAP_ENV * create()
+static CMAP_ENV * create(int argc, char ** argv)
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> aislestore = NULL;
@@ -128,6 +129,8 @@ static CMAP_ENV * create()
 
   CMAP_KERNEL_ALLOC_PTR(env, CMAP_ENV);
   env -> internal = internal;
+  env -> argc = argc;
+  env -> argv = argv;
   env -> delete = delete;
   env -> aislestore = aislestore;
   env -> prototypestore = prototypestore;

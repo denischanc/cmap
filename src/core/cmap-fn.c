@@ -91,7 +91,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * ret = CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args);
 
-  CMAP_CALL(proc_ctx, pop_local);
+  CMAP_CALL_ARGS(proc_ctx, pop_local, ret);
 
   return ret;
 }

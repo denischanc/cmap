@@ -59,7 +59,7 @@ static const char * nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
+static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
@@ -72,6 +72,8 @@ static void set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
     CMAP_TREE_ADDFN(entry, &internal -> entry_tree, entry, key);
   }
   entry -> val = val;
+
+  return val;
 }
 
 /*******************************************************************************

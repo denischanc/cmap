@@ -32,6 +32,8 @@ typedef struct
     CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
   char * (*strdup)(const char * src);
+
+  int (*is_val)(CMAP_LIST * list, CMAP_MAP * val);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

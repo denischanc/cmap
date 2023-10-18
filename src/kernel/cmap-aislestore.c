@@ -19,10 +19,11 @@ static void delete_aisle(CMAP_AISLESTORE * this, const char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_last(CMAP_AISLESTORE * this, const char * aisle)
+static CMAP_MAP * delete_last(CMAP_AISLESTORE * this, const char * aisle)
 {
   CMAP_MAP * map = CMAP_GET(this, aisle);
-  if(map != NULL) CMAP_SET(this, aisle, CMAP_DELETE(map));
+  if(map != NULL) return CMAP_SET(this, aisle, CMAP_DELETE(map));
+  else return NULL;
 }
 
 /*******************************************************************************

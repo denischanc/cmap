@@ -13,6 +13,7 @@ CMAP_CFLAGS = \
   -I$(CMAP_SRC_PATH)/core/cmp \
   -I$(CMAP_SRC_PATH)/kernel \
   -I$(CMAP_SRC_PATH)/components \
+  -I$(CMAP_SRC_PATH)/components/cli \
   -I$(CMAP_SRC_PATH)/components/console \
   -I$(CMAP_SRC_PATH)/components/scheduler \
   -I$(CMAP_BUILD_PATH)/parser \

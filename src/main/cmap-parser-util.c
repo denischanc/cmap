@@ -462,16 +462,18 @@ static char * process_c(char * fn_name, char need_ret)
     map_name = next_name();
     PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
     APPEND_INSTRUCTION_ARGS("%s = %s(proc_ctx);", map_name, fn_name);
+
+    APPEND_INSTRUCTION_ARGS("cmap_pop_local_ctx(proc_ctx, %s);", map_name);
   }
   else
   {
     APPEND_INSTRUCTION_ARGS("%s(proc_ctx);", fn_name);
+
+    APPEND_INSTRUCTION("cmap_pop_local_ctx(proc_ctx, NULL);");
   }
+  APPEND_LF();
 
   free(fn_name);
-
-  APPEND_INSTRUCTION("cmap_pop_local_ctx(proc_ctx);");
-  APPEND_LF();
 
   return map_name;
 }

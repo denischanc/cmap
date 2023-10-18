@@ -7,6 +7,7 @@
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-int.h"
+#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -71,8 +72,8 @@ static CMAP_MAP * size_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   if(CMAP_NATURE(map) != CMAP_LIST_NATURE) return NULL;
   else
   {
-    CMAP_LIST * list = (CMAP_LIST *)map;
-    return (CMAP_MAP *)CMAP_INT(CMAP_CALL(list, size), proc_ctx, NULL);
+    int size = CMAP_CALL((CMAP_LIST *)map, size);
+    return (CMAP_MAP *)CMAP_INT(size, proc_ctx, CMAP_AISLE_LOCAL);
   }
 }
 
