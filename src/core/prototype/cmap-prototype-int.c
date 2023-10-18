@@ -7,6 +7,7 @@
 #include "cmap-list.h"
 #include "cmap-map.h"
 #include "cmap-int.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -47,6 +48,21 @@ CMAP_INT_STEP_LOOP(STEP_FN)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  CMAP_MAP * arg = CMAP_LIST_SHIFT(args);
+  if((arg != NULL) && (CMAP_NATURE(arg) == CMAP_STRING_NATURE))
+  {
+    long v = atol(CMAP_CALL((CMAP_STRING *)arg, val));
+    CMAP_CALL_ARGS((CMAP_INT *)map, set, v);
+  }
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define OP_STEP_INIT_FN(name, op) \
   CMAP_PROTO_SET_FN(proto, #name, name##_fn, proc_ctx);
 
@@ -54,6 +70,8 @@ static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INT_OP_LOOP(OP_STEP_INIT_FN)
   CMAP_INT_STEP_LOOP(OP_STEP_INIT_FN)
+
+  CMAP_PROTO_SET_FN(proto, "valueOf", value_of_fn, proc_ctx);
 }
 
 /*******************************************************************************
