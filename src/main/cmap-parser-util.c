@@ -514,8 +514,7 @@ static char * function(char * args, char * aisle, char * fn_name)
 
   if(args != NULL)
   {
-    APPEND_INSTRUCTION_ARGS_ARGS(
-      "cmap_add_arg_names((CMAP_FN *)%s, proc_ctx", map_name);
+    APPEND_INSTRUCTION_ARGS_ARGS("cmap_add_arg_names((CMAP_FN *)%s", map_name);
   }
   APPEND_LF();
 

@@ -188,14 +188,14 @@ CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_add_arg_names(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, ...)
+void cmap_add_arg_names(CMAP_FN * fn, ...)
 {
   va_list args;
-  va_start(args, proc_ctx);
+  va_start(args, fn);
 
   const char * arg_name;
   while((arg_name = va_arg(args, const char *)) != NULL)
-    CMAP_CALL_ARGS(fn, add_arg_name, arg_name, proc_ctx);
+    CMAP_CALL_ARGS(fn, add_arg_name, arg_name);
 
   va_end(args);
 }
