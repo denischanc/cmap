@@ -17,9 +17,9 @@ noinst_HEADERS = \
   cmap-scanner.h \
   cmap-string.h
 
-bin_PROGRAMS = cmap-main
+bin_PROGRAMS = cmap-tool
 
-cmap_main_SOURCES = \
+cmap_tool_SOURCES = \
   cmap-file-util.c \
   cmap-gen.c \
   cmap-kv.c \
@@ -30,7 +30,7 @@ cmap_main_SOURCES = \
   cmap-prj.c \
   cmap-scanner.l \
   cmap-string.c
-cmap_main_CFLAGS = \
+cmap_tool_CFLAGS = \
   -Wall \
   -DCMAP_INSTALL_BINDIR="\"$(bindir)\"" \
   -DCMAP_INSTALL_LIBDIR="\"$(libdir)\"" \

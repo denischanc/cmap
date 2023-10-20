@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = main util core components kernel
+SUBDIRS = tool util core components kernel
 
 include_cmap_HEADERS = cmap-ext.h cmap-define-ext.h
 

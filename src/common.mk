@@ -22,4 +22,4 @@ CMAP_CFLAGS = \
   -I$(CMAP_BUILD_PATH)/components/scheduler \
   -Wall
 
-CMAP_MAIN = $(CMAP_BUILD_PATH)/main/cmap-main
+CMAP_MAIN = $(CMAP_BUILD_PATH)/tool/cmap-tool
