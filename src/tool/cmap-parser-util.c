@@ -7,6 +7,7 @@
 #include "cmap-string.h"
 #include "cmap-parser-part.h"
 #include "cmap-kv.h"
+#include "cmap-gen.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -69,9 +70,9 @@ static int id = 1;
 
 static char * next_name()
 {
-  static char buffer[30];
-  snprintf(buffer, sizeof(buffer), "cmap_gen_name__%d", id++);
-  return strdup(buffer);
+  char * name = NULL;
+  cmap_string_public.append_args(&name, "cmap_gen_name__%d", id++);
+  return name;
 }
 
 /*******************************************************************************
@@ -154,6 +155,11 @@ static void function_c(char * name, char is_static)
   free(instructions);
 
   APPEND(main, "}\n\n");
+}
+
+static void cmap_impl()
+{
+  function_c(cmap_gen_public.fn_name(NULL), (1 == 0));
 }
 
 /*******************************************************************************
@@ -797,6 +803,7 @@ static char * names(char * names, char * name)
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   function_c,
+  cmap_impl,
   name,
   path,
   set_local,

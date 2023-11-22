@@ -60,6 +60,7 @@ SPACE_D [[:space:]]+
 "if" { return IF; }
 "else" { return ELSE; }
 "new" { return NEW; }
+"@CMAP" { return CMAP_IMPL; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

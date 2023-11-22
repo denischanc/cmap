@@ -9,7 +9,10 @@ AM_YFLAGS = -d --name-prefix=cmap_parser_ -Wcounterexamples
 noinst_HEADERS = \
   cmap-file-util.h \
   cmap-gen.h \
+  cmap-gen-main.h \
   cmap-kv.h \
+  cmap-option-define.h \
+  cmap-option.h \
   cmap-parser-part.h \
   cmap-parser-util-define.h \
   cmap-parser-util.h \
@@ -22,14 +25,16 @@ bin_PROGRAMS = cmap-tool
 cmap_tool_SOURCES = \
   cmap-file-util.c \
   cmap-gen.c \
+  cmap-gen-main.c \
   cmap-kv.c \
-  cmap-main.c \
+  cmap-option.c \
   cmap-parser-part.c \
   cmap-parser-util.c \
   cmap-parser.y \
   cmap-prj.c \
   cmap-scanner.l \
-  cmap-string.c
+  cmap-string.c \
+  cmap-tool.c
 cmap_tool_CFLAGS = \
   -Wall \
   -DCMAP_INSTALL_BINDIR="\"$(bindir)\"" \

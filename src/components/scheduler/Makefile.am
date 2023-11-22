@@ -19,8 +19,8 @@ CLEANFILES = cmap-scheduler.c cmap-job.c $(BUILT_SOURCES)
 CMAP_SCHEDULER_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-scheduler.cmap
 CMAP_JOB_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-job.cmap
 
-cmap-scheduler.c cmap-scheduler.h: $(CMAP_SCHEDULER_FILE) $(CMAP_MAIN)
-	$(CMAP_MAIN) gen $(CMAP_SCHEDULER_FILE) cmap-scheduler -i
+cmap-scheduler.c cmap-scheduler.h: $(CMAP_SCHEDULER_FILE) $(CMAP_TOOL)
+	$(CMAP_TOOL) gen $(CMAP_SCHEDULER_FILE) cmap-scheduler -i
 
-cmap-job.c cmap-job.h: $(CMAP_JOB_FILE) $(CMAP_MAIN)
-	$(CMAP_MAIN) gen $(CMAP_JOB_FILE) cmap-job -i
+cmap-job.c cmap-job.h: $(CMAP_JOB_FILE) $(CMAP_TOOL)
+	$(CMAP_TOOL) gen $(CMAP_JOB_FILE) cmap-job -i

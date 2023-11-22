@@ -25,7 +25,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2
+%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2 CMAP_IMPL
 %token ERROR
 %token<name> STRING C_IMPL NAME INT
 
@@ -37,7 +37,8 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 /*******************************************************************************
 *******************************************************************************/
 
-start: parts;
+start: parts
+| CMAP_IMPL instructions { cmap_parser_util_public.cmap_impl(); };
 
 parts:
 | parts C_IMPL { cmap_parser_util_public.c_impl_root($2); }

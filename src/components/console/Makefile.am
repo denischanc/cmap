@@ -16,5 +16,5 @@ CLEANFILES = cmap-console.c cmap-console.h
 
 CMAP_CONSOLE_FILE = $(CMAP_SRC_PATH)/components/console/cmap-console.cmap
 
-cmap-console.c cmap-console.h: $(CMAP_CONSOLE_FILE) $(CMAP_MAIN)
-	$(CMAP_MAIN) gen $(CMAP_CONSOLE_FILE) cmap-console -i
+cmap-console.c cmap-console.h: $(CMAP_CONSOLE_FILE) $(CMAP_TOOL)
+	$(CMAP_TOOL) gen $(CMAP_CONSOLE_FILE) cmap-console -i

@@ -5,7 +5,7 @@
 #include <string.h>
 #include "cmap-string.h"
 #include "cmap-kv.h"
-#include "cmap-gen.h"
+#include "cmap-option.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -232,7 +232,7 @@ static void add_include(const char * name)
   if(!strncmp(name, "cmap", 4))
   {
     cmap_string_public.append_args(&includes,
-      (cmap_gen_public.relative_inc()) ?
+      (cmap_option_public.is_relative_inc()) ?
         "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
   }
   else cmap_string_public.append_args(&includes, "#include <%s>\n", name);
@@ -279,12 +279,12 @@ static void clean()
 /*******************************************************************************
 *******************************************************************************/
 
-#define PART_DECL(name) name##_,
+#define PART_SET(name) name##_,
 
 const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
 {
   clean,
-  PART_LOOP(PART_DECL)
+  PART_LOOP(PART_SET)
   new_ctx,
   push_instructions,
   instructions_,

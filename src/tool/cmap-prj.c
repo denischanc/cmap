@@ -7,12 +7,13 @@
 #include <string.h>
 #include <errno.h>
 #include "cmap-file-util.h"
+#include "cmap-string.h"
 #include "config.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * hello_world_cmap =
+static const char * HELLO_WORLD_CMAP =
   "\n"
   "@FUNCTION(hello_world)\n"
   "{\n"
@@ -55,7 +56,7 @@ static const char * hello_world_cmap =
 /*******************************************************************************
 *******************************************************************************/
 
-const char * makefile =
+static const char * MAKEFILE =
   "\n"
   ".PHONY: clean\n"
   "\n"
@@ -78,9 +79,11 @@ const char * makefile =
 
 static int to_file(const char * dir, const char * file_name, const char * txt)
 {
-  char buffer[10000];
-  snprintf(buffer, sizeof(buffer), "%s/%s", dir, file_name);
-  return cmap_file_util_public.to_file(buffer, txt);
+  char * path = NULL;
+  cmap_string_public.append_args(&path, "%s/%s", dir, file_name);
+  int ret = cmap_file_util_public.to_file(path, txt);
+  free(path);
+  return ret;
 }
 
 /*******************************************************************************
@@ -106,9 +109,9 @@ static int main_(int argc, char * argv[])
       return EXIT_FAILURE;
     }
 
-    if(to_file(dir, "hello-world.cmap", hello_world_cmap) != 0)
+    if(to_file(dir, "hello-world.cmap", HELLO_WORLD_CMAP) != 0)
       return EXIT_FAILURE;
-    if(to_file(dir, "Makefile", makefile) != 0) return EXIT_FAILURE;
+    if(to_file(dir, "Makefile", MAKEFILE) != 0) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }

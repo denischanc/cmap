@@ -10,11 +10,14 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-part.h"
+#include "cmap-option.h"
+#include "cmap-string.h"
+#include "cmap-gen-main.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char relative_inc = (1 == 0), only_c = (1 == 0);
+static char only_c = (1 == 0), * this_out_name = NULL, add_main = (1 == 0);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -71,6 +74,8 @@ static int generate_c(const char * out_name)
   }
   printf("==[[ Generate : _%s_\n", out_name);
 
+  if(add_main) cmap_gen_main_public.impl(cmap_parser_part_public.main());
+
   fprintf(out, "\n");
   fprintf(out, "%s", cmap_parser_part_public.includes());
   fprintf(out, "%s", *cmap_parser_part_public.functions());
@@ -117,7 +122,8 @@ static int generate_h(const char * out_name)
     "%s\n"
     "#endif\n",
     upper_out_name, upper_out_name,
-    (relative_inc) ? "\"cmap-ext.h\"" : "<cmap/cmap-ext.h>",
+    (cmap_option_public.is_relative_inc()) ?
+      "\"cmap-ext.h\"" : "<cmap/cmap-ext.h>",
     *cmap_parser_part_public.headers());
 
   free(upper_out_name);
@@ -134,10 +140,12 @@ static struct option gen_long_options[] =
 {
   {"relative-inc", no_argument, NULL, 'i'},
   {"only-c", no_argument, NULL, 'c'},
+  {"fn", required_argument, NULL, 'f'},
+  {"add-main", no_argument, NULL, 'm'},
   {NULL, 0, NULL, 0}
 };
 
-static const char * gen_short_options = "ic";
+static const char * gen_short_options = "icf:m";
 
 static void mng_options(int argc, char * argv[])
 {
@@ -147,8 +155,10 @@ static void mng_options(int argc, char * argv[])
   {
     switch(o)
     {
-      case 'i': relative_inc = (1 == 1); break;
+      case 'i': cmap_option_public.relative_inc(); break;
       case 'c': only_c = (1 == 1); break;
+      case 'f': cmap_option_public.set_fn_name(optarg); break;
+      case 'm': add_main = (1 == 1); break;
     }
   }
 }
@@ -162,8 +172,36 @@ static void usage(const char * this_name)
     "usage: %s gen [cmap file] [c/h root file] (options)\n"
     "options:\n"
     "  -i,--relative-inc                    Relative include\n"
-    "  -c,--only-c                          Only c generation\n",
+    "  -c,--only-c                          Only c generation\n"
+    "  -f,--fn [name]                       Function name\n"
+    "  -m,--add-main                        Add main\n",
     this_name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * create_lower(const char * name)
+{
+  char * ret = strdup(name);
+
+  for(char * cur = ret; *cur != 0; cur++)
+  {
+    char c = *cur;
+    if((c >= 'A') && (c <= 'Z')) *cur = c + 'a' - 'A';
+    else if(((c < 'a') || (c > 'z')) && ((c < '0') || (c > '9'))) *cur = '_';
+  }
+
+  return ret;
+}
+
+static char * fn_name(const char * base_name)
+{
+  const char * option_name = cmap_option_public.fn_name();
+  if(option_name != NULL) return strdup(option_name);
+  else if(base_name != NULL) return create_lower(base_name);
+  else if(this_out_name != NULL) return create_lower(this_out_name);
+  else return NULL;
 }
 
 /*******************************************************************************
@@ -177,10 +215,11 @@ static int main_(int argc, char * argv[])
     optind = 4;
     mng_options(argc, argv);
 
-    char * in_name = argv[2], * out_name = argv[3];
-    static char out_c_name[1000], out_h_name[1000];
-    snprintf(out_c_name, sizeof(out_c_name), "%s.c", out_name);
-    if(!only_c) snprintf(out_h_name, sizeof(out_h_name), "%s.h", out_name);
+    char * in_name = argv[2], * out_name = argv[3],
+      * out_c_name = NULL, * out_h_name = NULL;
+    this_out_name = out_name;
+    cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
+    if(!only_c) cmap_string_public.append_args(&out_h_name, "%s.h", out_name);
 
     add_include(out_h_name);
     if(parse(in_name) != 0) return EXIT_FAILURE;
@@ -188,6 +227,8 @@ static int main_(int argc, char * argv[])
     if(!only_c && (generate_h(out_h_name) != 0)) return EXIT_FAILURE;
 
     cmap_parser_part_public.clean();
+    free(out_c_name);
+    free(out_h_name);
   }
   return EXIT_SUCCESS;
 }
@@ -195,16 +236,8 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-static char relative_inc_()
-{
-  return relative_inc;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 const CMAP_GEN_PUBLIC cmap_gen_public =
 {
-  main_,
-  relative_inc_
+  fn_name,
+  main_
 };
