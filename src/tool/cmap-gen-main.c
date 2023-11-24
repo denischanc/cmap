@@ -11,6 +11,7 @@
 #include "cmap-part.h"
 #include "cmap-string.h"
 #include "cmap-fn-name.h"
+#include "cmap-clean.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -69,8 +70,7 @@ static void parts(char ** txt)
   cmap_string_public.append(txt, "\n");
   impl(txt);
 
-  cmap_part_public.clean();
-  cmap_fn_name_public.clean();
+  cmap_clean_public.clean();
 }
 
 /*******************************************************************************

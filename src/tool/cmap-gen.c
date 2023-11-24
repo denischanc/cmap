@@ -14,6 +14,7 @@
 #include "cmap-string.h"
 #include "cmap-gen-main.h"
 #include "cmap-fn-name.h"
+#include "cmap-clean.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -197,8 +198,7 @@ static int main_(int argc, char * argv[])
     if(!cmap_option_public.is_only_c() && (generate_h(out_h_name) != 0))
       return EXIT_FAILURE;
 
-    cmap_part_public.clean();
-    cmap_fn_name_public.clean();
+    cmap_clean_public.clean();
     free(out_c_name);
     free(out_h_name);
   }
