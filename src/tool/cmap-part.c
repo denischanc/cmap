@@ -10,14 +10,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define PART_LOOP(macro) \
-  macro(functions) \
-  macro(main) \
-  macro(headers)
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct INSTRUCTIONS INSTRUCTIONS;
 
 struct INSTRUCTIONS
@@ -36,12 +28,11 @@ const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1;
 
 #define PART_VAR(name) static char * name = NULL;
 
-PART_LOOP(PART_VAR)
+CMAP_PART_LOOP(PART_VAR)
 
 static INSTRUCTIONS * instructions = NULL;
 
-static char * includes = NULL, is_new_ctx = (1 == 1),
-  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
+static char is_new_ctx = (1 == 1), ctx_nature = CMAP_PART_CTX_NATURE_DFT;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -53,7 +44,7 @@ static char ** name##_() \
   return &name; \
 }
 
-PART_LOOP(PART_FN)
+CMAP_PART_LOOP(PART_FN)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -246,20 +237,11 @@ static void add_include_lf()
 /*******************************************************************************
 *******************************************************************************/
 
-static char * includes_()
-{
-  return includes;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define DELETE_PART(name) free(name); name = NULL;
+#define PART_FREE(name) free(name); name = NULL;
 
 static void clean()
 {
-  PART_LOOP(DELETE_PART)
-  free(includes); includes = NULL;
+  CMAP_PART_LOOP(PART_FREE)
 
   is_new_ctx = (1 == 1);
   ctx_nature = CMAP_PART_CTX_NATURE_DFT;
@@ -273,7 +255,7 @@ static void clean()
 const CMAP_PART_PUBLIC cmap_part_public =
 {
   clean,
-  PART_LOOP(PART_SET)
+  CMAP_PART_LOOP(PART_SET)
   new_ctx,
   push_instructions,
   instructions_,
@@ -290,6 +272,5 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_return_fn,
   add_include,
   add_relative_include,
-  add_include_lf,
-  includes_
+  add_include_lf
 };

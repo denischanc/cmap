@@ -17,8 +17,9 @@ noinst_HEADERS = \
   cmap-option-define.h \
   cmap-option.h \
   cmap-parser-util-define.h \
-  cmap-part.h \
   cmap-parser-util.h \
+  cmap-part-define.h \
+  cmap-part.h \
   cmap-prj.h \
   cmap-scanner.h \
   cmap-string.h
@@ -34,8 +35,8 @@ cmap_tool_SOURCES = \
   cmap-kv.c \
   cmap-option.c \
   cmap-parser-util.c \
-  cmap-part.c \
   cmap-parser.y \
+  cmap-part.c \
   cmap-prj.c \
   cmap-scanner.l \
   cmap-string.c \

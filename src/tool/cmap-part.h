@@ -1,6 +1,7 @@
 #ifndef __CMAP_PART_H__
 #define __CMAP_PART_H__
 
+#include "cmap-part-define.h"
 #include "cmap-kv.h"
 
 #define SPACE "  "
@@ -23,10 +24,7 @@ typedef struct
 {
   void (*clean)();
 
-  char ** (*functions)();
-  char ** (*main)();
-
-  char ** (*headers)();
+  CMAP_PART_LOOP(CMAP_PART_DECL)
 
   void (*new_ctx)(char nature);
   void (*push_instructions)();
@@ -47,7 +45,6 @@ typedef struct
   void (*add_include)(const char * name);
   void (*add_relative_include)(const char * name);
   void (*add_include_lf)();
-  char * (*includes)();
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;

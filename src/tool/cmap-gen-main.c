@@ -66,7 +66,7 @@ static void parts(char ** txt)
     cmap_part_public.add_relative_include(cmap_option_public.include());
 
   cmap_string_public.append(txt, "\n");
-  cmap_string_public.append(txt, cmap_part_public.includes());
+  cmap_string_public.append(txt, *cmap_part_public.includes());
   cmap_string_public.append(txt, "\n");
   impl(txt);
 

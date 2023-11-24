@@ -7,28 +7,28 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define VAR(from, format) static char * from##_name = NULL;
+#define FN_VAR(from, format) static char * from##_name = NULL;
 
-CMAP_FN_NAME_LOOP(VAR)
+CMAP_FN_NAME_LOOP(FN_VAR)
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define FREE(from, format) free(from##_name);
+#define FN_FREE(from, format) free(from##_name);
 
 static void clean()
 {
-  CMAP_FN_NAME_LOOP(FREE)
+  CMAP_FN_NAME_LOOP(FN_FREE)
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define IF(from, format) if(from##_name != NULL) return from##_name;
+#define FN_IF(from, format) if(from##_name != NULL) return from##_name;
 
 static char * name()
 {
-  CMAP_FN_NAME_LOOP(IF)
+  CMAP_FN_NAME_LOOP(FN_IF)
   return NULL;
 }
 
@@ -45,23 +45,23 @@ static void format_(char * name)
   }
 }
 
-#define FN(from, format) \
+#define FN_FN(from, format) \
 static void from_##from(const char * name) \
 { \
   from##_name = strdup(name); \
   if(format) format_(from##_name); \
 }
 
-CMAP_FN_NAME_LOOP(FN)
+CMAP_FN_NAME_LOOP(FN_FN)
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define SET(from, format) from_##from,
+#define FN_SET(from, format) from_##from,
 
 const CMAP_FN_NAME_PUBLIC cmap_fn_name_public =
 {
   clean,
   name,
-  CMAP_FN_NAME_LOOP(SET)
+  CMAP_FN_NAME_LOOP(FN_SET)
 };
