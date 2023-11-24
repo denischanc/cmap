@@ -1,5 +1,5 @@
 
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -32,8 +32,7 @@ struct INSTRUCTIONS
 /*******************************************************************************
 *******************************************************************************/
 
-const char CMAP_PARSER_PART_CTX_NATURE_DFT = 0,
-  CMAP_PARSER_PART_CTX_NATURE_FN = 1;
+const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1;
 
 #define PART_VAR(name) static char * name = NULL;
 
@@ -42,7 +41,7 @@ PART_LOOP(PART_VAR)
 static INSTRUCTIONS * instructions = NULL;
 
 static char * includes = NULL, is_new_ctx = (1 == 1),
-  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
+  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -77,8 +76,7 @@ static void push_instructions()
   tmp -> return_ = (1 == 0);
   if(is_new_ctx || (instructions == NULL))
   {
-    if(ctx_nature == CMAP_PARSER_PART_CTX_NATURE_FN)
-      tmp -> return_fn = (1 == 1);
+    if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp -> return_fn = (1 == 1);
     else tmp -> return_fn = (1 == 0);
     tmp -> prefix = strdup(SPACE);
     tmp -> ctx = tmp;
@@ -96,7 +94,7 @@ static void push_instructions()
   instructions = tmp;
 
   is_new_ctx = (1 == 0);
-  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
+  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
 }
 
 /*******************************************************************************
@@ -165,15 +163,6 @@ static char is_global_env()
     ctx -> global_env = (1 == 1);
     return (1 == 0);
   }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void add_prefix()
-{
-  cmap_string_public.append(&instructions -> instructions,
-    instructions -> prefix);
 }
 
 /*******************************************************************************
@@ -273,7 +262,7 @@ static void clean()
   free(includes); includes = NULL;
 
   is_new_ctx = (1 == 1);
-  ctx_nature = CMAP_PARSER_PART_CTX_NATURE_DFT;
+  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
 }
 
 /*******************************************************************************
@@ -281,7 +270,7 @@ static void clean()
 
 #define PART_SET(name) name##_,
 
-const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
+const CMAP_PART_PUBLIC cmap_part_public =
 {
   clean,
   PART_LOOP(PART_SET)
@@ -293,7 +282,6 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   prepend_instruction,
   is_definitions,
   is_global_env,
-  add_prefix,
   name2map,
   pop_instructions,
   return_,

@@ -3,8 +3,6 @@
 
 typedef struct
 {
-  char * (*fn_name)(const char * base_name);
-
   int (*main)(int argc, char * argv[]);
 } CMAP_GEN_PUBLIC;
 

@@ -3,7 +3,7 @@
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@ function_c: FUNCTION_C '(' NAME ')' '{' instructions '}'
 /*******************************************************************************
 *******************************************************************************/
 
-instructions: { cmap_parser_part_public.push_instructions(); }
+instructions: { cmap_part_public.push_instructions(); }
 | instructions instruction ';'
 | instructions C_IMPL { cmap_parser_util_public.c_impl($2); }
 | instructions if;
@@ -171,7 +171,7 @@ process: NAME '(' args ')'
 
 function: FUNCTION '(' arg_names ')' aisle '{'
 {
-  cmap_parser_part_public.new_ctx(CMAP_PARSER_PART_CTX_NATURE_FN);
+  cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_FN);
 } instructions '}'
 {
   $$ = cmap_parser_util_public.function($3, $5, NULL);
@@ -199,8 +199,8 @@ else: { cmap_parser_util_public.else_empty(); }
 
 comparison:
 {
-  cmap_parser_part_public.new_ctx(CMAP_PARSER_PART_CTX_NATURE_DFT);
-  cmap_parser_part_public.push_instructions();
+  cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT);
+  cmap_part_public.push_instructions();
 } comparison_ { $$ = $2; };
 
 comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }

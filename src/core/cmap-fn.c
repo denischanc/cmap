@@ -28,7 +28,7 @@ typedef struct
 
   CMAP_MAP * definitions;
 
-  ARG_NAME * arg_names, * last_arg_name;
+  ARG_NAME * arg_names;
 } INTERNAL;
 
 /*******************************************************************************
@@ -64,16 +64,27 @@ static void add_arg_name(CMAP_FN * this, const char * arg_name)
 {
   CMAP_KERNEL_ALLOC_PTR(arg_name_, ARG_NAME);
   arg_name_ -> name = cmap_util_public.strdup(arg_name);
-  arg_name_ -> next = NULL;
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  if(internal -> arg_names == NULL) internal -> arg_names = arg_name_;
-  else internal -> last_arg_name -> next = arg_name_;
-  internal -> last_arg_name = arg_name_;
+  arg_name_ -> next = internal -> arg_names;
+  internal -> arg_names = arg_name_;
 }
 
 /*******************************************************************************
 *******************************************************************************/
+
+static int set_arg_name_in_definitions(ARG_NAME * arg_name,
+  CMAP_MAP * definitions, CMAP_LIST * args)
+{
+  int i = 0;
+
+  ARG_NAME * next = arg_name -> next;
+  if(next != NULL) i = set_arg_name_in_definitions(next, definitions, args);
+
+  CMAP_SET(definitions, arg_name -> name, CMAP_LIST_GET(args, i));
+
+  return i + 1;
+}
 
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
@@ -85,15 +96,8 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * definitions = CMAP_CALL(proc_ctx, local_definitions);
   CMAP_SET(definitions, "this", map);
   CMAP_SET(definitions, "args", args);
-
-  ARG_NAME * arg_name = internal -> arg_names;
-  int i = 0;
-  while(arg_name != NULL)
-  {
-    CMAP_SET(definitions, arg_name -> name, CMAP_LIST_GET(args, i));
-    arg_name = arg_name -> next;
-    i++;
-  }
+  if(internal -> arg_names != NULL)
+    set_arg_name_in_definitions(internal -> arg_names, definitions, args);
 
   cmap_util_public.copy(definitions, internal -> definitions);
 
@@ -177,7 +181,6 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
   internal -> process = process_;
   internal -> definitions = NULL;
   internal -> arg_names = NULL;
-  internal -> last_arg_name = NULL;
 
   fn -> internal = internal;
   fn -> require_definitions = require_definitions;

@@ -5,34 +5,34 @@
 #include <stdio.h>
 #include <string.h>
 #include "cmap-string.h"
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 #include "cmap-kv.h"
-#include "cmap-gen.h"
+#include "cmap-fn-name.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 #define APPEND_ARGS(part, txt, args...) \
-  cmap_string_public.append_args(cmap_parser_part_public.part(), txt, args)
+  cmap_string_public.append_args(cmap_part_public.part(), txt, args)
 
 #define APPEND(part, txt) \
-  cmap_string_public.append(cmap_parser_part_public.part(), txt)
+  cmap_string_public.append(cmap_part_public.part(), txt)
 
 #define APPEND_INSTRUCTION_ARGS(txt, args...) \
   cmap_string_public.append_args(&instruction, txt, args); \
-  cmap_parser_part_public.add_instruction(instruction); \
+  cmap_part_public.add_instruction(instruction); \
   free(instruction); \
   instruction = NULL
 
-#define APPEND_INSTRUCTION(txt) cmap_parser_part_public.add_instruction(txt)
+#define APPEND_INSTRUCTION(txt) cmap_part_public.add_instruction(txt)
 
-#define APPEND_LF() cmap_parser_part_public.add_lf()
+#define APPEND_LF() cmap_part_public.add_lf()
 
 #define APPEND_INSTRUCTION_AA_ARGS(txt, args_...) \
   cmap_string_public.append_args(&instruction, txt, args_); \
   add_aisle(&instruction, aisle); \
   add_args(&instruction, args); \
-  cmap_parser_part_public.add_instruction(instruction); \
+  cmap_part_public.add_instruction(instruction); \
   free(instruction); \
   instruction = NULL
 
@@ -40,20 +40,20 @@
   cmap_string_public.append_args(&instruction, txt, args); \
   add_aisle(&instruction, aisle); \
   cmap_string_public.append(&instruction, ");"); \
-  cmap_parser_part_public.add_instruction(instruction); \
+  cmap_part_public.add_instruction(instruction); \
   free(instruction); \
   instruction = NULL
 
 #define APPEND_INSTRUCTION_ARGS_ARGS(txt, args_...) \
   cmap_string_public.append_args(&instruction, txt, args_); \
   add_args(&instruction, args); \
-  cmap_parser_part_public.add_instruction(instruction); \
+  cmap_part_public.add_instruction(instruction); \
   free(instruction); \
   instruction = NULL
 
 #define PREPEND_INSTRUCTION_ARGS(txt, args...) \
   cmap_string_public.append_args(&instruction, txt, args); \
-  cmap_parser_part_public.prepend_instruction(instruction); \
+  cmap_part_public.prepend_instruction(instruction); \
   free(instruction); \
   instruction = NULL
 
@@ -80,7 +80,7 @@ static char * next_name()
 
 static const char * add_definitions()
 {
-  if(!cmap_parser_part_public.is_definitions())
+  if(!cmap_part_public.is_definitions())
   {
     char * instruction = NULL;
     PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s = cmap_definitions(proc_ctx);",
@@ -94,7 +94,7 @@ static const char * add_definitions()
 
 static const char * add_global_env()
 {
-  if(!cmap_parser_part_public.is_global_env())
+  if(!cmap_part_public.is_global_env())
   {
     char * instruction = NULL;
     PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s = cmap_global_env(proc_ctx);",
@@ -136,7 +136,7 @@ static void add_aisle(char ** instruction, char * aisle)
 
 static void function_c(char * name, char is_static)
 {
-  char is_return_fn = cmap_parser_part_public.is_return_fn();
+  char is_return_fn = cmap_part_public.is_return_fn();
   APPEND_ARGS(main, "%s%s %s(CMAP_PROC_CTX * proc_ctx)\n{\n",
     is_static ? "static " : "", is_return_fn ? "CMAP_MAP *" : "void", name);
 
@@ -148,9 +148,9 @@ static void function_c(char * name, char is_static)
 
   free(name);
 
-  if(is_return_fn && !cmap_parser_part_public.is_return())
+  if(is_return_fn && !cmap_part_public.is_return())
     APPEND_INSTRUCTION("return NULL;");
-  char * instructions = cmap_parser_part_public.pop_instructions();
+  char * instructions = cmap_part_public.pop_instructions();
   APPEND(main, instructions);
   free(instructions);
 
@@ -159,7 +159,7 @@ static void function_c(char * name, char is_static)
 
 static void cmap_impl()
 {
-  function_c(cmap_gen_public.fn_name(NULL), (1 == 0));
+  function_c(strdup(cmap_fn_name_public.name()), (1 == 0));
 }
 
 /*******************************************************************************
@@ -167,8 +167,7 @@ static void cmap_impl()
 
 static char * name(char * name)
 {
-  const char * tmp = cmap_kv_public.get(
-    cmap_parser_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(cmap_part_public.name2map(), name);
   if(tmp != NULL) return strdup(tmp);
   else
   {
@@ -211,7 +210,7 @@ static char * path(char * map, char * name)
 
 static void set_local(char * name, char * map)
 {
-  cmap_kv_public.put(cmap_parser_part_public.name2map(), name, map);
+  cmap_kv_public.put(cmap_part_public.name2map(), name, map);
 
   char * instruction = NULL;
   APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);",
@@ -227,13 +226,12 @@ static void set_local(char * name, char * map)
 
 static void set_global(char * name, char * map)
 {
-  const char * tmp = cmap_kv_public.get(
-    cmap_parser_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(cmap_part_public.name2map(), name);
   char * instruction = NULL;
 
   if(tmp != NULL)
   {
-    cmap_kv_public.put(cmap_parser_part_public.name2map(), name, map);
+    cmap_kv_public.put(cmap_part_public.name2map(), name, map);
 
     APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);",
       add_definitions(), name, map);
@@ -401,8 +399,7 @@ static void return_(char * map)
 {
   if(map == NULL)
   {
-    if(cmap_parser_part_public.is_return_fn())
-      APPEND_INSTRUCTION("return NULL;");
+    if(cmap_part_public.is_return_fn()) APPEND_INSTRUCTION("return NULL;");
     else APPEND_INSTRUCTION("return;");
   }
   else
@@ -411,8 +408,8 @@ static void return_(char * map)
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
-    cmap_parser_part_public.return_fn();
-    cmap_parser_part_public.return_();
+    cmap_part_public.return_fn();
+    cmap_part_public.return_();
   }
 }
 
@@ -499,9 +496,8 @@ static char * function(char * args, char * aisle, char * fn_name)
       "static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx,\n"
       "  CMAP_MAP * map, CMAP_LIST * args)\n{\n", fn_name);
 
-    if(!cmap_parser_part_public.is_return())
-      APPEND_INSTRUCTION("return NULL;");
-    char * instructions = cmap_parser_part_public.pop_instructions();
+    if(!cmap_part_public.is_return()) APPEND_INSTRUCTION("return NULL;");
+    char * instructions = cmap_part_public.pop_instructions();
     APPEND(functions, instructions);
     free(instructions);
 
@@ -548,7 +544,7 @@ static void c_impl_root(char * impl)
 
 static void if_(char * bool_name)
 {
-  char * instructions = cmap_parser_part_public.pop_instructions(),
+  char * instructions = cmap_part_public.pop_instructions(),
     * instruction = NULL;
 
   APPEND_INSTRUCTION_ARGS("if(%s)", bool_name);
@@ -569,12 +565,12 @@ static void else_if_start()
   APPEND_INSTRUCTION("else");
   APPEND_INSTRUCTION("{");
 
-  cmap_parser_part_public.push_instructions();
+  cmap_part_public.push_instructions();
 }
 
 static void else_if_stop()
 {
-  char * instructions = cmap_parser_part_public.pop_instructions();
+  char * instructions = cmap_part_public.pop_instructions();
   APPEND(instructions, instructions);
   free(instructions);
 
@@ -584,7 +580,7 @@ static void else_if_stop()
 
 static void else_()
 {
-  char * instructions = cmap_parser_part_public.pop_instructions();
+  char * instructions = cmap_part_public.pop_instructions();
 
   APPEND_INSTRUCTION("else");
   APPEND_INSTRUCTION("{");
@@ -604,7 +600,7 @@ static char * cmp_to_bool_fn(char * cmp_name, const char * op)
   free(cmp_name);
 
   char * bool_fn_name = next_name(),
-    * instructions = cmap_parser_part_public.pop_instructions();
+    * instructions = cmap_part_public.pop_instructions();
   APPEND_ARGS(functions,
     "static inline char %s(CMAP_PROC_CTX * proc_ctx)\n{\n", bool_fn_name);
   APPEND(functions, instructions);

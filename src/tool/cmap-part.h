@@ -5,9 +5,20 @@
 
 #define SPACE "  "
 
-extern const char CMAP_PARSER_PART_CTX_NATURE_DFT;
-extern const char CMAP_PARSER_PART_CTX_NATURE_FN;
+extern const char CMAP_PART_CTX_NATURE_DFT;
+extern const char CMAP_PART_CTX_NATURE_FN;
 
+/*******************************************************************************
+=====[[ .c ]]=====
+includes
+functions
+  instructions
+main
+  instructions
+
+=====[[ .h ]]=====
+headers
+*******************************************************************************/
 typedef struct
 {
   void (*clean)();
@@ -25,7 +36,6 @@ typedef struct
   void (*prepend_instruction)(const char * instruction);
   char (*is_definitions)();
   char (*is_global_env)();
-  void (*add_prefix)();
   CMAP_KV * (*name2map)();
   char * (*pop_instructions)();
 
@@ -38,8 +48,8 @@ typedef struct
   void (*add_relative_include)(const char * name);
   void (*add_include_lf)();
   char * (*includes)();
-} CMAP_PARSER_PART_PUBLIC;
+} CMAP_PART_PUBLIC;
 
-extern const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public;
+extern const CMAP_PART_PUBLIC cmap_part_public;
 
 #endif

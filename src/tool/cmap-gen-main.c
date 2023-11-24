@@ -8,24 +8,19 @@
 #include <getopt.h>
 #include "cmap-file-util.h"
 #include "cmap-option.h"
-#include "cmap-parser-part.h"
+#include "cmap-part.h"
 #include "cmap-string.h"
-#include "cmap-gen.h"
+#include "cmap-fn-name.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * include = NULL;
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * include_wo_ext()
+static char * include_no_suffix()
 {
-  if(include == NULL) return NULL;
+  if(cmap_option_public.include() == NULL) return NULL;
   else
   {
-    char * ret = strdup(include);
+    char * ret = strdup(cmap_option_public.include());
     for(char * c = ret + (strlen(ret) - 1); c > ret; c--)
     {
       if(*c == '.')
@@ -46,15 +41,13 @@ static void impl(char ** txt)
     "  cmap_bootstrap(NULL);\n"
     "  CMAP_ENV * env = cmap_env(argc, argv);\n");
 
-  char * base_name = include_wo_ext();
-  char * fn_name = cmap_gen_public.fn_name(base_name);
-  free(base_name);
-  if(fn_name != NULL)
-  {
-    cmap_string_public.append_args(txt,
-      "  cmap_env_main(env, %s);\n", fn_name);
-    free(fn_name);
-  }
+  char * include_name = include_no_suffix();
+  cmap_fn_name_public.from_basename_no_suffix(include_name);
+  free(include_name);
+
+  const char * fn_name = cmap_fn_name_public.name();
+  if(fn_name != NULL) cmap_string_public.append_args(txt,
+    "  cmap_env_main(env, %s);\n", fn_name);
 
   cmap_string_public.append(txt,
     "  return cmap_main();\n"
@@ -66,16 +59,18 @@ static void impl(char ** txt)
 
 static void parts(char ** txt)
 {
-  cmap_parser_part_public.add_include("stdlib.h");
-  cmap_parser_part_public.add_include("cmap-ext.h");
-  if(include != NULL) cmap_parser_part_public.add_relative_include(include);
+  cmap_part_public.add_include("stdlib.h");
+  cmap_part_public.add_include("cmap-ext.h");
+  if(cmap_option_public.include() != NULL)
+    cmap_part_public.add_relative_include(cmap_option_public.include());
 
   cmap_string_public.append(txt, "\n");
-  cmap_string_public.append(txt, cmap_parser_part_public.includes());
+  cmap_string_public.append(txt, cmap_part_public.includes());
   cmap_string_public.append(txt, "\n");
   impl(txt);
 
-  cmap_parser_part_public.clean();
+  cmap_part_public.clean();
+  cmap_fn_name_public.clean();
 }
 
 /*******************************************************************************
@@ -99,9 +94,9 @@ static void mng_options(int argc, char * argv[])
   {
     switch(o)
     {
-      case 'f': cmap_option_public.set_fn_name(optarg); break;
+      case 'f': cmap_fn_name_public.from_option(optarg); break;
       case 'i': cmap_option_public.relative_inc(); break;
-      case 'l': include = optarg; break;
+      case 'l': cmap_option_public.set_include(optarg); break;
     }
   }
 }
@@ -143,8 +138,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_GEN_MAIN_PUBLIC cmap_gen_main_public =
-{
-  impl,
-  main_
-};
+const CMAP_GEN_MAIN_PUBLIC cmap_gen_main_public = { impl, main_ };
