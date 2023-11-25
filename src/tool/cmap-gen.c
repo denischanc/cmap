@@ -23,14 +23,13 @@ static void add_include(const char * out_h_name)
 {
   if(!cmap_option_public.is_only_c())
   {
-    cmap_part_public.add_relative_include(out_h_name);
-    cmap_part_public.add_include_lf();
+    cmap_part_public.add_include(out_h_name, (1 == 1));
+    cmap_string_public.append(cmap_part_public.includes(), "\n");
   }
-  else cmap_part_public.add_include("cmap-ext.h");
-  cmap_part_public.add_include("stdlib.h");
-  cmap_part_public.add_include("cmap-int-ext.h");
-  cmap_part_public.add_include("cmap-aisle-ext.h");
-  cmap_part_public.add_include_lf();
+  else cmap_part_public.add_include("cmap-ext.h", (1 == 0));
+  cmap_part_public.add_include("stdlib.h", (1 == 0));
+  cmap_part_public.add_include("cmap-int-ext.h", (1 == 0));
+  cmap_part_public.add_include("cmap-aisle-ext.h", (1 == 0));
 }
 
 /*******************************************************************************
@@ -74,8 +73,7 @@ static int generate_c(const char * out_name)
   if(cmap_option_public.is_add_main())
     cmap_gen_main_public.impl(cmap_part_public.main());
 
-  fprintf(out, "\n");
-  fprintf(out, "%s", *cmap_part_public.includes());
+  fprintf(out, "\n%s\n", *cmap_part_public.includes());
   fprintf(out, "%s", *cmap_part_public.functions());
   fprintf(out, "%s", *cmap_part_public.main());
 

@@ -16,24 +16,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * include_no_suffix()
-{
-  if(cmap_option_public.include() == NULL) return NULL;
-  else
-  {
-    char * ret = strdup(cmap_option_public.include());
-    for(char * c = ret + (strlen(ret) - 1); c > ret; c--)
-    {
-      if(*c == '.')
-      {
-        *c = 0;
-        return ret;
-      }
-    }
-    return ret;
-  }
-}
-
 static void impl(char ** txt)
 {
   cmap_string_public.append(txt,
@@ -41,10 +23,6 @@ static void impl(char ** txt)
     "{\n"
     "  cmap_bootstrap(NULL);\n"
     "  CMAP_ENV * env = cmap_env(argc, argv);\n");
-
-  char * include_name = include_no_suffix();
-  cmap_fn_name_public.from_basename_no_suffix(include_name);
-  free(include_name);
 
   const char * fn_name = cmap_fn_name_public.name();
   if(fn_name != NULL) cmap_string_public.append_args(txt,
@@ -60,10 +38,10 @@ static void impl(char ** txt)
 
 static void parts(char ** txt)
 {
-  cmap_part_public.add_include("stdlib.h");
-  cmap_part_public.add_include("cmap-ext.h");
+  cmap_part_public.add_include("stdlib.h", (1 == 0));
+  cmap_part_public.add_include("cmap-ext.h", (1 == 0));
   if(cmap_option_public.include() != NULL)
-    cmap_part_public.add_relative_include(cmap_option_public.include());
+    cmap_part_public.add_include(cmap_option_public.include(), (1 == 1));
 
   cmap_string_public.append(txt, "\n");
   cmap_string_public.append(txt, *cmap_part_public.includes());
@@ -118,6 +96,24 @@ static void usage(const char * this_name)
 /*******************************************************************************
 *******************************************************************************/
 
+static char * include_no_suffix()
+{
+  if(cmap_option_public.include() == NULL) return NULL;
+  else
+  {
+    char * ret = strdup(cmap_option_public.include());
+    for(char * c = ret + (strlen(ret) - 1); c > ret; c--)
+    {
+      if(*c == '.')
+      {
+        *c = 0;
+        return ret;
+      }
+    }
+    return ret;
+  }
+}
+
 static int main_(int argc, char * argv[])
 {
   if(argc < 3) usage(argv[0]);
@@ -125,6 +121,10 @@ static int main_(int argc, char * argv[])
   {
     optind = 3;
     mng_options(argc, argv);
+
+    char * include_name = include_no_suffix();
+    cmap_fn_name_public.from_basename_no_suffix(include_name);
+    free(include_name);
 
     char * txt = NULL;
     parts(&txt);

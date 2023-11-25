@@ -42,9 +42,7 @@ typedef struct
   void (*return_fn)();
   char (*is_return_fn)();
 
-  void (*add_include)(const char * name);
-  void (*add_relative_include)(const char * name);
-  void (*add_include_lf)();
+  void (*add_include)(const char * name, char is_relative);
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;

@@ -207,31 +207,15 @@ static char is_return_fn()
 /*******************************************************************************
 *******************************************************************************/
 
-static void add_include(const char * name)
+static void add_include(const char * name, char is_relative)
 {
-  if(!strncmp(name, "cmap", 4))
+  if(!strncmp(name, "cmap", 4) || is_relative)
   {
+    is_relative = is_relative || cmap_option_public.is_relative_inc();
     cmap_string_public.append_args(&includes,
-      (cmap_option_public.is_relative_inc()) ?
-        "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
+      (is_relative) ? "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
   }
   else cmap_string_public.append_args(&includes, "#include <%s>\n", name);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void add_relative_include(const char * name)
-{
-  cmap_string_public.append_args(&includes, "#include \"%s\"\n", name);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void add_include_lf()
-{
-  cmap_string_public.append(&includes, "\n");
 }
 
 /*******************************************************************************
@@ -270,7 +254,5 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_return,
   return_fn,
   is_return_fn,
-  add_include,
-  add_relative_include,
-  add_include_lf
+  add_include
 };
