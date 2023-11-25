@@ -25,4 +25,4 @@ CLEANFILES = cmap-cmap.c cmap-cmap.h
 CMAP_CMAP_FILE = $(CMAP_SRC_PATH)/components/cmap-cmap.cmap
 
 cmap-cmap.c cmap-cmap.h: $(CMAP_CMAP_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $(CMAP_CMAP_FILE) cmap-cmap -i
+	$(CMAP_TOOL) gen $(CMAP_CMAP_FILE) cmap-cmap -i -fcmap_cmap_public_create

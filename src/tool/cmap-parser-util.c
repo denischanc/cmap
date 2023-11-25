@@ -134,6 +134,15 @@ static void add_aisle(char ** instruction, char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
+static void include_(char * includes)
+{
+  APPEND_ARGS(includes, "%s\n", includes);
+  free(includes);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void function_c(char * name, char is_static)
 {
   char is_return_fn = cmap_part_public.is_return_fn();
@@ -157,7 +166,7 @@ static void function_c(char * name, char is_static)
   APPEND(main, "}\n\n");
 }
 
-static void cmap_impl()
+static void instructions_root()
 {
   function_c(strdup(cmap_fn_name_public.name()), (1 == 0));
 }
@@ -798,8 +807,9 @@ static char * names(char * names, char * name)
 
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
+  include_,
   function_c,
-  cmap_impl,
+  instructions_root,
   name,
   path,
   set_local,

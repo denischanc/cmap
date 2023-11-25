@@ -1,4 +1,4 @@
-[C[
+[INCLUDE[
 
 #include "cmap-scheduler-ep.h"
 #include "cmap-job.h"

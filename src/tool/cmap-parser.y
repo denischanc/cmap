@@ -25,9 +25,9 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2 CMAP_IMPL
+%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2 CMAP
 %token ERROR
-%token<name> STRING C_IMPL NAME INT
+%token<name> STRING C_IMPL INCLUDE NAME INT
 
 %type<name> cmap aisle arg_names_cmap creator args process function arg_names
 %type<name> comparison comparison_ cmap_not_creator names
@@ -37,8 +37,12 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 /*******************************************************************************
 *******************************************************************************/
 
-start: parts
-| CMAP_IMPL instructions { cmap_parser_util_public.cmap_impl(); };
+start: include parts_or_instructions;
+
+include: | INCLUDE { cmap_parser_util_public.include_($1); };
+
+parts_or_instructions: parts
+| CMAP instructions SB2_C { cmap_parser_util_public.instructions_root(); };
 
 parts:
 | parts C_IMPL { cmap_parser_util_public.c_impl_root($2); }

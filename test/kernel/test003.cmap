@@ -2,32 +2,19 @@
 @TEST_DESC@ Call console info/error fns
 *******************************************************************************/
 
-@FUNCTION(test)
-{
-  LOCAL aisleT = "aisle.t"#global#;
+[CMAP[
 
-  LOCAL test = function()##aisleT##{
-    cmap.console.info(
-      "Hello "##aisleT##, "World "##aisleT##, "!!!"##aisleT##).info();
-    cmap.console.info();
+LOCAL aisleT = "aisle.t"#global#;
 
-    cmap.console.error("[ERROR]"##aisleT##);
-  };
+LOCAL test = function()##aisleT##{
+  cmap.console.info("Hello "##aisleT##, "World "##aisleT##,  "!!!"##aisleT##)
+    .info();
+  cmap.console.info();
 
-  LOCAL job = new cmap.scheduler.job{test}#aisle.t#;
-  job.schedule();
-}
+  cmap.console.error("[ERROR]"##aisleT##);
+};
 
-/*******************************************************************************
-*******************************************************************************/
-
-[C[
-
-int main(int argc, char * argv[])
-{
-  cmap_bootstrap(NULL);
-  cmap_env_main(cmap_env(argc, argv), test);
-  return cmap_main();
-}
+LOCAL job = new cmap.scheduler.job{test}#aisle.t#;
+job.schedule();
 
 ]]

@@ -5,8 +5,9 @@
 
 typedef struct
 {
+  void (*include_)(char * includes);
   void (*function_c)(char * name, char is_static);
-  void (*cmap_impl)();
+  void (*instructions_root)();
 
   char * (*name)(char * name);
   char * (*path)(char * map, char * name);

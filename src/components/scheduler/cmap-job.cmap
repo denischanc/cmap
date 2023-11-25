@@ -1,21 +1,19 @@
-/*******************************************************************************
-*******************************************************************************/
+[CMAP[
 
-@FUNCTION(cmap_job_public_create)
+LOCAL job = function(process)#global#
 {
-  LOCAL job = function(process)#global#
-  {
-    this.process = process;
-  };
+  this.process = process;
+};
 
-  job.prototype =
+job.prototype =
+{
+  schedule: function()#global#
   {
-    schedule: function()#global#
-    {
-      cmap.scheduler.addJob(this);
-      return this;
-    }
-  }#global#;
+    cmap.scheduler.addJob(this);
+    return this;
+  }
+}#global#;
 
-  return job;
-}
+return job;
+
+]]

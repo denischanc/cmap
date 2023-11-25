@@ -27,7 +27,7 @@ static void append_args(char ** src, const char * txt, ...)
 {
   va_list args;
   va_start(args, txt);
-  static char buffer[10000];
+  static char buffer[1048576];
   vsnprintf(buffer, sizeof(buffer), txt, args);
   va_end(args);
 

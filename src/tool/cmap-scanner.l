@@ -15,7 +15,7 @@ static void set_name(YYSTYPE * yylval_p, const char * name);
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
-%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S
+%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S INCLUDE_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
 INT_D [[:digit:]]+
@@ -50,6 +50,13 @@ SPACE_D [[:space:]]+
   "\n" { string_append(yytext); }
 }
 
+[[:space:]]*"[INCLUDE["[[:space:]]* { BEGIN(INCLUDE_S); string_start(""); }
+<INCLUDE_S>{
+  [[:space:]]*"]]" { BEGIN(INITIAL); string_end(yylval, ""); return INCLUDE; }
+  . { string_append(yytext); }
+  "\n" { string_append(yytext); }
+}
+
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
 "LOCAL" { return LOCAL; } // because of 'local' aisle
@@ -60,7 +67,7 @@ SPACE_D [[:space:]]+
 "if" { return IF; }
 "else" { return ELSE; }
 "new" { return NEW; }
-"@CMAP" { return CMAP_IMPL; }
+"[CMAP[" { return CMAP; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

@@ -23,4 +23,4 @@ cmap-scheduler.c cmap-scheduler.h: $(CMAP_SCHEDULER_FILE) $(CMAP_TOOL)
 	$(CMAP_TOOL) gen $(CMAP_SCHEDULER_FILE) cmap-scheduler -i
 
 cmap-job.c cmap-job.h: $(CMAP_JOB_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $(CMAP_JOB_FILE) cmap-job -i
+	$(CMAP_TOOL) gen $(CMAP_JOB_FILE) cmap-job -i -fcmap_job_public_create
