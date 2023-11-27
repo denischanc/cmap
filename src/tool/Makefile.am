@@ -1,4 +1,8 @@
 
+include $(top_srcdir)/src/tool/common.mk
+
+SUBDIRS = tpl
+
 BUILT_SOURCES = cmap-parser.h
 
 AM_LFLAGS = --prefix=cmap_parser_
@@ -41,8 +45,5 @@ cmap_tool_SOURCES = \
   cmap-scanner.l \
   cmap-string.c \
   cmap-tool.c
-cmap_tool_CFLAGS = \
-  -Wall \
-  -DCMAP_INSTALL_BINDIR="\"$(bindir)\"" \
-  -DCMAP_INSTALL_LIBDIR="\"$(libdir)\"" \
-  -DCMAP_INSTALL_INCLUDEDIR="\"$(includedir)\""
+cmap_tool_CFLAGS = $(CMAP_TOOL_CFLAGS)
+cmap_tool_LDADD = tpl/libtpl.la

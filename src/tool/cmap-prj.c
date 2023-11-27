@@ -9,70 +9,8 @@
 #include "cmap-file-util.h"
 #include "cmap-string.h"
 #include "config.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-static const char * HELLO_WORLD_CMAP =
-  "\n"
-  "@FUNCTION(hello_world)\n"
-  "{\n"
-  "  LOCAL name = cmap.cli.args[[1]];\n"
-  "  if(name == null) { name = \"World\"#t#; }\n"
-  "  LOCAL max = 3#t#.valueOf(cmap.cli.args[[2]]);\n"
-  "\n"
-  "  LOCAL hello = function(name)#t#\n"
-  "  {\n"
-  "    cmap.console.info(\"Hello \"#t#, name, \" !!!\"#t#);\n"
-  "  };\n"
-  "\n"
-  "  LOCAL helloWorld = function()#t#\n"
-  "  {\n"
-  "    if(this.nb == null) { this.nb = 1; }\n"
-  "\n"
-  "    hello(name);\n"
-  "\n"
-  "    if(this.nb >= max) { this.deepDeleteNoRef(); return; }\n"
-  "    else { this.nb.inc(); }\n"
-  "\n"
-  "    this.schedule();\n"
-  "  };\n"
-  "\n"
-  "  LOCAL job = new cmap.scheduler.job{helloWorld};\n"
-  "  job.schedule();\n"
-  "}\n"
-  "\n"
-  "[C[\n"
-  "\n"
-  "int main(int argc, char * argv[])\n"
-  "{\n"
-  "  cmap_bootstrap(NULL);\n"
-  "  cmap_env_main(cmap_env(argc, argv), hello_world);\n"
-  "  return cmap_main();\n"
-  "}\n"
-  "\n"
-  "]]\n";
-
-/*******************************************************************************
-*******************************************************************************/
-
-static const char * MAKEFILE =
-  "\n"
-  ".PHONY: clean\n"
-  "\n"
-  "CMAP_TOOL = " CMAP_INSTALL_BINDIR "/cmap-tool\n"
-  "\n"
-  "CFLAGS = -Wall -I" CMAP_INSTALL_INCLUDEDIR "\n"
-  "LDFLAGS = -L" CMAP_INSTALL_LIBDIR " -lcmap\n"
-  "\n"
-  "hello-world: hello-world.c\n"
-  "\tgcc $(CFLAGS) $(LDFLAGS) -o $@ $^\n"
-  "\n"
-  "hello-world.c: hello-world.cmap $(CMAP_TOOL)\n"
-  "\t$(CMAP_TOOL) gen $< $(@:.c=) --only-c\n"
-  "\n"
-  "clean:\n"
-  "\trm -f hello-world hello-world.c\n";
+#include "cmap-prj-simple-hello-world-cmap.h"
+#include "cmap-prj-simple-makefile.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -109,9 +47,10 @@ static int main_(int argc, char * argv[])
       return EXIT_FAILURE;
     }
 
-    if(to_file(dir, "hello-world.cmap", HELLO_WORLD_CMAP) != 0)
+    if(to_file(dir, "hello-world.cmap", CMAP_PRJ_SIMPLE_HELLO_WORLD_CMAP) != 0)
       return EXIT_FAILURE;
-    if(to_file(dir, "Makefile", MAKEFILE) != 0) return EXIT_FAILURE;
+    if(to_file(dir, "Makefile", CMAP_PRJ_SIMPLE_MAKEFILE) != 0)
+      return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
@@ -119,7 +58,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PRJ_PUBLIC cmap_prj_public =
-{
-  main_
-};
+const CMAP_PRJ_PUBLIC cmap_prj_public = { main_ };

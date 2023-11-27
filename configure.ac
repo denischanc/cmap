@@ -18,6 +18,7 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_MKDIR_P
+AC_PROG_SED
 
 # Checks for libraries.
 AC_CHECK_LIB([uv], [uv_run])
@@ -64,9 +65,14 @@ AC_CONFIG_FILES([Makefile
                  src/core/prototype/Makefile
                  src/kernel/Makefile
                  src/tool/Makefile
+                 src/tool/tpl/Makefile
+                 src/tool/tpl/prj-multiple/Makefile
+                 src/tool/tpl/prj-simple/Makefile
+                 src/tool/tpl/tpl2hc.sh
                  src/util/Makefile
                  test/Makefile
                  test/kernel/Makefile
                  test/mem/Makefile
                  test/util/Makefile])
+AC_CONFIG_COMMANDS([tpl2hc.sh], [chmod +x src/tool/tpl/tpl2hc.sh])
 AC_OUTPUT

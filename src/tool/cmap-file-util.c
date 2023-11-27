@@ -28,7 +28,4 @@ static int to_file(const char * path, const char * txt)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_FILE_UTIL_PUBLIC cmap_file_util_public =
-{
-  to_file
-};
+const CMAP_FILE_UTIL_PUBLIC cmap_file_util_public = { to_file };

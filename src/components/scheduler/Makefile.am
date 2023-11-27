@@ -14,7 +14,7 @@ nodist_libscheduler_la_SOURCES = cmap-scheduler-blt.c cmap-job-blt.c
 libscheduler_la_SOURCES = cmap-scheduler.c
 libscheduler_la_CFLAGS = $(CMAP_CFLAGS)
 
-CLEANFILES = cmap-scheduler-blt.c cmap-job-blt.c $(BUILT_SOURCES)
+CLEANFILES = $(nodist_libscheduler_la_SOURCES) $(BUILT_SOURCES)
 
 CMAP_SCHEDULER_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-scheduler.cmap
 CMAP_JOB_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-job.cmap
