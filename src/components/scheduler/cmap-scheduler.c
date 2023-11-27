@@ -1,9 +1,9 @@
 
-#include "cmap-scheduler-ep.h"
+#include "cmap-scheduler.h"
 
 #include <uv.h>
 #include "cmap.h"
-#include "cmap-scheduler.h"
+#include "cmap-scheduler-blt.h"
 #include "cmap-util.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-kernel.h"
@@ -28,7 +28,7 @@ static void on_schedule(uv_work_t * req, int status)
   internal.scheduled = CMAP_F;
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx((CMAP_ENV *)req -> data);
-  cmap_scheduler_public_process(proc_ctx);
+  cmap_scheduler_blt_public_process(proc_ctx);
   cmap_delete_proc_ctx(proc_ctx);
 }
 
@@ -57,7 +57,4 @@ static CMAP_MAP * schedule(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_SCHEDULER_EP_PUBLIC cmap_scheduler_ep_public =
-{
-  schedule
-};
+const CMAP_SCHEDULER_PUBLIC cmap_scheduler_public = { schedule };

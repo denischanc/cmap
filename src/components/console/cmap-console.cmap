@@ -1,14 +1,14 @@
 [INCLUDE[
 
-#include "cmap-console-ep.h"
+#include "cmap-console.h"
 
 ]]
 [CMAP[
 
 return
 {
-  info: function()#global#(cmap_console_ep_public.info),
-  error: function()#global#(cmap_console_ep_public.error)
+  info: function()#global#(cmap_console_public.info),
+  error: function()#global#(cmap_console_public.error)
 }#global#;
 
 ]]

@@ -1,5 +1,5 @@
 
-#include "cmap-cli-ep.h"
+#include "cmap-cli.h"
 
 #include <stdlib.h>
 #include "cmap.h"
@@ -22,7 +22,4 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CLI_EP_PUBLIC cmap_cli_ep_public =
-{
-  create
-};
+const CMAP_CLI_PUBLIC cmap_cli_public = { create };

@@ -1,5 +1,5 @@
 
-#include "cmap-console-ep.h"
+#include "cmap-console.h"
 
 #include <stdio.h>
 #include "cmap.h"
@@ -38,8 +38,4 @@ static CMAP_MAP * error(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CONSOLE_EP_PUBLIC cmap_console_ep_public =
-{
-  info,
-  error
-};
+const CMAP_CONSOLE_PUBLIC cmap_console_public = { info, error };

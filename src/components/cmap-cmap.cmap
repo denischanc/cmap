@@ -1,17 +1,17 @@
 [INCLUDE[
 
-#include "cmap-console.h"
-#include "cmap-scheduler.h"
-#include "cmap-cmap-ep.h"
+#include "cmap-console-blt.h"
+#include "cmap-scheduler-blt.h"
+#include "cmap-cmap.h"
 
 ]]
 [CMAP[
 
 return
 {
-  console: @PROC(cmap_console_public_create),
-  scheduler: @PROC(cmap_scheduler_public_create),
-  prototype: @PROC(cmap_cmap_ep_public.prototype)
+  console: @PROC(cmap_console_blt_public_create),
+  scheduler: @PROC(cmap_scheduler_blt_public_create),
+  prototype: @PROC(cmap_cmap_public.prototype)
 }#global#;
 
 ]]

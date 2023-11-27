@@ -1,16 +1,16 @@
 [INCLUDE[
 
-#include "cmap-scheduler-ep.h"
-#include "cmap-job.h"
+#include "cmap-scheduler.h"
+#include "cmap-job-blt.h"
 
 ]]
 
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_public_create)
+@FUNCTION(cmap_scheduler_blt_public_create)
 {
-  LOCAL schedule = function()#global#(cmap_scheduler_ep_public.schedule);
+  LOCAL schedule = function()#global#(cmap_scheduler_public.schedule);
 
   LOCAL internal =
   {
@@ -34,14 +34,14 @@
       this.internal.jobs.push(job);
       schedule();
     },
-    job: @PROC(cmap_job_public_create)
+    job: @PROC(cmap_job_blt_public_create)
   }#global#;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_public_process)
+@FUNCTION(cmap_scheduler_blt_public_process)
 {
   cmap.scheduler.internal.process();
 }
