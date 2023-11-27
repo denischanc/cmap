@@ -25,8 +25,8 @@ $> make install
 $> /cmap/install/dir/bin/cmap-tool prj hello-world
 $> cd hello-world
 $> make
-$> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/cmap/install/dir/lib
-$> ./hello-world prenom 5
+$> export LD_LIBRARY_PATH=/cmap/install/dir/lib:$LD_LIBRARY_PATH
+$> ./hello-world yourname 5
 ----
 
 * have a look to link:src/tool/tpl/prj-simple/hello-world.cmap.tpl[hello-world.cmap^]
