@@ -2,7 +2,7 @@ CMAP
 ====
 
 This project introduce natively map, list into c. It defines
-_cmap_ language related to javascript, nodejs. It uses
+*cmap* language related to javascript, nodejs. It uses
 https://github.com/libuv/libuv[uv^] library.
 
 ## How to install version x.y.z
