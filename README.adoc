@@ -1,5 +1,7 @@
 CMAP
 ====
+Denis Chancogne <denis.chancogne@free.fr>
+:toc:
 
 This project introduce natively map, list into c. It defines
 *cmap* language related to javascript, nodejs. It uses
