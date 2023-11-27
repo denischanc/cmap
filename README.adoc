@@ -13,7 +13,7 @@ https://github.com/libuv/libuv[uv^] library.
 ----
 $> tar xf cmap-x.y.z.tar.xz
 $> cd cmap-x.y.z
-$> ./configure --prefix=/some/install/dir
+$> ./configure --prefix=/cmap/install/dir
 $> make
 $> make install
 ----
@@ -22,9 +22,10 @@ $> make install
 
 [source,shell]
 ----
-$> /some/install/dir/bin/cmap-tool prj hello-world
+$> /cmap/install/dir/bin/cmap-tool prj hello-world
 $> cd hello-world
 $> make
+$> export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/cmap/install/dir/lib
 $> ./hello-world prenom 5
 ----
 

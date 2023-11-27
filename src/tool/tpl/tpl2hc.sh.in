@@ -13,7 +13,7 @@ SED=@SED@
 ################################################################################
 ################################################################################
 
-ROOT_NAME=cmap-$(basename $(dirname $TPL))-$(basename $TPL .tpl)
+ROOT_NAME=cmap-$(basename $PWD)-$(basename $TPL .tpl)
 ROOT_NAME=$(echo $ROOT_NAME | tr 'A-Z.' 'a-z-')
 H_NAME=$ROOT_NAME.h
 C_NAME=$ROOT_NAME.c
