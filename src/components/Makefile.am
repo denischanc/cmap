@@ -25,5 +25,5 @@ CLEANFILES = cmap-cmap-blt.c cmap-cmap-blt.h
 CMAP_CMAP_FILE = $(CMAP_SRC_PATH)/components/cmap-cmap.cmap
 
 cmap-cmap-blt.c cmap-cmap-blt.h: $(CMAP_CMAP_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $(CMAP_CMAP_FILE) cmap-cmap-blt \
+	$(CMAP_TOOL) build $(CMAP_CMAP_FILE) cmap-cmap-blt \
 	  -i -fcmap_cmap_blt_public_create

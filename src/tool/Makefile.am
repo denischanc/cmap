@@ -11,12 +11,12 @@ LEX_OUTPUT_ROOT = lex.cmap_parser_
 AM_YFLAGS = -d --name-prefix=cmap_parser_ -Wcounterexamples
 
 noinst_HEADERS = \
+  cmap-build.h \
+  cmap-build-main.h \
   cmap-clean.h \
   cmap-file-util.h \
   cmap-fn-name-define.h \
   cmap-fn-name.h \
-  cmap-gen.h \
-  cmap-gen-main.h \
   cmap-kv.h \
   cmap-option-define.h \
   cmap-option.h \
@@ -31,11 +31,11 @@ noinst_HEADERS = \
 bin_PROGRAMS = cmap-tool
 
 cmap_tool_SOURCES = \
+  cmap-build.c \
+  cmap-build-main.c \
   cmap-clean.c \
   cmap-file-util.c \
   cmap-fn-name.c \
-  cmap-gen.c \
-  cmap-gen-main.c \
   cmap-kv.c \
   cmap-option.c \
   cmap-parser-util.c \

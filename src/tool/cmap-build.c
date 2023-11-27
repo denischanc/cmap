@@ -1,5 +1,5 @@
 
-#include "cmap-gen.h"
+#include "cmap-build.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -12,7 +12,7 @@
 #include "cmap-part.h"
 #include "cmap-option.h"
 #include "cmap-string.h"
-#include "cmap-gen-main.h"
+#include "cmap-build-main.h"
 #include "cmap-fn-name.h"
 #include "cmap-clean.h"
 
@@ -71,7 +71,7 @@ static int generate_c(const char * out_name)
   printf("==[[ Generate : _%s_\n", out_name);
 
   if(cmap_option_public.is_add_main())
-    cmap_gen_main_public.impl(cmap_part_public.main());
+    cmap_build_main_public.impl(cmap_part_public.main());
 
   fprintf(out, "\n%s\n", *cmap_part_public.includes());
   fprintf(out, "%s", *cmap_part_public.functions());
@@ -163,13 +163,13 @@ static void mng_options(int argc, char * argv[])
 static void usage(const char * this_name)
 {
   printf(
-    "usage: %s gen [cmap file] [c/h root file] (options)\n"
+    "usage: %s %s [cmap file] [c/h root file] (options)\n"
     "options:\n"
     "  -i,--relative-inc                    Relative include\n"
     "  -c,--only-c                          Only c generation\n"
     "  -f,--fn [name]                       Function name\n"
     "  -m,--add-main                        Add main\n",
-    this_name);
+    this_name, CMAP_BUILD_MODULE_NAME);
 }
 
 /*******************************************************************************
@@ -206,4 +206,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_GEN_PUBLIC cmap_gen_public = { main_ };
+const CMAP_BUILD_PUBLIC cmap_build_public = { main_ };

@@ -1,5 +1,5 @@
 
-#include "cmap-gen-main.h"
+#include "cmap-build-main.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -85,12 +85,12 @@ static void mng_options(int argc, char * argv[])
 static void usage(const char * this_name)
 {
   printf(
-    "usage: %s gen-main [file] (options)\n"
+    "usage: %s %s [file] (options)\n"
     "options:\n"
     "  -f,--fn [name]                       Function name\n"
     "  -i,--relative-inc                    Relative include\n"
     "  -l,--include [name]                  Include to add\n",
-    this_name);
+    this_name, CMAP_BUILD_MAIN_MODULE_NAME);
 }
 
 /*******************************************************************************
@@ -138,4 +138,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_GEN_MAIN_PUBLIC cmap_gen_main_public = { impl, main_ };
+const CMAP_BUILD_MAIN_PUBLIC cmap_build_main_public = { impl, main_ };

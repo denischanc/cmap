@@ -2,10 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "cmap-gen.h"
+#include "cmap-build.h"
+#include "cmap-build-main.h"
 #include "cmap-prj.h"
-#include "cmap-gen-main.h"
 #include "config.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CHOICE_MODULES \
+  CMAP_BUILD_MODULE_NAME "|" CMAP_BUILD_MAIN_MODULE_NAME \
+  "|" CMAP_PRJ_MODULE_NAME
 
 /*******************************************************************************
 *******************************************************************************/
@@ -13,7 +20,7 @@
 static void usage(const char * this_name)
 {
   printf("%s-%s\n", PACKAGE, VERSION);
-  printf("usage: %s [gen|gen-main|prj]\n", this_name);
+  printf("usage: %s [%s]\n", this_name, CHOICE_MODULES);
 }
 
 /*******************************************************************************
@@ -23,10 +30,12 @@ int main(int argc, char * argv[])
 {
   if(argc > 1)
   {
-    if(!strcmp(argv[1], "gen")) return cmap_gen_public.main(argc, argv);
-    else if(!strcmp(argv[1], "gen-main"))
-      return cmap_gen_main_public.main(argc, argv);
-    else if(!strcmp(argv[1], "prj")) return cmap_prj_public.main(argc, argv);
+    if(!strcmp(argv[1], CMAP_BUILD_MODULE_NAME))
+      return cmap_build_public.main(argc, argv);
+    else if(!strcmp(argv[1], CMAP_BUILD_MAIN_MODULE_NAME))
+      return cmap_build_main_public.main(argc, argv);
+    else if(!strcmp(argv[1], CMAP_PRJ_MODULE_NAME))
+      return cmap_prj_public.main(argc, argv);
   }
 
   usage(argv[0]);

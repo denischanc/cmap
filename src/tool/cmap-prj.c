@@ -29,7 +29,7 @@ static int to_file(const char * dir, const char * file_name, const char * txt)
 
 static void usage(const char * this_name)
 {
-  printf("usage: %s prj [project directory]\n", this_name);
+  printf("usage: %s %s [project directory]\n", this_name, CMAP_PRJ_MODULE_NAME);
 }
 
 /*******************************************************************************

@@ -20,8 +20,8 @@ CMAP_SCHEDULER_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-scheduler.cmap
 CMAP_JOB_FILE = $(CMAP_SRC_PATH)/components/scheduler/cmap-job.cmap
 
 cmap-scheduler-blt.c cmap-scheduler-blt.h: $(CMAP_SCHEDULER_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $(CMAP_SCHEDULER_FILE) cmap-scheduler-blt -i
+	$(CMAP_TOOL) build $(CMAP_SCHEDULER_FILE) cmap-scheduler-blt -i
 
 cmap-job-blt.c cmap-job-blt.h: $(CMAP_JOB_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $(CMAP_JOB_FILE) cmap-job-blt \
+	$(CMAP_TOOL) build $(CMAP_JOB_FILE) cmap-job-blt \
 	  -i -fcmap_job_blt_public_create

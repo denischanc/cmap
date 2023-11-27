@@ -10,7 +10,7 @@ hello-world: hello-world.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^
 
 hello-world.c: hello-world.cmap $(CMAP_TOOL)
-	$(CMAP_TOOL) gen $< $(@:.c=) --only-c --add-main
+	$(CMAP_TOOL) build $< $(@:.c=) --only-c --add-main
 
 clean:
 	rm -f hello-world hello-world.c
