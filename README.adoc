@@ -26,5 +26,5 @@ $> make
 $> ./hello-world prenom 5
 ----
 
-* have a look to link:blob/master/src/tool/tpl/prj-simple/hello-world.cmap.tpl[hello-world.cmap^]
+* have a look to link:src/tool/tpl/prj-simple/hello-world.cmap.tpl[hello-world.cmap^]
 * Makefile allow to build hello-world : *make*, clean project : *make clean*
