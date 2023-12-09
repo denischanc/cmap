@@ -81,12 +81,11 @@ static int build_files_multiple(const char * dir)
 
 static struct option gen_long_options[] =
 {
-  {"simple", no_argument, NULL, 's'},
   {"multiple", no_argument, NULL, 'm'},
   {NULL, 0, NULL, 0}
 };
 
-static const char * gen_short_options = "sm";
+static const char * gen_short_options = "m";
 
 static void mng_options(int argc, char * argv[])
 {
@@ -96,7 +95,6 @@ static void mng_options(int argc, char * argv[])
   {
     switch(o)
     {
-      case 's': cmap_option_public.simple(); break;
       case 'm': cmap_option_public.multiple(); break;
     }
   }
@@ -109,7 +107,6 @@ static void usage(const char * this_name)
 {
   printf("usage: %s %s [project directory] (options)\n"
     "options:\n"
-    "  -s,--simple                          Simple\n"
     "  -m,--multiple                        Multiple\n",
     this_name, CMAP_PRJ_MODULE_NAME);
 }
@@ -132,13 +129,13 @@ static int main_(int argc, char * argv[])
       return EXIT_FAILURE;
     }
 
-    if(cmap_option_public.is_simple())
-    {
-      if(build_files_simple(dir) != 0) return EXIT_FAILURE;
-    }
-    else if(cmap_option_public.is_multiple())
+    if(cmap_option_public.is_multiple())
     {
       if(build_files_multiple(dir) != 0) return EXIT_FAILURE;
+    }
+    else
+    {
+      if(build_files_simple(dir) != 0) return EXIT_FAILURE;
     }
   }
   return EXIT_SUCCESS;
