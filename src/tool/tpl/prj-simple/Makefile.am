@@ -8,15 +8,13 @@ EXTRA_DIST = \
   hello-world.cmap.tpl \
   Makefile.tpl
 
-BUILT_SOURCES = \
+nodist_noinst_HEADERS = \
   cmap-prj-simple-hello-world.cmap.h \
   cmap-prj-simple-Makefile.h
 
-nodist_noinst_HEADERS = $(BUILT_SOURCES)
-
 noinst_LTLIBRARIES = libprj-simple.la
 
-nodist_libprj_simple_la_SOURCES = $(BUILT_SOURCES:.h=.c)
+nodist_libprj_simple_la_SOURCES = $(nodist_noinst_HEADERS:.h=.c)
 libprj_simple_la_CFLAGS = $(CMAP_TOOL_CFLAGS) $(CMAP_TPL_CFLAGS)
 
 CLEANFILES = \

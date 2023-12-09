@@ -5,8 +5,6 @@ SUBDIRS = console scheduler cli
 
 EXTRA_DIST = cmap-cmap.cmap
 
-BUILT_SOURCES = cmap-cmap-blt.h
-
 nodist_noinst_HEADERS = cmap-cmap-blt.h
 noinst_HEADERS = cmap-cmap.h
 
@@ -20,7 +18,7 @@ libcomponents_la_LIBADD = \
   scheduler/libscheduler.la \
   cli/libcli.la
 
-CLEANFILES = cmap-cmap-blt.c cmap-cmap-blt.h
+CLEANFILES = $(nodist_libcomponents_la_SOURCES) $(nodist_noinst_HEADERS)
 
 CMAP_CMAP_FILE = $(CMAP_SRC_PATH)/components/cmap-cmap.cmap
 
