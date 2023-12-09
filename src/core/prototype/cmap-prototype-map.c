@@ -70,11 +70,22 @@ static CMAP_MAP * delete_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data);
+
+static void delete_list_val_apply_fn(CMAP_MAP ** val, void * data)
+{
+  delete_apply_fn(NULL, val, NULL);
+}
+
 static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
   if((*val != NULL) && !CMAP_CALL((CMAP_LIFECYCLE *)*val, is_ref))
   {
-    CMAP_CALL_ARGS(*val, apply, delete_apply_fn, data);
+    CMAP_CALL_ARGS(*val, apply, delete_apply_fn, NULL);
+
+    if(CMAP_NATURE(*val) == CMAP_LIST_NATURE) CMAP_CALL_ARGS((CMAP_LIST *)*val,
+       apply, delete_list_val_apply_fn, NULL);
+
     CMAP_DELETE(*val);
   }
 }

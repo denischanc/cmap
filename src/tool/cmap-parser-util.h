@@ -31,8 +31,9 @@ typedef struct
 
   void (*return_)(char * map);
 
-  char * (*process)(char * map, char * fn_name, char * args);
-  char * (*process_fn)(char * fn, char * args);
+  void (*process_prepare)(char * map, char * fn_name, char * args);
+  void (*process_prepare_fn)(char * fn, char * args);
+  char * (*process_resolve)(char need_ret);
   char * (*process_c)(char * fn_name, char need_ret);
 
   char * (*function)(char * args, char * aisle, char * fn_name);
@@ -62,6 +63,12 @@ typedef struct
   char * (*aisle_map)(char * map);
 
   char * (*names)(char * names, char * name);
+
+  void (*for_decl)(char * cmp_name);
+  void (*for_impl)();
+
+  char * (*or)(char * cmp_name_l, char * cmp_name_r);
+  char * (*and)(char * cmp_name_l, char * cmp_name_r);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

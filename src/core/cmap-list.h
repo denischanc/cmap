@@ -7,6 +7,8 @@
 #include "cmap-map.h"
 #include "cmap-lifecycle.h"
 
+typedef void (*CMAP_LIST_VAL_FN)(CMAP_MAP ** val, void * data);
+
 struct CMAP_LIST
 {
   CMAP_MAP super;
@@ -28,6 +30,8 @@ struct CMAP_LIST
   CMAP_MAP * (*shift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);
+
+  void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
 };
 
 typedef struct
@@ -52,6 +56,8 @@ typedef struct
   CMAP_MAP * (*shift)(CMAP_LIST * this);
 
   void (*clear)(CMAP_LIST * this);
+
+  void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
 } CMAP_LIST_PUBLIC;
 
 extern const CMAP_LIST_PUBLIC cmap_list_public;

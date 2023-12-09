@@ -37,7 +37,7 @@ static const char * nature(CMAP_MAP * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * val(CMAP_STRING * this)
+static char * val(CMAP_STRING * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   return internal -> val;

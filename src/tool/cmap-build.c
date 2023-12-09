@@ -29,6 +29,7 @@ static void add_include(const char * out_h_name)
   else cmap_part_public.add_include("cmap-ext.h", (1 == 0));
   cmap_part_public.add_include("stdlib.h", (1 == 0));
   cmap_part_public.add_include("cmap-int-ext.h", (1 == 0));
+  cmap_part_public.add_include("cmap-string-ext.h", (1 == 0));
   cmap_part_public.add_include("cmap-aisle-ext.h", (1 == 0));
 }
 

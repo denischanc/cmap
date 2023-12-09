@@ -106,7 +106,7 @@ static CMAP_LIST * local_stack(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void pop_local(CMAP_PROC_CTX * this, CMAP_MAP * ret)
+static CMAP_MAP * pop_local(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
   CMAP_AISLESTORE * as = aislestore(this);
 
@@ -128,6 +128,8 @@ static void pop_local(CMAP_PROC_CTX * this, CMAP_MAP * ret)
     (CMAP_LIST *)CMAP_CALL_ARGS(as, delete_last, AISLE_LOCAL_STACK);
 
   if(ret_in_stack) CMAP_LIST_PUSH(new_stack, ret);
+
+  return ret;
 }
 
 /*******************************************************************************

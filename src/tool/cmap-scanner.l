@@ -18,7 +18,7 @@ static void set_name(YYSTYPE * yylval_p, const char * name);
 %x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S INCLUDE_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
-INT_D [[:digit:]]+
+INT_D \-?[[:digit:]]+
 SPACE_D [[:space:]]+
 
 %%
@@ -68,6 +68,7 @@ SPACE_D [[:space:]]+
 "else" { return ELSE; }
 "new" { return NEW; }
 "[CMAP[" { return CMAP; }
+"for" { return FOR; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }
@@ -95,6 +96,8 @@ SPACE_D [[:space:]]+
 ">=" { return GE; }
 "==" { return EQUAL; }
 "!=" { return DIFF; }
+"||" { return OR; }
+"&&" { return AND; }
 
 {SPACE_D}
 

@@ -2,6 +2,8 @@
 #include "cmap-prototype-int.h"
 
 #include <stdlib.h>
+#include <time.h>
+#include <sys/time.h>
 #include "cmap.h"
 #include "cmap-prototype-util.h"
 #include "cmap-list.h"
@@ -63,6 +65,34 @@ static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * time_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  CMAP_CALL_ARGS((CMAP_INT *)map, set, time(NULL));
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  struct timeval tv = { 0 };
+  gettimeofday(&tv, NULL);
+
+  int64_t i = tv.tv_sec;
+  i *= 1000000;
+  i += tv.tv_usec;
+
+  CMAP_CALL_ARGS((CMAP_INT *)map, set, i);
+
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define OP_STEP_INIT_FN(name, op) \
   CMAP_PROTO_SET_FN(proto, #name, name##_fn, proc_ctx);
 
@@ -72,6 +102,8 @@ static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
   CMAP_INT_STEP_LOOP(OP_STEP_INIT_FN)
 
   CMAP_PROTO_SET_FN(proto, "valueOf", value_of_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "time", time_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "timeUs", time_us_fn, proc_ctx);
 }
 
 /*******************************************************************************

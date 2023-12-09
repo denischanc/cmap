@@ -178,6 +178,15 @@ static char * pop_instructions()
   return ret;
 }
 
+static void pop_instructions_to_part(char ** part)
+{
+  if(part == NULL) part = &instructions -> next -> instructions;
+
+  char * instructions = pop_instructions();
+  cmap_string_public.append(part, instructions);
+  free(instructions);
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -250,6 +259,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_global_env,
   name2map,
   pop_instructions,
+  pop_instructions_to_part,
   return_,
   is_return,
   return_fn,

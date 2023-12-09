@@ -2,10 +2,12 @@
 #include "cmap-prototype-string.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "cmap-prototype-util.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
+#include "cmap-int.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -16,17 +18,35 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   if((map != NULL) && (args != NULL) &&
     (CMAP_NATURE(map) == CMAP_STRING_NATURE))
   {
-    CMAP_MAP * tmp;
-    while((tmp = CMAP_LIST_SHIFT(args)) != NULL)
+    CMAP_MAP * cur;
+    while((cur = CMAP_LIST_SHIFT(args)) != NULL)
     {
-      if(CMAP_NATURE(tmp) == CMAP_STRING_NATURE)
+      const char * cur_nature = CMAP_NATURE(cur);
+      if(cur_nature == CMAP_STRING_NATURE)
       {
-        CMAP_STRING * append = (CMAP_STRING *)tmp;
-        CMAP_STRING * string = (CMAP_STRING *)map;
-        CMAP_CALL_ARGS(string, append, CMAP_CALL(append, val));
+        char * cur_val = CMAP_CALL((CMAP_STRING *)cur, val);
+        CMAP_CALL_ARGS((CMAP_STRING *)map, append, cur_val);
+      }
+      else if(cur_nature == CMAP_INT_NATURE)
+      {
+        char buffer[22];
+        int64_t cur_i = CMAP_CALL((CMAP_INT *)cur, get);
+        snprintf(buffer, sizeof(buffer), "%ld", cur_i);
+        CMAP_CALL_ARGS((CMAP_STRING *)map, append, buffer);
       }
     }
   }
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * clear_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  if((map != NULL) && (CMAP_NATURE(map) == CMAP_STRING_NATURE))
+    CMAP_CALL((CMAP_STRING *)map, clear);
   return map;
 }
 
@@ -44,6 +64,7 @@ static void require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "append", append_fn, proc_ctx);
+  CMAP_PROTO_SET_FN(proto, "clear", clear_fn, proc_ctx);
 }
 
 /*******************************************************************************

@@ -381,6 +381,16 @@ static void clear(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
+static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
+{
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  for(int i = internal -> i_start; i != internal -> i_stop;
+    i = (i + 1) % internal -> size_max) fn(internal -> list + i, data);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_LIFECYCLE * delete(CMAP_LIST * list)
 {
   INTERNAL * internal = (INTERNAL *)list -> internal;
@@ -423,6 +433,7 @@ static void init(CMAP_LIST * list, int size_inc)
   list -> unshift = unshift;
   list -> shift = shift;
   list -> clear = clear;
+  list -> apply = apply;
 }
 
 static CMAP_LIST * create(int size_inc, CMAP_PROC_CTX * proc_ctx,
@@ -447,5 +458,6 @@ const CMAP_LIST_PUBLIC cmap_list_public =
   add,  rm,
   push, pop,
   unshift, shift,
-  clear
+  clear,
+  apply
 };

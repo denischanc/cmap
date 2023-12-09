@@ -85,7 +85,7 @@ void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *));
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env);
 void cmap_push_local_ctx(CMAP_PROC_CTX * proc_ctx);
-void cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
+CMAP_MAP * cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx);
 
 CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx);

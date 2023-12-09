@@ -255,7 +255,8 @@ CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  return CMAP_CALL_ARGS(fn, process, proc_ctx, map, args);
+  if(fn != NULL) return CMAP_CALL_ARGS(fn, process, proc_ctx, map, args);
+  else return map;
 }
 
 static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
@@ -397,9 +398,9 @@ void cmap_push_local_ctx(CMAP_PROC_CTX * proc_ctx)
   CMAP_CALL(proc_ctx, push_local);
 }
 
-void cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
+CMAP_MAP * cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 {
-  CMAP_CALL_ARGS(proc_ctx, pop_local, ret);
+  return CMAP_CALL_ARGS(proc_ctx, pop_local, ret);
 }
 
 void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx)

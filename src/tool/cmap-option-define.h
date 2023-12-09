@@ -5,7 +5,9 @@
   macro_bool(relative_inc) \
   macro_bool(only_c) \
   macro_bool(add_main) \
-  macro_string(include)
+  macro_string(include) \
+  macro_bool(simple) \
+  macro_bool(multiple)
 
 #define CMAP_OPTION_BOOL_DECL(name) \
   void (*name)(); \

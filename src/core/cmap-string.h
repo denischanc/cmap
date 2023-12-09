@@ -13,7 +13,7 @@ struct CMAP_STRING
 
   void * internal;
 
-  const char * (*val)(CMAP_STRING * this);
+  char * (*val)(CMAP_STRING * this);
 
   void (*append)(CMAP_STRING * this, const char * val);
   void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
@@ -29,7 +29,7 @@ typedef struct
   void (*init)(CMAP_STRING * string, const char * val, int size_inc);
   CMAP_LIFECYCLE * (*delete)(CMAP_STRING * string);
 
-  const char * (*val)(CMAP_STRING * this);
+  char * (*val)(CMAP_STRING * this);
 
   void (*append)(CMAP_STRING * this, const char * val);
   void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,

@@ -4,32 +4,49 @@
 ################################################################################
 
 TPL=$1
+BLT=$2
+WHAT=$3
 
 ################################################################################
 ################################################################################
 
 SED=@SED@
 
+declare -A EXT CAT_FN
+EXT=([C]=.c [INCLUDE]=.h)
+CAT_FN=([C]=cat_c [INCLUDE]=cat_h)
+
 ################################################################################
 ################################################################################
 
-ROOT_NAME=cmap-$(basename $PWD)-$(basename $TPL .tpl)
-ROOT_NAME=$(echo $ROOT_NAME | tr 'A-Z.' 'a-z-')
-H_NAME=$ROOT_NAME.h
+ROOT_NAME=$(basename $BLT ${EXT[$WHAT]})
 C_NAME=$ROOT_NAME.c
-
-VAR=$(echo $ROOT_NAME | tr 'a-z-' 'A-Z_')
-
-SED_ARGS="-e 's/\"/\\\\\"/g'"
-SED_ARGS+=" -e 's/@\(.*\)@/\" \1 \"/g'"
-
-TPL_CHAR_PTR=$(eval $SED $SED_ARGS $TPL | \
-  while read -r; do echo -n "$REPLY\\n"; done)
+H_NAME=$ROOT_NAME.h
+VAR=$(echo $ROOT_NAME | tr 'a-z.-' 'A-Z__')
 
 ################################################################################
 ################################################################################
 
-cat << _EOF_ > $H_NAME
+cat_c() {
+	local SED_ARGS="-e 's/\\\\/\\\\\\\\/g'"
+	SED_ARGS+=" -e 's/\"/\\\\\"/g'"
+	SED_ARGS+=" -e 's/%/%%/g'"
+	SED_ARGS+=" -e 's/@\(.*\)@/\" \1 \"/g'"
+	local TPL_CHAR_PTR=$(eval $SED $SED_ARGS $TPL | \
+		while read -r; do echo -n "$REPLY\\n"; done)
+	cat << _EOF_
+
+#include "$H_NAME"
+
+const char * $VAR = "$TPL_CHAR_PTR";
+_EOF_
+}
+
+################################################################################
+################################################################################
+
+cat_h() {
+	cat << _EOF_
 #ifndef __${VAR}_H__
 #define __${VAR}_H__
 
@@ -37,13 +54,9 @@ extern const char * $VAR;
 
 #endif
 _EOF_
+}
 
 ################################################################################
 ################################################################################
 
-cat << _EOF_ > $C_NAME
-
-#include "$H_NAME"
-
-const char * $VAR = "$TPL_CHAR_PTR";
-_EOF_
+${CAT_FN[$WHAT]} > $BLT

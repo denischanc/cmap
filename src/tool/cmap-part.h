@@ -36,6 +36,7 @@ typedef struct
   char (*is_global_env)();
   CMAP_KV * (*name2map)();
   char * (*pop_instructions)();
+  void (*pop_instructions_to_part)(char ** part);
 
   void (*return_)();
   char (*is_return)();

@@ -25,7 +25,7 @@ struct CMAP_PROC_CTX
   void (*push_local)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*local_definitions)(CMAP_PROC_CTX * this);
   CMAP_LIST * (*local_stack)(CMAP_PROC_CTX * this);
-  void (*pop_local)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
+  CMAP_MAP * (*pop_local)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
 };
 
 typedef struct
