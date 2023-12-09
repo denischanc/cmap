@@ -180,11 +180,10 @@ static char * pop_instructions()
 
 static void pop_instructions_to_part(char ** part)
 {
-  if(part == NULL) part = &instructions -> next -> instructions;
-
-  char * instructions = pop_instructions();
-  cmap_string_public.append(part, instructions);
-  free(instructions);
+  char * instructions_to_append = pop_instructions();
+  if(part == NULL) part = &instructions -> instructions;
+  cmap_string_public.append(part, instructions_to_append);
+  free(instructions_to_append);
 }
 
 /*******************************************************************************
