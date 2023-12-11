@@ -8,6 +8,7 @@
 #include "cmap-part.h"
 #include "cmap-kv.h"
 #include "cmap-fn-name.h"
+#include "cmap-stack-define.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -134,46 +135,8 @@ static void add_aisle(char ** instruction, char * aisle)
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct STACK_ELMT STACK_ELMT;
-
-struct STACK_ELMT
-{
-  void * ptr;
-  char c;
-  STACK_ELMT * next;
-};
-
-static void push_elmt(STACK_ELMT ** elmts, void * ptr, char c)
-{
-  STACK_ELMT * elmt = (STACK_ELMT *)malloc(sizeof(STACK_ELMT));
-  elmt -> ptr = ptr;
-  elmt -> c = c;
-  elmt -> next = *elmts;
-  *elmts = elmt;
-}
-
-static STACK_ELMT * pop_elmt(STACK_ELMT ** elmts)
-{
-  STACK_ELMT * elmt = *elmts;
-  *elmts = elmt -> next;
-  return elmt;
-}
-
-static char * pop_elmt_char_ptr(STACK_ELMT ** elmts)
-{
-  STACK_ELMT * elmt = pop_elmt(elmts);
-  char * ret = (char *)elmt -> ptr;
-  free(elmt);
-  return ret;
-}
-
-static char pop_elmt_char(STACK_ELMT ** elmts)
-{
-  STACK_ELMT * elmt = pop_elmt(elmts);
-  char ret = elmt -> c;
-  free(elmt);
-  return ret;
-}
+CMAP_STACK(char, char)
+CMAP_STACK(char_ptr, char *)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -532,36 +495,37 @@ static char * process_fn(char * fn, char * args, char need_ret)
 #define PROCESS_WAY_DFT 0
 #define PROCESS_WAY_FN 1
 
-static STACK_ELMT * process_way = NULL, * process_map_or_fn = NULL,
+static CMAP_STACK_char * process_way = NULL;
+static CMAP_STACK_char_ptr * process_map_or_fn = NULL,
   * process_fn_name = NULL, * process_args = NULL;
 
 static void process_prepare(char * map, char * fn_name, char * args)
 {
-  push_elmt(&process_way, NULL, PROCESS_WAY_DFT);
-  push_elmt(&process_map_or_fn, map, 0);
-  push_elmt(&process_fn_name, fn_name, 0);
-  push_elmt(&process_args, args, 0);
+  cmap_stack_char_push(&process_way, PROCESS_WAY_DFT);
+  cmap_stack_char_ptr_push(&process_map_or_fn, map);
+  cmap_stack_char_ptr_push(&process_fn_name, fn_name);
+  cmap_stack_char_ptr_push(&process_args, args);
 }
 
 static void process_prepare_fn(char * fn, char * args)
 {
-  push_elmt(&process_way, NULL, PROCESS_WAY_FN);
-  push_elmt(&process_map_or_fn, fn, 0);
-  push_elmt(&process_args, args, 0);
+  cmap_stack_char_push(&process_way, PROCESS_WAY_FN);
+  cmap_stack_char_ptr_push(&process_map_or_fn, fn);
+  cmap_stack_char_ptr_push(&process_args, args);
 }
 
 static char * process_resolve(char need_ret)
 {
-  if(pop_elmt_char(&process_way) == PROCESS_WAY_FN)
+  if(cmap_stack_char_pop(&process_way) == PROCESS_WAY_FN)
   {
-    return process_fn(pop_elmt_char_ptr(&process_map_or_fn),
-      pop_elmt_char_ptr(&process_args), need_ret);
+    return process_fn(cmap_stack_char_ptr_pop(&process_map_or_fn),
+      cmap_stack_char_ptr_pop(&process_args), need_ret);
   }
   else
   {
-    return process(pop_elmt_char_ptr(&process_map_or_fn),
-      pop_elmt_char_ptr(&process_fn_name), pop_elmt_char_ptr(&process_args),
-      need_ret);
+    return process(cmap_stack_char_ptr_pop(&process_map_or_fn),
+      cmap_stack_char_ptr_pop(&process_fn_name),
+      cmap_stack_char_ptr_pop(&process_args), need_ret);
   }
 }
 

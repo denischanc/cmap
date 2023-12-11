@@ -2,6 +2,7 @@
 include $(top_srcdir)/src/common.mk
 
 noinst_HEADERS = \
+  cmap-stack-define.h \
   cmap-tree-define.h \
   cmap-tree.h \
   cmap-util.h

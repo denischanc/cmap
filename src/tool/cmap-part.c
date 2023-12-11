@@ -6,6 +6,7 @@
 #include "cmap-string.h"
 #include "cmap-kv.h"
 #include "cmap-option.h"
+#include "cmap-stack-define.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -18,8 +19,10 @@ struct INSTRUCTIONS
 
   CMAP_KV * name2map;
 
-  INSTRUCTIONS * next, * ctx;
+  INSTRUCTIONS * ctx;
 };
+
+CMAP_STACK(instructions, INSTRUCTIONS)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -30,7 +33,7 @@ const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1;
 
 CMAP_PART_LOOP(PART_VAR)
 
-static INSTRUCTIONS * instructions = NULL;
+static CMAP_STACK_instructions * instructions = NULL;
 
 static char is_new_ctx = (1 == 1), ctx_nature = CMAP_PART_CTX_NATURE_DFT;
 
@@ -60,29 +63,30 @@ static void new_ctx(char nature)
 
 static void push_instructions()
 {
-  INSTRUCTIONS * tmp = (INSTRUCTIONS *)malloc(sizeof(INSTRUCTIONS));
-  tmp -> instructions = strdup("");
-  tmp -> definitions = (1 == 0);
-  tmp -> global_env = (1 == 0);
-  tmp -> return_ = (1 == 0);
+  INSTRUCTIONS tmp;
+  tmp.instructions = strdup("");
+  tmp.definitions = (1 == 0);
+  tmp.global_env = (1 == 0);
+  tmp.return_ = (1 == 0);
   if(is_new_ctx || (instructions == NULL))
   {
-    if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp -> return_fn = (1 == 1);
-    else tmp -> return_fn = (1 == 0);
-    tmp -> prefix = strdup(SPACE);
-    tmp -> ctx = tmp;
-    tmp -> name2map = cmap_kv_public.create();
+    if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp.return_fn = (1 == 1);
+    else tmp.return_fn = (1 == 0);
+    tmp.prefix = strdup(SPACE);
+    tmp.ctx = NULL;
+    tmp.name2map = cmap_kv_public.create();
   }
   else
   {
-    tmp -> return_fn = (1 == 0);
-    tmp -> prefix = strdup(instructions -> prefix);
-    cmap_string_public.append(&tmp -> prefix, SPACE);
-    tmp -> ctx = instructions -> ctx;
-    tmp -> name2map = NULL;
+    tmp.return_fn = (1 == 0);
+    tmp.prefix = strdup(instructions -> v.prefix);
+    cmap_string_public.append(&tmp.prefix, SPACE);
+    tmp.ctx = instructions -> v.ctx;
+    tmp.name2map = NULL;
   }
-  tmp -> next = instructions;
-  instructions = tmp;
+
+  cmap_stack_instructions_push(&instructions, tmp);
+  if(tmp.ctx == NULL) instructions -> v.ctx = &instructions -> v;
 
   is_new_ctx = (1 == 0);
   ctx_nature = CMAP_PART_CTX_NATURE_DFT;
@@ -93,7 +97,7 @@ static void push_instructions()
 
 static char ** instructions_()
 {
-  return &instructions -> instructions;
+  return &instructions -> v.instructions;
 }
 
 /*******************************************************************************
@@ -101,8 +105,8 @@ static char ** instructions_()
 
 static void add_instruction(const char * instruction)
 {
-  cmap_string_public.append_args(&instructions -> instructions, "%s%s\n",
-    instructions -> prefix, instruction);
+  cmap_string_public.append_args(&instructions -> v.instructions, "%s%s\n",
+    instructions -> v.prefix, instruction);
 }
 
 /*******************************************************************************
@@ -110,7 +114,7 @@ static void add_instruction(const char * instruction)
 
 static void add_lf()
 {
-  cmap_string_public.append(&instructions -> instructions, "\n");
+  cmap_string_public.append(&instructions -> v.instructions, "\n");
 }
 
 /*******************************************************************************
@@ -118,7 +122,7 @@ static void add_lf()
 
 static void prepend_instruction(const char * instruction)
 {
-  INSTRUCTIONS * ctx = instructions -> ctx;
+  INSTRUCTIONS * ctx = instructions -> v.ctx;
 
   char * tmp = ctx -> instructions;
   ctx -> instructions = NULL;
@@ -133,7 +137,7 @@ static void prepend_instruction(const char * instruction)
 
 static char is_definitions()
 {
-  INSTRUCTIONS * ctx = instructions -> ctx;
+  INSTRUCTIONS * ctx = instructions -> v.ctx;
   if(ctx -> definitions) return (1 == 1);
   else
   {
@@ -147,7 +151,7 @@ static char is_definitions()
 
 static char is_global_env()
 {
-  INSTRUCTIONS * ctx = instructions -> ctx;
+  INSTRUCTIONS * ctx = instructions -> v.ctx;
   if(ctx -> global_env) return (1 == 1);
   else
   {
@@ -161,7 +165,7 @@ static char is_global_env()
 
 static CMAP_KV * name2map()
 {
-  return instructions -> ctx -> name2map;
+  return instructions -> v.ctx -> name2map;
 }
 
 /*******************************************************************************
@@ -169,19 +173,16 @@ static CMAP_KV * name2map()
 
 static char * pop_instructions()
 {
-  char * ret = instructions -> instructions;
-  INSTRUCTIONS * tmp = instructions;
-  instructions = instructions -> next;
-  if(tmp -> name2map != NULL) cmap_kv_public.delete(tmp -> name2map);
-  free(tmp -> prefix);
-  free(tmp);
-  return ret;
+  INSTRUCTIONS tmp = cmap_stack_instructions_pop(&instructions);
+  if(tmp.name2map != NULL) cmap_kv_public.delete(tmp.name2map);
+  free(tmp.prefix);
+  return tmp.instructions;
 }
 
 static void pop_instructions_to_part(char ** part)
 {
   char * instructions_to_append = pop_instructions();
-  if(part == NULL) part = &instructions -> instructions;
+  if(part == NULL) part = &instructions -> v.instructions;
   cmap_string_public.append(part, instructions_to_append);
   free(instructions_to_append);
 }
@@ -191,12 +192,12 @@ static void pop_instructions_to_part(char ** part)
 
 static void return_()
 {
-  instructions -> ctx -> return_ = (1 == 1);
+  instructions -> v.ctx -> return_ = (1 == 1);
 }
 
 static char is_return()
 {
-  return instructions -> ctx -> return_;
+  return instructions -> v.ctx -> return_;
 }
 
 /*******************************************************************************
@@ -204,12 +205,12 @@ static char is_return()
 
 static void return_fn()
 {
-  instructions -> ctx -> return_fn = (1 == 1);
+  instructions -> v.ctx -> return_fn = (1 == 1);
 }
 
 static char is_return_fn()
 {
-  return instructions -> ctx -> return_fn;
+  return instructions -> v.ctx -> return_fn;
 }
 
 /*******************************************************************************

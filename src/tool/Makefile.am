@@ -24,6 +24,7 @@ noinst_HEADERS = \
   cmap-part.h \
   cmap-prj.h \
   cmap-scanner.h \
+  cmap-stack-define.h \
   cmap-string.h
 
 bin_PROGRAMS = cmap-tool
