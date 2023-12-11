@@ -4,6 +4,8 @@ include $(top_srcdir)/src/tool/tpl/common.mk
 
 CMAP_PRJ_NATURE = multiple
 
+BUILT_SOURCES = $(nodist_noinst_HEADERS)
+
 EXTRA_DIST = \
   main.cmap.tpl \
   Makefile.tpl \

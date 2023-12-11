@@ -18,6 +18,8 @@ libcomponents_la_LIBADD = \
   scheduler/libscheduler.la \
   cli/libcli.la
 
+cmap-cmap.c: cmap-cmap-blt.h
+
 CLEANFILES = $(nodist_libcomponents_la_SOURCES) $(nodist_noinst_HEADERS)
 
 CMAP_CMAP_FILE = $(CMAP_SRC_PATH)/components/cmap-cmap.cmap
