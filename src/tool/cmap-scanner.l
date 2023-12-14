@@ -59,7 +59,7 @@ SPACE_D [[:space:]]+
 
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
-"LOCAL" { return LOCAL; } // because of 'local' aisle
+"local" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
@@ -75,7 +75,6 @@ SPACE_D [[:space:]]+
 
 "[[" { return SB2_O; }
 "]]" { return SB2_C; }
-"##" { return H2; }
 
 "." { return '.'; }
 "," { return ','; }
@@ -87,7 +86,6 @@ SPACE_D [[:space:]]+
 "]" { return ']'; }
 "{" { return '{'; }
 "}" { return '}'; }
-"#" { return '#'; }
 ":" { return ':'; }
 
 "<" { return '<'; }

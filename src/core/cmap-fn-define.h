@@ -3,8 +3,7 @@
 
 #include "cmap.h"
 
-#define CMAP_FN(process, proc_ctx, aisle) \
-  cmap_fn_public.create(process, proc_ctx, aisle)
+#define CMAP_FN(process, proc_ctx) cmap_fn_public.create(process, proc_ctx)
 
 #define CMAP_FN_PROC(fn, proc_ctx, map, args) \
   CMAP_CALL_ARGS(fn, process, proc_ctx, (CMAP_MAP *)map, args)

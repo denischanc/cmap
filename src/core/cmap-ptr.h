@@ -20,9 +20,9 @@ struct CMAP_PTR
 typedef struct
 {
   CMAP_PTR * (*create)(int size, CMAP_PTR_DELETE delete_ptr,
-    CMAP_PROC_CTX * proc_ctx, const char * aisle);
+    CMAP_PROC_CTX * proc_ctx);
   void (*init)(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr);
-  CMAP_LIFECYCLE * (*delete)(CMAP_PTR * ptr);
+  void (*delete)(CMAP_PTR * ptr);
 
   void * (*get)(CMAP_PTR * ptr);
 

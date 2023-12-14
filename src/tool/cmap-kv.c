@@ -13,7 +13,7 @@ typedef struct
   char * key, * val;
 } KV_CTR;
 
-CMAP_STACK(kv, KV_CTR)
+CMAP_STACK_DEF(kv, KV_CTR)
 
 struct CMAP_KV
 {

@@ -4,17 +4,15 @@
 
 [CMAP[
 
-LOCAL aisleT = "aisle.t"#global#;
-
-LOCAL test = function()##aisleT##{
-  cmap.console.info("Hello "##aisleT##, "World "##aisleT##,  "!!!"##aisleT##)
+local test = function(){
+  cmap.console.info("Hello ", "World ",  "!!!")
     .info();
   cmap.console.info();
 
-  cmap.console.error("[ERROR]"##aisleT##);
+  cmap.console.error("[ERROR]");
 };
 
-LOCAL job = new cmap.scheduler.job{test}#aisle.t#;
+local job = new cmap.scheduler.job{test};
 job.schedule();
 
 ]]

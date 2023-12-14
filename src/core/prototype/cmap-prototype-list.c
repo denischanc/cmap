@@ -7,7 +7,6 @@
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-int.h"
-#include "cmap-aisle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -22,7 +21,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     CMAP_PROTOTYPE_UTIL_MAP_FN map_fn = {};
     if(cmap_prototype_util_public.args_to_map_fn(args, &map_fn))
     {
-      CMAP_LIST * args_list_i = CMAP_LIST(0, proc_ctx, NULL);
+      CMAP_LIST * args_list_i = CMAP_LIST(0, proc_ctx);
 
       int size = CMAP_CALL(list, size), i;
       for(i = 0; i < size; i++)
@@ -31,8 +30,6 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
         CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
         CMAP_FN_PROC(map_fn.fn, proc_ctx, map_fn.map, args_list_i);
       }
-
-      CMAP_DELETE(args_list_i);
     }
   }
   return map;
@@ -73,7 +70,7 @@ static CMAP_MAP * size_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   else
   {
     int size = CMAP_CALL((CMAP_LIST *)map, size);
-    return (CMAP_MAP *)CMAP_INT(size, proc_ctx, CMAP_AISLE_LOCAL);
+    return (CMAP_MAP *)CMAP_INT(size, proc_ctx);
   }
 }
 

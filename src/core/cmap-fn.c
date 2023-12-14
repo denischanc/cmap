@@ -15,7 +15,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_STACK(char_ptr, char *)
+CMAP_STACK_DEF(char_ptr, char *)
 
 typedef struct
 {
@@ -48,7 +48,10 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> definitions == NULL)
-    internal -> definitions = cmap_map_public.create_root(proc_ctx, NULL);
+  {
+    internal -> definitions = cmap_map_public.create_root(proc_ctx);
+    CMAP_INC_REF(internal -> definitions);
+  }
   return internal -> definitions;
 }
 
@@ -113,20 +116,14 @@ static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 *******************************************************************************/
 
 static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * map = NULL;
 
   CMAP_MAP * prototype = CMAP_GET(this, CMAP_PROTOTYPE_NAME);
   if(prototype != NULL)
-    map = CMAP_PROTOTYPE_NEW(prototype, CMAP_MAP, proc_ctx, aisle);
-  else map = CMAP_MAP(proc_ctx, aisle);
-
-  if(aisle != NULL)
-  {
-    CMAP_STRING * aisle_string = CMAP_STRING(aisle, 0, proc_ctx, aisle);
-    CMAP_SET(map, "cmap-aisle", aisle_string);
-  }
+    map = CMAP_PROTOTYPE_NEW(prototype, CMAP_MAP, proc_ctx);
+  else map = CMAP_MAP(proc_ctx);
 
   CMAP_FN_PROC(this, proc_ctx, map, args);
 
@@ -136,21 +133,21 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIFECYCLE * delete(CMAP_FN * fn)
+static void delete(CMAP_FN * fn)
 {
   INTERNAL * internal = (INTERNAL *)fn -> internal;
 
-  if(internal -> definitions != NULL) CMAP_DELETE(internal -> definitions);
+  if(internal -> definitions != NULL) CMAP_DEC_REF(internal -> definitions);
   while(internal -> arg_names != NULL)
     CMAP_KERNEL_FREE(cmap_stack_char_ptr_pop(&internal -> arg_names));
   CMAP_KERNEL_FREE(internal);
 
-  return cmap_map_public.delete(&fn -> super);
+  cmap_map_public.delete(&fn -> super);
 }
 
-static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * fn)
+static void delete_(CMAP_LIFECYCLE * fn)
 {
-  return delete((CMAP_FN *)fn);
+  delete((CMAP_FN *)fn);
 }
 
 static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
@@ -172,12 +169,11 @@ static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
   fn -> new = new;
 }
 
-static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_fn = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
-  CMAP_FN * fn = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx, aisle);
+  CMAP_FN * fn = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx);
   init(fn, process);
   return fn;
 }

@@ -6,84 +6,89 @@
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
-#include "cmap-aisle.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-log.h"
 #include "cmap-list.h"
+#include "cmap-env.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 typedef struct
 {
-  CMAP_LIFECYCLE * next;
+  int nb_ref;
 
-  char is_ref;
+  CMAP_ENV * env;
 } INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_ref(CMAP_LIFECYCLE * this)
+static void inc_ref(CMAP_LIFECYCLE * this)
 {
-  return ((INTERNAL *)this -> internal) -> is_ref;
+  ((INTERNAL *)this -> internal) -> nb_ref++;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void fill_aislestore(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+static void dec_ref(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)lc -> internal;
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  internal -> nb_ref--;
 
-  internal -> is_ref = CMAP_T;
-
-  if(!strcmp(aisle, CMAP_AISLE_LOCAL))
+  if(internal -> nb_ref == 0)
   {
-    CMAP_LIST * local_stack = CMAP_CALL(proc_ctx, local_stack);
-    if(local_stack != NULL) CMAP_LIST_PUSH(local_stack, lc);
-    else
-    {
-      cmap_log_public.fatal("Try to create local cmap outside fn !!!");
-      CMAP_KERNEL_INSTANCE -> fatal();
-    }
+    CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
+    CMAP_CALL_ARGS(proc_ctx, local_stack_add, this);
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char dec_ref_or_deep_delete_last_ref(CMAP_LIFECYCLE * this)
+{
+  if(((INTERNAL *)this -> internal) -> nb_ref != 1)
+  {
+    CMAP_DEC_REF(this);
+    return CMAP_F;
   }
   else
   {
-    CMAP_MAP * as = (CMAP_MAP *)CMAP_CALL(proc_ctx, aislestore);
-    internal -> next = &(CMAP_GET(as, aisle)) -> super;
-    CMAP_SET(as, aisle, lc);
+    CMAP_CALL(this, deep_delete);
+    return CMAP_T;
   }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIFECYCLE * delete(CMAP_LIFECYCLE * lc)
+static void delete(CMAP_LIFECYCLE * lc)
 {
-  INTERNAL * internal = (INTERNAL *)lc -> internal;
-  CMAP_LIFECYCLE * next = internal -> next;
-
   CMAP_MEM * mem = cmap_kernel_public.mem();
-  CMAP_MEM_FREE(internal, mem);
+  CMAP_MEM_FREE(lc -> internal, mem);
   CMAP_MEM_FREE(lc, mem);
-
-  return next;
 }
 
-static void init(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+static void deep_delete(CMAP_LIFECYCLE * lc)
+{
+  CMAP_CALL(lc, delete);
+}
+
+static void init(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> next = NULL;
-  internal -> is_ref = CMAP_F;
+  internal -> nb_ref = 0;
+  internal -> env = CMAP_CALL(proc_ctx, env);
 
   lc -> internal = internal;
   lc -> delete = delete;
-  lc -> is_ref = is_ref;
+  lc -> deep_delete = deep_delete;
+  lc -> inc_ref = inc_ref;
+  lc -> dec_ref = dec_ref;
+  lc -> dec_ref_or_deep_delete_last_ref = dec_ref_or_deep_delete_last_ref;
 
-  if(aisle != NULL) fill_aislestore(lc, proc_ctx, aisle);
+  CMAP_CALL_ARGS(proc_ctx, local_stack_add, lc);
 }
 
 /*******************************************************************************
@@ -93,5 +98,8 @@ const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
 {
   init,
   delete,
-  is_ref
+  deep_delete,
+  inc_ref,
+  dec_ref,
+  dec_ref_or_deep_delete_last_ref
 };

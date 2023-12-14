@@ -18,21 +18,17 @@ int cmap_main();
 void cmap_exit(int ret);
 void cmap_fatal();
 
-CMAP_MAP * cmap_map(CMAP_PROC_CTX * proc_ctx, const char * aisle);
-CMAP_LIST * cmap_list(int size_inc, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle);
-CMAP_FN * cmap_fn(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle);
+CMAP_MAP * cmap_map(CMAP_PROC_CTX * proc_ctx);
+CMAP_LIST * cmap_list(int size_inc, CMAP_PROC_CTX * proc_ctx);
+CMAP_FN * cmap_fn(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx);
 CMAP_STRING * cmap_string(const char * val, int size_inc,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle);
-CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx, const char * aisle);
-CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle);
+  CMAP_PROC_CTX * proc_ctx);
+CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx);
+CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx);
 CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle);
+  CMAP_PROC_CTX * proc_ctx);
 
 const char * cmap_nature(CMAP_MAP * map);
-CMAP_MAP * cmap_delete(CMAP_MAP * map);
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
 char cmap_is_key(CMAP_MAP * map, const char * key);
@@ -58,10 +54,9 @@ CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
 
 int cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r);
 
-CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle, ...);
+CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle, CMAP_LIST * args);
+  CMAP_LIST * args);
 
 CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args);
@@ -73,12 +68,10 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
 CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
   CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args);
 
-CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...);
-CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...);
+CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, ...);
+CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...);
 
 CMAP_MEM_STATE * cmap_mem_state();
-
-void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle);
 
 CMAP_ENV * cmap_env(int argc, char ** argv);
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *));

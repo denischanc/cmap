@@ -6,8 +6,6 @@
 #include "cmap-prototype-util.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
-#include "cmap-fn.h"
-#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -43,16 +41,13 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   MAP_ENTRY_DATA data = {};
   if(cmap_prototype_util_public.args_to_map_fn(args, &data.map_fn))
   {
-    CMAP_STRING * key = CMAP_STRING("", 0, proc_ctx, NULL);
-    CMAP_LIST * args_map_kv = CMAP_LIST(0, proc_ctx, NULL);
+    CMAP_STRING * key = CMAP_STRING("", 0, proc_ctx);
+    CMAP_LIST * args_map_kv = CMAP_LIST(0, proc_ctx);
 
     data.key = key;
     data.args = args_map_kv;
     data.proc_ctx = proc_ctx;
     CMAP_CALL_ARGS(map, apply, map_entry_apply_fn, &data);
-
-    CMAP_DELETE(key);
-    CMAP_DELETE(args_map_kv);
   }
   return map;
 }
@@ -60,49 +55,9 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * delete_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
-  CMAP_LIST * args)
-{
-  CMAP_DELETE(map);
-  return NULL;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data);
-
-static void delete_list_val_apply_fn(CMAP_MAP ** val, void * data)
-{
-  delete_apply_fn(NULL, val, NULL);
-}
-
-static void delete_apply_fn(const char * key, CMAP_MAP ** val, void * data)
-{
-  if((*val != NULL) && !CMAP_CALL((CMAP_LIFECYCLE *)*val, is_ref))
-  {
-    CMAP_CALL_ARGS(*val, apply, delete_apply_fn, NULL);
-
-    if(CMAP_NATURE(*val) == CMAP_LIST_NATURE) CMAP_CALL_ARGS((CMAP_LIST *)*val,
-       apply, delete_list_val_apply_fn, NULL);
-
-    CMAP_DELETE(*val);
-  }
-}
-
-static CMAP_MAP * deep_delete_no_ref_fn(CMAP_PROC_CTX * proc_ctx,
-  CMAP_MAP * map, CMAP_LIST * args)
-{
-  delete_apply_fn(NULL, &map, NULL);
-  return NULL;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 {
-  *proto = cmap_map_public.create_root(proc_ctx, CMAP_AISLE_GLOBAL);
+  *proto = cmap_map_public.create_root(proc_ctx);
 }
 
 /*******************************************************************************
@@ -111,8 +66,6 @@ static void require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
-  CMAP_PROTO_SET_FN(proto, "delete", delete_fn, proc_ctx);
-  CMAP_PROTO_SET_FN(proto, "deepDeleteNoRef", deep_delete_no_ref_fn, proc_ctx);
 }
 
 /*******************************************************************************

@@ -3,8 +3,8 @@
 
 #include "cmap.h"
 
-#define CMAP_LIST(size_inc, proc_ctx, aisle) \
-  cmap_list_public.create(size_inc, proc_ctx, aisle)
+#define CMAP_LIST(size_inc, proc_ctx) \
+  cmap_list_public.create(size_inc, proc_ctx)
 
 #define CMAP_LIST_SET(list, i, val) \
   CMAP_CALL_ARGS(list, set, i, (CMAP_MAP *)val)

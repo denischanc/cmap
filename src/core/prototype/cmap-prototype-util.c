@@ -6,7 +6,6 @@
 #include "cmap-list.h"
 #include "cmap-map.h"
 #include "cmap-fn.h"
-#include "cmap-aisle.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 
@@ -46,7 +45,7 @@ static void require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * proto_map = CMAP_CALL_ARGS(ps, require_map, proc_ctx);
-  *proto = CMAP_PROTOTYPE_NEW(proto_map, CMAP_MAP, proc_ctx, CMAP_AISLE_GLOBAL);
+  *proto = CMAP_PROTOTYPE_NEW(proto_map, CMAP_MAP, proc_ctx);
 }
 
 /*******************************************************************************

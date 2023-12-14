@@ -12,6 +12,6 @@ return
   console: @PROC(cmap_console_blt_public_create),
   scheduler: @PROC(cmap_scheduler_blt_public_create),
   prototype: @PROC(cmap_cmap_public.prototype)
-}#global#;
+};
 
 ]]

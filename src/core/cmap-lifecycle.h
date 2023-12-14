@@ -10,18 +10,23 @@ struct CMAP_LIFECYCLE
 {
   void * internal;
 
-  CMAP_LIFECYCLE * (*delete)(CMAP_LIFECYCLE * this);
+  void (*delete)(CMAP_LIFECYCLE * this);
+  void (*deep_delete)(CMAP_LIFECYCLE * this);
 
-  char (*is_ref)(CMAP_LIFECYCLE * this);
+  void (*inc_ref)(CMAP_LIFECYCLE * this);
+  void (*dec_ref)(CMAP_LIFECYCLE * this);
+  char (*dec_ref_or_deep_delete_last_ref)(CMAP_LIFECYCLE * this);
 };
 
 typedef struct
 {
-  void (*init)(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
-  CMAP_LIFECYCLE * (*delete)(CMAP_LIFECYCLE * lc);
+  void (*init)(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx);
+  void (*delete)(CMAP_LIFECYCLE * lc);
+  void (*deep_delete)(CMAP_LIFECYCLE * lc);
 
-  char (*is_ref)(CMAP_LIFECYCLE * lc);
+  void (*inc_ref)(CMAP_LIFECYCLE * lc);
+  void (*dec_ref)(CMAP_LIFECYCLE * lc);
+  char (*dec_ref_or_deep_delete_last_ref)(CMAP_LIFECYCLE * lc);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;

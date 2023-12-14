@@ -3,6 +3,8 @@ include $(top_srcdir)/src/tool/common.mk
 
 SUBDIRS = tpl
 
+BUILT_SOURCES = cmap-parser.h
+
 AM_LFLAGS = --prefix=cmap_parser_
 LEX_OUTPUT_ROOT = lex.cmap_parser_
 

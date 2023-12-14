@@ -29,17 +29,17 @@ struct CMAP_LIST
   CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*shift)(CMAP_LIST * this);
 
-  void (*clear)(CMAP_LIST * this);
-
   void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
+
+  void (*clear)(CMAP_LIST * this);
 };
 
 typedef struct
 {
-  CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx);
   void (*init)(CMAP_LIST * list, int size_inc);
-  CMAP_LIFECYCLE * (*delete)(CMAP_LIST * list);
+  void (*delete)(CMAP_LIST * list);
+  void (*deep_delete)(CMAP_LIST * list);
 
   int (*size)(CMAP_LIST * this);
 
@@ -55,9 +55,9 @@ typedef struct
   CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
   CMAP_MAP * (*shift)(CMAP_LIST * this);
 
-  void (*clear)(CMAP_LIST * this);
-
   void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
+
+  void (*clear)(CMAP_LIST * this);
 } CMAP_LIST_PUBLIC;
 
 extern const CMAP_LIST_PUBLIC cmap_list_public;

@@ -68,10 +68,14 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   {
     entry = CMAP_KERNEL_ALLOC(ENTRY);
     entry -> key = cmap_util_public.strdup(key);
+    entry -> val = NULL;
 
     CMAP_TREE_ADDFN(entry, &internal -> entry_tree, entry, key);
   }
+
+  if(entry -> val != NULL) CMAP_DEC_REF(entry -> val);
   entry -> val = val;
+  if(val != NULL) CMAP_INC_REF(val);
 
   return val;
 }
@@ -96,13 +100,12 @@ static CMAP_MAP * get(CMAP_MAP * this, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle);
+static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx);
 
-static void * new(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+static void * new(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * map = (CMAP_MAP *)cmap_kernel_public.mem() -> alloc(size);
-  init(map, proc_ctx, aisle);
+  init(map, proc_ctx);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
   return map;
@@ -125,28 +128,25 @@ typedef struct
 {
   CMAP_LIST * keys;
   CMAP_PROC_CTX * proc_ctx;
-  const char * aisle;
 } KEYS_DATA;
 
 static void add_key(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   KEYS_DATA * data_ = (KEYS_DATA *)data;
   CMAP_STRING * key =
-    CMAP_STRING(((ENTRY *)*node) -> key, 0, data_ -> proc_ctx, data_ -> aisle);
+    CMAP_STRING(((ENTRY *)*node) -> key, 0, data_ -> proc_ctx);
   CMAP_LIST_ADD(data_ -> keys, 0, key);
 }
 
 CMAP_TREE_APPLY(keys_apply, NULL, NULL, add_key, NULL);
 
-static void keys(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+static void keys(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
   KEYS_DATA data;
   data.keys = keys;
   data.proc_ctx = proc_ctx;
-  data.aisle = aisle;
 
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, keys_apply, CMAP_T, &data);
 }
@@ -165,7 +165,13 @@ static void apply_fn(CMAP_TREE_APPLY * this, void ** node, void * data)
   ENTRY * entry = (ENTRY *)*node;
   APPLY_DATA * apply_data = (APPLY_DATA *)data;
 
+  CMAP_MAP * prev_val = entry -> val;
   apply_data -> fn(entry -> key, &entry -> val, apply_data -> fn_data);
+  if(prev_val != entry -> val)
+  {
+    if(prev_val != NULL) CMAP_DEC_REF(prev_val);
+    if(entry -> val != NULL) CMAP_INC_REF(entry -> val);
+  }
 }
 
 CMAP_TREE_APPLY(apply_apply, NULL, NULL, apply_fn, NULL);
@@ -185,6 +191,31 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
+static void entry_dec_ref(CMAP_TREE_APPLY * this, void ** node, void * data)
+{
+  CMAP_MAP * val = ((ENTRY *)*node) -> val;
+  if(val != NULL) CMAP_DEC_REF(val);
+}
+
+CMAP_TREE_APPLY(dec_ref_apply, NULL, NULL, NULL, entry_dec_ref);
+
+static void deep_delete(CMAP_MAP * map)
+{
+  INTERNAL * internal = (INTERNAL *)map -> internal;
+  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, dec_ref_apply, CMAP_T,
+    NULL);
+
+  cmap_lifecycle_public.deep_delete(&map -> super);
+}
+
+static void deep_delete_(CMAP_LIFECYCLE * map)
+{
+  deep_delete((CMAP_MAP *)map);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
@@ -195,7 +226,7 @@ static void entry_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
 
 CMAP_TREE_APPLY(delete_apply, NULL, NULL, NULL, entry_delete);
 
-static CMAP_LIFECYCLE * delete(CMAP_MAP * map)
+static void delete(CMAP_MAP * map)
 {
   INTERNAL * internal = (INTERNAL *)map -> internal;
   CMAP_MEM * mem = cmap_kernel_public.mem();
@@ -204,19 +235,20 @@ static CMAP_LIFECYCLE * delete(CMAP_MAP * map)
 
   CMAP_MEM_FREE(internal, mem);
 
-  return cmap_lifecycle_public.delete(&map -> super);
+  cmap_lifecycle_public.delete(&map -> super);
 }
 
-static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * map)
+static void delete_(CMAP_LIFECYCLE * map)
 {
-  return delete((CMAP_MAP *)map);
+  delete((CMAP_MAP *)map);
 }
 
-static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle)
+static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_LIFECYCLE * lc = &map -> super;
-  cmap_lifecycle_public.init(lc, proc_ctx, aisle);
+  cmap_lifecycle_public.init(lc, proc_ctx);
   lc -> delete = delete_;
+  lc -> deep_delete = deep_delete_;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> entry_tree = NULL;
@@ -232,16 +264,16 @@ static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle)
   map -> apply = apply;
 }
 
-static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx, const char * aisle)
+static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx)
 {
-  return (CMAP_MAP *)new(NULL, sizeof(CMAP_MAP), proc_ctx, aisle);
+  return (CMAP_MAP *)new(NULL, sizeof(CMAP_MAP), proc_ctx);
 }
 
-static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, const char * aisle)
+static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_map = CMAP_CALL_ARGS(ps, map_, proc_ctx);
-  return CMAP_PROTOTYPE_NEW(prototype_map, CMAP_MAP, proc_ctx, aisle);
+  return CMAP_PROTOTYPE_NEW(prototype_map, CMAP_MAP, proc_ctx);
 }
 
 /*******************************************************************************
@@ -253,6 +285,7 @@ const CMAP_MAP_PUBLIC cmap_map_public =
   create_root,
   init,
   delete,
+  deep_delete,
   set,
   get,
   new,

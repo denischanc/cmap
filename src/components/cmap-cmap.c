@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "cmap.h"
-#include "cmap-aisle-ext.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-cmap-blt.h"
@@ -16,7 +15,7 @@ static CMAP_MAP * prototype(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
 
-  return cmap_to_map(proc_ctx, CMAP_AISLE_GLOBAL,
+  return cmap_to_map(proc_ctx,
     "map", CMAP_CALL_ARGS(ps, map_, proc_ctx),
     "list", CMAP_CALL_ARGS(ps, list_, proc_ctx),
     "fn", CMAP_CALL_ARGS(ps, fn_, proc_ctx),

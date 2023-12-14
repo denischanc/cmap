@@ -22,7 +22,7 @@ struct INSTRUCTIONS
   INSTRUCTIONS * ctx;
 };
 
-CMAP_STACK(instructions, INSTRUCTIONS)
+CMAP_STACK_DEF(instructions, INSTRUCTIONS)
 
 /*******************************************************************************
 *******************************************************************************/

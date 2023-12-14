@@ -1,7 +1,7 @@
 #ifndef __CMAP_STACK_DEFINE_H__
 #define __CMAP_STACK_DEFINE_H__
 
-#define CMAP_STACK(name, type) \
+#define CMAP_STACK_DEF(name, type) \
 typedef struct CMAP_STACK_##name CMAP_STACK_##name; \
  \
 struct CMAP_STACK_##name \

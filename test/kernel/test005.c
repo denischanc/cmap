@@ -11,8 +11,7 @@
 
 static void test(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * tmp = cmap_map(proc_ctx, NULL);
-  cmap_delete(tmp);
+  CMAP_MAP * tmp = cmap_map(proc_ctx);
   CMAP_KERNEL_FREE(tmp);
 }
 

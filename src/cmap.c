@@ -48,44 +48,41 @@ void cmap_fatal()
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_map(CMAP_PROC_CTX * proc_ctx, const char * aisle)
+CMAP_MAP * cmap_map(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_map_public.create(proc_ctx, aisle);
+  return cmap_map_public.create(proc_ctx);
 }
 
-CMAP_LIST * cmap_list(int size_inc, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+CMAP_LIST * cmap_list(int size_inc, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_list_public.create(size_inc, proc_ctx, aisle);
+  return cmap_list_public.create(size_inc, proc_ctx);
 }
 
-CMAP_FN * cmap_fn(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+CMAP_FN * cmap_fn(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_fn_public.create(process, proc_ctx, aisle);
+  return cmap_fn_public.create(process, proc_ctx);
 }
 
 CMAP_STRING * cmap_string(const char * val, int size_inc,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_string_public.create(val, size_inc, proc_ctx, aisle);
+  return cmap_string_public.create(val, size_inc, proc_ctx);
 }
 
-CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx, const char * aisle)
+CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_int_public.create(val, proc_ctx, aisle);
+  return cmap_int_public.create(val, proc_ctx);
 }
 
-CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle)
+CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_double_public.create(val, proc_ctx, aisle);
+  return cmap_double_public.create(val, proc_ctx);
 }
 
 CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_ptr_public.create(size, delete_ptr, proc_ctx, aisle);
+  return cmap_ptr_public.create(size, delete_ptr, proc_ctx);
 }
 
 /*******************************************************************************
@@ -95,11 +92,6 @@ const char * cmap_nature(CMAP_MAP * map)
 {
   if(map == NULL) return NULL;
   else return CMAP_CALL(map, nature);
-}
-
-CMAP_MAP * cmap_delete(CMAP_MAP * map)
-{
-  return (CMAP_MAP *)CMAP_DELETE(map);
 }
 
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)
@@ -220,31 +212,30 @@ int cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 *******************************************************************************/
 
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle, CMAP_LIST * args)
+  CMAP_LIST * args)
 {
-  return CMAP_CALL_ARGS(prototype, new, args, proc_ctx, aisle);
+  return CMAP_CALL_ARGS(prototype, new, args, proc_ctx);
 }
 
 static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle, va_list args)
+  va_list args)
 {
   CMAP_POOL_LIST * pool = CMAP_CALL(proc_ctx, pool_list);
   CMAP_LIST * args_list = CMAP_CALL_ARGS(pool, take, proc_ctx);
   cmap_util_public.vfill_list(args_list, args);
 
-  CMAP_MAP * ret = cmap_lnew(prototype, proc_ctx, aisle, args_list);
+  CMAP_MAP * ret = cmap_lnew(prototype, proc_ctx, args_list);
 
   CMAP_CALL_ARGS(pool, release, args_list);
 
   return ret;
 }
 
-CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
-  const char * aisle, ...)
+CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list args;
-  va_start(args, aisle);
-  CMAP_MAP * ret = cmap_vnew(prototype, proc_ctx, aisle, args);
+  va_start(args, proc_ctx);
+  CMAP_MAP * ret = cmap_vnew(prototype, proc_ctx, args);
   va_end(args);
   return ret;
 }
@@ -328,11 +319,11 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
+CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list maps;
-  va_start(maps, aisle);
-  CMAP_LIST * list = cmap_util_public.vto_list(proc_ctx, aisle, maps);
+  va_start(maps, proc_ctx);
+  CMAP_LIST * list = cmap_util_public.vto_list(proc_ctx, maps);
   va_end(maps);
   return list;
 }
@@ -340,11 +331,11 @@ CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
+CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list key_maps;
-  va_start(key_maps, aisle);
-  CMAP_MAP * map = cmap_util_public.vto_map(proc_ctx, aisle, key_maps);
+  va_start(key_maps, proc_ctx);
+  CMAP_MAP * map = cmap_util_public.vto_map(proc_ctx, key_maps);
   va_end(key_maps);
   return map;
 }
@@ -360,15 +351,6 @@ CMAP_MEM_STATE * cmap_mem_state()
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_delete_aisle(CMAP_PROC_CTX * proc_ctx, const char * aisle)
-{
-  CMAP_AISLESTORE * as = CMAP_CALL(proc_ctx, aislestore);
-  CMAP_CALL_ARGS(as, delete, aisle);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 CMAP_ENV * cmap_env(int argc, char ** argv)
 {
   return cmap_env_public.create(argc, argv);
@@ -377,11 +359,7 @@ CMAP_ENV * cmap_env(int argc, char ** argv)
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
-
-  CMAP_CALL(proc_ctx, push_local);
   init(proc_ctx);
-  CMAP_CALL_ARGS(proc_ctx, pop_local, NULL);
-
   CMAP_CALL(proc_ctx, delete);
 }
 

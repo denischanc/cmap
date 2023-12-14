@@ -13,27 +13,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_list_vals(CMAP_LIST * list)
-{
-  while(CMAP_CALL(list, size) != 0)
-  {
-    CMAP_MAP * val = CMAP_LIST_SHIFT(list);
-    if(val != NULL) CMAP_DELETE(val);
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void delete_list_n_vals(CMAP_LIST * list)
-{
-  delete_list_vals(list);
-  CMAP_DELETE(list);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static CMAP_LIST * vfill_list(CMAP_LIST * list, va_list maps)
 {
   CMAP_MAP * map;
@@ -53,17 +32,16 @@ static CMAP_LIST * fill_list(CMAP_LIST * list, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * vto_list(CMAP_PROC_CTX * proc_ctx, const char * aisle,
-  va_list maps)
+static CMAP_LIST * vto_list(CMAP_PROC_CTX * proc_ctx, va_list maps)
 {
-  return vfill_list(CMAP_LIST(0, proc_ctx, aisle), maps);
+  return vfill_list(CMAP_LIST(0, proc_ctx), maps);
 }
 
-static CMAP_LIST * to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
+static CMAP_LIST * to_list(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list maps;
-  va_start(maps, aisle);
-  CMAP_LIST * list = vto_list(proc_ctx, aisle, maps);
+  va_start(maps, proc_ctx);
+  CMAP_LIST * list = vto_list(proc_ctx, maps);
   va_end(maps);
   return list;
 }
@@ -71,10 +49,9 @@ static CMAP_LIST * to_list(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * vto_map(CMAP_PROC_CTX * proc_ctx, const char * aisle,
-  va_list key_maps)
+static CMAP_MAP * vto_map(CMAP_PROC_CTX * proc_ctx, va_list key_maps)
 {
-  CMAP_MAP * ret = CMAP_MAP(proc_ctx, aisle);
+  CMAP_MAP * ret = CMAP_MAP(proc_ctx);
 
   const char * key;
   while((key = va_arg(key_maps, char *)) != NULL)
@@ -86,11 +63,11 @@ static CMAP_MAP * vto_map(CMAP_PROC_CTX * proc_ctx, const char * aisle,
   return ret;
 }
 
-static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, const char * aisle, ...)
+static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list key_maps;
-  va_start(key_maps, aisle);
-  CMAP_MAP * map = vto_map(proc_ctx, aisle, key_maps);
+  va_start(key_maps, proc_ctx);
+  CMAP_MAP * map = vto_map(proc_ctx, key_maps);
   va_end(key_maps);
   return map;
 }
@@ -133,14 +110,14 @@ static CMAP_MAP * copy(CMAP_MAP * dst, CMAP_MAP * src)
 *******************************************************************************/
 
 static CMAP_LIST * dup_string(CMAP_LIST * dst, CMAP_LIST * src,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
   int size = CMAP_CALL(src, size);
   for(int i = 0; i < size; i++)
   {
     CMAP_STRING * string = (CMAP_STRING *)CMAP_LIST_GET(src, i);
     const char * string_val = CMAP_CALL(string, val);
-    CMAP_LIST_PUSH(dst, CMAP_STRING(string_val, 0, proc_ctx, aisle));
+    CMAP_LIST_PUSH(dst, CMAP_STRING(string_val, 0, proc_ctx));
   }
   return dst;
 }
@@ -171,8 +148,6 @@ static int is_val(CMAP_LIST * list, CMAP_MAP * val)
 
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
-  delete_list_vals,
-  delete_list_n_vals,
   fill_list,
   vfill_list,
   to_list,

@@ -1,18 +1,18 @@
 [CMAP[
 
-LOCAL job = function(process)#global#
+local job = function(process)
 {
   this.process = process;
 };
 
 job.prototype =
 {
-  schedule: function()#global#
+  schedule: function()
   {
     cmap.scheduler.addJob(this);
     return this;
   }
-}#global#;
+};
 
 return job;
 

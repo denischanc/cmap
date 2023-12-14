@@ -52,7 +52,7 @@ static void ** ref(CMAP_PTR * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIFECYCLE * delete(CMAP_PTR * ptr)
+static void delete(CMAP_PTR * ptr)
 {
   INTERNAL * internal = (INTERNAL *)ptr -> internal;
 
@@ -63,12 +63,12 @@ static CMAP_LIFECYCLE * delete(CMAP_PTR * ptr)
 
   CMAP_KERNEL_FREE(internal);
 
-  return cmap_map_public.delete(&ptr -> super);
+  cmap_map_public.delete(&ptr -> super);
 }
 
-static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * ptr)
+static void delete_(CMAP_LIFECYCLE * ptr)
 {
-  return delete((CMAP_PTR *)ptr);
+  delete((CMAP_PTR *)ptr);
 }
 
 static void init(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr)
@@ -96,12 +96,11 @@ static void init(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr)
 }
 
 static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_ptr = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
-  CMAP_PTR * ptr =
-    CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx, aisle);
+  CMAP_PTR * ptr = CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx);
   init(ptr, size, delete_ptr);
   return ptr;
 }

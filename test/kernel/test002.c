@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include "test-assert.h"
 #include "cmap.h"
-#include "cmap-aisle-ext.h"
 #include "cmap-list.h"
 
 /*******************************************************************************
@@ -36,11 +35,11 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(size >= NB_MIN);
   CMAP_TEST_ASSERT_NOMSG(size <= NB_MAX);
 
-  CMAP_LIST * list = cmap_list(size, proc_ctx, NULL);
+  CMAP_LIST * list = cmap_list(size, proc_ctx);
 
   static CMAP_MAP * elmts[NB_MAX];
   int i = 0;
-  for(; i < size; i++) elmts[i] = cmap_map(proc_ctx, CMAP_AISLE_LOCAL);
+  for(; i < size; i++) elmts[i] = cmap_map(proc_ctx);
 
   /********** push/unshift */
   for(i = 0; i < size; i++) CMAP_CALL_ARGS(list, push, elmts[i]);
@@ -94,8 +93,6 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
     CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, pop) == elmts[i % size]);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, pop) == NULL);
-
-  CMAP_DELETE(list);
 }
 
 static void test(CMAP_PROC_CTX * proc_ctx)

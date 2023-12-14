@@ -25,11 +25,11 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C H2 CMAP FOR OR AND
+%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C CMAP FOR OR AND
 %token ERROR
 %token<name> STRING C_IMPL INCLUDE NAME INT
 
-%type<name> cmap aisle arg_names_cmap creator args function arg_names
+%type<name> cmap arg_names_cmap creator args function arg_names
 %type<name> comparison comparison_ cmap_not_creator names
 
 %%
@@ -98,25 +98,12 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 /*******************************************************************************
 *******************************************************************************/
 
-aisle: { $$ = NULL; }
-| '#' names '#' { $$ = cmap_parser_util_public.aisle_names($2); }
-| H2 cmap_not_creator H2 { $$ = cmap_parser_util_public.aisle_map($2); };
-
-/*******************************************************************************
-*******************************************************************************/
-
-creator: '{' arg_names_cmap '}' aisle
-{
-  $$ = cmap_parser_util_public.map_args($2, $4);
-}
-| '[' args ']' aisle
-{
-  $$ = cmap_parser_util_public.list_args($2, $4);
-}
-| STRING aisle { $$ = cmap_parser_util_public.string($1, $2); }
-| INT aisle { $$ = cmap_parser_util_public.int_($1, $2); }
+creator: '{' arg_names_cmap '}' { $$ = cmap_parser_util_public.map_args($2); }
+| '[' args ']' { $$ = cmap_parser_util_public.list_args($2); }
+| STRING { $$ = cmap_parser_util_public.string($1); }
+| INT { $$ = cmap_parser_util_public.int_($1); }
 | function
-| NEW cmap '{' args '}' aisle { $$ = cmap_parser_util_public.new($2, $4, $6); };
+| NEW cmap '{' args '}' { $$ = cmap_parser_util_public.new($2, $4); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -178,16 +165,16 @@ process: NAME '(' args ')'
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' arg_names ')' aisle '{'
+function: FUNCTION '(' arg_names ')' '{'
 {
   cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_FN);
 } instructions '}'
 {
-  $$ = cmap_parser_util_public.function($3, $5, NULL);
+  $$ = cmap_parser_util_public.function($3, NULL);
 }
-| FUNCTION '(' arg_names ')' aisle '(' names ')'
+| FUNCTION '(' arg_names ')' '(' names ')'
 {
-  $$ = cmap_parser_util_public.function($3, $5, $7);
+  $$ = cmap_parser_util_public.function($3, $6);
 };
 
 /*******************************************************************************

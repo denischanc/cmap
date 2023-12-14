@@ -24,10 +24,10 @@ typedef struct
   char * (*args_map)(char * name, char * map);
   char * (*args_map_push)(char * list, char * name, char * map);
 
-  char * (*map_args)(char * args, char * aisle);
-  char * (*list_args)(char * args, char * aisle);
-  char * (*string)(char * string, char * aisle);
-  char * (*int_)(char * i, char * aisle);
+  char * (*map_args)(char * args);
+  char * (*list_args)(char * args);
+  char * (*string)(char * string);
+  char * (*int_)(char * i);
 
   void (*return_)(char * map);
 
@@ -36,7 +36,7 @@ typedef struct
   char * (*process_resolve)(char need_ret);
   char * (*process_c)(char * fn_name, char need_ret);
 
-  char * (*function)(char * args, char * aisle, char * fn_name);
+  char * (*function)(char * args, char * fn_name);
 
   void (*c_impl)(char * impl);
   void (*c_impl_root)(char * impl);
@@ -50,7 +50,7 @@ typedef struct
   CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
   char * (*cmp_unique)(char * map);
 
-  char * (*new)(char * map, char * args, char * aisle);
+  char * (*new)(char * map, char * args);
 
   void (*set_sb_int)(char * map, char * i, char * map_src);
   void (*set_sb_string)(char * map, char * string, char * map_src);
@@ -58,9 +58,6 @@ typedef struct
   char * (*sb_int)(char * map, char * i);
   char * (*sb_string)(char * map, char * string);
   char * (*sb_map)(char * map, char * map_i);
-
-  char * (*aisle_names)(char * names);
-  char * (*aisle_map)(char * map);
 
   char * (*names)(char * names, char * name);
 

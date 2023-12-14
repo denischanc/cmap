@@ -7,13 +7,16 @@
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-util.h"
+#include "cmap-stack-define.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
+CMAP_STACK_DEF(proc_ctx, CMAP_PROC_CTX *)
+
 typedef struct
 {
-  CMAP_AISLESTORE * aislestore;
+  CMAP_STACK_proc_ctx * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
 
@@ -31,12 +34,26 @@ static CMAP_ENV * envs = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_AISLESTORE * aislestore(CMAP_ENV * this)
+static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  if(internal -> aislestore == NULL)
-    internal -> aislestore = cmap_aislestore_public.create();
-  return internal -> aislestore;
+  cmap_stack_proc_ctx_push(&internal -> proc_ctx, proc_ctx);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
+{
+  return ((INTERNAL *)this -> internal) -> proc_ctx -> v;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void pop_proc_ctx(CMAP_ENV * this)
+{
+  cmap_stack_proc_ctx_pop(&((INTERNAL *)this -> internal) -> proc_ctx);
 }
 
 /*******************************************************************************
@@ -47,7 +64,10 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> prototypestore == NULL)
+  {
     internal -> prototypestore = cmap_prototypestore_public.create(proc_ctx);
+    CMAP_INC_REF(internal -> prototypestore);
+  }
   return internal -> prototypestore;
 }
 
@@ -60,6 +80,7 @@ static CMAP_POOL_LIST * pool_list(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   if(internal -> pool_list == NULL)
   {
     internal -> pool_list = cmap_pool_list_public.create(20, proc_ctx);
+    CMAP_INC_REF(internal -> pool_list);
   }
   return internal -> pool_list;
 }
@@ -70,6 +91,7 @@ static CMAP_POOL_STRING * pool_string(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   if(internal -> pool_string == NULL)
   {
     internal -> pool_string = cmap_pool_string_public.create(20, proc_ctx);
+    CMAP_INC_REF(internal -> pool_string);
   }
   return internal -> pool_string;
 }
@@ -80,6 +102,7 @@ static CMAP_POOL_INT * pool_int(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   if(internal -> pool_int == NULL)
   {
     internal -> pool_int = cmap_pool_int_public.create(20, proc_ctx);
+    CMAP_INC_REF(internal -> pool_int);
   }
   return internal -> pool_int;
 }
@@ -94,6 +117,7 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   {
     internal -> global =
       cmap_global_env_public.create(proc_ctx, this -> argc, this -> argv);
+    CMAP_INC_REF(internal -> global);
   }
   return internal -> global;
 }
@@ -109,7 +133,16 @@ static void delete(CMAP_ENV * this)
   if(prev != NULL) ((INTERNAL *)prev -> internal) -> next = next;
   else envs = next;
 
-  if(internal -> aislestore != NULL) CMAP_DELETE(internal -> aislestore);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(this);
+
+  if(internal -> prototypestore != NULL)
+    CMAP_DEC_REF(internal -> prototypestore);
+  if(internal -> pool_list != NULL) CMAP_DEC_REF(internal -> pool_list);
+  if(internal -> pool_string != NULL) CMAP_DEC_REF(internal -> pool_string);
+  if(internal -> pool_int != NULL) CMAP_DEC_REF(internal -> pool_int);
+  if(internal -> global != NULL) CMAP_DEC_REF(internal -> global);
+
+  CMAP_CALL(proc_ctx, delete);
 
   CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);
@@ -118,7 +151,7 @@ static void delete(CMAP_ENV * this)
 static CMAP_ENV * create(int argc, char ** argv)
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> aislestore = NULL;
+  internal -> proc_ctx = NULL;
   internal -> prototypestore = NULL;
   internal -> pool_list = NULL;
   internal -> pool_string = NULL;
@@ -132,7 +165,9 @@ static CMAP_ENV * create(int argc, char ** argv)
   env -> argc = argc;
   env -> argv = argv;
   env -> delete = delete;
-  env -> aislestore = aislestore;
+  env -> push_proc_ctx = push_proc_ctx;
+  env -> proc_ctx = proc_ctx;
+  env -> pop_proc_ctx = pop_proc_ctx;
   env -> prototypestore = prototypestore;
   env -> pool_list = pool_list;
   env -> pool_string = pool_string;

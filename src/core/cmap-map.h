@@ -20,32 +20,29 @@ struct CMAP_MAP
   CMAP_MAP * (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
-  void * (*new)(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  void * (*new)(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx);
 
   char (*is_key)(CMAP_MAP * this, const char * key);
-  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
 };
 
 typedef struct
 {
-  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx, const char * aisle);
-  CMAP_MAP * (*create_root)(CMAP_PROC_CTX * proc_ctx, const char * aisle);
-  void (*init)(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx, const char * aisle);
-  CMAP_LIFECYCLE * (*delete)(CMAP_MAP * map);
+  CMAP_MAP * (*create)(CMAP_PROC_CTX * proc_ctx);
+  CMAP_MAP * (*create_root)(CMAP_PROC_CTX * proc_ctx);
+  void (*init)(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx);
+  void (*delete)(CMAP_MAP * map);
+  void (*deep_delete)(CMAP_MAP * map);
 
   CMAP_MAP * (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);
 
-  void * (*new)(CMAP_MAP * map, int size, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  void * (*new)(CMAP_MAP * map, int size, CMAP_PROC_CTX * proc_ctx);
 
   char (*is_key)(CMAP_MAP * this, const char * key);
-  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx,
-    const char * aisle);
+  void (*keys)(CMAP_MAP * this, CMAP_LIST * keys, CMAP_PROC_CTX * proc_ctx);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
 } CMAP_MAP_PUBLIC;

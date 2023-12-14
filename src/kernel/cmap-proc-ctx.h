@@ -4,7 +4,6 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-list-type.h"
 #include "cmap-env-type.h"
-#include "cmap-aislestore.h"
 #include "cmap-prototypestore.h"
 #include "cmap-pool.h"
 
@@ -15,7 +14,6 @@ struct CMAP_PROC_CTX
   void (*delete)(CMAP_PROC_CTX * this);
 
   CMAP_ENV * (*env)(CMAP_PROC_CTX * this);
-  CMAP_AISLESTORE * (*aislestore)(CMAP_PROC_CTX * this);
   CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_PROC_CTX * this);
   CMAP_POOL_LIST * (*pool_list)(CMAP_PROC_CTX * this);
   CMAP_POOL_STRING * (*pool_string)(CMAP_PROC_CTX * this);
@@ -24,7 +22,7 @@ struct CMAP_PROC_CTX
 
   void (*push_local)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*local_definitions)(CMAP_PROC_CTX * this);
-  CMAP_LIST * (*local_stack)(CMAP_PROC_CTX * this);
+  void (*local_stack_add)(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc);
   CMAP_MAP * (*pop_local)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
 };
 

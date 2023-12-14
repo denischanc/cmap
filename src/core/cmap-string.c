@@ -115,19 +115,19 @@ static void clear(CMAP_STRING * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIFECYCLE * delete(CMAP_STRING * string)
+static void delete(CMAP_STRING * string)
 {
   INTERNAL * internal = (INTERNAL *)string -> internal;
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_FREE(internal -> val, mem);
   CMAP_MEM_FREE(internal, mem);
 
-  return cmap_map_public.delete(&string -> super);
+  cmap_map_public.delete(&string -> super);
 }
 
-static CMAP_LIFECYCLE * delete_(CMAP_LIFECYCLE * string)
+static void delete_(CMAP_LIFECYCLE * string)
 {
-  return delete((CMAP_STRING *)string);
+  delete((CMAP_STRING *)string);
 }
 
 static void init(CMAP_STRING * string, const char * val_, int size_inc)
@@ -153,12 +153,12 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
 }
 
 static CMAP_STRING * create(const char * val, int size_inc,
-  CMAP_PROC_CTX * proc_ctx, const char * aisle)
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_string = CMAP_CALL_ARGS(ps, string_, proc_ctx);
   CMAP_STRING * string =
-    CMAP_PROTOTYPE_NEW(prototype_string, CMAP_STRING, proc_ctx, aisle);
+    CMAP_PROTOTYPE_NEW(prototype_string, CMAP_STRING, proc_ctx);
   init(string, val, size_inc);
   return string;
 }

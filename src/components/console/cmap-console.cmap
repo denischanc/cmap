@@ -7,8 +7,8 @@
 
 return
 {
-  info: function()#global#(cmap_console_public.info),
-  error: function()#global#(cmap_console_public.error)
-}#global#;
+  info: function()(cmap_console_public.info),
+  error: function()(cmap_console_public.error)
+};
 
 ]]

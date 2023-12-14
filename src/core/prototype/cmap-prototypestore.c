@@ -3,7 +3,6 @@
 
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
-#include "cmap-aisle.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
 #include "cmap-prototype-fn.h"
@@ -33,7 +32,10 @@ static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
 { \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
   if(internal -> type##_ == NULL) \
+  { \
     cmap_prototype_##type##_public.require(&internal -> type##_, proc_ctx); \
+    CMAP_INC_REF(internal -> type##_); \
+  } \
   return internal -> type##_; \
 } \
  \
@@ -55,10 +57,16 @@ CMAP_PROTOTYPESTORE_LOOP(IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIFECYCLE * delete(CMAP_LIFECYCLE * lc)
+#define DEC_REF(type) \
+  if(internal -> type##_ != NULL) CMAP_DEC_REF(internal -> type##_);
+
+static void delete(CMAP_LIFECYCLE * lc)
 {
-  CMAP_KERNEL_FREE(((CMAP_PROTOTYPESTORE *)lc) -> internal);
-  return cmap_lifecycle_public.delete(lc);
+  INTERNAL * internal = (INTERNAL *)((CMAP_PROTOTYPESTORE *)lc) -> internal;
+  CMAP_PROTOTYPESTORE_LOOP(DEC_REF)
+  CMAP_KERNEL_FREE(internal);
+
+  cmap_lifecycle_public.delete(lc);
 }
 
 #define INIT_INTERNAL(type) \
@@ -74,7 +82,7 @@ static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_ALLOC_PTR(ps, CMAP_PROTOTYPESTORE, mem);
 
-  cmap_lifecycle_public.init(&ps -> super, proc_ctx, CMAP_AISLE_GLOBAL);
+  cmap_lifecycle_public.init(&ps -> super, proc_ctx);
   ps -> super.delete = delete;
 
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);

@@ -10,32 +10,32 @@
 
 @FUNCTION(cmap_scheduler_blt_public_create)
 {
-  LOCAL schedule = function()#global#(cmap_scheduler_public.schedule);
+  local schedule = function()(cmap_scheduler_public.schedule);
 
-  LOCAL internal =
+  local internal =
   {
-    jobs: []#global#,
-    process: function()#global#
+    jobs: [],
+    process: function()
     {
-      LOCAL job = this.jobs.shift();
+      local job = this.jobs.shift();
       if(job != null)
       {
         job.process();
         schedule();
       }
     }
-  }#global#;
+  };
 
   return
   {
     internal: internal,
-    addJob: function(job)#global#
+    addJob: function(job)
     {
       this.internal.jobs.push(job);
       schedule();
     },
     job: @PROC(cmap_job_blt_public_create)
-  }#global#;
+  };
 }
 
 /*******************************************************************************
