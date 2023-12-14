@@ -507,24 +507,27 @@ static char * process_c(char * fn_name, char need_ret)
 {
   char * instruction = NULL, * map_name = NULL;
 
-  APPEND_INSTRUCTION("cmap_push_local_ctx(proc_ctx);");
+  char * proc_ctx_name = next_name();
+  APPEND_INSTRUCTION_ARGS(
+    "CMAP_PROC_CTX * %s = cmap_proc_ctx(cmap_proc_ctx_env(proc_ctx));",
+    proc_ctx_name);
 
   if(need_ret)
   {
     map_name = next_name();
     PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
-    APPEND_INSTRUCTION_ARGS("%s = cmap_pop_local_ctx(proc_ctx, %s(proc_ctx));",
-      map_name, fn_name);
+    APPEND_INSTRUCTION_ARGS("%s = cmap_delete_proc_ctx(%s, %s(%s));",
+      map_name, proc_ctx_name, fn_name, proc_ctx_name);
   }
   else
   {
-    APPEND_INSTRUCTION_ARGS("%s(proc_ctx);", fn_name);
-
-    APPEND_INSTRUCTION("cmap_pop_local_ctx(proc_ctx, NULL);");
+    APPEND_INSTRUCTION_ARGS("%s(%s);", fn_name, proc_ctx_name);
+    APPEND_INSTRUCTION_ARGS("cmap_delete_proc_ctx(%s, NULL);", proc_ctx_name);
   }
   APPEND_LF();
 
   free(fn_name);
+  free(proc_ctx_name);
 
   return map_name;
 }

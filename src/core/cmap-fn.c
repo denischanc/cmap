@@ -84,11 +84,12 @@ static int set_arg_name_in_definitions(CMAP_STACK_char_ptr * arg_name,
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_CALL(proc_ctx, push_local);
+  CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
+  CMAP_PROC_CTX * new_proc_ctx = cmap_proc_ctx_public.create(env);
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  CMAP_MAP * definitions = CMAP_CALL(proc_ctx, local_definitions);
+  CMAP_MAP * definitions = CMAP_CALL(new_proc_ctx, local_definitions);
 
   cmap_util_public.copy(definitions, internal -> definitions);
 
@@ -98,8 +99,8 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_SET(definitions, "this", map);
   CMAP_SET(definitions, "args", args);
 
-  return CMAP_CALL_ARGS(proc_ctx, pop_local,
-    CMAP_CALL_ARGS(this, do_process, proc_ctx, map, args));
+  return CMAP_CALL_ARGS(new_proc_ctx, delete,
+    CMAP_CALL_ARGS(this, do_process, new_proc_ctx, map, args));
 }
 
 /*******************************************************************************

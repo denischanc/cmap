@@ -360,7 +360,7 @@ void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
   init(proc_ctx);
-  CMAP_CALL(proc_ctx, delete);
+  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 }
 
 /*******************************************************************************
@@ -371,19 +371,14 @@ CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env)
   return cmap_proc_ctx_public.create(env);
 }
 
-void cmap_push_local_ctx(CMAP_PROC_CTX * proc_ctx)
+CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_CALL(proc_ctx, push_local);
+  return CMAP_CALL(proc_ctx, env);
 }
 
-CMAP_MAP * cmap_pop_local_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
+CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 {
-  return CMAP_CALL_ARGS(proc_ctx, pop_local, ret);
-}
-
-void cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx)
-{
-  CMAP_CALL(proc_ctx, delete);
+  return CMAP_CALL_ARGS(proc_ctx, delete, ret);
 }
 
 /*******************************************************************************

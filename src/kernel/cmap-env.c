@@ -45,7 +45,8 @@ static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 {
-  return ((INTERNAL *)this -> internal) -> proc_ctx -> v;
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  return internal -> proc_ctx -> v;
 }
 
 /*******************************************************************************
@@ -53,7 +54,8 @@ static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 
 static void pop_proc_ctx(CMAP_ENV * this)
 {
-  cmap_stack_proc_ctx_pop(&((INTERNAL *)this -> internal) -> proc_ctx);
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  cmap_stack_proc_ctx_pop(&internal -> proc_ctx);
 }
 
 /*******************************************************************************
@@ -142,7 +144,7 @@ static void delete(CMAP_ENV * this)
   if(internal -> pool_int != NULL) CMAP_DEC_REF(internal -> pool_int);
   if(internal -> global != NULL) CMAP_DEC_REF(internal -> global);
 
-  CMAP_CALL(proc_ctx, delete);
+  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 
   CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);

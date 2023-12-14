@@ -2,8 +2,8 @@
 #define __CMAP_PROC_CTX_H__
 
 #include "cmap-proc-ctx-type.h"
-#include "cmap-list-type.h"
 #include "cmap-env-type.h"
+#include "cmap-map-type.h"
 #include "cmap-prototypestore.h"
 #include "cmap-pool.h"
 
@@ -11,7 +11,7 @@ struct CMAP_PROC_CTX
 {
   void * internal;
 
-  void (*delete)(CMAP_PROC_CTX * this);
+  CMAP_MAP * (*delete)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
 
   CMAP_ENV * (*env)(CMAP_PROC_CTX * this);
   CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_PROC_CTX * this);
@@ -20,10 +20,8 @@ struct CMAP_PROC_CTX
   CMAP_POOL_INT * (*pool_int)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
 
-  void (*push_local)(CMAP_PROC_CTX * this);
   CMAP_MAP * (*local_definitions)(CMAP_PROC_CTX * this);
   void (*local_stack_add)(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc);
-  CMAP_MAP * (*pop_local)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
 };
 
 typedef struct

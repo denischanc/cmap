@@ -29,7 +29,7 @@ static void on_schedule(uv_work_t * req, int status)
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx((CMAP_ENV *)req -> data);
   cmap_scheduler_blt_public_process(proc_ctx);
-  cmap_delete_proc_ctx(proc_ctx);
+  cmap_delete_proc_ctx(proc_ctx, NULL);
 }
 
 static void do_schedule(CMAP_ENV * env)
