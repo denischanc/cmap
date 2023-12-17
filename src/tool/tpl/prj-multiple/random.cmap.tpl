@@ -5,6 +5,6 @@
 ]]
 [CMAP[
 
-random = function(i, max)#global#(random_fn);
+random = function(i, max)(random_fn);
 
 ]]

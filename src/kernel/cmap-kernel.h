@@ -17,18 +17,21 @@ typedef struct
   void (*exit)(int ret);
   void (*fatal)();
 
+  CMAP_KERNEL_CFG * (*cfg)();
+  CMAP_MEM * (*mem)();
+  CMAP_LOG * (*log)();
+
+  uv_loop_t * (*uv_loop)();
+
   char (*state)();
 } CMAP_KERNEL;
 
 typedef struct
 {
+  CMAP_KERNEL_CFG * (*dft_cfg)();
+
   CMAP_KERNEL * (*bootstrap)(CMAP_KERNEL_CFG * cfg);
   CMAP_KERNEL * (*instance)();
-
-  CMAP_MEM * (*mem)();
-  CMAP_LOG * (*log)();
-
-  uv_loop_t * (*uv_loop)();
 } CMAP_KERNEL_PUBLIC;
 
 extern const CMAP_KERNEL_PUBLIC cmap_kernel_public;

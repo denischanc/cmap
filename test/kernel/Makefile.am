@@ -24,4 +24,4 @@ CLEANFILES = test003.c
 TEST003_FILE = $(CMAP_TEST_SRC_PATH)/kernel/test003.cmap
 
 test003.c: $(TEST003_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) build $(TEST003_FILE) test003 -i -c -m
+	$(CMAP_TOOL) build $(TEST003_FILE) test003 -ic

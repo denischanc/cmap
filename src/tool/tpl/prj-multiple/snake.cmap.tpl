@@ -1,6 +1,6 @@
 [CMAP[
 
-snake = function(screen, start, stop, ctl)#global#
+snake = function(screen, start, stop, ctl)
 {
   this.screen = screen;
   if(ctl != null) { this.ctl = "".append(ctl); }
@@ -15,37 +15,35 @@ snake = function(screen, start, stop, ctl)#global#
 
 snake.prototype =
 {
-  SNAKE_PARTS: [ "/"#global#, "|"#global#, "\\"#global# ]#global#,
+  SNAKE_PARTS: [ "/", "|", "\\" ],
 
-  SPACE: " "#global#,
+  SPACE: " ",
 
-  VAL_0: 0#global#,
+  RND_MAX_INIT: 10,
+  RND_MAX_NEXT: 4,
+  RND_MAX_NEW: 40,
 
-  RND_MAX_INIT: 10#global#,
-  RND_MAX_NEXT: 4#global#,
-  RND_MAX_NEW: 40#global#,
-
-  initLine: function()#global#
+  initLine: function()
   {
-    LOCAL line = this.screen.height().dec();
-    LOCAL rnd = 0#local#;
-    for(LOCAL i = 0#local#.set(this.start);; i < this.stop; i.inc();)
+    local line = this.screen.height().dec();
+    local rnd = 0;
+    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
     {
       random(rnd, this.RND_MAX_INIT);
 
-      LOCAL pt = this.screen.get(i, line);
-      if(rnd == this.VAL_0) { pt.set(this.SNAKE_PARTS[[1]], this.ctl); }
+      local pt = this.screen.get(i, line);
+      if(rnd == 0) { pt.set(this.SNAKE_PARTS[[1]], this.ctl); }
       else { pt.set(this.SPACE, this.ctl); }
     }
   },
 
-  follow: function(col, nextLine)#global#
+  follow: function(col, nextLine)
   {
-    LOCAL rnd = 0#local#;
+    local rnd = 0;
     random(rnd, this.RND_MAX_NEXT);
     if(rnd < this.SNAKE_PARTS.size())
     {
-      LOCAL nextCol = 0#local#.set(col).dec().add(rnd);
+      local nextCol = 0.set(col).dec().add(rnd);
       if((nextCol >= this.start) && (nextCol < this.stop))
       {
         this.screen.get(nextCol, nextLine).set(this.SNAKE_PARTS[rnd], null);
@@ -53,53 +51,53 @@ snake.prototype =
     }
   },
 
-  maybeLife: function(col, nextLine)#global#
+  maybeLife: function(col, nextLine)
   {
-    LOCAL rnd = 0#local#;
+    local rnd = 0;
     random(rnd, this.RND_MAX_NEW);
-    if(rnd == this.VAL_0)
+    if(rnd == 0)
     {
       this.screen.get(col, nextLine).set(this.SNAKE_PARTS[[1]], null);
     }
   },
 
-  eraseLine: function(line)#global#
+  eraseLine: function(line)
   {
-    for(LOCAL i = 0#local#.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
     {
       this.screen.get(i, line).set(this.SPACE, null);
     }
   },
 
-  nextLine: function(line)#global#
+  nextLine: function(line)
   {
-    LOCAL nextLine = 0#local#.set(line).inc();
+    local nextLine = 0.set(line).inc();
     this.eraseLine(nextLine);
 
-    for(LOCAL i = 0#local#.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
     {
-      LOCAL pt = this.screen.get(i, line);
+      local pt = this.screen.get(i, line);
       if(pt.let != this.SPACE) { this.follow(i, nextLine); }
       else { this.maybeLife(i, nextLine); }
     }
   },
 
-  copyLine: function(line)#global#
+  copyLine: function(line)
   {
-    LOCAL prevLine = 0#local#.set(line).dec();
-    for(LOCAL i = 0#local#.set(this.start);; i < this.stop; i.inc();)
+    local prevLine = 0.set(line).dec();
+    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
     {
-      LOCAL pt = this.screen.get(i, line);
+      local pt = this.screen.get(i, line);
       this.screen.get(i, prevLine).set(pt.let, pt.ctl);
     }
   },
 
-  shiftLines: function()#global#
+  shiftLines: function()
   {
-    LOCAL height = this.screen.height();
-    for(LOCAL i = 1#local#;; i < height; i.inc();) { this.copyLine(i); }
+    local height = this.screen.height();
+    for(local i = 1;; i < height; i.inc();) { this.copyLine(i); }
     this.nextLine(height.dec().dec());
   }
-}#global#;
+};
 
 ]]

@@ -6,7 +6,7 @@
 
 typedef struct
 {
-  char failure_on_allocmem;
+  char failure_on_allocmem, log_lvl, delete_zombie;
 
   CMAP_MEM * mem;
   CMAP_LOG * log;

@@ -1,7 +1,21 @@
 /*******************************************************************************
 @TEST_DESC@ Call console info/error fns
 *******************************************************************************/
+[INCLUDE[
 
+#include "cmap-log-ext.h"
+
+void test003(CMAP_PROC_CTX *);
+
+int main(int argc, char * argv[])
+{
+  cmap_dft_cfg() -> log_lvl = CMAP_LOG_DEBUG;
+  cmap_dft_cfg() -> delete_zombie = CMAP_T;
+  cmap_env_main(cmap_env(argc, argv), test003);
+  return cmap_main();
+}
+
+]]
 [CMAP[
 
 local test = function(){

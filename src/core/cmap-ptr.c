@@ -82,7 +82,7 @@ static void init(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr)
   }
   else
   {
-    internal -> ptr = cmap_kernel_public.mem() -> alloc(size);
+    internal -> ptr = CMAP_KERNEL_MEM -> alloc(size);
     internal -> do_free = CMAP_T;
   }
   internal -> delete_ptr = delete_ptr;

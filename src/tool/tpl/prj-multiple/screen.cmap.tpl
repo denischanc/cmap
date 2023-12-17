@@ -1,69 +1,69 @@
 [CMAP[
 
-screen = function(nbCol, nbLine)#global#
+screen = function(nbCol, nbLine)
 {
-  this.lines = []#screen#;
-  for(LOCAL i = 0#local#;; i < nbLine; i.inc();)
+  this.lines = [];
+  for(local i = 0;; i < nbLine; i.inc();)
   {
-    this.lines.push(new screen.line{nbCol}#screen#);
+    this.lines.push(new screen.line{nbCol});
   }
 };
 
-screen.ESCAPE = "\e["#global#;
-screen.M = "m"#global#;
-screen.A = "A"#global#;
-screen.RESET = "\e[0m"#global#;
+screen.ESCAPE = "\e[";
+screen.M = "m";
+screen.A = "A";
+screen.RESET = "\e[0m";
 
 screen.prototype =
 {
-  ctl: function(ctl)#global#
+  ctl: function(ctl)
   {
     cmap.console.info(screen.ESCAPE, ctl);
   },
 
-  up: function()#global#
+  up: function()
   {
-    this.ctl(""#local#.append(this.height().inc()).append(screen.A));
+    this.ctl("".append(this.height().inc()).append(screen.A));
     return this;
   },
 
-  display: function()#global#
+  display: function()
   {
-    this.lines.apply(function(line)#local#{ line.display(); });
+    this.lines.apply(function(line){ line.display(); });
     return this;
   },
 
-  get: function(col, line)#global#
+  get: function(col, line)
   {
     return this.lines[line].get(col);
   },
 
-  length: function()#global#
+  length: function()
   {
     return this.lines[[0]].length();
   },
 
-  height: function()#global#
+  height: function()
   {
     return this.lines.size();
   }
-}#global#;
+};
 
-screen.line = function(nbCol)#global#
+screen.line = function(nbCol)
 {
-  this.pts = []#screen#;
-  for(LOCAL i = 0#local#;; i < nbCol; i.inc();)
+  this.pts = [];
+  for(local i = 0;; i < nbCol; i.inc();)
   {
-    this.pts.push(new screen.line.pt{}#screen#);
+    this.pts.push(new screen.line.pt{});
   }
 };
 
 screen.line.prototype =
 {
-  display: function()#global#
+  display: function()
   {
-    LOCAL line = ""#local#;
-    this.pts.apply(function(pt)#local#
+    local line = "";
+    this.pts.apply(function(pt)
     {
       line.append(screen.ESCAPE).append(pt.ctl).append(screen.M)
         .append(pt.let).append(screen.RESET);
@@ -71,33 +71,33 @@ screen.line.prototype =
     cmap.console.info(line);
   },
 
-  get: function(col)#global#
+  get: function(col)
   {
     return this.pts[col];
   },
 
-  length: function()#global#
+  length: function()
   {
     return this.pts.size();
   }
-}#global#;
+};
 
-screen.line.pt = function()#global#
+screen.line.pt = function()
 {
-  this.let = ""#screen#.append(this.LET_DFT);
-  this.ctl = ""#screen#.append(this.CTL_DFT);
+  this.let = "".append(this.LET_DFT);
+  this.ctl = "".append(this.CTL_DFT);
 };
 
 screen.line.pt.prototype =
 {
-  LET_DFT: "#"#global#,
-  CTL_DFT: "30;47"#global#,
+  LET_DFT: "#",
+  CTL_DFT: "30;47",
 
-  set: function(let, ctl)#global#
+  set: function(let, ctl)
   {
-    if(let != null) { this.let.clear().append(let); }
-    if(ctl != null) { this.ctl.clear().append(ctl); }
+    if(let != null) { this.let.clean().append(let); }
+    if(ctl != null) { this.ctl.clean().append(ctl); }
   }
-}#global#;
+};
 
 ]]

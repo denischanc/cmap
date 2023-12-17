@@ -39,7 +39,7 @@ static void do_schedule(CMAP_ENV * env)
     internal.scheduled = CMAP_T;
 
     internal.req.data = env;
-    cmap_util_public.uv_error(uv_queue_work(cmap_kernel_public.uv_loop(),
+    cmap_util_public.uv_error(uv_queue_work(CMAP_KERNEL_INSTANCE -> uv_loop(),
       &internal.req, cmap_util_public.uv_dummy, on_schedule));
   }
 }

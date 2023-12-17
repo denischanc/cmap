@@ -13,6 +13,7 @@
 #include "cmap-define-ext.h"
 #include <stdint.h>
 
+CMAP_KERNEL_CFG * cmap_dft_cfg();
 void cmap_bootstrap(CMAP_KERNEL_CFG * cfg);
 int cmap_main();
 void cmap_exit(int ret);

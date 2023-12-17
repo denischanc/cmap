@@ -73,7 +73,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_FREE(this -> internal, mem);
   CMAP_MEM_FREE(this, mem);
 }

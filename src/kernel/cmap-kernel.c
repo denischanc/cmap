@@ -31,23 +31,30 @@ static INTERNAL internal = {NULL, NULL, NULL, NULL, CMAP_F,
 static CMAP_KERNEL kernel = {};
 static CMAP_KERNEL * kernel_ptr = NULL;
 
+static CMAP_KERNEL_CFG kernel_cfg = {};
+static CMAP_KERNEL_CFG * kernel_cfg_ptr = NULL;
+
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KERNEL_CFG * instance_cfg()
+static CMAP_KERNEL_CFG * dft_cfg()
 {
-  static CMAP_KERNEL_CFG cfg = {};
+  if(kernel_cfg_ptr == NULL)
+  {
+    kernel_cfg.failure_on_allocmem = CMAP_T;
+    kernel_cfg.log_lvl = CMAP_LOG_FATAL;
+    kernel_cfg.delete_zombie = CMAP_F;
+    kernel_cfg.mem = NULL;
+    kernel_cfg.log = NULL;
 
-  cfg.failure_on_allocmem = CMAP_T;
-  cfg.mem = NULL;
-  cfg.log = NULL;
-
-  return &cfg;
+    kernel_cfg_ptr = &kernel_cfg;
+  }
+  return kernel_cfg_ptr;
 }
 
-static CMAP_KERNEL_CFG * cfg()
+static CMAP_KERNEL_CFG * cfg_()
 {
-  if(internal.cfg == NULL) internal.cfg = instance_cfg();
+  if(internal.cfg == NULL) internal.cfg = dft_cfg();
   return internal.cfg;
 }
 
@@ -58,7 +65,7 @@ static CMAP_MEM * mem()
 {
   if(internal.mem == NULL)
   {
-    internal.mem = cfg() -> mem;
+    internal.mem = cfg_() -> mem;
     if(internal.mem == NULL) internal.mem = cmap_mem_public.instance(0);
   }
   return internal.mem;
@@ -71,7 +78,7 @@ static CMAP_LOG * log_()
 {
   if(internal.log == NULL)
   {
-    internal.log = cfg() -> log;
+    internal.log = cfg_() -> log;
     if(internal.log == NULL) internal.log = cmap_log_public.instance();
   }
   return internal.log;
@@ -98,7 +105,7 @@ static void check_mem(int * ret)
   if(cmap_mem_public.is_this(internal.mem))
   {
     int s = cmap_mem_public.state() -> size_alloc;
-    cmap_log_public.debug("Allocated memory size : [%d].", s);
+    cmap_log_public.info("Allocated memory size : [%d].", s);
     if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
   }
 }
@@ -130,7 +137,7 @@ static void exit_(int ret)
 
     check_all(&ret);
 
-    cmap_log_public.debug("Exit kernel (%d).", ret);
+    cmap_log_public.info("Exit kernel (%d).", ret);
     exit(ret);
   }
 }
@@ -172,20 +179,23 @@ static CMAP_KERNEL * bootstrap(CMAP_KERNEL_CFG * cfg)
     kernel.main = main_;
     kernel.exit = exit_;
     kernel.fatal = fatal;
+    kernel.cfg = cfg_;
+    kernel.mem = mem;
+    kernel.log = log_;
+    kernel.uv_loop = uv_loop;
     kernel.state = state;
 
     kernel_ptr = &kernel;
 
-    cmap_log_public.debug("Init kernel.");
-
     internal.state = CMAP_KERNEL_S_ALIVE;
+    cmap_log_public.info("Alive kernel.");
   }
   return kernel_ptr;
 }
 
 static CMAP_KERNEL * instance()
 {
-  return kernel_ptr;
+  return bootstrap(NULL);
 }
 
 /*******************************************************************************
@@ -193,9 +203,7 @@ static CMAP_KERNEL * instance()
 
 const CMAP_KERNEL_PUBLIC cmap_kernel_public =
 {
+  dft_cfg,
   bootstrap,
-  instance,
-  mem,
-  log_,
-  uv_loop
+  instance
 };

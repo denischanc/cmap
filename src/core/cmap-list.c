@@ -210,7 +210,7 @@ static void list_mv_inc(CMAP_MAP ** list, int i_start, int i_stop,
 
 static void add_on_full(INTERNAL * internal, int i, CMAP_MAP * val)
 {
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
   int off = list_offset(internal, i), old_size_max = internal -> size_max,
     new_size_max = old_size_max + internal -> size_inc;
@@ -439,7 +439,7 @@ static void clean(CMAP_LIST * this)
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_LIST *)this) -> internal;
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_FREE(internal -> list, mem);
   CMAP_MEM_FREE(internal, mem);
 
@@ -453,7 +453,7 @@ static void init(CMAP_LIST * this, int size_inc)
   lc -> nature = nature;
   lc -> nested = nested;
 
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
   if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
   internal -> size = 0;

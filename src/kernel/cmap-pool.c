@@ -58,7 +58,7 @@ static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
  \
 static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
-  CMAP_MEM * mem = cmap_kernel_public.mem(); \
+  CMAP_MEM * mem = CMAP_KERNEL_MEM; \
   CMAP_MEM_ALLOC_PTR(this, CMAP_POOL_##TYPE, mem); \
  \
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this; \

@@ -128,7 +128,7 @@ static CMAP_LIST * dup_string(CMAP_LIST * dst, CMAP_LIST * src,
 static char * strdup_(const char * src)
 {
   int size = (strlen(src) + 1) * sizeof(char);
-  char * dst = (char *)cmap_kernel_public.mem() -> alloc(size);
+  char * dst = (char *)CMAP_KERNEL_MEM -> alloc(size);
   memcpy(dst, src, size);
   return dst;
 }

@@ -11,27 +11,22 @@
 @PROC(snake);
 @PROC(screen);
 
-timeEnd = 0#global#.time().add(30#local#);
+timeEnd = 0.time().add(30);
 
-LOCAL display = function()#global#
+local display = function()
 {
   this.screen.up().display();
 
-  if(0#local#.time() > timeEnd) { this.delete(); }
+  if(0.time() > timeEnd) { this.delete(); }
   else { this.schedule(); }
 };
 
-LOCAL shift = function(job, snake, periodMs)#global#
+local shift = function(job, snake, periodMs)
 {
-  LOCAL timeCur = 0#local#.time();
-  LOCAL timeCurMs = 0#local#.timeUs().div(1000#local#);
+  local timeCur = 0.time();
+  local timeCurMs = 0.timeUs().div(1000);
 
-  if(timeCur > timeEnd)
-  {
-    job.deepDeleteNoRef();
-    snake.deepDeleteNoRef();
-    return;
-  }
+  if(timeCur > timeEnd) { return; }
   else if((job.timeOkMs == null) || (timeCurMs > job.timeOkMs))
   {
     snake.shiftLines();
@@ -41,21 +36,21 @@ LOCAL shift = function(job, snake, periodMs)#global#
   job.schedule();
 };
 
-LOCAL init = function()#global#
+local init = function()
 {
-  this.screen = new screen{100#local#, 30#local#}#screen#;
+  this.screen = new screen{100, 30};
 
-  LOCAL snake_ = new snake{this.screen, 0#local#, 50#local#, "32;40"#local#};
-  new cmap.scheduler.job{function()#global#{
-    shift(this, snake_, 100#local#); }}.schedule();
+  local snake_ = new snake{this.screen, 0, 50, "32;40"};
+  new cmap.scheduler.job{function(){
+    shift(this, snake_, 100); }}.schedule();
 
-  snake_ = new snake{this.screen, 50#local#, 100#local#, "31;40"#local#};
-  new cmap.scheduler.job{function()#global#{
-    shift(this, snake_, 300#local#); }}.schedule();
+  snake_ = new snake{this.screen, 50, 100, "31;40"};
+  new cmap.scheduler.job{function(){
+    shift(this, snake_, 300); }}.schedule();
 
   this.screen.display();
 
-  LOCAL jobDisplay = new cmap.scheduler.job{display}.schedule();
+  local jobDisplay = new cmap.scheduler.job{display}.schedule();
   jobDisplay.screen = this.screen;
 
   this.delete();

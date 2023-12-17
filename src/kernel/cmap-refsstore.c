@@ -128,15 +128,15 @@ static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)
 /*******************************************************************************
 *******************************************************************************/
 
-static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc)
+static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
 {
   char do_delete = CMAP_F;
 
   int nb_refs = CMAP_CALL(lc, nb_refs);
   if(nb_refs == 1) do_delete = CMAP_T;
-  else if(delete_future_zombie_required(lc, nb_refs))
+  else if(delete_zombie && delete_future_zombie_required(lc, nb_refs))
   {
-    cmap_log_public.debug("[%p][%s] cycling deletion", lc, CMAP_NATURE(lc));
+    cmap_log_public.debug("[%p][%s] delete zombie", lc, CMAP_NATURE(lc));
     do_delete = CMAP_T;
   }
 
@@ -152,13 +152,14 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc)
 static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 {
   int nb_loop = 0, nb_deleted = 0;
-  char fnd_ret = CMAP_F;
+  char fnd_ret = CMAP_F,
+    delete_zombie = CMAP_KERNEL_INSTANCE -> cfg() -> delete_zombie;
   CMAP_SET_lc ** refs = &internal -> refs;
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_set_lc_public.rm(refs);
     if(lc == ret) fnd_ret = CMAP_T;
-    else if(delete_or_dec_refs_only(lc)) nb_deleted++;
+    else if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
     nb_loop++;
   }
   cmap_log_public.debug("[refsstore] deleted %d/%d", nb_deleted, nb_loop);

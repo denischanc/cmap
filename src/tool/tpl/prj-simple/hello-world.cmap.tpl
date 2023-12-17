@@ -1,27 +1,27 @@
 [CMAP[
 
-LOCAL name = cmap.cli.args[[1]];
-if(name == null) { name = "World"#t#; }
-LOCAL max = 3#t#.valueOf(cmap.cli.args[[2]]);
+local name = cmap.cli.args[[1]];
+if(name == null) { name = "World"; }
+local max = 3.valueOf(cmap.cli.args[[2]]);
 
-LOCAL hello = function(name)#t#
+local hello = function(name)
 {
-  cmap.console.info("Hello "#t#, name, " !!!"#t#);
+  cmap.console.info("Hello ", name, " !!!");
 };
 
-LOCAL helloWorld = function()#t#
+local helloWorld = function()
 {
   if(this.nb == null) { this.nb = 1; }
 
   hello(name);
 
-  if(this.nb >= max) { this.deepDeleteNoRef(); return; }
+  if(this.nb >= max) { return; }
   else { this.nb.inc(); }
 
   this.schedule();
 };
 
-LOCAL job = new cmap.scheduler.job{helloWorld};
+local job = new cmap.scheduler.job{helloWorld};
 job.schedule();
 
 ]]

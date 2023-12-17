@@ -87,7 +87,7 @@ static void delete(CMAP_LIFECYCLE * lc)
 
 static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_ALLOC_PTR(this, CMAP_PROTOTYPESTORE, mem);
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;

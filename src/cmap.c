@@ -19,6 +19,11 @@
 /*******************************************************************************
 *******************************************************************************/
 
+CMAP_KERNEL_CFG * cmap_dft_cfg()
+{
+  return cmap_kernel_public.dft_cfg();
+}
+
 void cmap_bootstrap(CMAP_KERNEL_CFG * cfg)
 {
   cmap_kernel_public.bootstrap(cfg);
@@ -26,23 +31,17 @@ void cmap_bootstrap(CMAP_KERNEL_CFG * cfg)
 
 int cmap_main()
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(kernel == NULL) cmap_fatal();
-  return kernel -> main();
+  return CMAP_KERNEL_INSTANCE -> main();
 }
 
 void cmap_exit(int ret)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(kernel != NULL) kernel -> exit(ret);
-  else exit(ret);
+  CMAP_KERNEL_INSTANCE -> exit(ret);
 }
 
 void cmap_fatal()
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(kernel != NULL) kernel -> fatal();
-  else exit(EXIT_FAILURE);
+  CMAP_KERNEL_INSTANCE -> fatal();
 }
 
 /*******************************************************************************

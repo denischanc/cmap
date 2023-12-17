@@ -121,7 +121,7 @@ static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx);
 
 static void * new(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * map = (CMAP_MAP *)cmap_kernel_public.mem() -> alloc(size);
+  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_MEM -> alloc(size);
   init(map, proc_ctx);
   INTERNAL * internal = (INTERNAL *)map -> internal;
   internal -> prototype = this;
@@ -219,7 +219,7 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
   INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
-  CMAP_MEM * mem = cmap_kernel_public.mem();
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
   CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply_tree, CMAP_T,
     mem);
