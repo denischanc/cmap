@@ -4,6 +4,7 @@
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -21,7 +22,7 @@ const char * CMAP_DOUBLE_NATURE = "double";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
   return CMAP_DOUBLE_NATURE;
 }
@@ -47,40 +48,37 @@ static void set(CMAP_DOUBLE * this, double val)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_DOUBLE * double_)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_KERNEL_FREE(double_ -> internal);
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
-  cmap_map_public.delete(&double_ -> super);
+  CMAP_KERNEL_FREE(((CMAP_DOUBLE *)this) -> internal);
+
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * double_)
+static void init(CMAP_DOUBLE * this, double val)
 {
-  delete((CMAP_DOUBLE *)double_);
-}
-
-static void init(CMAP_DOUBLE * double_, double val)
-{
-  CMAP_MAP * super = &double_ -> super;
-  super -> nature = nature;
-  super -> super.delete = delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
 
-  double_ -> internal = internal;
-  double_ -> get = get;
-  double_ -> set = set;
+  this -> internal = internal;
+  this -> get = get;
+  this -> set = set;
 }
 
 static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_double = CMAP_CALL_ARGS(ps, double_, proc_ctx);
-  CMAP_DOUBLE * double_ =
+  CMAP_DOUBLE * this =
     CMAP_PROTOTYPE_NEW(prototype_double, CMAP_DOUBLE, proc_ctx);
-  init(double_, val);
-  return double_;
+  init(this, val);
+  return this;
 }
 
 /*******************************************************************************
@@ -88,9 +86,7 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
 
 const CMAP_DOUBLE_PUBLIC cmap_double_public =
 {
-  create,
-  init,
-  delete,
+  create, init, delete,
   get,
   set
 };

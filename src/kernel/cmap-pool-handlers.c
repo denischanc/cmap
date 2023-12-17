@@ -16,9 +16,9 @@ static CMAP_LIST * list_create(CMAP_PROC_CTX * proc_ctx)
   return CMAP_LIST(0, proc_ctx);
 }
 
-static void list_clean(CMAP_LIST * list)
+static void list_clean(CMAP_LIST * this)
 {
-  CMAP_CALL(list, clear);
+  CMAP_CALL(this, clean);
 }
 
 const CMAP_POOL_HANDLER_LIST_PUBLIC cmap_pool_handler_list_public =
@@ -35,9 +35,9 @@ static CMAP_STRING * string_create(CMAP_PROC_CTX * proc_ctx)
   return CMAP_STRING("", 0, proc_ctx);
 }
 
-static void string_clean(CMAP_STRING * string)
+static void string_clean(CMAP_STRING * this)
 {
-  CMAP_CALL(string, clear);
+  CMAP_CALL(this, clean);
 }
 
 const CMAP_POOL_HANDLER_STRING_PUBLIC cmap_pool_handler_string_public =
@@ -54,9 +54,9 @@ static CMAP_INT * int_create(CMAP_PROC_CTX * proc_ctx)
   return CMAP_INT(0, proc_ctx);
 }
 
-static void int_clean(CMAP_INT * i)
+static void int_clean(CMAP_INT * this)
 {
-  CMAP_CALL_ARGS(i, set, 0);
+  CMAP_CALL_ARGS(this, set, 0);
 }
 
 const CMAP_POOL_HANDLER_INT_PUBLIC cmap_pool_handler_int_public =

@@ -1,0 +1,6 @@
+#ifndef __CMAP_LIFECYCLE_TYPE_H__
+#define __CMAP_LIFECYCLE_TYPE_H__
+
+typedef struct CMAP_LIFECYCLE CMAP_LIFECYCLE;
+
+#endif

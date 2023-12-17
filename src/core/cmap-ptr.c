@@ -1,11 +1,11 @@
 
 #include "cmap-ptr.h"
 
-#include <stdlib.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -26,7 +26,7 @@ const char * CMAP_PTR_NATURE = "ptr";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
   return CMAP_PTR_NATURE;
 }
@@ -52,9 +52,11 @@ static void ** ref(CMAP_PTR * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_PTR * ptr)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)ptr -> internal;
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
+
+  INTERNAL * internal = (INTERNAL *)((CMAP_PTR *)this) -> internal;
 
   if(internal -> delete_ptr != NULL)
     internal -> delete_ptr(internal -> ptr);
@@ -63,19 +65,14 @@ static void delete(CMAP_PTR * ptr)
 
   CMAP_KERNEL_FREE(internal);
 
-  cmap_map_public.delete(&ptr -> super);
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * ptr)
+static void init(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr)
 {
-  delete((CMAP_PTR *)ptr);
-}
-
-static void init(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr)
-{
-  CMAP_MAP * super = &ptr -> super;
-  super -> nature = nature;
-  super -> super.delete = delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   if(size == 0)
@@ -90,9 +87,9 @@ static void init(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr)
   }
   internal -> delete_ptr = delete_ptr;
 
-  ptr -> internal = internal;
-  ptr -> get = get;
-  ptr -> ref = ref;
+  this -> internal = internal;
+  this -> get = get;
+  this -> ref = ref;
 }
 
 static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
@@ -100,9 +97,9 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_ptr = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
-  CMAP_PTR * ptr = CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx);
-  init(ptr, size, delete_ptr);
-  return ptr;
+  CMAP_PTR * this = CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx);
+  init(this, size, delete_ptr);
+  return this;
 }
 
 /*******************************************************************************
@@ -110,9 +107,7 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
 
 const CMAP_PTR_PUBLIC cmap_ptr_public =
 {
-  create,
-  init,
-  delete,
+  create, init, delete,
   get,
   ref
 };

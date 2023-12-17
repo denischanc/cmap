@@ -34,7 +34,8 @@ noinst_HEADERS = \
   cmap-double-define.h \
   cmap-ptr.h \
   cmap-lifecycle.h \
-  cmap-lifecycle-define.h
+  cmap-lifecycle-define.h \
+  cmap-lifecycle-type.h
 
 noinst_LTLIBRARIES = libcore.la
 

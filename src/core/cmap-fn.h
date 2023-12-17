@@ -5,9 +5,7 @@
 #include "cmap-fn-define.h"
 #include "cmap-fn-ext.h"
 #include "cmap-map.h"
-#include "cmap-proc-ctx-type.h"
 #include "cmap-list-type.h"
-#include "cmap-lifecycle.h"
 
 struct CMAP_FN
 {
@@ -31,15 +29,19 @@ struct CMAP_FN
 
 typedef struct {
   CMAP_FN * (*create)(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_FN * fn, CMAP_FN_TPL process);
-  void (*delete)(CMAP_FN * fn);
+  void (*init)(CMAP_FN * this, CMAP_FN_TPL process);
+  void (*delete)(CMAP_LIFECYCLE * this);
 
-  void (*add_arg_name)(CMAP_FN * fn, const char * arg_name);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack);
 
-  CMAP_MAP * (*process)(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
+  CMAP_MAP * (*require_definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
+
+  void (*add_arg_name)(CMAP_FN * this, const char * arg_name);
+
+  CMAP_MAP * (*process)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);
 
-  CMAP_MAP * (*do_process)(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
+  CMAP_MAP * (*do_process)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);
 
   CMAP_MAP * (*new)(CMAP_FN * this, CMAP_LIST * args,

@@ -5,7 +5,10 @@
 #include "cmap-tree.h"
 #include "cmap-kernel.h"
 
-#define CMAP_SET_DEF(name, type) \
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMAP_SET_STRUCT_DECL(name, type) \
 typedef struct CMAP_SET_##name CMAP_SET_##name; \
  \
 struct CMAP_SET_##name \
@@ -13,32 +16,94 @@ struct CMAP_SET_##name \
   CMAP_TREE_NODE node; \
  \
   type v; \
-}; \
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMAP_SET_DECL(name, type) \
+CMAP_SET_STRUCT_DECL(name, type) \
+ \
+typedef struct \
+{ \
+  char (*is)(CMAP_SET_##name * this, type v); \
+  char (*add)(CMAP_SET_##name ** this, type v); \
+  type (*rm)(CMAP_SET_##name ** this); \
+  void (*clean)(CMAP_SET_##name ** this); \
+} CMAP_SET_##name##_PUBLIC; \
+ \
+extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMAP_SET_STATIC_FN_IMPL(name, type) \
+static int CMAP_TREE_EVALFN_NAME(name)(CMAP_TREE_RUNNER * this, \
+  void * node, void * data); \
  \
 CMAP_TREE_RUNNER(name, NULL, false, false); \
  \
-static char cmap_set_##name##_add(CMAP_SET_##name ** set, type v) \
+static char set_##name##_is(CMAP_SET_##name * this, type v) \
 { \
   CMAP_SET_##name data; \
   data.v = v; \
-  if(CMAP_TREE_FINDFN(name, *set, &data) == NULL) \
+  return (CMAP_TREE_FINDFN(name, this, &data) != NULL); \
+} \
+ \
+static char set_##name##_add(CMAP_SET_##name ** this, type v) \
+{ \
+  if(!set_##name##_is(*this, v)) \
   { \
     CMAP_KERNEL_ALLOC_PTR(node, CMAP_SET_##name); \
     node -> v = v; \
-    CMAP_TREE_ADDFN(name, set, node, &data); \
+    CMAP_TREE_ADDFN(name, this, node, node); \
     return CMAP_T; \
   } \
   return CMAP_F; \
 } \
  \
-static type cmap_set_##name##_rm(CMAP_SET_##name ** set) \
+static type set_##name##_rm(CMAP_SET_##name ** this) \
 { \
-  CMAP_SET_##name * node_ret = *set; \
-  CMAP_TREE_RMFN(name, set, node_ret); \
+  CMAP_SET_##name * node_ret = *this; \
+  CMAP_TREE_RMFN(name, this, node_ret); \
  \
   type ret = node_ret -> v; \
   CMAP_KERNEL_FREE(node_ret); \
   return ret; \
+} \
+ \
+static void set_##name##_clean_node(void * node, void * data) \
+{ \
+  CMAP_KERNEL_FREE(node); \
+} \
+ \
+static void set_##name##_clean(CMAP_SET_##name ** this) \
+{ \
+  CMAP_TREE_CLEANFN(name, this, set_##name##_clean_node, NULL); \
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMAP_SET_IMPL(name, type) \
+CMAP_SET_STATIC_FN_IMPL(name, type) \
+ \
+const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public = \
+{ \
+  set_##name##_is, \
+  set_##name##_add, \
+  set_##name##_rm, \
+  set_##name##_clean \
+};
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define CMAP_SET_STATIC(name, type) \
+CMAP_SET_STRUCT_DECL(name, type) \
+CMAP_SET_STATIC_FN_IMPL(name, type)
+
+/*******************************************************************************
+*******************************************************************************/
 
 #endif

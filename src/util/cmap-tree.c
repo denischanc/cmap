@@ -133,6 +133,24 @@ static void apply(CMAP_TREE_RUNNER * runner, void ** tree,
 /*******************************************************************************
 *******************************************************************************/
 
+static void clean(CMAP_TREE_RUNNER * runner, void ** tree,
+  CMAP_TREE_CLEAN_FN clean_node, void * data)
+{
+  void * node = *tree;
+  if(node != NULL)
+  {
+    clean(runner, CMAP_CALL_ARGS(runner, ge, node), clean_node, data);
+    clean(runner, CMAP_CALL_ARGS(runner, lt, node), clean_node, data);
+
+    clean_node(node, data);
+
+    *tree = NULL;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 char cmap_tree_usable_true(CMAP_TREE_RUNNER * this)
 {
   return CMAP_T;
@@ -157,10 +175,11 @@ CMAP_TREE_LOOP(WAY_FN)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_TREE_PUBLIC const cmap_tree_public =
+const CMAP_TREE_PUBLIC cmap_tree_public =
 {
   find,
   add,
   rm,
-  apply
+  apply,
+  clean
 };

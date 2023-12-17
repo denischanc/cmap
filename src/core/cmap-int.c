@@ -4,6 +4,7 @@
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -21,7 +22,7 @@ const char * CMAP_INT_NATURE = "int";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
   return CMAP_INT_NATURE;
 }
@@ -64,31 +65,28 @@ CMAP_INT_STEP_LOOP(STEP_IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_INT * int_)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_KERNEL_FREE(int_ -> internal);
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
-  cmap_map_public.delete(&int_ -> super);
+  CMAP_KERNEL_FREE(((CMAP_INT *)this) -> internal);
+
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * int_)
-{
-  delete((CMAP_INT *)int_);
-}
+#define OP_STEP_INIT(name, op) this -> name = name;
 
-#define OP_STEP_INIT(name, op) int_ -> name = name;
-
-static void init(CMAP_INT * int_, int64_t val)
+static void init(CMAP_INT * this, int64_t val)
 {
-  CMAP_MAP * super = &int_ -> super;
-  super -> nature = nature;
-  super -> super.delete = delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
 
-  int_ -> internal = internal;
-  int_ -> get = get;
+  this -> internal = internal;
+  this -> get = get;
   CMAP_INT_OP_LOOP(OP_STEP_INIT)
   CMAP_INT_STEP_LOOP(OP_STEP_INIT)
 }
@@ -97,9 +95,9 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_int = CMAP_CALL_ARGS(ps, int_, proc_ctx);
-  CMAP_INT * int_ = CMAP_PROTOTYPE_NEW(prototype_int, CMAP_INT, proc_ctx);
-  init(int_, val);
-  return int_;
+  CMAP_INT * this = CMAP_PROTOTYPE_NEW(prototype_int, CMAP_INT, proc_ctx);
+  init(this, val);
+  return this;
 }
 
 /*******************************************************************************
@@ -109,9 +107,7 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
 
 const CMAP_INT_PUBLIC cmap_int_public =
 {
-  create,
-  init,
-  delete,
+  create, init, delete,
   get,
   CMAP_INT_OP_LOOP(OP_STEP_SET)
   CMAP_INT_STEP_LOOP(OP_STEP_SET)

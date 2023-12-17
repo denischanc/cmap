@@ -4,7 +4,6 @@
 #include "cmap-ptr-type.h"
 #include "cmap-ptr-ext.h"
 #include "cmap-map.h"
-#include "cmap-lifecycle.h"
 
 struct CMAP_PTR
 {
@@ -21,12 +20,12 @@ typedef struct
 {
   CMAP_PTR * (*create)(int size, CMAP_PTR_DELETE delete_ptr,
     CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_PTR * ptr, int size, CMAP_PTR_DELETE delete_ptr);
-  void (*delete)(CMAP_PTR * ptr);
+  void (*init)(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr);
+  void (*delete)(CMAP_LIFECYCLE * this);
 
-  void * (*get)(CMAP_PTR * ptr);
+  void * (*get)(CMAP_PTR * this);
 
-  void ** (*ref)(CMAP_PTR * ptr);
+  void ** (*ref)(CMAP_PTR * this);
 } CMAP_PTR_PUBLIC;
 
 extern const CMAP_PTR_PUBLIC cmap_ptr_public;

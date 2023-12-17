@@ -91,7 +91,7 @@ CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
 const char * cmap_nature(CMAP_MAP * map)
 {
   if(map == NULL) return NULL;
-  else return CMAP_CALL(map, nature);
+  else return CMAP_NATURE(map);
 }
 
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)

@@ -26,7 +26,7 @@ typedef struct
 {
   CMAP_INT * (*create)(int64_t val, CMAP_PROC_CTX * proc_ctx);
   void (*init)(CMAP_INT * int_, int64_t val);
-  void (*delete)(CMAP_INT * int_);
+  void (*delete)(CMAP_LIFECYCLE * this);
 
   int64_t (*get)(CMAP_INT * this);
 

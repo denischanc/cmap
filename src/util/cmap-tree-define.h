@@ -47,4 +47,8 @@ static CMAP_TREE_APPLY apply = \
   cmap_tree_public.apply(&CMAP_TREE_RUNNER_NAME(prefix), (void **)tree, \
     &apply_, ge_first, (void *)data)
 
+#define CMAP_TREE_CLEANFN(prefix, tree, clean_, data) \
+  cmap_tree_public.clean(&CMAP_TREE_RUNNER_NAME(prefix), (void **)tree, \
+    clean_, (void *)data)
+
 #endif

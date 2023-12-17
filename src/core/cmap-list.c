@@ -1,7 +1,6 @@
 
 #include "cmap-list.h"
 
-#include <stdlib.h>
 #include <string.h>
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
@@ -30,17 +29,25 @@ const char * CMAP_LIST_NATURE = "list";
 /*******************************************************************************
 *******************************************************************************/
 
-static void val_dec_ref(CMAP_MAP ** val, void * data)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
-  if(*val != NULL) CMAP_DEC_REF(*val);
+  return CMAP_LIST_NATURE;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static void nested_apply(CMAP_MAP ** val, void * data)
 {
-  return CMAP_LIST_NATURE;
+  CMAP_STACK_lc_ptr ** stack = (CMAP_STACK_lc_ptr **)data;
+  cmap_stack_lc_ptr_public.push(stack, (CMAP_LIFECYCLE **)val);
+}
+
+static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
+{
+  CMAP_CALL_ARGS((CMAP_LIST *)this, apply, nested_apply, stack);
+
+  cmap_map_public.nested(this, stack);
 }
 
 /*******************************************************************************
@@ -76,10 +83,10 @@ static CMAP_LIST * set(CMAP_LIST * this, int i, CMAP_MAP * val)
     int off = list_offset(internal, i);
 
     CMAP_MAP * old_val = internal -> list[off];
-    if(old_val != NULL) CMAP_DEC_REF(old_val);
+    if(old_val != NULL) CMAP_DEC_REFS(old_val);
 
     internal -> list[off] = val;
-    if(val != NULL) CMAP_INC_REF(val);
+    if(val != NULL) CMAP_INC_REFS(val);
   }
   return this;
 }
@@ -329,7 +336,7 @@ static CMAP_LIST * add(CMAP_LIST * this, int i, CMAP_MAP * val)
 
     internal -> size++;
 
-    if(val != NULL) CMAP_INC_REF(val);
+    if(val != NULL) CMAP_INC_REFS(val);
   }
   return this;
 }
@@ -351,7 +358,7 @@ static CMAP_MAP * rm(CMAP_LIST * this, int i)
 
     internal -> size--;
 
-    if(val != NULL) CMAP_DEC_REF(val);
+    if(val != NULL) CMAP_DEC_REFS(val);
   }
 
   return val;
@@ -394,7 +401,14 @@ static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
   int remaining = internal -> size, i = internal -> i_start;
   while(remaining > 0)
   {
+    CMAP_MAP * old_val = internal -> list[i];
     fn(internal -> list + i, data);
+    CMAP_MAP * new_val = internal -> list[i];
+    if(old_val != new_val)
+    {
+      if(old_val != NULL) CMAP_DEC_REFS(old_val);
+      if(new_val != NULL) CMAP_INC_REFS(new_val);
+    }
 
     remaining--;
     i = ((i + 1) % internal -> size_max);
@@ -404,9 +418,14 @@ static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
-static void clear(CMAP_LIST * this)
+static void clean_apply(CMAP_MAP ** val, void * data)
 {
-  CMAP_CALL_ARGS(this, apply, val_dec_ref, NULL);
+  if(*val != NULL) CMAP_DEC_REFS(*val);
+}
+
+static void clean(CMAP_LIST * this)
+{
+  CMAP_CALL_ARGS(this, apply, clean_apply, NULL);
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
   internal -> size = 0;
@@ -417,43 +436,22 @@ static void clear(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void deep_delete(CMAP_LIST * list)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_CALL_ARGS(list, apply, val_dec_ref, NULL);
-
-  cmap_map_public.deep_delete(&list -> super);
-}
-
-static void deep_delete_(CMAP_LIFECYCLE * list)
-{
-  deep_delete((CMAP_LIST *)list);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void delete(CMAP_LIST * list)
-{
-  INTERNAL * internal = (INTERNAL *)list -> internal;
+  INTERNAL * internal = (INTERNAL *)((CMAP_LIST *)this) -> internal;
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_FREE(internal -> list, mem);
   CMAP_MEM_FREE(internal, mem);
 
-  cmap_map_public.delete(&list -> super);
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * list)
+static void init(CMAP_LIST * this, int size_inc)
 {
-  delete((CMAP_LIST *)list);
-}
-
-static void init(CMAP_LIST * list, int size_inc)
-{
-  CMAP_MAP * super = &list -> super;
-  super -> nature = nature;
-  CMAP_LIFECYCLE * super_super = &super -> super;
-  super_super -> delete = delete_;
-  super_super -> deep_delete = deep_delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
+  lc -> nested = nested;
 
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
@@ -465,27 +463,27 @@ static void init(CMAP_LIST * list, int size_inc)
   internal -> i_stop = 0;
   internal -> list = (CMAP_MAP **)mem -> alloc(size_inc * sizeof(CMAP_MAP *));
 
-  list -> internal = internal;
-  list -> size = size;
-  list -> set = set;
-  list -> get = get;
-  list -> add = add;
-  list -> rm = rm;
-  list -> push = push;
-  list -> pop = pop;
-  list -> unshift = unshift;
-  list -> shift = shift;
-  list -> apply = apply;
-  list -> clear = clear;
+  this -> internal = internal;
+  this -> size = size;
+  this -> set = set;
+  this -> get = get;
+  this -> add = add;
+  this -> rm = rm;
+  this -> push = push;
+  this -> pop = pop;
+  this -> unshift = unshift;
+  this -> shift = shift;
+  this -> apply = apply;
+  this -> clean = clean;
 }
 
 static CMAP_LIST * create(int size_inc, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_list = CMAP_CALL_ARGS(ps, list_, proc_ctx);
-  CMAP_LIST * list = CMAP_PROTOTYPE_NEW(prototype_list, CMAP_LIST, proc_ctx);
-  init(list, size_inc);
-  return list;
+  CMAP_LIST * this = CMAP_PROTOTYPE_NEW(prototype_list, CMAP_LIST, proc_ctx);
+  init(this, size_inc);
+  return this;
 }
 
 /*******************************************************************************
@@ -493,12 +491,13 @@ static CMAP_LIST * create(int size_inc, CMAP_PROC_CTX * proc_ctx)
 
 const CMAP_LIST_PUBLIC cmap_list_public =
 {
-  create, init, delete, deep_delete,
+  create, init, delete,
+  nested,
   size,
   set, get,
   add,  rm,
   push, pop,
   unshift, shift,
   apply,
-  clear
+  clean
 };

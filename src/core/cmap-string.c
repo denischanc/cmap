@@ -2,9 +2,11 @@
 #include "cmap-string.h"
 
 #include <string.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -29,7 +31,7 @@ const char * CMAP_STRING_NATURE = "string";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
   return CMAP_STRING_NATURE;
 }
@@ -105,7 +107,7 @@ static void append_sub(CMAP_STRING * this, const char * val,
 /*******************************************************************************
 *******************************************************************************/
 
-static void clear(CMAP_STRING * this)
+static void clean(CMAP_STRING * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   internal -> val[0] = 0;
@@ -115,26 +117,23 @@ static void clear(CMAP_STRING * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_STRING * string)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)string -> internal;
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
+
+  INTERNAL * internal = (INTERNAL *)((CMAP_STRING *)this) -> internal;
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_FREE(internal -> val, mem);
   CMAP_MEM_FREE(internal, mem);
 
-  cmap_map_public.delete(&string -> super);
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * string)
+static void init(CMAP_STRING * this, const char * val_, int size_inc)
 {
-  delete((CMAP_STRING *)string);
-}
-
-static void init(CMAP_STRING * string, const char * val_, int size_inc)
-{
-  CMAP_MAP * super = &string -> super;
-  super -> nature = nature;
-  super -> super.delete = delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
 
   CMAP_MEM * mem = cmap_kernel_public.mem();
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
@@ -145,11 +144,11 @@ static void init(CMAP_STRING * string, const char * val_, int size_inc)
   internal -> val = (char *)mem -> alloc(internal -> size_max);
   memcpy(internal -> val, val_, internal -> size);
 
-  string -> internal = internal;
-  string -> val = val;
-  string -> append = append;
-  string -> append_sub = append_sub;
-  string -> clear = clear;
+  this -> internal = internal;
+  this -> val = val;
+  this -> append = append;
+  this -> append_sub = append_sub;
+  this -> clean = clean;
 }
 
 static CMAP_STRING * create(const char * val, int size_inc,
@@ -157,10 +156,10 @@ static CMAP_STRING * create(const char * val, int size_inc,
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_string = CMAP_CALL_ARGS(ps, string_, proc_ctx);
-  CMAP_STRING * string =
+  CMAP_STRING * this =
     CMAP_PROTOTYPE_NEW(prototype_string, CMAP_STRING, proc_ctx);
-  init(string, val, size_inc);
-  return string;
+  init(this, val, size_inc);
+  return this;
 }
 
 /*******************************************************************************
@@ -168,11 +167,8 @@ static CMAP_STRING * create(const char * val, int size_inc,
 
 const CMAP_STRING_PUBLIC cmap_string_public =
 {
-  create,
-  init,
-  delete,
+  create, init, delete,
   val,
-  append,
-  append_sub,
-  clear
+  append, append_sub,
+  clean
 };

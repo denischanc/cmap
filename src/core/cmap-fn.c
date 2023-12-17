@@ -5,17 +5,15 @@
 #include <string.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-string.h"
 #include "cmap-util.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-prototypestore.h"
 #include "cmap-list.h"
-#include "cmap-stack-define.h"
+#include "cmap-stack.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
-
-CMAP_STACK_DEF(char_ptr, char *)
 
 typedef struct
 {
@@ -36,9 +34,21 @@ const char * CMAP_PROTOTYPE_NAME = "prototype";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_MAP * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
   return CMAP_FN_NATURE;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
+{
+  INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
+  if(internal -> definitions != NULL)
+    CMAP_CALL_ARGS((CMAP_LIFECYCLE *)internal -> definitions, nested, stack);
+
+  cmap_map_public.nested(this, stack);
 }
 
 /*******************************************************************************
@@ -50,7 +60,7 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
   if(internal -> definitions == NULL)
   {
     internal -> definitions = cmap_map_public.create_root(proc_ctx);
-    CMAP_INC_REF(internal -> definitions);
+    CMAP_INC_REFS(internal -> definitions);
   }
   return internal -> definitions;
 }
@@ -61,7 +71,7 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 static void add_arg_name(CMAP_FN * this, const char * arg_name)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  cmap_stack_char_ptr_push(&internal -> arg_names,
+  cmap_stack_char_ptr_public.push(&internal -> arg_names,
     cmap_util_public.strdup(arg_name));
 }
 
@@ -134,49 +144,47 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_FN * fn)
+static void delete(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)fn -> internal;
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
-  if(internal -> definitions != NULL) CMAP_DEC_REF(internal -> definitions);
+  INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
+
+  if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
   while(internal -> arg_names != NULL)
-    CMAP_KERNEL_FREE(cmap_stack_char_ptr_pop(&internal -> arg_names));
+    CMAP_KERNEL_FREE(cmap_stack_char_ptr_public.pop(&internal -> arg_names));
   CMAP_KERNEL_FREE(internal);
 
-  cmap_map_public.delete(&fn -> super);
+  cmap_map_public.delete(this);
 }
 
-static void delete_(CMAP_LIFECYCLE * fn)
+static void init(CMAP_FN * this, CMAP_FN_TPL process_)
 {
-  delete((CMAP_FN *)fn);
-}
-
-static void init(CMAP_FN * fn, CMAP_FN_TPL process_)
-{
-  CMAP_MAP * super = &fn -> super;
-  super -> nature = nature;
-  super -> super.delete = delete_;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
+  lc -> delete = delete;
+  lc -> nature = nature;
+  lc -> nested = nested;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> process = process_;
   internal -> definitions = NULL;
   internal -> arg_names = NULL;
 
-  fn -> internal = internal;
-  fn -> require_definitions = require_definitions;
-  fn -> add_arg_name = add_arg_name;
-  fn -> process = process;
-  fn -> do_process = do_process;
-  fn -> new = new;
+  this -> internal = internal;
+  this -> require_definitions = require_definitions;
+  this -> add_arg_name = add_arg_name;
+  this -> process = process;
+  this -> do_process = do_process;
+  this -> new = new;
 }
 
 static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * prototype_fn = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
-  CMAP_FN * fn = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx);
-  init(fn, process);
-  return fn;
+  CMAP_FN * this = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx);
+  init(this, process);
+  return this;
 }
 
 /*******************************************************************************
@@ -184,11 +192,10 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 
 const CMAP_FN_PUBLIC cmap_fn_public =
 {
-  create,
-  init,
-  delete,
+  create, init, delete,
+  nested,
+  require_definitions,
   add_arg_name,
-  process,
-  do_process,
+  process, do_process,
   new
 };

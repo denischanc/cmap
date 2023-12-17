@@ -5,7 +5,6 @@
 #include "cmap-string-define.h"
 #include "cmap-string-ext.h"
 #include "cmap-map.h"
-#include "cmap-lifecycle.h"
 
 struct CMAP_STRING
 {
@@ -19,15 +18,15 @@ struct CMAP_STRING
   void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
     int off_stop);
 
-  void (*clear)(CMAP_STRING * this);
+  void (*clean)(CMAP_STRING * this);
 };
 
 typedef struct
 {
   CMAP_STRING * (*create)(const char * val, int size_inc,
     CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_STRING * string, const char * val, int size_inc);
-  void (*delete)(CMAP_STRING * string);
+  void (*init)(CMAP_STRING * this, const char * val, int size_inc);
+  void (*delete)(CMAP_LIFECYCLE * this);
 
   char * (*val)(CMAP_STRING * this);
 
@@ -35,7 +34,7 @@ typedef struct
   void (*append_sub)(CMAP_STRING * this, const char * val, int off_start,
     int off_stop);
 
-  void (*clear)(CMAP_STRING * this);
+  void (*clean)(CMAP_STRING * this);
 } CMAP_STRING_PUBLIC;
 
 extern const CMAP_STRING_PUBLIC cmap_string_public;

@@ -1,13 +1,10 @@
 
 #include "cmap-lifecycle.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-list.h"
 #include "cmap-env.h"
 
 /*******************************************************************************
@@ -15,7 +12,7 @@
 
 typedef struct
 {
-  int nb_ref;
+  int nb_refs;
 
   CMAP_ENV * env;
 } INTERNAL;
@@ -23,72 +20,80 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-static void inc_ref(CMAP_LIFECYCLE * this)
+static const char * nature(CMAP_LIFECYCLE * this)
 {
-  ((INTERNAL *)this -> internal) -> nb_ref++;
+  return "lifecycle";
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void dec_ref(CMAP_LIFECYCLE * this)
+static void inc_refs(CMAP_LIFECYCLE * this)
 {
+  ((INTERNAL *)this -> internal) -> nb_refs++;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static int nb_refs(CMAP_LIFECYCLE * this)
+{
+  return ((INTERNAL *)this -> internal) -> nb_refs;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void dec_refs(CMAP_LIFECYCLE * this)
+{
+  CMAP_CALL(this, dec_refs_only);
+
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  internal -> nb_ref--;
-
-  if(internal -> nb_ref == 0)
-  {
-    CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
-    CMAP_CALL_ARGS(proc_ctx, local_stack_add, this);
-  }
+  CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
+  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char dec_ref_or_deep_delete_last_ref(CMAP_LIFECYCLE * this)
+static void dec_refs_only(CMAP_LIFECYCLE * this)
 {
-  if(((INTERNAL *)this -> internal) -> nb_ref != 1)
-  {
-    CMAP_DEC_REF(this);
-    return CMAP_F;
-  }
-  else
-  {
-    CMAP_CALL(this, deep_delete);
-    return CMAP_T;
-  }
+  ((INTERNAL *)this -> internal) -> nb_refs--;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_LIFECYCLE * lc)
+static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
+{
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void delete(CMAP_LIFECYCLE * this)
 {
   CMAP_MEM * mem = cmap_kernel_public.mem();
-  CMAP_MEM_FREE(lc -> internal, mem);
-  CMAP_MEM_FREE(lc, mem);
+  CMAP_MEM_FREE(this -> internal, mem);
+  CMAP_MEM_FREE(this, mem);
 }
 
-static void deep_delete(CMAP_LIFECYCLE * lc)
-{
-  CMAP_CALL(lc, delete);
-}
-
-static void init(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
+static void init(CMAP_LIFECYCLE * this, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> nb_ref = 0;
+  internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);
 
-  lc -> internal = internal;
-  lc -> delete = delete;
-  lc -> deep_delete = deep_delete;
-  lc -> inc_ref = inc_ref;
-  lc -> dec_ref = dec_ref;
-  lc -> dec_ref_or_deep_delete_last_ref = dec_ref_or_deep_delete_last_ref;
+  this -> internal = internal;
+  this -> delete = delete;
+  this -> nature = nature;
+  this -> inc_refs = inc_refs;
+  this -> nb_refs = nb_refs;
+  this -> dec_refs = dec_refs;
+  this -> dec_refs_only = dec_refs_only;
+  this -> nested = nested;
 
-  CMAP_CALL_ARGS(proc_ctx, local_stack_add, lc);
+  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
 }
 
 /*******************************************************************************
@@ -96,10 +101,7 @@ static void init(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 
 const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
 {
-  init,
-  delete,
-  deep_delete,
-  inc_ref,
-  dec_ref,
-  dec_ref_or_deep_delete_last_ref
+  init, delete,
+  inc_refs, nb_refs, dec_refs, dec_refs_only,
+  nested
 };

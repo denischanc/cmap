@@ -5,7 +5,6 @@
 #include "cmap-list-define.h"
 #include "cmap-list-ext.h"
 #include "cmap-map.h"
-#include "cmap-lifecycle.h"
 
 typedef void (*CMAP_LIST_VAL_FN)(CMAP_MAP ** val, void * data);
 
@@ -31,15 +30,16 @@ struct CMAP_LIST
 
   void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
 
-  void (*clear)(CMAP_LIST * this);
+  void (*clean)(CMAP_LIST * this);
 };
 
 typedef struct
 {
   CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx);
   void (*init)(CMAP_LIST * list, int size_inc);
-  void (*delete)(CMAP_LIST * list);
-  void (*deep_delete)(CMAP_LIST * list);
+  void (*delete)(CMAP_LIFECYCLE * this);
+
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack);
 
   int (*size)(CMAP_LIST * this);
 
@@ -57,7 +57,7 @@ typedef struct
 
   void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
 
-  void (*clear)(CMAP_LIST * this);
+  void (*clean)(CMAP_LIST * this);
 } CMAP_LIST_PUBLIC;
 
 extern const CMAP_LIST_PUBLIC cmap_list_public;

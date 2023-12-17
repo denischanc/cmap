@@ -26,7 +26,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
       int size = CMAP_CALL(list, size), i;
       for(i = 0; i < size; i++)
       {
-        CMAP_CALL(args_list_i, clear);
+        CMAP_CALL(args_list_i, clean);
         CMAP_LIST_PUSH(args_list_i, CMAP_CALL_ARGS(list, get, i));
         CMAP_FN_PROC(map_fn.fn, proc_ctx, map_fn.map, args_list_i);
       }

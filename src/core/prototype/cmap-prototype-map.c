@@ -23,11 +23,11 @@ static void map_entry_apply_fn(const char * key, CMAP_MAP ** val, void * data)
   MAP_ENTRY_DATA * data_ = (MAP_ENTRY_DATA *)data;
 
   CMAP_STRING * key_ = data_ -> key;
-  CMAP_CALL(key_, clear);
+  CMAP_CALL(key_, clean);
   CMAP_CALL_ARGS(key_, append, key);
 
   CMAP_LIST * args = data_ -> args;
-  CMAP_CALL(args, clear);
+  CMAP_CALL(args, clean);
   CMAP_LIST_PUSH(args, key_);
   CMAP_LIST_PUSH(args, *val);
 
