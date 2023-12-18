@@ -26,7 +26,7 @@ local test = function(){
   cmap.console.error("[ERROR]");
 };
 
-local job = new cmap.scheduler.job{test};
+local job = new cmap.scheduler.job(test);
 job.schedule();
 
 ]]

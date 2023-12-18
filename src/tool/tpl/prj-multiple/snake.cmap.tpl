@@ -27,7 +27,7 @@ snake.prototype =
   {
     local line = this.screen.height().dec();
     local rnd = 0;
-    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start); i < this.stop; i.inc())
     {
       random(rnd, this.RND_MAX_INIT);
 
@@ -63,7 +63,7 @@ snake.prototype =
 
   eraseLine: function(line)
   {
-    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start); i < this.stop; i.inc())
     {
       this.screen.get(i, line).set(this.SPACE, null);
     }
@@ -74,7 +74,7 @@ snake.prototype =
     local nextLine = 0.set(line).inc();
     this.eraseLine(nextLine);
 
-    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start); i < this.stop; i.inc())
     {
       local pt = this.screen.get(i, line);
       if(pt.let != this.SPACE) { this.follow(i, nextLine); }
@@ -85,7 +85,7 @@ snake.prototype =
   copyLine: function(line)
   {
     local prevLine = 0.set(line).dec();
-    for(local i = 0.set(this.start);; i < this.stop; i.inc();)
+    for(local i = 0.set(this.start); i < this.stop; i.inc())
     {
       local pt = this.screen.get(i, line);
       this.screen.get(i, prevLine).set(pt.let, pt.ctl);
@@ -95,7 +95,7 @@ snake.prototype =
   shiftLines: function()
   {
     local height = this.screen.height();
-    for(local i = 1;; i < height; i.inc();) { this.copyLine(i); }
+    for(local i = 1; i < height; i.inc()) { this.copyLine(i); }
     this.nextLine(height.dec().dec());
   }
 };

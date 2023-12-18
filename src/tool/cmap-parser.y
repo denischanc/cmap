@@ -14,7 +14,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 
 %}
 
-%define api.pure full
+%define api.pure
 /*%define parse.trace*/
 
 %param {yyscan_t yyscanner}
@@ -29,8 +29,8 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token ERROR
 %token<name> STRING C_IMPL INCLUDE NAME INT
 
-%type<name> cmap arg_names_cmap creator args function arg_names
-%type<name> comparison comparison_ cmap_not_creator names
+%type<name> cmap arg_names_cmap creator args function arg_names names
+%type<name> comparison comparison_ creator_no_bracket cmap_no_bracket
 
 %%
 
@@ -98,25 +98,46 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_util_public.set_local($2, $4); }
 /*******************************************************************************
 *******************************************************************************/
 
-creator: '{' arg_names_cmap '}' { $$ = cmap_parser_util_public.map_args($2); }
-| '[' args ']' { $$ = cmap_parser_util_public.list_args($2); }
-| STRING { $$ = cmap_parser_util_public.string($1); }
-| INT { $$ = cmap_parser_util_public.int_($1); }
+creator: creator_no_bracket
 | function
-| NEW cmap '{' args '}' { $$ = cmap_parser_util_public.new($2, $4); };
+| NEW cmap_no_bracket '(' args ')'
+{
+  $$ = cmap_parser_util_public.new($2, $4);
+};
+
+creator_no_bracket: STRING { $$ = cmap_parser_util_public.string($1); }
+| INT { $$ = cmap_parser_util_public.int_($1); }
+| '[' args ']' { $$ = cmap_parser_util_public.list_args($2); }
+| '{' arg_names_cmap '}' { $$ = cmap_parser_util_public.map_args($2); };
 
 /*******************************************************************************
 *******************************************************************************/
 
-cmap: creator | cmap_not_creator;
-
-cmap_not_creator: NULL_PTR { $$ = strdup("NULL"); }
+cmap: creator
+| NULL_PTR { $$ = strdup("NULL"); }
 | process { $$ = cmap_parser_util_public.process_resolve((1 == 1)); }
 | NAME { $$ = cmap_parser_util_public.name($1); }
 | cmap '.' NAME { $$ = cmap_parser_util_public.path($1, $3); }
 | cmap SB2_O INT SB2_C { $$ = cmap_parser_util_public.sb_int($1, $3); }
 | cmap SB2_O STRING SB2_C { $$ = cmap_parser_util_public.sb_string($1, $3); }
 | cmap '[' cmap ']' { $$ = cmap_parser_util_public.sb_map($1, $3); }
+| PROC '(' names ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
+
+cmap_no_bracket: creator_no_bracket
+| NAME { $$ = cmap_parser_util_public.name($1); }
+| cmap_no_bracket '.' NAME { $$ = cmap_parser_util_public.path($1, $3); }
+| cmap_no_bracket SB2_O INT SB2_C
+{
+  $$ = cmap_parser_util_public.sb_int($1, $3);
+}
+| cmap_no_bracket SB2_O STRING SB2_C
+{
+  $$ = cmap_parser_util_public.sb_string($1, $3);
+}
+| cmap_no_bracket '[' cmap ']'
+{
+  $$ = cmap_parser_util_public.sb_map($1, $3);
+}
 | PROC '(' names ')' { $$ = cmap_parser_util_public.process_c($3, (1 == 1)); };
 
 /*******************************************************************************
@@ -218,12 +239,16 @@ comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
 /*******************************************************************************
 *******************************************************************************/
 
+instructions_for: { cmap_part_public.push_instructions(); }
+| { cmap_part_public.push_instructions(); } instruction
+| instructions_for ',' instruction;
+
 for:
 FOR
 '('
-  { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT); } instructions ';'
+  { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT); } instructions_for ';'
   comparison ';'
-  { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT); } instructions
+  { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT); } instructions_for
 ')' { cmap_parser_util_public.for_decl($6); }
 '{' instructions '}' { cmap_parser_util_public.for_impl(); };
 

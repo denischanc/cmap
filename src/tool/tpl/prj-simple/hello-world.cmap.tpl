@@ -21,7 +21,7 @@ local helloWorld = function()
   this.schedule();
 };
 
-local job = new cmap.scheduler.job{helloWorld};
+local job = new cmap.scheduler.job(helloWorld);
 job.schedule();
 
 ]]

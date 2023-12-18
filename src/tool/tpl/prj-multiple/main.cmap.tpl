@@ -38,24 +38,24 @@ local shift = function(job, snake, periodMs)
 
 local init = function()
 {
-  this.screen = new screen{100, 30};
+  this.screen = new screen(100, 30);
 
-  local snake_ = new snake{this.screen, 0, 50, "32;40"};
-  new cmap.scheduler.job{function(){
-    shift(this, snake_, 100); }}.schedule();
+  local snake_ = new snake(this.screen, 0, 50, "32;40");
+  new cmap.scheduler.job(function(){
+    shift(this, snake_, 100); }).schedule();
 
-  snake_ = new snake{this.screen, 50, 100, "31;40"};
-  new cmap.scheduler.job{function(){
-    shift(this, snake_, 300); }}.schedule();
+  snake_ = new snake(this.screen, 50, 100, "31;40");
+  new cmap.scheduler.job(function(){
+    shift(this, snake_, 300); }).schedule();
 
   this.screen.display();
 
-  local jobDisplay = new cmap.scheduler.job{display}.schedule();
+  local jobDisplay = new cmap.scheduler.job(display).schedule();
   jobDisplay.screen = this.screen;
 
   this.delete();
 };
 
-new cmap.scheduler.job{init}.schedule();
+new cmap.scheduler.job(init).schedule();
 
 ]]

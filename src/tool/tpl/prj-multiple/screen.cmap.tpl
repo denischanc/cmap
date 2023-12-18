@@ -3,9 +3,9 @@
 screen = function(nbCol, nbLine)
 {
   this.lines = [];
-  for(local i = 0;; i < nbLine; i.inc();)
+  for(local i = 0; i < nbLine; i.inc())
   {
-    this.lines.push(new screen.line{nbCol});
+    this.lines.push(new screen.line(nbCol));
   }
 };
 
@@ -52,9 +52,9 @@ screen.prototype =
 screen.line = function(nbCol)
 {
   this.pts = [];
-  for(local i = 0;; i < nbCol; i.inc();)
+  for(local i = 0; i < nbCol; i.inc())
   {
-    this.pts.push(new screen.line.pt{});
+    this.pts.push(new screen.line.pt());
   }
 };
 
