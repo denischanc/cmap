@@ -158,7 +158,6 @@ static int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this,
 
 static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(block_free) =
 {
-  NULL,
   CMAP_TREE_LOOP(WAY_SET)
   CMAP_TREE_EVALFN_NAME(block_free),
   cmap_tree_usable_false,

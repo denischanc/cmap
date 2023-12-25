@@ -47,7 +47,7 @@ static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node,
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_TREE_RUNNER(entry, NULL, false, false);
+CMAP_TREE_RUNNER(entry, false, false);
 
 /*******************************************************************************
 *******************************************************************************/

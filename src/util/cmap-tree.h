@@ -12,8 +12,6 @@ typedef struct CMAP_TREE_RUNNER CMAP_TREE_RUNNER;
 
 struct CMAP_TREE_RUNNER
 {
-  void * internal;
-
   CMAP_TREE_LOOP(CMAP_TREE_WAY_FN_PTR)
 
   int (*eval)(CMAP_TREE_RUNNER * this, void * node, void * data);

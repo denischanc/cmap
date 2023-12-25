@@ -32,7 +32,7 @@ static int CMAP_TREE_EVALFN_NAME(nb)(CMAP_TREE_RUNNER * runner, void * node,
   return (node1 -> nb - node2 -> nb);
 }
 
-CMAP_TREE_RUNNER(nb, NULL, false, false);
+CMAP_TREE_RUNNER(nb, false, false);
 
 /*******************************************************************************
 *******************************************************************************/

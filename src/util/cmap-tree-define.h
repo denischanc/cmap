@@ -16,10 +16,9 @@
 #define CMAP_TREE_EVALFN_NAME(prefix) prefix##_eval
 #define CMAP_TREE_RUNNER_NAME(prefix) prefix##_runner
 
-#define CMAP_TREE_RUNNER(prefix, internal, lt_usable, gt_usable) \
+#define CMAP_TREE_RUNNER(prefix, lt_usable, gt_usable) \
 static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(prefix) = \
 { \
-  internal, \
   CMAP_TREE_LOOP(CMAP_TREE_WAY_SET) \
   CMAP_TREE_EVALFN_NAME(prefix), \
   cmap_tree_usable_##lt_usable, \

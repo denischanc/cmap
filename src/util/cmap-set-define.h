@@ -41,7 +41,7 @@ extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
 static int CMAP_TREE_EVALFN_NAME(name)(CMAP_TREE_RUNNER * this, \
   void * node, void * data); \
  \
-CMAP_TREE_RUNNER(name, NULL, false, false); \
+CMAP_TREE_RUNNER(name, false, false); \
  \
 static char set_##name##_is(CMAP_SET_##name * this, type v) \
 { \
