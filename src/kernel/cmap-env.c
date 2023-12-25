@@ -11,7 +11,7 @@
 
 typedef struct
 {
-  CMAP_STACK_proc_ctx * proc_ctx;
+  CMAP_STACK_PROC_CTX * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
 
@@ -31,8 +31,8 @@ static CMAP_ENV * envs = NULL;
 
 static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  cmap_stack_proc_ctx_public.push(&internal -> proc_ctx, proc_ctx);
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  CMAP_CALL_ARGS(internal -> proc_ctx, push, proc_ctx);
 }
 
 /*******************************************************************************
@@ -40,9 +40,9 @@ static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  CMAP_STACK_proc_ctx * proc_ctx = internal -> proc_ctx;
-  return (proc_ctx == NULL) ? NULL : proc_ctx -> v;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  CMAP_PROC_CTX ** proc_ctx = CMAP_CALL(internal -> proc_ctx, last);
+  return (proc_ctx == NULL) ? NULL : *proc_ctx;
 }
 
 /*******************************************************************************
@@ -50,8 +50,8 @@ static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 
 static void pop_proc_ctx(CMAP_ENV * this)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  cmap_stack_proc_ctx_public.pop(&internal -> proc_ctx);
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  CMAP_CALL(internal -> proc_ctx, pop);
 }
 
 /*******************************************************************************
@@ -60,7 +60,7 @@ static void pop_proc_ctx(CMAP_ENV * this)
 static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
   CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> prototypestore == NULL)
   {
     internal -> prototypestore = cmap_prototypestore_public.create(proc_ctx);
@@ -74,7 +74,7 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
 
 static CMAP_POOL_LIST * pool_list(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> pool_list == NULL)
   {
     internal -> pool_list = cmap_pool_list_public.create(20, proc_ctx);
@@ -85,7 +85,7 @@ static CMAP_POOL_LIST * pool_list(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_POOL_STRING * pool_string(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> pool_string == NULL)
   {
     internal -> pool_string = cmap_pool_string_public.create(20, proc_ctx);
@@ -96,7 +96,7 @@ static CMAP_POOL_STRING * pool_string(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_POOL_INT * pool_int(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> pool_int == NULL)
   {
     internal -> pool_int = cmap_pool_int_public.create(20, proc_ctx);
@@ -110,7 +110,7 @@ static CMAP_POOL_INT * pool_int(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> global == NULL)
   {
     internal -> global =
@@ -125,10 +125,10 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static void delete(CMAP_ENV * this)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   CMAP_ENV * prev = internal -> prev, * next = internal -> next;
-  if(next != NULL) ((INTERNAL *)next -> internal) -> prev = prev;
-  if(prev != NULL) ((INTERNAL *)prev -> internal) -> next = next;
+  if(next != NULL) ((INTERNAL *)(next + 1)) -> prev = prev;
+  if(prev != NULL) ((INTERNAL *)(prev + 1)) -> next = next;
   else envs = next;
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(this);
@@ -142,14 +142,19 @@ static void delete(CMAP_ENV * this)
 
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 
-  CMAP_KERNEL_FREE(internal);
+  CMAP_CALL(internal -> proc_ctx, delete);
+
   CMAP_KERNEL_FREE(this);
 }
 
 static CMAP_ENV * create(int argc, char ** argv)
 {
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> proc_ctx = NULL;
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_ENV * this = (CMAP_ENV *)mem -> alloc(
+    sizeof(CMAP_ENV) + sizeof(INTERNAL));
+
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  internal -> proc_ctx = cmap_stack_proc_ctx_public.create(0);
   internal -> prototypestore = NULL;
   internal -> pool_list = NULL;
   internal -> pool_string = NULL;
@@ -158,8 +163,6 @@ static CMAP_ENV * create(int argc, char ** argv)
   internal -> prev = NULL;
   internal -> next = envs;
 
-  CMAP_KERNEL_ALLOC_PTR(this, CMAP_ENV);
-  this -> internal = internal;
   this -> argc = argc;
   this -> argv = argv;
   this -> delete = delete;
@@ -172,7 +175,7 @@ static CMAP_ENV * create(int argc, char ** argv)
   this -> pool_int = pool_int;
   this -> global = global;
 
-  if(envs != NULL) ((INTERNAL *)envs -> internal) -> prev = this;
+  if(envs != NULL) ((INTERNAL *)(envs + 1)) -> prev = this;
   envs = this;
 
   return this;

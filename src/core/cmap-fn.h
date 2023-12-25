@@ -32,7 +32,7 @@ typedef struct {
   void (*init)(CMAP_FN * this, CMAP_FN_TPL process);
   void (*delete)(CMAP_LIFECYCLE * this);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack);
 
   CMAP_MAP * (*require_definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
 

@@ -29,6 +29,9 @@ typedef struct
   char * (*strdup)(const char * src);
 
   int (*is_val)(CMAP_LIST * list, CMAP_MAP * val);
+
+  void (*inc_w_max)(int * i, int max);
+  void (*dec_w_max)(int * i, int max);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

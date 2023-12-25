@@ -9,8 +9,6 @@
 
 struct CMAP_ENV
 {
-  void * internal;
-
   int argc;
   char ** argv;
 

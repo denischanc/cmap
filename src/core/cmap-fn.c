@@ -9,7 +9,6 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-prototypestore.h"
 #include "cmap-list.h"
-#include "cmap-stack.h"
 #include "cmap-log.h"
 
 /*******************************************************************************
@@ -21,7 +20,7 @@ typedef struct
 
   CMAP_MAP * definitions;
 
-  CMAP_STACK_char_ptr * arg_names;
+  CMAP_STACK_CHAR_PTR * arg_names;
 } INTERNAL;
 
 /*******************************************************************************
@@ -42,7 +41,7 @@ static const char * nature(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
+static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL)
@@ -71,24 +70,27 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 static void add_arg_name(CMAP_FN * this, const char * arg_name)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  cmap_stack_char_ptr_public.push(&internal -> arg_names,
+  if(internal -> arg_names == NULL)
+    internal -> arg_names = cmap_stack_char_ptr_public.create(1 << 4);
+  CMAP_CALL_ARGS(internal -> arg_names, push,
     cmap_util_public.strdup(arg_name));
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int set_arg_name_in_definitions(CMAP_STACK_char_ptr * arg_name,
-  CMAP_MAP * definitions, CMAP_LIST * args)
+typedef struct
 {
-  int i = 0;
+  int off;
+  CMAP_LIST * args;
+  CMAP_MAP * definitions;
+} ARG_NAME_APPLY_DATA;
 
-  CMAP_STACK_char_ptr * next = arg_name -> next;
-  if(next != NULL) i = set_arg_name_in_definitions(next, definitions, args);
-
-  CMAP_SET(definitions, arg_name -> v, CMAP_LIST_GET(args, i));
-
-  return i + 1;
+static void arg_name_apply(char ** arg_name, void * data)
+{
+  ARG_NAME_APPLY_DATA * data_ = (ARG_NAME_APPLY_DATA *)data;
+  CMAP_SET(data_ -> definitions, *arg_name,
+    CMAP_LIST_GET(data_ -> args, data_ -> off++));
 }
 
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
@@ -104,7 +106,10 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   cmap_util_public.copy(definitions, internal -> definitions);
 
   if(internal -> arg_names != NULL)
-    set_arg_name_in_definitions(internal -> arg_names, definitions, args);
+  {
+    ARG_NAME_APPLY_DATA data = { 0, args, definitions };
+    CMAP_CALL_ARGS(internal -> arg_names, apply, arg_name_apply, &data);
+  }
 
   CMAP_SET(definitions, "this", map);
   CMAP_SET(definitions, "args", args);
@@ -144,15 +149,22 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_arg_name_apply(char ** arg_name, void * data)
+{
+  CMAP_KERNEL_FREE(*arg_name);
+}
+
 static void delete(CMAP_LIFECYCLE * this)
 {
   cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
   INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
-
   if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
-  while(internal -> arg_names != NULL)
-    CMAP_KERNEL_FREE(cmap_stack_char_ptr_public.pop(&internal -> arg_names));
+  if(internal -> arg_names != NULL)
+  {
+    CMAP_CALL_ARGS(internal -> arg_names, apply, delete_arg_name_apply, NULL);
+    CMAP_CALL(internal -> arg_names, delete);
+  }
   CMAP_KERNEL_FREE(internal);
 
   cmap_map_public.delete(this);

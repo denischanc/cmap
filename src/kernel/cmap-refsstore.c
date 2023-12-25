@@ -35,19 +35,21 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 /*******************************************************************************
 *******************************************************************************/
 
+static void dec_nested_refs_apply(CMAP_LIFECYCLE *** lc, void * data)
+{
+  if(**lc != NULL)
+  {
+    CMAP_DEC_REFS(**lc);
+    **lc = NULL;
+  }
+}
+
 static void delete_with_nested(CMAP_LIFECYCLE * lc)
 {
-  CMAP_STACK_lc_ptr * nested_stack = NULL;
-  CMAP_CALL_ARGS(lc, nested, &nested_stack);
-  while(nested_stack != NULL)
-  {
-    CMAP_LIFECYCLE ** cur = cmap_stack_lc_ptr_public.pop(&nested_stack);
-    if(*cur != NULL)
-    {
-      CMAP_DEC_REFS(*cur);
-      *cur = NULL;
-    }
-  }
+  CMAP_STACK_LC_PTR * nested_stack = cmap_stack_lc_ptr_public.create(0);
+  CMAP_CALL_ARGS(lc, nested, nested_stack);
+  CMAP_CALL_ARGS(nested_stack, apply, dec_nested_refs_apply, NULL);
+  CMAP_CALL(nested_stack, delete);
 
   CMAP_CALL(lc, delete);
 }
@@ -55,70 +57,86 @@ static void delete_with_nested(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static void all_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
-  CMAP_STACK_lc_ptr ** refs, CMAP_SET_lc ** visit)
+typedef struct
+{
+  CMAP_LIFECYCLE * org;
+  CMAP_STACK_LC_PTR * crefs;
+  CMAP_SET_lc ** visit;
+} ALL_CREFS_APPLY_DATA;
+
+static void all_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
+  CMAP_STACK_LC_PTR * crefs, CMAP_SET_lc ** visit);
+
+static void all_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
+{
+  ALL_CREFS_APPLY_DATA * data_ = (ALL_CREFS_APPLY_DATA *)data;
+  if(**lc == data_ -> org) CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
+  else if(**lc != NULL) all_cycling_refs(**lc, data_ -> org, data_ -> crefs,
+    data_ -> visit);
+}
+
+static void all_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
+  CMAP_STACK_LC_PTR * crefs, CMAP_SET_lc ** visit)
 {
   if(cmap_set_lc_public.add(visit, lc))
   {
-    CMAP_STACK_lc_ptr * nested_stack = NULL;
-    CMAP_CALL_ARGS(lc, nested, &nested_stack);
-    while(nested_stack != NULL)
-    {
-      CMAP_LIFECYCLE ** cur = cmap_stack_lc_ptr_public.pop(&nested_stack);
-      if(*cur == org) cmap_stack_lc_ptr_public.push(refs, cur);
-      else if(*cur != NULL) all_refs(*cur, org, refs, visit);
-    }
+    CMAP_STACK_LC_PTR * nested_stack = cmap_stack_lc_ptr_public.create(0);
+    CMAP_CALL_ARGS(lc, nested, nested_stack);
+    ALL_CREFS_APPLY_DATA data = { org, crefs, visit };
+    CMAP_CALL_ARGS(nested_stack, apply, all_crefs_apply, &data);
+    CMAP_CALL(nested_stack, delete);
   }
 }
 
-static CMAP_STACK_lc_ptr * get_refs(CMAP_LIFECYCLE * lc)
+static CMAP_STACK_LC_PTR * get_cycling_refs(CMAP_LIFECYCLE * lc)
 {
-  CMAP_STACK_lc_ptr * refs = NULL;
+  CMAP_STACK_LC_PTR * crefs = cmap_stack_lc_ptr_public.create(0);
 
   CMAP_SET_lc * visit = NULL;
-  all_refs(lc, lc, &refs, &visit);
+  all_cycling_refs(lc, lc, crefs, &visit);
   cmap_set_lc_public.clean(&visit);
 
-  return refs;
+  return crefs;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_zombie(CMAP_LIFECYCLE * lc)
+static char stay_future_zombie(CMAP_LIFECYCLE * visited)
 {
-  char ret = CMAP_F;
+  CMAP_STACK_LC_PTR * crefs = get_cycling_refs(visited);
+  int crefs_size = CMAP_CALL(crefs, size);
+  CMAP_CALL(crefs, delete);
+  return ((crefs_size == 0) || (CMAP_CALL(visited, nb_refs) == crefs_size));
+}
 
-  CMAP_STACK_lc_ptr * refs = get_refs(lc);
-  if(refs != NULL)
-  {
-    ret = (CMAP_CALL(lc, nb_refs) == refs -> size);
-    cmap_stack_lc_ptr_public.clean(&refs);
-  }
-
-  return ret;
+static void zombie_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
+{
+  **lc = NULL;
 }
 
 static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)
 {
   char ret = CMAP_T;
 
-  CMAP_STACK_lc_ptr * refs = NULL;
+  CMAP_STACK_LC_PTR * crefs = cmap_stack_lc_ptr_public.create(0);
   CMAP_SET_lc * visit = NULL;
-  all_refs(lc, lc, &refs, &visit);
+  all_cycling_refs(lc, lc, crefs, &visit);
 
-  if((refs != NULL) && (nb_refs == (refs -> size + 1)))
+  if(nb_refs == (CMAP_CALL(crefs, size) + 1))
   {
     while(ret && (visit != NULL))
     {
-      CMAP_LIFECYCLE * cur = cmap_set_lc_public.rm(&visit);
-      if((cur != NULL) && (cur != lc) && !is_zombie(cur)) ret = CMAP_F;
+      CMAP_LIFECYCLE * visited = cmap_set_lc_public.rm(&visit);
+      if((visited != NULL) && (visited != lc) && !stay_future_zombie(visited))
+        ret = CMAP_F;
     }
   }
   else ret = CMAP_F;
 
-  if(ret) while(refs != NULL) *cmap_stack_lc_ptr_public.pop(&refs) = NULL;
-  else if(refs != NULL) cmap_stack_lc_ptr_public.clean(&refs);
+  if(ret) CMAP_CALL_ARGS(crefs, apply, zombie_crefs_apply, NULL);
+
+  CMAP_CALL(crefs, delete);
 
   if(visit != NULL) cmap_set_lc_public.clean(&visit);
 

@@ -39,7 +39,7 @@ typedef struct
   void (*init)(CMAP_LIST * list, int size_inc);
   void (*delete)(CMAP_LIFECYCLE * this);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack);
 
   int (*size)(CMAP_LIST * this);
 

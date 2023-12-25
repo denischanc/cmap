@@ -73,6 +73,7 @@ AC_CONFIG_FILES([Makefile
                  test/Makefile
                  test/kernel/Makefile
                  test/mem/Makefile
+                 test/stack/Makefile
                  test/util/Makefile])
 AC_CONFIG_COMMANDS([tpl2hc.sh], [chmod +x src/tool/tpl/tpl2hc.sh])
 AC_OUTPUT

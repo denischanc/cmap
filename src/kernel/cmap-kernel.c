@@ -152,7 +152,9 @@ static void fatal()
 
 static int main_()
 {
+  cmap_log_public.info("Kernel start uv loop ...");
   cmap_util_public.uv_error(uv_run(uv_loop(), UV_RUN_DEFAULT));
+  cmap_log_public.info("Uv loop terminated.");
 
   exit_(EXIT_SUCCESS);
   return EXIT_SUCCESS;

@@ -5,6 +5,7 @@
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -39,11 +40,11 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static void nested_apply(CMAP_MAP ** val, void * data)
 {
-  CMAP_STACK_lc_ptr ** stack = (CMAP_STACK_lc_ptr **)data;
-  cmap_stack_lc_ptr_public.push(stack, (CMAP_LIFECYCLE **)val);
+  CMAP_STACK_LC_PTR * stack = (CMAP_STACK_LC_PTR *)data;
+  CMAP_CALL_ARGS(stack, push, (CMAP_LIFECYCLE **)val);
 }
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_lc_ptr ** stack)
+static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack)
 {
   CMAP_CALL_ARGS((CMAP_LIST *)this, apply, nested_apply, stack);
 
@@ -105,39 +106,27 @@ static CMAP_MAP * get(CMAP_LIST * this, int i)
 /*******************************************************************************
 *******************************************************************************/
 
-inline void inc_i(int * i, INTERNAL * internal)
-{
-  (*i)++;
-  if(*i >= internal -> size_max) *i = 0;
-}
-
 static void inc_i_stop(INTERNAL * internal)
 {
-  inc_i(&internal -> i_stop, internal);
+  cmap_util_public.inc_w_max(&internal -> i_stop, internal -> size_max);
 }
 
 static void inc_i_start(INTERNAL * internal)
 {
-  inc_i(&internal -> i_start, internal);
+  cmap_util_public.inc_w_max(&internal -> i_start, internal -> size_max);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-inline void dec_i(int * i, INTERNAL * internal)
-{
-  (*i)--;
-  if(*i < 0) *i = (internal -> size_max - 1);
-}
-
 static void dec_i_start(INTERNAL * internal)
 {
-  dec_i(&internal -> i_start, internal);
+  cmap_util_public.dec_w_max(&internal -> i_start, internal -> size_max);
 }
 
 static void dec_i_stop(INTERNAL * internal)
 {
-  dec_i(&internal -> i_stop, internal);
+  cmap_util_public.dec_w_max(&internal -> i_stop, internal -> size_max);
 }
 
 /*******************************************************************************
@@ -264,7 +253,7 @@ static void add_on_middle(INTERNAL * internal, int i, CMAP_MAP * val)
     list_mv_dec(internal -> list, i_start, off, size_max);
     dec_i_start(internal);
 
-    dec_i(&off, internal);
+    cmap_util_public.dec_w_max(&off, internal -> size_max);
   }
   else
   {
@@ -288,7 +277,7 @@ static CMAP_MAP * rm_on_middle(INTERNAL * internal, int i)
 
   if(size_dec < size_inc)
   {
-    inc_i(&off, internal);
+    cmap_util_public.inc_w_max(&off, internal -> size_max);
 
     list_mv_dec(internal -> list, off, i_stop, size_max);
     dec_i_stop(internal);
