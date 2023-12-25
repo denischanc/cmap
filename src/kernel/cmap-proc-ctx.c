@@ -25,7 +25,7 @@ typedef struct
 
 static CMAP_ENV * env(CMAP_PROC_CTX * this)
 {
-  return ((INTERNAL *)this -> internal) -> env;
+  return ((INTERNAL *)(this + 1)) -> env;
 }
 
 static CMAP_PROTOTYPESTORE * prototypestore(CMAP_PROC_CTX * this)
@@ -63,7 +63,7 @@ static CMAP_MAP * global_env(CMAP_PROC_CTX * this)
 
 static CMAP_MAP * local_definitions(CMAP_PROC_CTX * this)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> definitions == NULL)
     internal -> definitions = cmap_map_public.create_root(this);
   return internal -> definitions;
@@ -75,7 +75,7 @@ static CMAP_MAP * local_definitions(CMAP_PROC_CTX * this)
 static void local_refs_add(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc,
   char created)
 {
-  CMAP_REFSSTORE * refs = ((INTERNAL *)this -> internal) -> refs;
+  CMAP_REFSSTORE * refs = ((INTERNAL *)(this + 1)) -> refs;
   CMAP_CALL_ARGS(refs, add, lc, created);
 }
 
@@ -84,7 +84,7 @@ static void local_refs_add(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc,
 
 static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
 
   cmap_log_public.debug("[%p][proc-ctx][%d] deletion", this, internal -> level);
 
@@ -93,7 +93,6 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   CMAP_CALL(internal -> env, pop_proc_ctx);
   CMAP_PROC_CTX * proc_ctx_cur = CMAP_CALL(internal -> env, proc_ctx);
 
-  CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);
 
   if(ret != NULL) local_refs_add(proc_ctx_cur, (CMAP_LIFECYCLE *)ret, CMAP_F);
@@ -103,7 +102,11 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
 static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 {
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)mem -> alloc(
+    sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL));
+
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> env = env_;
   internal -> refs = cmap_refsstore_public.create();
   internal -> definitions = NULL;
@@ -111,10 +114,8 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 
   CMAP_PROC_CTX * proc_ctx_parent = CMAP_CALL(env_, proc_ctx);
   if(proc_ctx_parent != NULL)
-    internal -> level += ((INTERNAL *)proc_ctx_parent -> internal) -> level;
+    internal -> level += ((INTERNAL *)(proc_ctx_parent + 1)) -> level;
 
-  CMAP_KERNEL_ALLOC_PTR(this, CMAP_PROC_CTX);
-  this -> internal = internal;
   this -> delete = delete;
   this -> env = env;
   this -> prototypestore = prototypestore;

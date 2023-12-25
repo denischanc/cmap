@@ -102,8 +102,8 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_TREE_APPLY(tree2list_apply, NULL, NULL, nb_tree2list, NULL);
-CMAP_TREE_APPLY(delete_apply, NULL, NULL, NULL, nb_delete);
+CMAP_TREE_APPLY(tree2list_apply, NULL, nb_tree2list, NULL);
+CMAP_TREE_APPLY(delete_apply, NULL, NULL, nb_delete);
 
 int main(int argc, char * argv[])
 {

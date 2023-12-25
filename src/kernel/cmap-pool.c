@@ -27,9 +27,8 @@ static const char * type##_nature(CMAP_LIFECYCLE * this) \
  \
 static void type##_delete(CMAP_LIFECYCLE * this) \
 { \
-  INTERNAL * internal = (INTERNAL *)((CMAP_POOL_##TYPE *)this) -> internal; \
+  INTERNAL * internal = (INTERNAL *)(((CMAP_POOL_##TYPE *)this) + 1); \
   CMAP_DEC_REFS(internal -> list); \
-  CMAP_KERNEL_FREE(internal); \
  \
   cmap_lifecycle_public.delete(this); \
 } \
@@ -37,7 +36,7 @@ static void type##_delete(CMAP_LIFECYCLE * this) \
 static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
   CMAP_LIST * list = internal -> list; \
  \
   if(CMAP_CALL(list, size) > 0) return (CMAP_##TYPE *)CMAP_CALL(list, pop); \
@@ -46,7 +45,7 @@ static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
  \
 static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
 { \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
   CMAP_LIST * list = internal -> list; \
  \
   if(CMAP_CALL(list, size) < internal -> size) \
@@ -59,19 +58,19 @@ static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
 static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
   CMAP_MEM * mem = CMAP_KERNEL_MEM; \
-  CMAP_MEM_ALLOC_PTR(this, CMAP_POOL_##TYPE, mem); \
+  CMAP_POOL_##TYPE * this = (CMAP_POOL_##TYPE *)mem -> alloc( \
+    sizeof(CMAP_POOL_##TYPE) + sizeof(INTERNAL)); \
  \
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this; \
   cmap_lifecycle_public.init(lc, proc_ctx); \
   lc -> delete = type##_delete; \
   lc -> nature = type##_nature; \
  \
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem); \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
   internal -> size = size; \
   internal -> list = CMAP_LIST(size, proc_ctx); \
   CMAP_INC_REFS(internal -> list); \
  \
-  this -> internal = internal; \
   this -> take = type##_take; \
   this -> release = type##_release; \
  \

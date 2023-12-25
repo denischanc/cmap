@@ -23,7 +23,7 @@ typedef struct
 
 static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   if(cmap_set_lc_public.add(&internal -> refs, lc))
   {
     CMAP_INC_REFS(lc);
@@ -190,25 +190,26 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 
 static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
 
   cmap_log_public.debug("[%p][refsstore] created %d", this,
     internal -> nb_created);
 
   delete_refs(internal, (CMAP_LIFECYCLE *)ret);
 
-  CMAP_KERNEL_FREE(internal);
   CMAP_KERNEL_FREE(this);
 }
 
 static CMAP_REFSSTORE * create()
 {
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)mem -> alloc(
+    sizeof(CMAP_REFSSTORE) + sizeof(INTERNAL));
+
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> refs = NULL;
   internal -> nb_created = 0;
 
-  CMAP_KERNEL_ALLOC_PTR(this, CMAP_REFSSTORE);
-  this -> internal = internal;
   this -> delete = delete;
   this -> add = add;
 

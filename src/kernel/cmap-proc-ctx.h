@@ -9,8 +9,6 @@
 
 struct CMAP_PROC_CTX
 {
-  void * internal;
-
   CMAP_MAP * (*delete)(CMAP_PROC_CTX * this, CMAP_MAP * ret);
 
   CMAP_ENV * (*env)(CMAP_PROC_CTX * this);

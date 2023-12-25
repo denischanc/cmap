@@ -34,10 +34,9 @@ static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(prefix) = \
 #define CMAP_TREE_RMFN(prefix, tree, node) cmap_tree_public.rm( \
   &CMAP_TREE_RUNNER_NAME(prefix), (void **)tree, node)
 
-#define CMAP_TREE_APPLY(apply, internal, before_fn, between_fn, after_fn) \
+#define CMAP_TREE_APPLY(apply, before_fn, between_fn, after_fn) \
 static CMAP_TREE_APPLY apply = \
 { \
-  internal, \
   before_fn, \
   between_fn, \
   after_fn \

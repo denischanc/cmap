@@ -38,7 +38,7 @@ static const char * nature(CMAP_LIFECYCLE * this)
 static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
   if(internal -> type##_ == NULL) \
   { \
     cmap_prototype_##type##_public.require(&internal -> type##_, proc_ctx); \
@@ -47,9 +47,10 @@ static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
   return internal -> type##_; \
 } \
  \
-static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, CMAP_PROC_CTX * proc_ctx) \
+static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
   if((internal -> type##_ == NULL) || !internal -> type##_ok) \
   { \
     require_##type(this, proc_ctx); \
@@ -70,9 +71,8 @@ CMAP_PROTOTYPESTORE_LOOP(IMPL)
 
 static void delete(CMAP_LIFECYCLE * lc)
 {
-  INTERNAL * internal = (INTERNAL *)((CMAP_PROTOTYPESTORE *)lc) -> internal;
+  INTERNAL * internal = (INTERNAL *)(((CMAP_PROTOTYPESTORE *)lc) + 1);
   CMAP_PROTOTYPESTORE_LOOP(DEC_REFS)
-  CMAP_KERNEL_FREE(internal);
 
   cmap_lifecycle_public.delete(lc);
 }
@@ -88,17 +88,17 @@ static void delete(CMAP_LIFECYCLE * lc)
 static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
-  CMAP_MEM_ALLOC_PTR(this, CMAP_PROTOTYPESTORE, mem);
+  CMAP_PROTOTYPESTORE * this = (CMAP_PROTOTYPESTORE *)mem -> alloc(
+    sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   cmap_lifecycle_public.init(lc, proc_ctx);
   lc -> delete = delete;
   lc -> nature = nature;
 
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
+  INTERNAL * internal = (INTERNAL *)(this + 1);
   CMAP_PROTOTYPESTORE_LOOP(INIT_INTERNAL)
 
-  this -> internal = internal;
   CMAP_PROTOTYPESTORE_LOOP(INIT_THIS)
 
   return this;

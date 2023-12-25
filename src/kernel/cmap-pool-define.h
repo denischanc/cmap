@@ -11,8 +11,6 @@ struct CMAP_POOL_##TYPE \
 { \
   CMAP_LIFECYCLE super; \
  \
-  void * internal; \
- \
   CMAP_##TYPE * (*take)(CMAP_POOL_##TYPE * this, CMAP_PROC_CTX * proc_ctx); \
   void (*release)(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e); \
 }; \

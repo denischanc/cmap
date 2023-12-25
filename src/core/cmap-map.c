@@ -187,7 +187,7 @@ static void apply_apply(CMAP_TREE_APPLY * this, void ** node, void * data)
   }
 }
 
-CMAP_TREE_APPLY(apply_apply_tree, NULL, NULL, apply_apply, NULL);
+CMAP_TREE_APPLY(apply_apply_tree, NULL, apply_apply, NULL);
 
 static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 {
@@ -212,7 +212,7 @@ static void delete_apply(CMAP_TREE_APPLY * this, void ** node, void * data)
   CMAP_MEM_FREE(entry, mem);
 }
 
-CMAP_TREE_APPLY(delete_apply_tree, NULL, NULL, NULL, delete_apply);
+CMAP_TREE_APPLY(delete_apply_tree, NULL, NULL, delete_apply);
 
 static void delete(CMAP_LIFECYCLE * this)
 {

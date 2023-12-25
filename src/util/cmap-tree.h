@@ -27,8 +27,6 @@ typedef void (*CMAP_TREE_APPLY_FN)(CMAP_TREE_APPLY * this, void ** node,
 
 struct CMAP_TREE_APPLY
 {
-  void * internal;
-
   CMAP_TREE_APPLY_FN before, between, after;
 };
 
