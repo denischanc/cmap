@@ -35,12 +35,12 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 /*******************************************************************************
 *******************************************************************************/
 
-static void dec_nested_refs_apply(CMAP_LIFECYCLE *** lc, void * data)
+static void dec_nested_refs_apply(CMAP_LIFECYCLE ** lc, void * data)
 {
-  if(**lc != NULL)
+  if(*lc != NULL)
   {
-    CMAP_DEC_REFS(**lc);
-    **lc = NULL;
+    CMAP_DEC_REFS(*lc);
+    *lc = NULL;
   }
 }
 
@@ -67,11 +67,11 @@ typedef struct
 static void all_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
   CMAP_STACK_LC_PTR * crefs, CMAP_SET_lc ** visit);
 
-static void all_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
+static void all_crefs_apply(CMAP_LIFECYCLE ** lc, void * data)
 {
   ALL_CREFS_APPLY_DATA * data_ = (ALL_CREFS_APPLY_DATA *)data;
-  if(**lc == data_ -> org) CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
-  else if(**lc != NULL) all_cycling_refs(**lc, data_ -> org, data_ -> crefs,
+  if(*lc == data_ -> org) CMAP_CALL_ARGS(data_ -> crefs, push, lc);
+  else if(*lc != NULL) all_cycling_refs(*lc, data_ -> org, data_ -> crefs,
     data_ -> visit);
 }
 
@@ -110,9 +110,9 @@ static char stay_future_zombie(CMAP_LIFECYCLE * visited)
   return ((crefs_size == 0) || (CMAP_CALL(visited, nb_refs) == crefs_size));
 }
 
-static void zombie_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
+static void zombie_crefs_apply(CMAP_LIFECYCLE ** lc, void * data)
 {
-  **lc = NULL;
+  *lc = NULL;
 }
 
 static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)

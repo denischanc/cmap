@@ -41,8 +41,7 @@ static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_PROC_CTX ** proc_ctx = CMAP_CALL(internal -> proc_ctx, last);
-  return (proc_ctx == NULL) ? NULL : *proc_ctx;
+  return CMAP_CALL(internal -> proc_ctx, last);
 }
 
 /*******************************************************************************

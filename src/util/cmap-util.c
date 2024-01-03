@@ -158,6 +158,20 @@ static void dec_w_max(int * i, int max)
   else *i = max - 1;
 }
 
+static void add_w_max(int * i, int v, int max)
+{
+  (*i) += v;
+  if(*i < 0) while(*i < 0) (*i) += max;
+  else if(*i >= max) while(*i >= max) (*i) -= max;
+}
+
+static void rm_w_max(int * i, int v, int max)
+{
+  (*i) -= v;
+  if(*i < 0) while(*i < 0) (*i) += max;
+  else if(*i >= max) while(*i >= max) (*i) -= max;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -170,5 +184,5 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   dup_string,
   strdup_,
   is_val,
-  inc_w_max, dec_w_max
+  inc_w_max, dec_w_max, add_w_max, rm_w_max
 };
