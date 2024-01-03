@@ -278,12 +278,11 @@ static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
 static void name##_add(CMAP_STACK_##NAME * this, int i, type v) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
- \
-  if(i < 0) i = 0; \
-  else if(i > internal -> size) i = internal -> size; \
- \
-  if(i <= (internal -> size >> 1)) name##_add_begin(internal, i, v); \
-  else name##_add_end(internal, internal -> size - i, v); \
+  if((i >= 0) && (i <= internal -> size)) \
+  { \
+    if(i <= (internal -> size >> 1)) name##_add_begin(internal, i, v); \
+    else name##_add_end(internal, internal -> size - i, v); \
+  } \
 } \
  \
 /***************************************************************************** \
@@ -412,12 +411,12 @@ static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
 static type name##_rm(CMAP_STACK_##NAME * this, int i) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
- \
-  if(i < 0) i = 0; \
-  else if(i >= internal -> size) i = internal -> size - 1; \
- \
-  if(i < (internal -> size >> 1)) return name##_rm_begin(internal, i); \
-  else return name##_rm_end(internal, internal -> size - 1 - i); \
+  if((i < 0) || (i >= internal -> size)) return dft; \
+  else \
+  { \
+    if(i < (internal -> size >> 1)) return name##_rm_begin(internal, i); \
+    else return name##_rm_end(internal, internal -> size - 1 - i); \
+  } \
 } \
  \
 /***************************************************************************** \
