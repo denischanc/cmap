@@ -9,7 +9,6 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-prototypestore.h"
 #include "cmap-list.h"
-#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -156,8 +155,6 @@ static void delete_arg_name_apply(char * arg_name, void * data)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
-
   INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
   if(internal -> arg_names != NULL)

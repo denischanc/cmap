@@ -6,6 +6,7 @@
 #include "cmap-mem.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-env.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -73,6 +74,8 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
+  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
+
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_FREE(this -> internal, mem);
   CMAP_MEM_FREE(this, mem);

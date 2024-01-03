@@ -5,7 +5,6 @@
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -54,8 +53,6 @@ static void ** ref(CMAP_PTR * this)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
-
   INTERNAL * internal = (INTERNAL *)((CMAP_PTR *)this) -> internal;
 
   if(internal -> delete_ptr != NULL)
