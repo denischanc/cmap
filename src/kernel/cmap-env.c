@@ -11,7 +11,7 @@
 
 typedef struct
 {
-  CMAP_STACK_PROC_CTX * proc_ctx;
+  CMAP_SLIST_PROC_CTX * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
 
@@ -153,7 +153,7 @@ static CMAP_ENV * create(int argc, char ** argv)
     sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  internal -> proc_ctx = cmap_stack_proc_ctx_public.create(0);
+  internal -> proc_ctx = cmap_slist_proc_ctx_public.create(0);
   internal -> prototypestore = NULL;
   internal -> pool_list = NULL;
   internal -> pool_string = NULL;

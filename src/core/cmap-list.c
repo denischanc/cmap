@@ -40,15 +40,15 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static void nested_apply(CMAP_MAP ** val, void * data)
 {
-  CMAP_STACK_LC_PTR * stack = (CMAP_STACK_LC_PTR *)data;
-  CMAP_CALL_ARGS(stack, push, (CMAP_LIFECYCLE **)val);
+  CMAP_SLIST_LC_PTR * list = (CMAP_SLIST_LC_PTR *)data;
+  CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)val);
 }
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack)
+static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
-  CMAP_CALL_ARGS((CMAP_LIST *)this, apply, nested_apply, stack);
+  CMAP_CALL_ARGS((CMAP_LIST *)this, apply, nested_apply, list);
 
-  cmap_map_public.nested(this, stack);
+  cmap_map_public.nested(this, list);
 }
 
 /*******************************************************************************

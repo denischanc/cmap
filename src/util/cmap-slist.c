@@ -1,5 +1,5 @@
 
-#include "cmap-stack.h"
+#include "cmap-slist.h"
 
 #include <stdlib.h>
 #include "cmap-kernel.h"
@@ -84,7 +84,7 @@ static void name##_delete_last(NAME##_INTERNAL * internal) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_push(CMAP_STACK_##NAME * this, type v) \
+static void name##_push(CMAP_SLIST_##NAME * this, type v) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * last = internal -> last; \
@@ -104,7 +104,7 @@ static void name##_push(CMAP_STACK_##NAME * this, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_pop(CMAP_STACK_##NAME * this) \
+static type name##_pop(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * last = internal -> last; \
@@ -126,7 +126,7 @@ static type name##_pop(CMAP_STACK_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_unshift(CMAP_STACK_##NAME * this, type v) \
+static void name##_unshift(CMAP_SLIST_##NAME * this, type v) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = internal -> first; \
@@ -146,7 +146,7 @@ static void name##_unshift(CMAP_STACK_##NAME * this, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_shift(CMAP_STACK_##NAME * this) \
+static type name##_shift(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = internal -> first; \
@@ -275,7 +275,7 @@ static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_add(CMAP_STACK_##NAME * this, int i, type v) \
+static void name##_add(CMAP_SLIST_##NAME * this, int i, type v) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   if((i >= 0) && (i <= internal -> size)) \
@@ -408,7 +408,7 @@ static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_rm(CMAP_STACK_##NAME * this, int i) \
+static type name##_rm(CMAP_SLIST_##NAME * this, int i) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   if((i < 0) || (i >= internal -> size)) return dft; \
@@ -436,7 +436,7 @@ static NAME##_CHUNK * name##_get_chunk(NAME##_INTERNAL * internal, int * i) \
   return chunk; \
 } \
  \
-static type * name##_get_ptr(CMAP_STACK_##NAME * this, int i) \
+static type * name##_get_ptr(CMAP_SLIST_##NAME * this, int i) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * chunk = name##_get_chunk(internal, &i); \
@@ -449,14 +449,14 @@ static type * name##_get_ptr(CMAP_STACK_##NAME * this, int i) \
   } \
 } \
  \
-static type name##_get(CMAP_STACK_##NAME * this, int i) \
+static type name##_get(CMAP_SLIST_##NAME * this, int i) \
 { \
   type * v_ptr = name##_get_ptr(this, i); \
   if(v_ptr == NULL) return dft; \
   else return *v_ptr; \
 } \
  \
-static void name##_set(CMAP_STACK_##NAME * this, int i, type v) \
+static void name##_set(CMAP_SLIST_##NAME * this, int i, type v) \
 { \
   type * v_ptr = name##_get_ptr(this, i); \
   if(v_ptr != NULL) *v_ptr = v; \
@@ -465,7 +465,7 @@ static void name##_set(CMAP_STACK_##NAME * this, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_first(CMAP_STACK_##NAME * this) \
+static type name##_first(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = internal -> first; \
@@ -473,7 +473,7 @@ static type name##_first(CMAP_STACK_##NAME * this) \
   else return ((type *)(first + 1))[first -> start]; \
 } \
  \
-static type name##_last(CMAP_STACK_##NAME * this) \
+static type name##_last(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * last = internal -> last; \
@@ -489,7 +489,7 @@ static type name##_last(CMAP_STACK_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static int name##_size(CMAP_STACK_##NAME * this) \
+static int name##_size(CMAP_SLIST_##NAME * this) \
 { \
   return ((NAME##_INTERNAL *)(this + 1)) -> size; \
 } \
@@ -497,7 +497,7 @@ static int name##_size(CMAP_STACK_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_clean(CMAP_STACK_##NAME * this) \
+static void name##_clean(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   while(internal -> first != internal -> last) name##_delete_last(internal); \
@@ -511,8 +511,8 @@ static void name##_clean(CMAP_STACK_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_apply(CMAP_STACK_##NAME * this, \
-  CMAP_STACK_##NAME##_APPLY_FN fn, void * data) \
+static void name##_apply(CMAP_SLIST_##NAME * this, \
+  CMAP_SLIST_##NAME##_APPLY_FN fn, void * data) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * chunk = internal -> first; \
@@ -538,7 +538,7 @@ static void name##_apply(CMAP_STACK_##NAME * this, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_delete_all_chunk(CMAP_STACK_##NAME * this) \
+static void name##_delete_all_chunk(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * chunk = internal -> first; \
@@ -550,13 +550,13 @@ static void name##_delete_all_chunk(CMAP_STACK_##NAME * this) \
   } \
 } \
  \
-static void name##_delete(CMAP_STACK_##NAME * this) \
+static void name##_delete(CMAP_SLIST_##NAME * this) \
 { \
   name##_delete_all_chunk(this); \
   CMAP_KERNEL_FREE(this); \
 } \
  \
-static void name##_init(CMAP_STACK_##NAME * this, int chunk_size) \
+static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = (NAME##_CHUNK *)(internal + 1); \
@@ -591,16 +591,16 @@ static void name##_init(CMAP_STACK_##NAME * this, int chunk_size) \
  \
 static int name##_sizeof(int chunk_size) \
 { \
-  return sizeof(CMAP_STACK_##NAME) + sizeof(NAME##_INTERNAL) + \
+  return sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
     sizeof(NAME##_CHUNK) + chunk_size * sizeof(type); \
 } \
  \
-static CMAP_STACK_##NAME * name##_create(int chunk_size) \
+static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
   chunk_size = (chunk_size == 0) ? 1 << 10 : chunk_size; \
  \
   CMAP_MEM * mem = CMAP_KERNEL_MEM; \
-  CMAP_STACK_##NAME * this = (CMAP_STACK_##NAME *) \
+  CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *) \
     mem -> alloc(name##_sizeof(chunk_size)); \
   name##_init(this, chunk_size); \
   return this; \
@@ -609,7 +609,7 @@ static CMAP_STACK_##NAME * name##_create(int chunk_size) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-const CMAP_STACK_##NAME##_PUBLIC cmap_stack_##name##_public = \
+const CMAP_SLIST_##NAME##_PUBLIC cmap_slist_##name##_public = \
 { \
   name##_create \
 };

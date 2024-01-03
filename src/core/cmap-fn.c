@@ -20,7 +20,7 @@ typedef struct
 
   CMAP_MAP * definitions;
 
-  CMAP_STACK_CHAR_PTR * arg_names;
+  CMAP_SLIST_CHAR_PTR * arg_names;
 } INTERNAL;
 
 /*******************************************************************************
@@ -41,13 +41,13 @@ static const char * nature(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack)
+static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL)
-    CMAP_CALL_ARGS((CMAP_LIFECYCLE *)internal -> definitions, nested, stack);
+    CMAP_CALL_ARGS((CMAP_LIFECYCLE *)internal -> definitions, nested, list);
 
-  cmap_map_public.nested(this, stack);
+  cmap_map_public.nested(this, list);
 }
 
 /*******************************************************************************
@@ -71,7 +71,7 @@ static void add_arg_name(CMAP_FN * this, const char * arg_name)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   if(internal -> arg_names == NULL)
-    internal -> arg_names = cmap_stack_char_ptr_public.create(1 << 4);
+    internal -> arg_names = cmap_slist_char_ptr_public.create(1 << 4);
   CMAP_CALL_ARGS(internal -> arg_names, push,
     cmap_util_public.strdup(arg_name));
 }

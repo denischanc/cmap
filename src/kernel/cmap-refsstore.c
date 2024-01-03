@@ -4,7 +4,7 @@
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-set.h"
-#include "cmap-stack.h"
+#include "cmap-slist.h"
 #include "cmap-log.h"
 #include "cmap-lifecycle.h"
 
@@ -46,10 +46,10 @@ static void dec_nested_refs_apply(CMAP_LIFECYCLE ** lc, void * data)
 
 static void delete_with_nested(CMAP_LIFECYCLE * lc)
 {
-  CMAP_STACK_LC_PTR * nested_stack = cmap_stack_lc_ptr_public.create(0);
-  CMAP_CALL_ARGS(lc, nested, nested_stack);
-  CMAP_CALL_ARGS(nested_stack, apply, dec_nested_refs_apply, NULL);
-  CMAP_CALL(nested_stack, delete);
+  CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
+  CMAP_CALL_ARGS(lc, nested, nested_list);
+  CMAP_CALL_ARGS(nested_list, apply, dec_nested_refs_apply, NULL);
+  CMAP_CALL(nested_list, delete);
 
   CMAP_CALL(lc, delete);
 }
@@ -60,12 +60,12 @@ static void delete_with_nested(CMAP_LIFECYCLE * lc)
 typedef struct
 {
   CMAP_LIFECYCLE * org;
-  CMAP_STACK_LC_PTR * crefs;
+  CMAP_SLIST_LC_PTR * crefs;
   CMAP_SET_lc ** visit;
 } ALL_CREFS_APPLY_DATA;
 
 static void all_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
-  CMAP_STACK_LC_PTR * crefs, CMAP_SET_lc ** visit);
+  CMAP_SLIST_LC_PTR * crefs, CMAP_SET_lc ** visit);
 
 static void all_crefs_apply(CMAP_LIFECYCLE ** lc, void * data)
 {
@@ -76,21 +76,21 @@ static void all_crefs_apply(CMAP_LIFECYCLE ** lc, void * data)
 }
 
 static void all_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
-  CMAP_STACK_LC_PTR * crefs, CMAP_SET_lc ** visit)
+  CMAP_SLIST_LC_PTR * crefs, CMAP_SET_lc ** visit)
 {
   if(cmap_set_lc_public.add(visit, lc))
   {
-    CMAP_STACK_LC_PTR * nested_stack = cmap_stack_lc_ptr_public.create(0);
-    CMAP_CALL_ARGS(lc, nested, nested_stack);
+    CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
+    CMAP_CALL_ARGS(lc, nested, nested_list);
     ALL_CREFS_APPLY_DATA data = { org, crefs, visit };
-    CMAP_CALL_ARGS(nested_stack, apply, all_crefs_apply, &data);
-    CMAP_CALL(nested_stack, delete);
+    CMAP_CALL_ARGS(nested_list, apply, all_crefs_apply, &data);
+    CMAP_CALL(nested_list, delete);
   }
 }
 
-static CMAP_STACK_LC_PTR * get_cycling_refs(CMAP_LIFECYCLE * lc)
+static CMAP_SLIST_LC_PTR * get_cycling_refs(CMAP_LIFECYCLE * lc)
 {
-  CMAP_STACK_LC_PTR * crefs = cmap_stack_lc_ptr_public.create(0);
+  CMAP_SLIST_LC_PTR * crefs = cmap_slist_lc_ptr_public.create(0);
 
   CMAP_SET_lc * visit = NULL;
   all_cycling_refs(lc, lc, crefs, &visit);
@@ -104,7 +104,7 @@ static CMAP_STACK_LC_PTR * get_cycling_refs(CMAP_LIFECYCLE * lc)
 
 static char stay_future_zombie(CMAP_LIFECYCLE * visited)
 {
-  CMAP_STACK_LC_PTR * crefs = get_cycling_refs(visited);
+  CMAP_SLIST_LC_PTR * crefs = get_cycling_refs(visited);
   int crefs_size = CMAP_CALL(crefs, size);
   CMAP_CALL(crefs, delete);
   return ((crefs_size == 0) || (CMAP_CALL(visited, nb_refs) == crefs_size));
@@ -119,7 +119,7 @@ static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)
 {
   char ret = CMAP_T;
 
-  CMAP_STACK_LC_PTR * crefs = cmap_stack_lc_ptr_public.create(0);
+  CMAP_SLIST_LC_PTR * crefs = cmap_slist_lc_ptr_public.create(0);
   CMAP_SET_lc * visit = NULL;
   all_cycling_refs(lc, lc, crefs, &visit);
 

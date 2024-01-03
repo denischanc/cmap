@@ -33,7 +33,7 @@ typedef struct
   void (*init)(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx);
   void (*delete)(CMAP_LIFECYCLE * this);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
 
   CMAP_MAP * (*set)(CMAP_MAP * this, const char * key, CMAP_MAP * val);
   CMAP_MAP * (*get)(CMAP_MAP * this, const char * key);

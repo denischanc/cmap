@@ -64,7 +64,7 @@ static void dec_refs_only(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack)
+static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
 }
 

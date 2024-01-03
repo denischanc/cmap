@@ -4,7 +4,7 @@
 #include "cmap-lifecycle-type.h"
 #include "cmap-lifecycle-define.h"
 #include "cmap-proc-ctx-type.h"
-#include "cmap-stack.h"
+#include "cmap-slist.h"
 
 struct CMAP_LIFECYCLE
 {
@@ -19,7 +19,7 @@ struct CMAP_LIFECYCLE
   void (*dec_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only)(CMAP_LIFECYCLE * this);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
 };
 
 typedef struct
@@ -32,7 +32,7 @@ typedef struct
   void (*dec_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only)(CMAP_LIFECYCLE * this);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_STACK_LC_PTR * stack);
+  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;
