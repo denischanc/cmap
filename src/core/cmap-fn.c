@@ -85,10 +85,10 @@ typedef struct
   CMAP_MAP * definitions;
 } ARG_NAME_APPLY_DATA;
 
-static void arg_name_apply(char * arg_name, void * data)
+static void arg_name_apply(char ** arg_name, void * data)
 {
   ARG_NAME_APPLY_DATA * data_ = (ARG_NAME_APPLY_DATA *)data;
-  CMAP_SET(data_ -> definitions, arg_name,
+  CMAP_SET(data_ -> definitions, *arg_name,
     CMAP_LIST_GET(data_ -> args, data_ -> off++));
 }
 
@@ -148,9 +148,9 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_arg_name_apply(char * arg_name, void * data)
+static void delete_arg_name_apply(char ** arg_name, void * data)
 {
-  CMAP_KERNEL_FREE(arg_name);
+  CMAP_KERNEL_FREE(*arg_name);
 }
 
 static void delete(CMAP_LIFECYCLE * this)

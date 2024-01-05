@@ -5,7 +5,6 @@
 #include "cmap-map-type.h"
 #include "cmap-lifecycle-type.h"
 
-CMAP_SET_DECL(map, CMAP_MAP *)
-CMAP_SET_DECL(lc, CMAP_LIFECYCLE *)
+CMAP_SET_LOOP(CMAP_SET_DECL)
 
 #endif

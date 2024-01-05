@@ -436,7 +436,7 @@ static NAME##_CHUNK * name##_get_chunk(NAME##_INTERNAL * internal, int * i) \
   return chunk; \
 } \
  \
-static type * name##_get_ptr(CMAP_SLIST_##NAME * this, int i) \
+static type * name##_get(CMAP_SLIST_##NAME * this, int i) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * chunk = name##_get_chunk(internal, &i); \
@@ -449,40 +449,27 @@ static type * name##_get_ptr(CMAP_SLIST_##NAME * this, int i) \
   } \
 } \
  \
-static type name##_get(CMAP_SLIST_##NAME * this, int i) \
-{ \
-  type * v_ptr = name##_get_ptr(this, i); \
-  if(v_ptr == NULL) return dft; \
-  else return *v_ptr; \
-} \
- \
-static void name##_set(CMAP_SLIST_##NAME * this, int i, type v) \
-{ \
-  type * v_ptr = name##_get_ptr(this, i); \
-  if(v_ptr != NULL) *v_ptr = v; \
-} \
- \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_first(CMAP_SLIST_##NAME * this) \
+static type * name##_first(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = internal -> first; \
-  if(first -> size <= 0) return dft; \
-  else return ((type *)(first + 1))[first -> start]; \
+  if(first -> size <= 0) return NULL; \
+  else return ((type *)(first + 1)) + first -> start; \
 } \
  \
-static type name##_last(CMAP_SLIST_##NAME * this) \
+static type * name##_last(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * last = internal -> last; \
-  if(last -> size <= 0) return dft; \
+  if(last -> size <= 0) return NULL; \
   else \
   { \
     int stop = last -> stop; \
     cmap_util_public.dec_w_max(&stop, internal -> chunk_size); \
-    return ((type *)(last + 1))[stop]; \
+    return ((type *)(last + 1)) + stop; \
   } \
 } \
  \
@@ -523,11 +510,11 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
       int off = chunk -> start; \
       type * v_ptr = (type *)(chunk + 1); \
       /* It is possible that start == stop */ \
-      fn(v_ptr[off], data); \
+      fn(v_ptr + off, data); \
       cmap_util_public.inc_w_max(&off, internal -> chunk_size); \
       while(off != chunk -> stop) \
       { \
-        fn(v_ptr[off], data); \
+        fn(v_ptr + off, data); \
         cmap_util_public.inc_w_max(&off, internal -> chunk_size); \
       } \
     } \
@@ -581,7 +568,6 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
   this -> add = name##_add; \
   this -> rm = name##_rm; \
   this -> get = name##_get; \
-  this -> set = name##_set; \
   this -> first = name##_first; \
   this -> last = name##_last; \
   this -> size = name##_size; \
@@ -609,15 +595,9 @@ static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-const CMAP_SLIST_##NAME##_PUBLIC cmap_slist_##name##_public = \
-{ \
-  name##_create \
-};
+const CMAP_SLIST_##NAME##_PUBLIC cmap_slist_##name##_public = { name##_create };
 
 /*******************************************************************************
 *******************************************************************************/
 
-IMPL(LC, lc, CMAP_LIFECYCLE *, NULL)
-IMPL(LC_PTR, lc_ptr, CMAP_LIFECYCLE **, NULL)
-IMPL(PROC_CTX, proc_ctx, CMAP_PROC_CTX *, NULL)
-IMPL(CHAR_PTR, char_ptr, char *, NULL)
+CMAP_SLIST_LOOP(IMPL)

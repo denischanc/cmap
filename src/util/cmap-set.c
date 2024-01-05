@@ -4,7 +4,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_EVALFN_IMPL(name, type) \
+#define CMAP_SET_PTR_EVALFN_IMPL(name, type) \
 static int CMAP_TREE_EVALFN_NAME(name)(CMAP_TREE_RUNNER * this, \
   void * node, void * data) \
 { \
@@ -19,8 +19,7 @@ static int CMAP_TREE_EVALFN_NAME(name)(CMAP_TREE_RUNNER * this, \
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_SET_IMPL(map, CMAP_MAP *)
-CMAP_SET_EVALFN_IMPL(map, CMAP_MAP *)
+CMAP_SET_LOOP(CMAP_SET_IMPL)
 
-CMAP_SET_IMPL(lc, CMAP_LIFECYCLE *)
-CMAP_SET_EVALFN_IMPL(lc, CMAP_LIFECYCLE *)
+CMAP_SET_PTR_EVALFN_IMPL(map, CMAP_MAP *)
+CMAP_SET_PTR_EVALFN_IMPL(lc, CMAP_LIFECYCLE *)

@@ -15,12 +15,12 @@ typedef struct
   int inc;
 } APPLY_DATA;
 
-static void apply(CMAP_LIFECYCLE * lc, void * data)
+static void apply(CMAP_LIFECYCLE ** lc, void * data)
 {
   APPLY_DATA * data_ = (APPLY_DATA *)data;
-  printf("lc = [%p]\n", lc);
+  printf("lc = [%p]\n", *lc);
   printf("data_ -> ptr = [%p]\n", data_ -> ptr);
-  CMAP_TEST_ASSERT_NOMSG(lc == data_ -> ptr);
+  CMAP_TEST_ASSERT_NOMSG(*lc == data_ -> ptr);
   data_ -> ptr = (CMAP_LIFECYCLE *)(((void *)data_ -> ptr) + data_ -> inc);
 }
 
