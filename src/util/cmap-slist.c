@@ -2,6 +2,7 @@
 #include "cmap-slist.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-util.h"
 
@@ -275,14 +276,16 @@ static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_add(CMAP_SLIST_##NAME * this, int i, type v) \
+static char name##_add(CMAP_SLIST_##NAME * this, int i, type v) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   if((i >= 0) && (i <= internal -> size)) \
   { \
     if(i <= (internal -> size >> 1)) name##_add_begin(internal, i, v); \
     else name##_add_end(internal, internal -> size - i, v); \
+    return CMAP_T; \
   } \
+  return CMAP_F; \
 } \
  \
 /***************************************************************************** \
@@ -525,7 +528,7 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_delete_all_chunk(CMAP_SLIST_##NAME * this) \
+static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * chunk = internal -> first; \
@@ -539,7 +542,7 @@ static void name##_delete_all_chunk(CMAP_SLIST_##NAME * this) \
  \
 static void name##_delete(CMAP_SLIST_##NAME * this) \
 { \
-  name##_delete_all_chunk(this); \
+  name##_delete_chunks(this); \
   CMAP_KERNEL_FREE(this); \
 } \
  \
@@ -575,19 +578,14 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
   this -> apply = name##_apply; \
 } \
  \
-static int name##_sizeof(int chunk_size) \
-{ \
-  return sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
-    sizeof(NAME##_CHUNK) + chunk_size * sizeof(type); \
-} \
- \
 static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
-  chunk_size = (chunk_size == 0) ? 1 << 10 : chunk_size; \
+  chunk_size = (chunk_size == 0) ? 1 << 8 : chunk_size; \
  \
   CMAP_MEM * mem = CMAP_KERNEL_MEM; \
-  CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *) \
-    mem -> alloc(name##_sizeof(chunk_size)); \
+  CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)mem -> alloc( \
+    sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
+    sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
   name##_init(this, chunk_size); \
   return this; \
 } \

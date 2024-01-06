@@ -9,15 +9,15 @@
 /*******************************************************************************
 *******************************************************************************/
 
+#define POOL_VAR(TYPE, type) CMAP_POOL_##TYPE * pool_##type;
+
 typedef struct
 {
   CMAP_SLIST_PROC_CTX * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
 
-  CMAP_POOL_LIST * pool_list;
-  CMAP_POOL_STRING * pool_string;
-  CMAP_POOL_INT * pool_int;
+  CMAP_POOL_LOOP(POOL_VAR)
 
   CMAP_MAP * global;
 
@@ -72,38 +72,21 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_POOL_LIST * pool_list(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
-{
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  if(internal -> pool_list == NULL)
-  {
-    internal -> pool_list = cmap_pool_list_public.create(20, proc_ctx);
-    CMAP_INC_REFS(internal -> pool_list);
-  }
-  return internal -> pool_list;
+#define POOL_IMPL(TYPE, type) \
+static CMAP_POOL_##TYPE * pool_##type(CMAP_ENV * this, \
+  CMAP_PROC_CTX * proc_ctx) \
+{ \
+  INTERNAL * internal = (INTERNAL *)(this + 1); \
+  if(internal -> pool_##type == NULL) \
+  { \
+    internal -> pool_##type = cmap_pool_##type##_public.create( \
+      1 << 10, proc_ctx); \
+    CMAP_INC_REFS(internal -> pool_##type); \
+  } \
+  return internal -> pool_##type; \
 }
 
-static CMAP_POOL_STRING * pool_string(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
-{
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  if(internal -> pool_string == NULL)
-  {
-    internal -> pool_string = cmap_pool_string_public.create(20, proc_ctx);
-    CMAP_INC_REFS(internal -> pool_string);
-  }
-  return internal -> pool_string;
-}
-
-static CMAP_POOL_INT * pool_int(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
-{
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  if(internal -> pool_int == NULL)
-  {
-    internal -> pool_int = cmap_pool_int_public.create(20, proc_ctx);
-    CMAP_INC_REFS(internal -> pool_int);
-  }
-  return internal -> pool_int;
-}
+CMAP_POOL_LOOP(POOL_IMPL)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -123,6 +106,13 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+#define POOL_DEC_REFS(TYPE, type) \
+  if(internal -> pool_##type != NULL) CMAP_DEC_REFS(internal -> pool_##type);
+
+#define POOL_SET(TYPE, type) internal -> pool_##type = NULL;
+
+#define POOL_FN_SET(TYPE, type) this -> pool_##type = pool_##type;
+
 static void delete(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
@@ -135,9 +125,7 @@ static void delete(CMAP_ENV * this)
 
   if(internal -> prototypestore != NULL)
     CMAP_DEC_REFS(internal -> prototypestore);
-  if(internal -> pool_list != NULL) CMAP_DEC_REFS(internal -> pool_list);
-  if(internal -> pool_string != NULL) CMAP_DEC_REFS(internal -> pool_string);
-  if(internal -> pool_int != NULL) CMAP_DEC_REFS(internal -> pool_int);
+  CMAP_POOL_LOOP(POOL_DEC_REFS)
   if(internal -> global != NULL) CMAP_DEC_REFS(internal -> global);
 
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
@@ -156,9 +144,7 @@ static CMAP_ENV * create(int argc, char ** argv)
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> proc_ctx = cmap_slist_proc_ctx_public.create(0);
   internal -> prototypestore = NULL;
-  internal -> pool_list = NULL;
-  internal -> pool_string = NULL;
-  internal -> pool_int = NULL;
+  CMAP_POOL_LOOP(POOL_SET)
   internal -> global = NULL;
   internal -> prev = NULL;
   internal -> next = envs;
@@ -170,9 +156,7 @@ static CMAP_ENV * create(int argc, char ** argv)
   this -> proc_ctx = proc_ctx;
   this -> pop_proc_ctx = pop_proc_ctx;
   this -> prototypestore = prototypestore;
-  this -> pool_list = pool_list;
-  this -> pool_string = pool_string;
-  this -> pool_int = pool_int;
+  CMAP_POOL_LOOP(POOL_FN_SET)
   this -> global = global;
 
   if(envs != NULL) ((INTERNAL *)(envs + 1)) -> prev = this;

@@ -1,8 +1,7 @@
 
 #include "cmap-pool.h"
 
-#include "cmap.h"
-#include "cmap-pool-handlers.h"
+#include "cmap-pool-handler.h"
 #include "cmap-mem.h"
 #include "cmap-kernel.h"
 #include "cmap-list.h"
@@ -19,7 +18,7 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_POOL_IMPL(TYPE, type) \
+#define IMPL(TYPE, type) \
 static const char * type##_nature(CMAP_LIFECYCLE * this) \
 { \
   return #type "_pool"; \
@@ -36,10 +35,8 @@ static void type##_delete(CMAP_LIFECYCLE * this) \
 static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)(this + 1); \
-  CMAP_LIST * list = internal -> list; \
- \
-  if(CMAP_CALL(list, size) > 0) return (CMAP_##TYPE *)CMAP_CALL(list, pop); \
+  CMAP_LIST * list = ((INTERNAL *)(this + 1)) -> list; \
+  if(CMAP_CALL(list, size) > 0) return (CMAP_##TYPE *)CMAP_LIST_POP(list); \
   else return cmap_pool_handler_##type##_public.create(proc_ctx); \
 } \
  \
@@ -77,14 +74,9 @@ static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
   return this; \
 } \
  \
-const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public = \
-{ \
-  type##_create \
-};
+const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public = { type##_create };
 
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_POOL_IMPL(LIST, list)
-CMAP_POOL_IMPL(STRING, string)
-CMAP_POOL_IMPL(INT, int)
+CMAP_POOL_LOOP(IMPL)

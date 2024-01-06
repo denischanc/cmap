@@ -21,8 +21,8 @@ noinst_HEADERS = \
   cmap-mem.h \
   cmap-pool-define.h \
   cmap-pool.h \
-  cmap-pool-handlers-define.h \
-  cmap-pool-handlers.h \
+  cmap-pool-handler-define.h \
+  cmap-pool-handler.h \
   cmap-proc-ctx.h \
   cmap-refsstore.h
 
@@ -35,7 +35,7 @@ libkernel_la_SOURCES = \
   cmap-log.c \
   cmap-mem.c \
   cmap-pool.c \
-  cmap-pool-handlers.c \
+  cmap-pool-handler.c \
   cmap-proc-ctx.c \
   cmap-refsstore.c
 libkernel_la_CFLAGS = $(CMAP_CFLAGS)

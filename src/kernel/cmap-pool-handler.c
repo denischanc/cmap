@@ -1,12 +1,10 @@
 
-#include "cmap-pool-handlers.h"
+#include "cmap-pool-handler.h"
 
-#include <stdlib.h>
 #include "cmap.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
 #include "cmap-int.h"
-#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/

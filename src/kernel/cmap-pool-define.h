@@ -3,8 +3,11 @@
 
 #include "cmap-lifecycle.h"
 #include "cmap-proc-ctx-type.h"
+#include "cmap-pool-handler-define.h"
 
-#define CMAP_POOL(TYPE, type) \
+#define CMAP_POOL_LOOP(macro) CMAP_POOL_HANDLER_LOOP(macro)
+
+#define CMAP_POOL_DECL(TYPE, type) \
 typedef struct CMAP_POOL_##TYPE CMAP_POOL_##TYPE; \
  \
 struct CMAP_POOL_##TYPE \

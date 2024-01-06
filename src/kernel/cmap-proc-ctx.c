@@ -34,23 +34,14 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_PROC_CTX * this)
   return CMAP_CALL_ARGS(env_, prototypestore, this);
 }
 
-static CMAP_POOL_LIST * pool_list(CMAP_PROC_CTX * this)
-{
-  CMAP_ENV * env_ = env(this);
-  return CMAP_CALL_ARGS(env_, pool_list, this);
+#define POOL_IMPL(TYPE, type) \
+static CMAP_POOL_##TYPE * pool_##type(CMAP_PROC_CTX * this) \
+{ \
+  CMAP_ENV * env_ = env(this); \
+  return CMAP_CALL_ARGS(env_, pool_##type, this); \
 }
 
-static CMAP_POOL_STRING * pool_string(CMAP_PROC_CTX * this)
-{
-  CMAP_ENV * env_ = env(this);
-  return CMAP_CALL_ARGS(env_, pool_string, this);
-}
-
-static CMAP_POOL_INT * pool_int(CMAP_PROC_CTX * this)
-{
-  CMAP_ENV * env_ = env(this);
-  return CMAP_CALL_ARGS(env_, pool_int, this);
-}
+CMAP_POOL_LOOP(POOL_IMPL)
 
 static CMAP_MAP * global_env(CMAP_PROC_CTX * this)
 {
@@ -81,6 +72,8 @@ static void local_refs_add(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc,
 
 /*******************************************************************************
 *******************************************************************************/
+
+#define POOL_FN_SET(TYPE, type) this -> pool_##type = pool_##type;
 
 static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
@@ -119,9 +112,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   this -> delete = delete;
   this -> env = env;
   this -> prototypestore = prototypestore;
-  this -> pool_list = pool_list;
-  this -> pool_string = pool_string;
-  this -> pool_int = pool_int;
+  CMAP_POOL_LOOP(POOL_FN_SET)
   this -> global_env = global_env;
   this -> local_definitions = local_definitions;
   this -> local_refs_add = local_refs_add;

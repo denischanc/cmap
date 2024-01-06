@@ -2,11 +2,13 @@
 #define __CMAP_SLIST_DEFINE_H__
 
 #include "cmap-lifecycle-type.h"
+#include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
 
 #define CMAP_SLIST_LOOP(macro) \
   macro(LC, lc, CMAP_LIFECYCLE *, NULL) \
   macro(LC_PTR, lc_ptr, CMAP_LIFECYCLE **, NULL) \
+  macro(MAP, map, CMAP_MAP *, NULL) \
   macro(PROC_CTX, proc_ctx, CMAP_PROC_CTX *, NULL) \
   macro(CHAR_PTR, char_ptr, char *, NULL)
 
@@ -25,7 +27,7 @@ struct CMAP_SLIST_##NAME \
   void (*unshift)(CMAP_SLIST_##NAME * this, type v); \
   type (*shift)(CMAP_SLIST_##NAME * this); \
  \
-  void (*add)(CMAP_SLIST_##NAME * this, int i, type v); \
+  char (*add)(CMAP_SLIST_##NAME * this, int i, type v); \
   type (*rm)(CMAP_SLIST_##NAME * this, int i); \
  \
   type * (*get)(CMAP_SLIST_##NAME * this, int i); \

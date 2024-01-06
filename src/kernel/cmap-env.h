@@ -7,6 +7,9 @@
 #include "cmap-pool.h"
 #include "cmap-prototypestore.h"
 
+#define CMAP_ENV_POOL_DECL(TYPE, type) \
+  CMAP_POOL_##TYPE * (*pool_##type)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
+
 struct CMAP_ENV
 {
   int argc;
@@ -21,9 +24,7 @@ struct CMAP_ENV
   CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_ENV * this,
     CMAP_PROC_CTX * proc_ctx);
 
-  CMAP_POOL_LIST * (*pool_list)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
-  CMAP_POOL_STRING * (*pool_string)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
-  CMAP_POOL_INT * (*pool_int)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
+  CMAP_POOL_LOOP(CMAP_ENV_POOL_DECL)
 
   CMAP_MAP * (*global)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
 };
