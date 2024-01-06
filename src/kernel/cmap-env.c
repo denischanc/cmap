@@ -79,8 +79,7 @@ static CMAP_POOL_##TYPE * pool_##type(CMAP_ENV * this, \
   INTERNAL * internal = (INTERNAL *)(this + 1); \
   if(internal -> pool_##type == NULL) \
   { \
-    internal -> pool_##type = cmap_pool_##type##_public.create( \
-      1 << 10, proc_ctx); \
+    internal -> pool_##type = cmap_pool_##type##_public.create(0, proc_ctx); \
     CMAP_INC_REFS(internal -> pool_##type); \
   } \
   return internal -> pool_##type; \
