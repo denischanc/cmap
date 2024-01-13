@@ -580,7 +580,7 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
  \
 static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
-  chunk_size = (chunk_size == 0) ? 1 << 8 : chunk_size; \
+  chunk_size = (chunk_size <= 0) ? 1 << 8 : chunk_size; \
  \
   CMAP_MEM * mem = CMAP_KERNEL_MEM; \
   CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)mem -> alloc( \
