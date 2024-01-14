@@ -23,7 +23,7 @@ typedef struct
 } INTERNAL;
 
 #ifdef CONSUMED_TIME
-static int64_t consumed_time_us = 0;
+static CMAP_CONSUMEDTIME_US consumed_time = {0};
 #endif
 
 /*******************************************************************************
@@ -227,15 +227,11 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
     internal -> nb_created);
 
 #ifdef CONSUMED_TIME
-  struct timeval tv;
-  cmap_consumedtime_public.start(&tv);
+  cmap_consumedtime_public.start(&consumed_time);
 #endif
   delete_refs(internal, (CMAP_LIFECYCLE *)ret);
 #ifdef CONSUMED_TIME
-  cmap_log_public.debug("[refsstore] Local consumed time (us) : [%ld].",
-    cmap_consumedtime_public.stop_us(&tv, &consumed_time_us));
-  cmap_log_public.debug("[refsstore] Global consumed time (us) : [%ld].",
-    consumed_time_us);
+  cmap_consumedtime_public.stop(&consumed_time);
 #endif
 
   CMAP_KERNEL_FREE(this);
@@ -260,4 +256,18 @@ static CMAP_REFSSTORE * create()
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_REFSSTORE_PUBLIC cmap_refsstore_public = { create };
+static void log_consumed_time(char lvl)
+{
+#ifdef CONSUMED_TIME
+  cmap_consumedtime_public.log(lvl, &consumed_time, "refsstore");
+#endif
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_REFSSTORE_PUBLIC cmap_refsstore_public =
+{
+  create,
+  log_consumed_time
+};

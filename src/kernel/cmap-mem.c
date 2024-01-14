@@ -74,7 +74,7 @@ static CMAP_MEM mem = {};
 static CMAP_MEM * mem_ptr = NULL;
 
 #ifdef CONSUMED_TIME
-static int64_t consumed_time_us = 0;
+static CMAP_CONSUMEDTIME_US consumed_time = {0};
 #endif
 
 /*******************************************************************************
@@ -266,8 +266,7 @@ static BLOCK_FREE * create_block_free(int alloc_size)
 static void * alloc(int size)
 {
 #ifdef CONSUMED_TIME
-  struct timeval tv;
-  cmap_consumedtime_public.start(&tv);
+  cmap_consumedtime_public.start(&consumed_time);
 #endif
 
   BLOCK_FREE * block = find_block_free(size);
@@ -290,7 +289,7 @@ static void * alloc(int size)
   }
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop_us(&tv, &consumed_time_us);
+  cmap_consumedtime_public.stop(&consumed_time);
 #endif
 
   return ret;
@@ -304,8 +303,7 @@ static void free_(void * ptr)
   if(ptr == NULL) return;
 
 #ifdef CONSUMED_TIME
-  struct timeval tv;
-  cmap_consumedtime_public.start(&tv);
+  cmap_consumedtime_public.start(&consumed_time);
 #endif
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
@@ -332,7 +330,7 @@ static void free_(void * ptr)
   }
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop_us(&tv, &consumed_time_us);
+  cmap_consumedtime_public.stop(&consumed_time);
 #endif
 }
 
@@ -384,11 +382,6 @@ static void upd_state(CMAP_MEM_STATE * state)
   state -> nb_block_free = 0;
   state -> size_alloc = 0;
   state -> size_free = 0;
-#ifdef CONSUMED_TIME
-  state -> consumed_time_us = consumed_time_us;
-#else
-  state -> consumed_time_us = 0;
-#endif
 
   CHUNK * chunk = internal.chunk_list;
   while(chunk != NULL)
@@ -418,9 +411,20 @@ static char is_this(CMAP_MEM * mem_)
 /*******************************************************************************
 *******************************************************************************/
 
+static void log_consumed_time(char lvl)
+{
+#ifdef CONSUMED_TIME
+  cmap_consumedtime_public.log(lvl, &consumed_time, "memory");
+#endif
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_MEM_PUBLIC cmap_mem_public =
 {
   instance,
   state,
-  is_this
+  is_this,
+  log_consumed_time
 };

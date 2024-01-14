@@ -2,31 +2,51 @@
 #include "cmap-consumedtime.h"
 
 #include <stdlib.h>
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void start(struct timeval * local_time)
+static void start(CMAP_CONSUMEDTIME_US * ct)
 {
-  gettimeofday(local_time, NULL);
+  gettimeofday(&ct -> tv, NULL);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int64_t stop_us(struct timeval * local_time, int64_t * global_time_us)
+static int64_t stop(CMAP_CONSUMEDTIME_US * ct)
 {
-  struct timeval cur_local_time;
-  gettimeofday(&cur_local_time, NULL);
+  struct timeval cur_tv;
+  gettimeofday(&cur_tv, NULL);
 
-  int diff_time_us = cur_local_time.tv_sec - local_time -> tv_sec;
-  diff_time_us *= 1000000;
-  diff_time_us += cur_local_time.tv_usec - local_time -> tv_usec;
-  if(global_time_us != NULL) (*global_time_us) += diff_time_us;
-  return diff_time_us;
+  int64_t diff_time = cur_tv.tv_sec - ct -> tv.tv_sec;
+  diff_time *= 1000000;
+  diff_time += cur_tv.tv_usec - ct -> tv.tv_usec;
+
+  if(ct -> min == 0) { ct -> min = diff_time; ct -> max = diff_time; }
+  else if(diff_time < ct -> min) ct -> min = diff_time;
+  else if(diff_time > ct -> max) ct -> max = diff_time;
+  ct -> nb++;
+  ct -> total += diff_time;
+
+  return diff_time;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CONSUMEDTIME_PUBLIC cmap_consumedtime_public = { start, stop_us };
+static void log_(char lvl, CMAP_CONSUMEDTIME_US * ct, const char * what)
+{
+  cmap_log_public.log(lvl, "Consumed time (us) in %s : %ld x %ld/%ld ~= %ld.",
+    what, ct -> nb, ct -> min, ct -> max, ct -> total);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_CONSUMEDTIME_PUBLIC cmap_consumedtime_public =
+{
+  start, stop,
+  log_
+};

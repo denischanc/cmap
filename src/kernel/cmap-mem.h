@@ -11,6 +11,8 @@ typedef struct
   CMAP_MEM_STATE * (*state)();
 
   char (*is_this)(CMAP_MEM * mem);
+
+  void (*log_consumed_time)(char lvl);
 } CMAP_MEM_PUBLIC;
 
 extern const CMAP_MEM_PUBLIC cmap_mem_public;

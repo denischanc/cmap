@@ -13,7 +13,6 @@ typedef struct
 {
   int nb_chunk, nb_block, nb_block_free,
     size_alloc, size_free;
-  int64_t consumed_time_us;
 } CMAP_MEM_STATE;
 
 #endif

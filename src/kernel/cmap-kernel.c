@@ -6,6 +6,7 @@
 #include "cmap-util.h"
 #include "cmap-log.h"
 #include "cmap-env.h"
+#include "cmap-refsstore.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -104,22 +105,27 @@ static void check_mem(int * ret)
 {
   if(cmap_mem_public.is_this(internal.mem))
   {
-    CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
-
-    int s = mem_state -> size_alloc;
+    int s = cmap_mem_public.state() -> size_alloc;
     cmap_log_public.info("Allocated memory size : [%d].", s);
     if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
 
 #ifdef CONSUMED_TIME
-    int64_t t = mem_state -> consumed_time_us;
-    cmap_log_public.info("Consumed time (us) in memory : [%ld].", t);
+    cmap_mem_public.log_consumed_time(CMAP_LOG_INFO);
 #endif
   }
+}
+
+static void check_refsstore()
+{
+#ifdef CONSUMED_TIME
+  cmap_refsstore_public.log_consumed_time(CMAP_LOG_INFO);
+#endif
 }
 
 static void check_all(int * ret)
 {
   check_mem(ret);
+  check_refsstore();
 }
 
 /*******************************************************************************

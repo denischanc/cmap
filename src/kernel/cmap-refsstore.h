@@ -16,6 +16,8 @@ struct CMAP_REFSSTORE
 typedef struct
 {
   CMAP_REFSSTORE * (*create)();
+
+  void (*log_consumed_time)(char lvl);
 } CMAP_REFSSTORE_PUBLIC;
 
 extern const CMAP_REFSSTORE_PUBLIC cmap_refsstore_public;
