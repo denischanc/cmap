@@ -2,7 +2,13 @@
 #include "cmap-tree.h"
 
 #include <stdlib.h>
+#include <sys/param.h>
 #include "cmap.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define NODE(runner, node_) runner -> node(node_)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -13,7 +19,7 @@ static void * find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
 
   while(tree != NULL)
   {
-    int v = CMAP_CALL_ARGS(runner, eval, tree, data);
+    int v = runner -> eval(tree, data);
     if(v == 0)
     {
       result = tree;
@@ -21,13 +27,13 @@ static void * find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
     }
     else if(v > 0)
     {
-      if(CMAP_CALL(runner, gt_usable)) result = tree;
-      tree = *(CMAP_CALL_ARGS(runner, lt, tree));
+      if(runner -> gt_usable) result = tree;
+      tree = NODE(runner, tree) -> lt;
     }
     else
     {
-      if(CMAP_CALL(runner, lt_usable)) result = tree;
-      tree = *(CMAP_CALL_ARGS(runner, ge, tree));
+      if(runner -> lt_usable) result = tree;
+      tree = NODE(runner, tree) -> gt;
     }
   }
 
@@ -37,35 +43,241 @@ static void * find(CMAP_TREE_RUNNER * runner, void * tree, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
+static inline void update_gt_lt(CMAP_TREE_RUNNER * runner, void * node,
+  CMAP_TREE_NODE * node_node, CMAP_TREE_NODE * old_node_node)
+{
+  void * gt = old_node_node -> gt;
+  node_node -> gt = gt;
+  if(gt != NULL) NODE(runner, gt) -> parent = node;
+
+  void * lt = old_node_node -> lt;
+  node_node -> lt = lt;
+  if(lt != NULL) NODE(runner, lt) -> parent = node;
+}
+
+static inline void update_eq(CMAP_TREE_RUNNER * runner, void * node,
+  CMAP_TREE_NODE * node_node, CMAP_TREE_NODE * old_node_node)
+{
+  void * eq = old_node_node -> eq;
+  node_node -> eq = eq;
+  if(eq != NULL) NODE(runner, eq) -> parent = node;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void init_node(CMAP_TREE_NODE * node_node, void * parent)
+{
+  node_node -> gt = NULL;
+  node_node -> eq = NULL;
+  node_node -> lt = NULL;
+  node_node -> parent = parent;
+  node_node -> depth = 0;
+  node_node -> size = 1;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline int depth(CMAP_TREE_RUNNER * runner, CMAP_TREE_NODE * node_node)
+{
+  void * gt = node_node -> gt, * lt = node_node -> lt;
+
+  if(gt == NULL)
+  {
+    if(lt == NULL) return 0;
+    else return (1 + NODE(runner, lt) -> depth);
+  }
+  else
+  {
+    if(lt == NULL) return (1 + NODE(runner, gt) -> depth);
+    else
+    {
+      int depth_gt = NODE(runner, gt) -> depth,
+        depth_lt = NODE(runner, lt) -> depth;
+      return (1 + MAX(depth_gt, depth_lt));
+    }
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void step_size_until(char step, void * stop,
+  CMAP_TREE_RUNNER * runner, void * from)
+{
+  char depth_updated = CMAP_T;
+  while(from != NULL)
+  {
+    CMAP_TREE_NODE * from_node = NODE(runner, from);
+    from_node -> size += step;
+
+    if(depth_updated)
+    {
+      int old_depth = from_node -> depth;
+      from_node -> depth = depth(runner, from_node);
+      depth_updated = (old_depth != from_node -> depth);
+    }
+
+    if(from == stop) return;
+    else from = from_node -> parent;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void inc_size_until(void * stop, CMAP_TREE_RUNNER * runner,
+  void * from)
+{
+  step_size_until(1, stop, runner, from);
+}
+
+static inline void dec_size_until(void * stop, CMAP_TREE_RUNNER * runner,
+  void * from)
+{
+  step_size_until(-1, stop, runner, from);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void add_eq(CMAP_TREE_RUNNER * runner, void * node, void * parent)
+{
+  CMAP_TREE_NODE * node_node = NODE(runner, node),
+    * parent_node = NODE(runner, parent);
+
+  node_node -> gt = NULL;
+  update_eq(runner, node, node_node, parent_node);
+  node_node -> lt = NULL;
+  node_node -> parent = parent;
+
+  parent_node -> eq = node;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
   void * data)
 {
-  *CMAP_CALL_ARGS(runner, ge, node) = NULL;
-  *CMAP_CALL_ARGS(runner, lt, node) = NULL;
-
   void * parent = NULL;
-
   while(*tree != NULL)
   {
     parent = *tree;
 
-    int v = CMAP_CALL_ARGS(runner, eval, parent, data);
-    if(v > 0) tree = CMAP_CALL_ARGS(runner, lt, parent);
-    else if(v < 0) tree = CMAP_CALL_ARGS(runner, ge, parent);
+    int v = runner -> eval(parent, data);
+    if(v > 0) tree = &NODE(runner, parent) -> lt;
+    else if(v < 0) tree = &NODE(runner, parent) -> gt;
     else
     {
-      tree = CMAP_CALL_ARGS(runner, ge, parent);
-      if(*tree != NULL)
-      {
-        *CMAP_CALL_ARGS(runner, ge, node) = *tree;
-        *CMAP_CALL_ARGS(runner, parent, *tree) = node;
-        *tree = NULL;
-      }
+      add_eq(runner, node, parent);
+      return;
     }
   }
 
+  init_node(NODE(runner, node), parent);
   *tree = node;
-  *CMAP_CALL_ARGS(runner, parent, node) = parent;
+  inc_size_until(NULL, runner, parent);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void * take_last_lt(CMAP_TREE_RUNNER * runner, void * node)
+{
+  void * lt = node;
+  CMAP_TREE_NODE * lt_node = NODE(runner, lt);
+
+  void * next = lt_node -> lt;
+  char first = CMAP_T;
+  while(next != NULL)
+  {
+    first = CMAP_F;
+    lt = next;
+    lt_node = NODE(runner, lt);
+    next = lt_node -> lt;
+  }
+
+  void * gt = lt_node -> gt, * parent = lt_node -> parent;
+  CMAP_TREE_NODE * parent_node = NODE(runner, parent);
+  if(first) parent_node -> gt = gt; else parent_node -> lt = gt;
+  if(gt != NULL) NODE(runner, gt) -> parent = parent;
+
+  if(lt != node) dec_size_until(node, runner, parent);
+
+  return lt;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void rm_eq(CMAP_TREE_RUNNER * runner, CMAP_TREE_NODE * node_node,
+  void * parent, CMAP_TREE_NODE * parent_node)
+{
+  void * eq = node_node -> eq;
+  if(eq != NULL)
+  {
+    CMAP_TREE_NODE * eq_node = NODE(runner, eq);
+    eq_node -> parent = parent;
+  }
+  parent_node -> eq = eq;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void rm_first_eq(CMAP_TREE_RUNNER * runner, void ** tree,
+  void * node, CMAP_TREE_NODE * node_node, CMAP_TREE_NODE * parent_node)
+{
+  void * eq = node_node -> eq;
+  CMAP_TREE_NODE * eq_node = NODE(runner, eq);
+  update_gt_lt(runner, eq, eq_node, node_node);
+  eq_node -> parent = node_node -> parent;
+  eq_node -> size = node_node -> size;
+  eq_node -> depth = node_node -> depth;
+
+  if(parent_node == NULL) *tree = eq;
+  else
+  {
+    if(parent_node -> gt == node) parent_node -> gt = eq;
+    else parent_node -> lt = eq;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline void rm_not_eq(CMAP_TREE_RUNNER * runner, void ** tree,
+  void * node, CMAP_TREE_NODE * node_node, void * parent,
+  CMAP_TREE_NODE * parent_node)
+{
+  void * repl = NULL, * gt = node_node -> gt, * lt = node_node -> lt;
+  CMAP_TREE_NODE * repl_node = NULL;
+
+  if(gt == NULL)
+  {
+    if(lt != NULL) { repl = lt; repl_node = NODE(runner, repl); }
+  }
+  else if(lt == NULL) { repl = gt; repl_node = NODE(runner, repl); }
+  else
+  {
+    repl = take_last_lt(runner, gt); repl_node = NODE(runner, repl);
+
+    update_gt_lt(runner, repl, repl_node, node_node);
+    repl_node -> size = node_node -> size - 1;
+    repl_node -> depth = depth(runner, repl_node);
+  }
+
+  if(repl_node != NULL) repl_node -> parent = parent;
+  if(parent == NULL) *tree = repl;
+  else
+  {
+    if(parent_node -> gt == node) parent_node -> gt = repl;
+    else parent_node -> lt = repl;
+
+    dec_size_until(*tree, runner, parent);
+  }
 }
 
 /*******************************************************************************
@@ -73,60 +285,47 @@ static void add(CMAP_TREE_RUNNER * runner, void ** tree, void * node,
 
 static void rm(CMAP_TREE_RUNNER * runner, void ** tree, void * node)
 {
-  void * repl, * parent;
+  CMAP_TREE_NODE * node_node = NODE(runner, node), * parent_node = NULL;
+  void * parent = node_node -> parent;
 
-  void ** ge = CMAP_CALL_ARGS(runner, ge, node);
-  void ** lt = CMAP_CALL_ARGS(runner, lt, node);
-  if(*ge == NULL) repl = *lt;
-  else if(*lt == NULL) repl = *ge;
-  else
+  if(parent != NULL) parent_node = NODE(runner, parent);
+
+  if((parent_node != NULL) && (parent_node -> eq == node))
   {
-    repl = *ge;
-
-    parent = repl;
-    void ** cur_ptr = CMAP_CALL_ARGS(runner, lt, repl);
-    while(*cur_ptr != NULL)
-    {
-      parent = *cur_ptr;
-      cur_ptr = CMAP_CALL_ARGS(runner, lt, parent);
-    }
-    *cur_ptr = *lt;
-    *CMAP_CALL_ARGS(runner, parent, *cur_ptr) = parent;
+    rm_eq(runner, node_node, parent, parent_node);
   }
-
-  parent = *CMAP_CALL_ARGS(runner, parent, node);
-  if(repl != NULL) *CMAP_CALL_ARGS(runner, parent, repl) = parent;
-
-  if(parent == NULL) *tree = repl;
+  else if(node_node -> eq != NULL)
+  {
+    rm_first_eq(runner, tree, node, node_node, parent_node);
+  }
   else
   {
-    void ** ge = CMAP_CALL_ARGS(runner, ge, parent);
-    if(*ge == node) *ge = repl;
-    else *CMAP_CALL_ARGS(runner, lt, parent) = repl;
+    rm_not_eq(runner, tree, node, node_node, parent, parent_node);
   }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void apply(CMAP_TREE_RUNNER * runner, void ** tree,
-  CMAP_TREE_APPLY * apply_, char ge_first, void * data)
+static void apply(CMAP_TREE_RUNNER * runner, void * tree,
+  CMAP_TREE_APPLY * apply_, char gt_first, void * data)
 {
-  void * node = *tree;
-  if(node != NULL)
+  if(tree != NULL)
   {
-    void ** ge = CMAP_CALL_ARGS(runner, ge, node);
-    void ** lt = CMAP_CALL_ARGS(runner, lt, node);
+    CMAP_TREE_NODE * tree_node = NODE(runner, tree);
+    void * gt = tree_node -> gt, * eq = tree_node -> eq, * lt = tree_node -> lt;
 
-    if(apply_ -> before != NULL) CMAP_CALL_ARGS(apply_, before, tree, data);
+    if(apply_ -> before != NULL) apply_ -> before(tree, data);
 
-    apply(runner, ge_first ? ge : lt, apply_, ge_first, data);
+    apply(runner, gt_first ? gt : lt, apply_, gt_first, data);
 
-    if(apply_ -> between != NULL) CMAP_CALL_ARGS(apply_, between, tree, data);
+    apply(runner, eq, apply_, gt_first, data);
 
-    apply(runner, ge_first ? lt : ge, apply_, ge_first, data);
+    if(apply_ -> between != NULL) apply_ -> between(tree, data);
 
-    if(apply_ -> after != NULL) CMAP_CALL_ARGS(apply_, after, tree, data);
+    apply(runner, gt_first ? lt : gt, apply_, gt_first, data);
+
+    if(apply_ -> after != NULL) apply_ -> after(tree, data);
   }
 }
 
@@ -134,13 +333,15 @@ static void apply(CMAP_TREE_RUNNER * runner, void ** tree,
 *******************************************************************************/
 
 static void clean(CMAP_TREE_RUNNER * runner, void ** tree,
-  CMAP_TREE_CLEAN_FN clean_node, void * data)
+  CMAP_TREE_APPLY_FN clean_node, void * data)
 {
   void * node = *tree;
   if(node != NULL)
   {
-    clean(runner, CMAP_CALL_ARGS(runner, ge, node), clean_node, data);
-    clean(runner, CMAP_CALL_ARGS(runner, lt, node), clean_node, data);
+    CMAP_TREE_NODE * node_node = NODE(runner, node);
+    clean(runner, &node_node -> gt, clean_node, data);
+    clean(runner, &node_node -> eq, clean_node, data);
+    clean(runner, &node_node -> lt, clean_node, data);
 
     clean_node(node, data);
 
@@ -151,26 +352,10 @@ static void clean(CMAP_TREE_RUNNER * runner, void ** tree,
 /*******************************************************************************
 *******************************************************************************/
 
-char cmap_tree_usable_true(CMAP_TREE_RUNNER * this)
+CMAP_TREE_NODE * cmap_tree_node(void * node)
 {
-  return CMAP_T;
+  return (CMAP_TREE_NODE *)node;
 }
-
-char cmap_tree_usable_false(CMAP_TREE_RUNNER * this)
-{
-  return CMAP_F;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define WAY_FN(way) \
-void ** cmap_tree_##way(CMAP_TREE_RUNNER * this, void * node) \
-{ \
-  return &((CMAP_TREE_NODE *)node) -> way; \
-}
-
-CMAP_TREE_LOOP(WAY_FN)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -178,8 +363,7 @@ CMAP_TREE_LOOP(WAY_FN)
 const CMAP_TREE_PUBLIC cmap_tree_public =
 {
   find,
-  add,
-  rm,
+  add, rm,
   apply,
   clean
 };

@@ -39,14 +39,13 @@ const char * CMAP_MAP_NATURE = "map";
 /*******************************************************************************
 *******************************************************************************/
 
-static int CMAP_TREE_EVALFN_NAME(entry)(CMAP_TREE_RUNNER * this, void * node,
-  void * data)
+static int CMAP_TREE_EVALFN_NAME(entry)(void * node, void * data)
 {
   const char * key = (const char *)data;
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_TREE_RUNNER(entry, false, false);
+CMAP_TREE_RUNNER(entry, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -172,9 +171,9 @@ typedef struct
   void * data;
 } APPLY_APPLY_DATA;
 
-static void apply_apply(CMAP_TREE_APPLY * this, void ** node, void * data)
+static void apply_apply(void * node, void * data)
 {
-  ENTRY * entry = (ENTRY *)*node;
+  ENTRY * entry = (ENTRY *)node;
   APPLY_APPLY_DATA * data_ = (APPLY_APPLY_DATA *)data;
 
   CMAP_MAP * prev_val = entry -> val;
@@ -196,30 +195,27 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
   data_.fn = fn;
   data_.data = data;
 
-  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, apply_apply_tree, CMAP_T,
+  CMAP_TREE_APPLYFN(entry, internal -> entry_tree, apply_apply_tree, CMAP_T,
     &data_);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_apply(CMAP_TREE_APPLY * this, void ** node, void * data)
+static void delete_clean(void * node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
-  ENTRY * entry = (ENTRY *)*node;
+  ENTRY * entry = (ENTRY *)node;
   CMAP_MEM_FREE(entry -> key, mem);
   CMAP_MEM_FREE(entry, mem);
 }
-
-CMAP_TREE_APPLY(delete_apply_tree, NULL, NULL, delete_apply);
 
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
-  CMAP_TREE_APPLYFN(entry, &internal -> entry_tree, delete_apply_tree, CMAP_T,
-    mem);
+  CMAP_TREE_CLEANFN(entry, &internal -> entry_tree, delete_clean, mem);
 
   CMAP_MEM_FREE(internal, mem);
 

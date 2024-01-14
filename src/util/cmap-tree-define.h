@@ -1,28 +1,15 @@
 #ifndef __CMAP_TREE_DEFINE_H__
 #define __CMAP_TREE_DEFINE_H__
 
-#define CMAP_TREE_LOOP(macro) \
-  macro(ge) \
-  macro(lt) \
-  macro(parent)
-
-#define CMAP_TREE_WAY_FIELD(way) void * way;
-#define CMAP_TREE_WAY_FN_PTR(way) \
-  void ** (*way)(CMAP_TREE_RUNNER * this, void * node);
-#define CMAP_TREE_WAY_FN(way) \
-  void ** cmap_tree_##way(CMAP_TREE_RUNNER * this, void * node);
-#define CMAP_TREE_WAY_SET(way) cmap_tree_##way,
-
 #define CMAP_TREE_EVALFN_NAME(prefix) prefix##_eval
 #define CMAP_TREE_RUNNER_NAME(prefix) prefix##_runner
 
-#define CMAP_TREE_RUNNER(prefix, lt_usable, gt_usable) \
+#define CMAP_TREE_RUNNER(prefix, gt_usable, lt_usable) \
 static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(prefix) = \
 { \
-  CMAP_TREE_LOOP(CMAP_TREE_WAY_SET) \
+  cmap_tree_node, \
   CMAP_TREE_EVALFN_NAME(prefix), \
-  cmap_tree_usable_##lt_usable, \
-  cmap_tree_usable_##gt_usable \
+  gt_usable, lt_usable \
 }
 
 #define CMAP_TREE_FINDFN(prefix, tree, data) cmap_tree_public.find( \
@@ -41,9 +28,9 @@ static CMAP_TREE_APPLY apply = \
   after_fn \
 }
 
-#define CMAP_TREE_APPLYFN(prefix, tree, apply_, ge_first, data) \
-  cmap_tree_public.apply(&CMAP_TREE_RUNNER_NAME(prefix), (void **)tree, \
-    &apply_, ge_first, (void *)data)
+#define CMAP_TREE_APPLYFN(prefix, tree, apply_, gt_first, data) \
+  cmap_tree_public.apply(&CMAP_TREE_RUNNER_NAME(prefix), tree, &apply_, \
+    gt_first, (void *)data)
 
 #define CMAP_TREE_CLEANFN(prefix, tree, clean_, data) \
   cmap_tree_public.clean(&CMAP_TREE_RUNNER_NAME(prefix), (void **)tree, \

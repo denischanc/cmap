@@ -5,30 +5,27 @@
 
 typedef struct
 {
-  CMAP_TREE_LOOP(CMAP_TREE_WAY_FIELD)
+  void * gt, * eq, * lt, * parent;
+
+  int depth, size;
 } CMAP_TREE_NODE;
 
 typedef struct CMAP_TREE_RUNNER CMAP_TREE_RUNNER;
 
 struct CMAP_TREE_RUNNER
 {
-  CMAP_TREE_LOOP(CMAP_TREE_WAY_FN_PTR)
-
-  int (*eval)(CMAP_TREE_RUNNER * this, void * node, void * data);
-  char (*lt_usable)(CMAP_TREE_RUNNER * this);
-  char (*gt_usable)(CMAP_TREE_RUNNER * this);
+  CMAP_TREE_NODE * (*node)(void * node);
+  int (*eval)(void * node, void * data);
+  char gt_usable, lt_usable;
 };
 
 typedef struct CMAP_TREE_APPLY CMAP_TREE_APPLY;
-typedef void (*CMAP_TREE_APPLY_FN)(CMAP_TREE_APPLY * this, void ** node,
-  void * data);
+typedef void (*CMAP_TREE_APPLY_FN)(void * node, void * data);
 
 struct CMAP_TREE_APPLY
 {
   CMAP_TREE_APPLY_FN before, between, after;
 };
-
-typedef void (*CMAP_TREE_CLEAN_FN)(void * node, void * data);
 
 typedef struct
 {
@@ -38,17 +35,14 @@ typedef struct
     void * data);
   void (*rm)(CMAP_TREE_RUNNER * runner, void ** tree, void * node);
 
-  void (*apply)(CMAP_TREE_RUNNER * runner, void ** tree,
-    CMAP_TREE_APPLY * apply, char ge_first, void * data);
+  void (*apply)(CMAP_TREE_RUNNER * runner, void * tree,
+    CMAP_TREE_APPLY * apply, char gt_first, void * data);
 
   void (*clean)(CMAP_TREE_RUNNER * runner, void ** tree,
-    CMAP_TREE_CLEAN_FN clean_node, void * data);
+    CMAP_TREE_APPLY_FN clean_node, void * data);
 } CMAP_TREE_PUBLIC;
 
-char cmap_tree_usable_true(CMAP_TREE_RUNNER * this);
-char cmap_tree_usable_false(CMAP_TREE_RUNNER * this);
-
-CMAP_TREE_LOOP(CMAP_TREE_WAY_FN)
+CMAP_TREE_NODE * cmap_tree_node(void * node);
 
 extern const CMAP_TREE_PUBLIC cmap_tree_public;
 

@@ -45,10 +45,9 @@ extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
 *******************************************************************************/
 
 #define CMAP_SET_STATIC_FN_IMPL(name, type) \
-static int CMAP_TREE_EVALFN_NAME(name)(CMAP_TREE_RUNNER * this, \
-  void * node, void * data); \
+static int CMAP_TREE_EVALFN_NAME(name)(void * node, void * data); \
  \
-CMAP_TREE_RUNNER(name, false, false); \
+CMAP_TREE_RUNNER(name, CMAP_F, CMAP_F); \
  \
 static char set_##name##_is(CMAP_SET_##name * this, type v) \
 { \

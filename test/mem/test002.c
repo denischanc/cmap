@@ -25,14 +25,13 @@ typedef struct
   int nb;
 } NB;
 
-static int CMAP_TREE_EVALFN_NAME(nb)(CMAP_TREE_RUNNER * runner, void * node,
-  void * data)
+static int CMAP_TREE_EVALFN_NAME(nb)(void * node, void * data)
 {
   NB * node1 = (NB *)node, * node2 = (NB *)data;
   return (node1 -> nb - node2 -> nb);
 }
 
-CMAP_TREE_RUNNER(nb, false, false);
+CMAP_TREE_RUNNER(nb, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -43,10 +42,10 @@ typedef struct
   int * list;
 } TREE2LIST_ARGS;
 
-static void nb_tree2list(CMAP_TREE_APPLY * this, void ** node, void * data)
+static void nb_tree2list(void * node, void * data)
 {
   TREE2LIST_ARGS * args = (TREE2LIST_ARGS *)data;
-  int nb = ((NB *)*node) -> nb;
+  int nb = ((NB *)node) -> nb;
   args -> list[args -> i++] = nb;
 
 #ifdef DEBUG
@@ -54,38 +53,37 @@ static void nb_tree2list(CMAP_TREE_APPLY * this, void ** node, void * data)
 #endif
 }
 
-static void nb_delete(CMAP_TREE_APPLY * this, void ** node, void * data)
+static void nb_delete(void * node, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
-  mem -> free(*node);
-  *node = NULL;
+  mem -> free(node);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char check_sort(char ge_first, TREE2LIST_ARGS * args,
-  CMAP_TREE_APPLY * apply, NB ** tree)
+static char check_sort(char gt_first, TREE2LIST_ARGS * args,
+  CMAP_TREE_APPLY * apply, NB * tree)
 {
   /********** Fill list */
   int i;
   for(i = 0; i < SIZE; i++)
   {
-    args -> list[i] = ge_first ? i : SIZE - i - 1;
+    args -> list[i] = gt_first ? i : SIZE - i - 1;
   }
 
   args -> i = 0;
-  CMAP_TREE_APPLYFN(nb, tree, *apply, ge_first, args);
+  CMAP_TREE_APPLYFN(nb, tree, *apply, gt_first, args);
 #ifdef DEBUG
   printf("\n");
 #endif
 
   /********** Check order */
-  int prev = ge_first ? MAX : 0, cur;
+  int prev = gt_first ? MAX : -1, cur;
   for(i = 0; i < SIZE; i++)
   {
     cur = args -> list[i];
-    if(ge_first)
+    if(gt_first)
     {
       if(prev < cur) return CMAP_F;
     }
@@ -103,7 +101,6 @@ static char check_sort(char ge_first, TREE2LIST_ARGS * args,
 *******************************************************************************/
 
 CMAP_TREE_APPLY(tree2list_apply, NULL, nb_tree2list, NULL);
-CMAP_TREE_APPLY(delete_apply, NULL, NULL, nb_delete);
 
 int main(int argc, char * argv[])
 {
@@ -124,10 +121,10 @@ int main(int argc, char * argv[])
   TREE2LIST_ARGS args;
   args.list = (int *)mem -> alloc(SIZE * sizeof(int));
 
-  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &tree2list_apply, &nb_tree),
-    "Check ge_first sort");
-  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &tree2list_apply, &nb_tree),
-    "Check not ge_first sort");
+  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &tree2list_apply, nb_tree),
+    "Check gt_first sort");
+  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &tree2list_apply, nb_tree),
+    "Check not gt_first sort");
 
   /********** Check mem */
   CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
@@ -141,7 +138,7 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  CMAP_TREE_APPLYFN(nb, &nb_tree, delete_apply, CMAP_T, mem);
+  CMAP_TREE_CLEANFN(nb, &nb_tree, nb_delete, mem);
   CMAP_TEST_ASSERT_NOMSG(nb_tree == NULL);
 
   mem -> free(args.list);

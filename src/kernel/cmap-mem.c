@@ -139,29 +139,22 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-#define WAY_FN(way) \
-static void ** way(CMAP_TREE_RUNNER * this, void * node) \
-{ \
-  return &((BLOCK_FREE *)node) -> node.way; \
+static CMAP_TREE_NODE * node(void * node)
+{
+  return &((BLOCK_FREE *)node) -> node;
 }
 
-CMAP_TREE_LOOP(WAY_FN)
-
-static int CMAP_TREE_EVALFN_NAME(block_free)(CMAP_TREE_RUNNER * this,
-  void * node, void * data)
+static int CMAP_TREE_EVALFN_NAME(block_free)(void * node, void * data)
 {
   int size = block_size((BLOCK *)node);
   return (size - *(int *)data);
 }
 
-#define WAY_SET(way) way,
-
 static CMAP_TREE_RUNNER CMAP_TREE_RUNNER_NAME(block_free) =
 {
-  CMAP_TREE_LOOP(WAY_SET)
+  node,
   CMAP_TREE_EVALFN_NAME(block_free),
-  cmap_tree_usable_false,
-  cmap_tree_usable_true
+  CMAP_T, CMAP_F
 };
 
 /*******************************************************************************
