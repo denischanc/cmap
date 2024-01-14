@@ -1,6 +1,8 @@
 #ifndef __CMAP_MEM_TYPE_H__
 #define __CMAP_MEM_TYPE_H__
 
+#include <stdint.h>
+
 typedef struct
 {
   void * (*alloc)(int size);
@@ -9,8 +11,9 @@ typedef struct
 
 typedef struct
 {
-  int nb_chunk, nb_block, nb_block_free;
-  int size_alloc, size_free;
+  int nb_chunk, nb_block, nb_block_free,
+    size_alloc, size_free;
+  int64_t consumed_time_us;
 } CMAP_MEM_STATE;
 
 #endif

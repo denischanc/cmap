@@ -22,4 +22,8 @@ CMAP_CFLAGS = \
   -I$(CMAP_BUILD_PATH)/components/scheduler \
   -Wall
 
+if CONSUMED_TIME
+CMAP_CFLAGS += -DCONSUMED_TIME
+endif
+
 CMAP_TOOL = $(CMAP_BUILD_PATH)/tool/cmap-tool

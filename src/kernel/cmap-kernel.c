@@ -104,9 +104,16 @@ static void check_mem(int * ret)
 {
   if(cmap_mem_public.is_this(internal.mem))
   {
-    int s = cmap_mem_public.state() -> size_alloc;
+    CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
+
+    int s = mem_state -> size_alloc;
     cmap_log_public.info("Allocated memory size : [%d].", s);
     if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
+
+#ifdef CONSUMED_TIME
+    int64_t t = mem_state -> consumed_time_us;
+    cmap_log_public.info("Consumed time (us) in memory : [%ld].", t);
+#endif
   }
 }
 

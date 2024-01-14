@@ -7,6 +7,10 @@
 #include "cmap-log.h"
 #include "cmap-tree.h"
 
+#ifdef CONSUMED_TIME
+#include "cmap-consumedtime.h"
+#endif
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -68,6 +72,10 @@ static INTERNAL internal = {CHUNK_SIZE_DFT, NULL, NULL, NULL};
 
 static CMAP_MEM mem = {};
 static CMAP_MEM * mem_ptr = NULL;
+
+#ifdef CONSUMED_TIME
+static int64_t consumed_time_us = 0;
+#endif
 
 /*******************************************************************************
 *******************************************************************************/
@@ -257,6 +265,11 @@ static BLOCK_FREE * create_block_free(int alloc_size)
 
 static void * alloc(int size)
 {
+#ifdef CONSUMED_TIME
+  struct timeval tv;
+  cmap_consumedtime_public.start(&tv);
+#endif
+
   BLOCK_FREE * block = find_block_free(size);
   if(block == NULL) block = create_block_free(size);
   if(block == NULL) return NULL;
@@ -276,6 +289,10 @@ static void * alloc(int size)
     free_block(new_block);
   }
 
+#ifdef CONSUMED_TIME
+  cmap_consumedtime_public.stop_us(&tv, &consumed_time_us);
+#endif
+
   return ret;
 }
 
@@ -285,6 +302,11 @@ static void * alloc(int size)
 static void free_(void * ptr)
 {
   if(ptr == NULL) return;
+
+#ifdef CONSUMED_TIME
+  struct timeval tv;
+  cmap_consumedtime_public.start(&tv);
+#endif
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
   if(!is_block(block)) error("Invalid block ???");
@@ -308,6 +330,10 @@ static void free_(void * ptr)
     alloc_block((BLOCK_FREE *)prev);
     free_block(prev);
   }
+
+#ifdef CONSUMED_TIME
+  cmap_consumedtime_public.stop_us(&tv, &consumed_time_us);
+#endif
 }
 
 /*******************************************************************************
@@ -358,6 +384,11 @@ static void upd_state(CMAP_MEM_STATE * state)
   state -> nb_block_free = 0;
   state -> size_alloc = 0;
   state -> size_free = 0;
+#ifdef CONSUMED_TIME
+  state -> consumed_time_us = consumed_time_us;
+#else
+  state -> consumed_time_us = 0;
+#endif
 
   CHUNK * chunk = internal.chunk_list;
   while(chunk != NULL)

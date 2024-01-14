@@ -8,6 +8,10 @@
 #include "cmap-log.h"
 #include "cmap-lifecycle.h"
 
+#ifdef CONSUMED_TIME
+#include "cmap-consumedtime.h"
+#endif
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -17,6 +21,10 @@ typedef struct
 
   int nb_created;
 } INTERNAL;
+
+#ifdef CONSUMED_TIME
+static int64_t consumed_time_us = 0;
+#endif
 
 /*******************************************************************************
 *******************************************************************************/
@@ -218,7 +226,17 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
   cmap_log_public.debug("[%p][refsstore] created %d", this,
     internal -> nb_created);
 
+#ifdef CONSUMED_TIME
+  struct timeval tv;
+  cmap_consumedtime_public.start(&tv);
+#endif
   delete_refs(internal, (CMAP_LIFECYCLE *)ret);
+#ifdef CONSUMED_TIME
+  cmap_log_public.debug("[refsstore] Local consumed time (us) : [%ld].",
+    cmap_consumedtime_public.stop_us(&tv, &consumed_time_us));
+  cmap_log_public.debug("[refsstore] Global consumed time (us) : [%ld].",
+    consumed_time_us);
+#endif
 
   CMAP_KERNEL_FREE(this);
 }
