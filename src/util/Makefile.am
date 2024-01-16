@@ -2,6 +2,8 @@
 include $(top_srcdir)/src/common.mk
 
 noinst_HEADERS = \
+  cmap-assert-define.h \
+  cmap-assert.h \
   cmap-consumedtime.h \
   cmap-set-define.h \
   cmap-set.h \
@@ -14,6 +16,7 @@ noinst_HEADERS = \
 noinst_LTLIBRARIES = libutil.la
 
 libutil_la_SOURCES = \
+  cmap-assert.c \
   cmap-set.c \
   cmap-slist.c \
   cmap-tree.c \
