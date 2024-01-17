@@ -4,6 +4,8 @@
 #include "cmap.h"
 #include "cmap-tree.h"
 #include "cmap-kernel.h"
+#include "cmap-map-type.h"
+#include "cmap-lifecycle-type.h"
 
 /*******************************************************************************
 *******************************************************************************/
