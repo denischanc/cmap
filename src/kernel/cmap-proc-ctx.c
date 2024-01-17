@@ -119,6 +119,8 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 
   CMAP_CALL_ARGS(env_, push_proc_ctx, this);
 
+  cmap_log_public.debug("[%p][proc-ctx][%d] created", this, internal -> level);
+
   return this;
 }
 

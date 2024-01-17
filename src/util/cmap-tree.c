@@ -3,7 +3,11 @@
 
 #include <stdlib.h>
 #include <sys/param.h>
+#include <string.h>
 #include "cmap.h"
+#include "cmap-slist.h"
+#include "cmap-kernel.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -428,13 +432,11 @@ static void apply(CMAP_TREE_RUNNER * runner, void * tree,
   if(tree != NULL)
   {
     CMAP_TREE_NODE * tree_node = NODE(runner, tree);
-    void * gt = tree_node -> gt, * eq = tree_node -> eq, * lt = tree_node -> lt;
+    void * gt = tree_node -> gt, * lt = tree_node -> lt;
 
     if(apply_ -> before != NULL) apply_ -> before(tree, data);
 
     apply(runner, gt_first ? gt : lt, apply_, gt_first, data);
-
-    apply(runner, eq, apply_, gt_first, data);
 
     if(apply_ -> between != NULL) apply_ -> between(tree, data);
 
@@ -467,6 +469,103 @@ static void clean(CMAP_TREE_RUNNER * runner, void ** tree,
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct
+{
+  CMAP_SLIST_CHAR_PTR * prefix_before, * prefix_after, * prefix_between;
+  char log_lvl;
+  void * (*ptr)(void * node);
+} LOG_APPLY_DATA;
+
+static char * log_cat(char * left, const char * right)
+{
+  int size = strlen(left) + strlen(right) + 1;
+  size *= sizeof(char);
+  char * ret = (char *)CMAP_KERNEL_MEM -> alloc(size);
+  *ret = 0;
+  strcat(ret, left);
+  strcat(ret, right);
+  return ret;
+}
+
+static void log_push_cat(char * left, CMAP_SLIST_CHAR_PTR * prefix_before,
+  CMAP_SLIST_CHAR_PTR * prefix_after, CMAP_SLIST_CHAR_PTR * prefix_between)
+{
+  CMAP_CALL_ARGS(prefix_before, push, log_cat(left, "   "));
+  CMAP_CALL_ARGS(prefix_after, push, log_cat(left, "  |"));
+  CMAP_CALL_ARGS(prefix_between, push, log_cat(left, "  |"));
+}
+
+static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
+  CMAP_SLIST_CHAR_PTR * prefix_after, CMAP_SLIST_CHAR_PTR * prefix_between)
+{
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_FREE(CMAP_CALL(prefix_before, pop), mem);
+  CMAP_MEM_FREE(CMAP_CALL(prefix_after, pop), mem);
+  CMAP_MEM_FREE(CMAP_CALL(prefix_between, pop), mem);
+}
+
+static void log_before_apply(void * node, void * data)
+{
+  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
+    * prefix_after = data_ -> prefix_after,
+    * prefix_between = data_ -> prefix_between;
+  char * left = *CMAP_CALL(prefix_before, last);
+  log_push_cat(left, prefix_before, prefix_after, prefix_between);
+}
+
+static void log_between_apply(void * node, void * data)
+{
+  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
+    * prefix_after = data_ -> prefix_after,
+    * prefix_between = data_ -> prefix_between;
+
+  log_free(prefix_before, prefix_after, prefix_between);
+
+  char * left = *CMAP_CALL(prefix_between, last);
+  cmap_log_public.log(data_ -> log_lvl, "%s%p", left, data_ -> ptr(node));
+
+  left = *CMAP_CALL(prefix_after, last);
+  log_push_cat(left, prefix_after, prefix_before, prefix_between);
+}
+
+static void log_after_apply(void * node, void * data)
+{
+  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
+    * prefix_after = data_ -> prefix_after,
+    * prefix_between = data_ -> prefix_between;
+  log_free(prefix_before, prefix_after, prefix_between);
+}
+
+CMAP_TREE_APPLY(log_apply_tree, log_before_apply, log_between_apply,
+  log_after_apply);
+
+static void log_(char lvl, CMAP_TREE_RUNNER * runner, void * tree,
+  void * (*ptr)(void * node))
+{
+  LOG_APPLY_DATA data;
+  data.prefix_before = cmap_slist_char_ptr_public.create(0);
+  data.prefix_after = cmap_slist_char_ptr_public.create(0);
+  data.prefix_between = cmap_slist_char_ptr_public.create(0);
+  data.log_lvl = lvl;
+  data.ptr = ptr;
+
+  CMAP_CALL_ARGS(data.prefix_before, push, (char *)"");
+  CMAP_CALL_ARGS(data.prefix_after, push, (char *)"");
+  CMAP_CALL_ARGS(data.prefix_between, push, (char *)"");
+
+  apply(runner, tree, &log_apply_tree, CMAP_T, &data);
+
+  CMAP_CALL(data.prefix_before, delete);
+  CMAP_CALL(data.prefix_after, delete);
+  CMAP_CALL(data.prefix_between, delete);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_TREE_NODE * cmap_tree_node(void * node)
 {
   return (CMAP_TREE_NODE *)node;
@@ -480,5 +579,6 @@ const CMAP_TREE_PUBLIC cmap_tree_public =
   find,
   add, rm,
   apply,
-  clean
+  clean,
+  log_
 };

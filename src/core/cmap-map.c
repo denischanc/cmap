@@ -100,16 +100,18 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 
 static CMAP_MAP * get(CMAP_MAP * this, const char * key)
 {
+  CMAP_MAP * ret = NULL;
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
   ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
-  if(entry != NULL) return entry -> val;
+  if(entry != NULL) ret = entry -> val;
   else
   {
     CMAP_MAP * prototype = internal -> prototype;
-    if(prototype != NULL) return CMAP_GET(prototype, key);
-    else return NULL;
+    if(prototype != NULL) ret = CMAP_GET(prototype, key);
   }
+
+  return ret;
 }
 
 /*******************************************************************************

@@ -40,6 +40,9 @@ typedef struct
 
   void (*clean)(CMAP_TREE_RUNNER * runner, void ** tree,
     CMAP_TREE_APPLY_FN clean_node, void * data);
+
+  void (*log)(char lvl, CMAP_TREE_RUNNER * runner, void * tree,
+    void * (*ptr)(void * node));
 } CMAP_TREE_PUBLIC;
 
 CMAP_TREE_NODE * cmap_tree_node(void * node);

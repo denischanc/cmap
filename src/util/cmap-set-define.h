@@ -39,6 +39,7 @@ typedef struct \
   char (*add)(CMAP_SET_##name ** this, type v); \
   type (*rm)(CMAP_SET_##name ** this); \
   void (*clean)(CMAP_SET_##name ** this); \
+  void (*log)(CMAP_SET_##name * this, char lvl); \
 } CMAP_SET_##name##_PUBLIC; \
  \
 extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
@@ -88,6 +89,17 @@ static void set_##name##_clean_node(void * node, void * data) \
 static void set_##name##_clean(CMAP_SET_##name ** this) \
 { \
   CMAP_TREE_CLEANFN(name, this, set_##name##_clean_node, NULL); \
+} \
+ \
+static void * set_##name##_log_ptr(void * node) \
+{ \
+  return (void *)((CMAP_SET_##name *)node) -> v; \
+} \
+ \
+static void set_##name##_log(CMAP_SET_##name * this, char lvl) \
+{ \
+  cmap_tree_public.log(lvl, &CMAP_TREE_RUNNER_NAME(name), this, \
+    set_##name##_log_ptr); \
 }
 
 /*******************************************************************************
@@ -101,7 +113,8 @@ const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public = \
   set_##name##_is, \
   set_##name##_add, \
   set_##name##_rm, \
-  set_##name##_clean \
+  set_##name##_clean, \
+  set_##name##_log \
 };
 
 /*******************************************************************************

@@ -34,6 +34,8 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(cmap_set_lc_public.add(&internal -> refs, lc))
   {
+    cmap_log_public.debug("[%p][refsstore] new ref : [%p]", this, lc);
+
     CMAP_INC_REFS(lc);
 
     if(created) internal -> nb_created++;
@@ -47,6 +49,8 @@ static void dec_nested_refs_apply(CMAP_LIFECYCLE *** lc, void * data)
 {
   if(**lc != NULL)
   {
+    cmap_log_public.debug("[refsstore][%p]-nested->[[%p]==>NULL]", data, **lc);
+
     CMAP_DEC_REFS(**lc);
     **lc = NULL;
   }
@@ -56,7 +60,7 @@ static void delete_with_nested(CMAP_LIFECYCLE * lc)
 {
   CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
   CMAP_CALL_ARGS(lc, nested, nested_list);
-  CMAP_CALL_ARGS(nested_list, apply, dec_nested_refs_apply, NULL);
+  CMAP_CALL_ARGS(nested_list, apply, dec_nested_refs_apply, lc);
   CMAP_CALL(nested_list, delete);
 
   CMAP_CALL(lc, delete);
@@ -184,12 +188,17 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
   if(nb_refs <= 1) ret = CMAP_T;
   else if(delete_zombie && delete_future_zombie_required(lc, nb_refs))
   {
-    cmap_log_public.debug("[%p][%s] delete zombie", lc, CMAP_NATURE(lc));
+    cmap_log_public.debug("[%p][%s] is zombie", lc, CMAP_NATURE(lc));
     ret = CMAP_T;
   }
 
   if(ret) delete_with_nested(lc);
-  else CMAP_CALL(lc, dec_refs_only);
+  else
+  {
+    cmap_log_public.debug("[%p][%s] nb_refs == [%d]", lc, CMAP_NATURE(lc),
+      nb_refs);
+    CMAP_CALL(lc, dec_refs_only);
+  }
 
   return ret;
 }
@@ -200,20 +209,18 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
 static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 {
   int nb_loop = 0, nb_deleted = 0;
-  char fnd_ret = CMAP_F,
-    delete_zombie = CMAP_KERNEL_INSTANCE -> cfg() -> delete_zombie;
+  char delete_zombie = CMAP_KERNEL_INSTANCE -> cfg() -> delete_zombie;
 
   CMAP_SET_lc ** refs = &internal -> refs;
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_set_lc_public.rm(refs);
-    if(lc == ret) fnd_ret = CMAP_T;
+    if(lc == ret) CMAP_CALL(lc, dec_refs_only);
     else if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
     nb_loop++;
   }
-  cmap_log_public.debug("[refsstore] deleted %d/%d", nb_deleted, nb_loop);
 
-  if(fnd_ret) CMAP_CALL(ret, dec_refs_only);
+  cmap_log_public.debug("[refsstore] deleted %d/%d", nb_deleted, nb_loop);
 }
 
 /*******************************************************************************

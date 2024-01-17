@@ -8,3 +8,4 @@ TODO
 * cmap-tuning.h: memory, chunk size; pool, size; slist, chunk size; ...
 * map: (key, val) in pool
 * map: rm new(), add prototype in init
+* NULL test before fn call (tree, nested, ...)
