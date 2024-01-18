@@ -4,8 +4,10 @@ TODO
 * put only used variables in fn definitions
 * remove public from fn (only on structure, see *.cmap)
 * refactor tree, set, pool (maybe, double chained list of free, ...)
-* prototype creation KO (map not initialized)
+* prototype
+** creation KO (map not initialized)
+** map: rm new(), add it in init
+** it must be referenced
 * cmap-tuning.h: memory, chunk size; pool, size; slist, chunk size; ...
 * map: (key, val) in pool
-* map: rm new(), add prototype in init
 * NULL test before fn call (tree, nested, ...)
