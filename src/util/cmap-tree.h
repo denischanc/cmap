@@ -7,7 +7,8 @@ typedef struct
 {
   void * gt, * eq, * lt, * parent;
 
-  int depth_min, depth_max;
+  char depth;
+  int size;
 } CMAP_TREE_NODE;
 
 typedef struct CMAP_TREE_RUNNER CMAP_TREE_RUNNER;

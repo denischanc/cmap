@@ -11,3 +11,4 @@ TODO
 * cmap-tuning.h: memory, chunk size; pool, size; slist, chunk size; ...
 * map: (key, val) in pool
 * NULL test before fn call (tree, nested, ...)
+* is_log_lvl_enabled()

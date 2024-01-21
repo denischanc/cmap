@@ -20,16 +20,16 @@ static void impl(char ** txt)
 {
   cmap_string_public.append(txt,
     "int main(int argc, char * argv[])\n"
-    "{\n"
-    "  cmap_bootstrap(NULL);\n"
-    "  CMAP_ENV * env = cmap_env(argc, argv);\n");
+    "{\n");
 
   const char * fn_name = cmap_fn_name_public.name();
   if(fn_name != NULL) cmap_string_public.append_args(txt,
-    "  cmap_env_main(env, %s);\n", fn_name);
+    SPACE "CMAP_ENV * env = cmap_env(argc, argv);\n"
+    SPACE "cmap_env_main(env, %s);\n", fn_name);
+  else cmap_string_public.append(txt, SPACE "cmap_env(argc, argv);\n");
 
   cmap_string_public.append(txt,
-    "  return cmap_main();\n"
+    SPACE "return cmap_main();\n"
     "}\n");
 }
 

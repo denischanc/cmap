@@ -208,19 +208,24 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
 
 static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 {
-  int nb_loop = 0, nb_deleted = 0;
+  int nb_loop = 0, nb_deleted = 0, nb_ret = 0;
   char delete_zombie = CMAP_KERNEL_INSTANCE -> cfg() -> delete_zombie;
 
   CMAP_SET_lc ** refs = &internal -> refs;
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_set_lc_public.rm(refs);
-    if(lc == ret) CMAP_CALL(lc, dec_refs_only);
-    else if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
-    nb_loop++;
+    if(lc == ret) nb_ret++;
+    else
+    {
+      if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
+      nb_loop++;
+    }
   }
+  cmap_log_public.debug("[refsstore] deleted %d/%d, nb ret = %d",
+    nb_deleted, nb_loop, nb_ret);
 
-  cmap_log_public.debug("[refsstore] deleted %d/%d", nb_deleted, nb_loop);
+  for(int i = 0; i < nb_ret; i++) CMAP_CALL(ret, dec_refs_only);
 }
 
 /*******************************************************************************
