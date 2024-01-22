@@ -4,7 +4,7 @@
 #include <string.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-tree.h"
+#include "cmap-stree.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
 #include "cmap-util.h"
@@ -18,7 +18,7 @@
 
 typedef struct
 {
-  CMAP_TREE_NODE node;
+  CMAP_STREE_NODE node;
 
   char * key;
   CMAP_MAP * val;
@@ -26,7 +26,7 @@ typedef struct
 
 typedef struct
 {
-  ENTRY * entry_tree;
+  ENTRY * entry_stree;
 
   CMAP_MAP * prototype;
 } INTERNAL;
@@ -39,13 +39,13 @@ const char * CMAP_MAP_NATURE = "map";
 /*******************************************************************************
 *******************************************************************************/
 
-static int CMAP_TREE_EVALFN_NAME(entry)(void * node, void * data)
+static int CMAP_STREE_EVALFN_NAME(entry)(void * node, void * data)
 {
   const char * key = (const char *)data;
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_TREE_RUNNER(entry, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(entry, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -78,14 +78,14 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
+  ENTRY * entry = CMAP_STREE_FINDFN(entry, internal -> entry_stree, key);
   if(entry == NULL)
   {
     entry = CMAP_KERNEL_ALLOC(ENTRY);
     entry -> key = cmap_util_public.strdup(key);
     entry -> val = NULL;
 
-    CMAP_TREE_ADDFN(entry, &internal -> entry_tree, entry, key);
+    CMAP_STREE_ADDFN(entry, &internal -> entry_stree, entry, key);
   }
 
   if(entry -> val != NULL) CMAP_DEC_REFS(entry -> val);
@@ -103,7 +103,7 @@ static CMAP_MAP * get(CMAP_MAP * this, const char * key)
   CMAP_MAP * ret = NULL;
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  ENTRY * entry = CMAP_TREE_FINDFN(entry, internal -> entry_tree, key);
+  ENTRY * entry = CMAP_STREE_FINDFN(entry, internal -> entry_stree, key);
   if(entry != NULL) ret = entry -> val;
   else
   {
@@ -135,7 +135,7 @@ static char is_key(CMAP_MAP * this, const char * key)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
-  return (CMAP_TREE_FINDFN(entry, internal -> entry_tree, key) != NULL);
+  return (CMAP_STREE_FINDFN(entry, internal -> entry_stree, key) != NULL);
 }
 
 /*******************************************************************************
@@ -187,7 +187,7 @@ static void apply_apply(void * node, void * data)
   }
 }
 
-CMAP_TREE_APPLY(apply_apply_tree, NULL, apply_apply, NULL);
+CMAP_STREE_APPLY(apply_apply_stree, NULL, apply_apply, NULL);
 
 static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 {
@@ -197,7 +197,7 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
   data_.fn = fn;
   data_.data = data;
 
-  CMAP_TREE_APPLYFN(entry, internal -> entry_tree, apply_apply_tree, CMAP_T,
+  CMAP_STREE_APPLYFN(entry, internal -> entry_stree, apply_apply_stree, CMAP_T,
     &data_);
 }
 
@@ -217,7 +217,7 @@ static void delete(CMAP_LIFECYCLE * this)
   INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
-  CMAP_TREE_CLEANFN(entry, &internal -> entry_tree, delete_clean, mem);
+  CMAP_STREE_CLEANFN(entry, &internal -> entry_stree, delete_clean, mem);
 
   CMAP_MEM_FREE(internal, mem);
 
@@ -233,7 +233,7 @@ static void init(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
   lc -> nested = nested;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> entry_tree = NULL;
+  internal -> entry_stree = NULL;
   internal -> prototype = NULL;
 
   this -> internal = internal;

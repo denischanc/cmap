@@ -1,5 +1,5 @@
 /*******************************************************************************
-@TEST_DESC@ Check memory with tree
+@TEST_DESC@ Check memory with stree
 *******************************************************************************/
 
 #include <stdlib.h>
@@ -7,7 +7,7 @@
 #include "test-assert.h"
 #include "cmap.h"
 #include "cmap-mem.h"
-#include "cmap-tree.h"
+#include "cmap-stree.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -21,17 +21,17 @@
 
 typedef struct
 {
-  CMAP_TREE_NODE node;
+  CMAP_STREE_NODE node;
   int nb;
 } NB;
 
-static int CMAP_TREE_EVALFN_NAME(nb)(void * node, void * data)
+static int CMAP_STREE_EVALFN_NAME(nb)(void * node, void * data)
 {
   NB * node1 = (NB *)node, * node2 = (NB *)data;
   return (node1 -> nb - node2 -> nb);
 }
 
-CMAP_TREE_RUNNER(nb, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(nb, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -40,11 +40,11 @@ typedef struct
 {
   int i;
   int * list;
-} TREE2LIST_ARGS;
+} STREE2LIST_ARGS;
 
-static void nb_tree2list(void * node, void * data)
+static void nb_stree2list(void * node, void * data)
 {
-  TREE2LIST_ARGS * args = (TREE2LIST_ARGS *)data;
+  STREE2LIST_ARGS * args = (STREE2LIST_ARGS *)data;
   int nb = ((NB *)node) -> nb;
   args -> list[args -> i++] = nb;
 
@@ -62,8 +62,8 @@ static void nb_delete(void * node, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
-static char check_sort(char gt_first, TREE2LIST_ARGS * args,
-  CMAP_TREE_APPLY * apply, NB * tree)
+static char check_sort(char gt_first, STREE2LIST_ARGS * args,
+  CMAP_STREE_APPLY * apply, NB * stree)
 {
   /********** Fill list */
   int i;
@@ -73,7 +73,7 @@ static char check_sort(char gt_first, TREE2LIST_ARGS * args,
   }
 
   args -> i = 0;
-  CMAP_TREE_APPLYFN(nb, tree, *apply, gt_first, args);
+  CMAP_STREE_APPLYFN(nb, stree, *apply, gt_first, args);
 #ifdef DEBUG
   printf("\n");
 #endif
@@ -100,30 +100,30 @@ static char check_sort(char gt_first, TREE2LIST_ARGS * args,
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_TREE_APPLY(tree2list_apply, NULL, nb_tree2list, NULL);
+CMAP_STREE_APPLY(stree2list_apply, NULL, nb_stree2list, NULL);
 
 int main(int argc, char * argv[])
 {
   CMAP_MEM * mem = cmap_mem_public.instance(0);
-  NB * nb_tree = NULL, * tmp;
+  NB * nb_stree = NULL, * tmp;
 
-  /********** Fill tree */
+  /********** Fill stree */
   int i;
   for(i = 0; i < SIZE; i++)
   {
     tmp = (NB *)mem -> alloc(sizeof(NB));
     tmp -> nb = (random() % MAX);
 
-    CMAP_TREE_ADDFN(nb, &nb_tree, tmp, tmp);
+    CMAP_STREE_ADDFN(nb, &nb_stree, tmp, tmp);
   }
 
-  /********** Check tree */
-  TREE2LIST_ARGS args;
+  /********** Check stree */
+  STREE2LIST_ARGS args;
   args.list = (int *)mem -> alloc(SIZE * sizeof(int));
 
-  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &tree2list_apply, nb_tree),
+  CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &stree2list_apply, nb_stree),
     "Check gt_first sort");
-  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &tree2list_apply, nb_tree),
+  CMAP_TEST_ASSERT(check_sort(CMAP_F, &args, &stree2list_apply, nb_stree),
     "Check not gt_first sort");
 
   /********** Check mem */
@@ -138,8 +138,8 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  CMAP_TREE_CLEANFN(nb, &nb_tree, nb_delete, mem);
-  CMAP_TEST_ASSERT_NOMSG(nb_tree == NULL);
+  CMAP_STREE_CLEANFN(nb, &nb_stree, nb_delete, mem);
+  CMAP_TEST_ASSERT_NOMSG(nb_stree == NULL);
 
   mem -> free(args.list);
   args.list = NULL;

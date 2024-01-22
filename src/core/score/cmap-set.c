@@ -5,7 +5,7 @@
 *******************************************************************************/
 
 #define CMAP_SET_PTR_EVALFN_IMPL(name, type) \
-static int CMAP_TREE_EVALFN_NAME(name)(void * node, void * data) \
+static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
 { \
   type name##_l = ((CMAP_SET_##name *)node) -> v; \
   type name##_r = ((CMAP_SET_##name *)data) -> v; \

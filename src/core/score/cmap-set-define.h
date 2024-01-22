@@ -2,7 +2,7 @@
 #define __CMAP_SET_DEFINE_H__
 
 #include "cmap.h"
-#include "cmap-tree.h"
+#include "cmap-stree.h"
 #include "cmap-kernel.h"
 #include "cmap-map-type.h"
 #include "cmap-lifecycle-type.h"
@@ -22,7 +22,7 @@ typedef struct CMAP_SET_##name CMAP_SET_##name; \
  \
 struct CMAP_SET_##name \
 { \
-  CMAP_TREE_NODE node; \
+  CMAP_STREE_NODE node; \
  \
   type v; \
 };
@@ -48,15 +48,15 @@ extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
 *******************************************************************************/
 
 #define CMAP_SET_STATIC_FN_IMPL(name, type) \
-static int CMAP_TREE_EVALFN_NAME(name)(void * node, void * data); \
+static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data); \
  \
-CMAP_TREE_RUNNER(name, CMAP_F, CMAP_F); \
+CMAP_STREE_RUNNER(name, CMAP_F, CMAP_F); \
  \
 static char set_##name##_is(CMAP_SET_##name * this, type v) \
 { \
   CMAP_SET_##name data; \
   data.v = v; \
-  return (CMAP_TREE_FINDFN(name, this, &data) != NULL); \
+  return (CMAP_STREE_FINDFN(name, this, &data) != NULL); \
 } \
  \
 static char set_##name##_add(CMAP_SET_##name ** this, type v) \
@@ -65,7 +65,7 @@ static char set_##name##_add(CMAP_SET_##name ** this, type v) \
   { \
     CMAP_KERNEL_ALLOC_PTR(node, CMAP_SET_##name); \
     node -> v = v; \
-    CMAP_TREE_ADDFN(name, this, node, node); \
+    CMAP_STREE_ADDFN(name, this, node, node); \
     return CMAP_T; \
   } \
   return CMAP_F; \
@@ -74,7 +74,7 @@ static char set_##name##_add(CMAP_SET_##name ** this, type v) \
 static type set_##name##_rm(CMAP_SET_##name ** this) \
 { \
   CMAP_SET_##name * node_ret = *this; \
-  CMAP_TREE_RMFN(name, this, node_ret); \
+  CMAP_STREE_RMFN(name, this, node_ret); \
  \
   type ret = node_ret -> v; \
   CMAP_KERNEL_FREE(node_ret); \
@@ -88,7 +88,7 @@ static void set_##name##_clean_node(void * node, void * data) \
  \
 static void set_##name##_clean(CMAP_SET_##name ** this) \
 { \
-  CMAP_TREE_CLEANFN(name, this, set_##name##_clean_node, NULL); \
+  CMAP_STREE_CLEANFN(name, this, set_##name##_clean_node, NULL); \
 } \
  \
 static void * set_##name##_log_ptr(void * node) \
@@ -98,7 +98,7 @@ static void * set_##name##_log_ptr(void * node) \
  \
 static void set_##name##_log(CMAP_SET_##name * this, char lvl) \
 { \
-  cmap_tree_public.log(lvl, &CMAP_TREE_RUNNER_NAME(name), this, \
+  cmap_stree_public.log(lvl, &CMAP_STREE_RUNNER_NAME(name), this, \
     set_##name##_log_ptr); \
 }
 

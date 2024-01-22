@@ -6,13 +6,13 @@ noinst_HEADERS = \
   cmap-set.h \
   cmap-slist-define.h \
   cmap-slist.h \
-  cmap-tree-define.h \
-  cmap-tree.h
+  cmap-stree-define.h \
+  cmap-stree.h
 
 noinst_LTLIBRARIES = libscore.la
 
 libscore_la_SOURCES = \
   cmap-set.c \
   cmap-slist.c \
-  cmap-tree.c
+  cmap-stree.c
 libscore_la_CFLAGS = $(CMAP_CFLAGS)
