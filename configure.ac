@@ -67,6 +67,7 @@ AC_CONFIG_FILES([Makefile
                  src/core/Makefile
                  src/core/cmp/Makefile
                  src/core/prototype/Makefile
+                 src/core/score/Makefile
                  src/kernel/Makefile
                  src/tool/Makefile
                  src/tool/tpl/Makefile

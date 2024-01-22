@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/common.mk
 
-SUBDIRS = prototype cmp
+SUBDIRS = cmp prototype score
 
 include_cmap_HEADERS = \
   cmap-map-type.h \
@@ -49,4 +49,4 @@ libcore_la_SOURCES = \
   cmap-ptr.c \
   cmap-lifecycle.c
 libcore_la_CFLAGS = $(CMAP_CFLAGS)
-libcore_la_LIBADD = prototype/libprototype.la cmp/libcmp.la
+libcore_la_LIBADD = cmp/libcmp.la prototype/libprototype.la score/libscore.la
