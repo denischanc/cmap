@@ -1,5 +1,5 @@
-#ifndef __CMAP_SET_DEFINE_H__
-#define __CMAP_SET_DEFINE_H__
+#ifndef __CMAP_SSET_DEFINE_H__
+#define __CMAP_SSET_DEFINE_H__
 
 #include "cmap.h"
 #include "cmap-stree.h"
@@ -10,17 +10,17 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_LOOP(macro) \
+#define CMAP_SSET_LOOP(macro) \
   macro(map, CMAP_MAP *) \
   macro(lc, CMAP_LIFECYCLE *)
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_STRUCT_DECL(name, type) \
-typedef struct CMAP_SET_##name CMAP_SET_##name; \
+#define CMAP_SSET_STRUCT_DECL(name, type) \
+typedef struct CMAP_SSET_##name CMAP_SSET_##name; \
  \
-struct CMAP_SET_##name \
+struct CMAP_SSET_##name \
 { \
   CMAP_STREE_NODE node; \
  \
@@ -30,40 +30,40 @@ struct CMAP_SET_##name \
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_DECL(name, type) \
-CMAP_SET_STRUCT_DECL(name, type) \
+#define CMAP_SSET_DECL(name, type) \
+CMAP_SSET_STRUCT_DECL(name, type) \
  \
 typedef struct \
 { \
-  char (*is)(CMAP_SET_##name * this, type v); \
-  char (*add)(CMAP_SET_##name ** this, type v); \
-  type (*rm)(CMAP_SET_##name ** this); \
-  void (*clean)(CMAP_SET_##name ** this); \
-  void (*log)(CMAP_SET_##name * this, char lvl); \
-} CMAP_SET_##name##_PUBLIC; \
+  char (*is)(CMAP_SSET_##name * this, type v); \
+  char (*add)(CMAP_SSET_##name ** this, type v); \
+  type (*rm)(CMAP_SSET_##name ** this); \
+  void (*clean)(CMAP_SSET_##name ** this); \
+  void (*log)(CMAP_SSET_##name * this, char lvl); \
+} CMAP_SSET_##name##_PUBLIC; \
  \
-extern const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public;
+extern const CMAP_SSET_##name##_PUBLIC cmap_sset_##name##_public;
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_STATIC_FN_IMPL(name, type) \
+#define CMAP_SSET_STATIC_FN_IMPL(name, type) \
 static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data); \
  \
 CMAP_STREE_RUNNER(name, CMAP_F, CMAP_F); \
  \
-static char set_##name##_is(CMAP_SET_##name * this, type v) \
+static char sset_##name##_is(CMAP_SSET_##name * this, type v) \
 { \
-  CMAP_SET_##name data; \
+  CMAP_SSET_##name data; \
   data.v = v; \
   return (CMAP_STREE_FINDFN(name, this, &data) != NULL); \
 } \
  \
-static char set_##name##_add(CMAP_SET_##name ** this, type v) \
+static char sset_##name##_add(CMAP_SSET_##name ** this, type v) \
 { \
-  if(!set_##name##_is(*this, v)) \
+  if(!sset_##name##_is(*this, v)) \
   { \
-    CMAP_KERNEL_ALLOC_PTR(node, CMAP_SET_##name); \
+    CMAP_KERNEL_ALLOC_PTR(node, CMAP_SSET_##name); \
     node -> v = v; \
     CMAP_STREE_ADDFN(name, this, node, node); \
     return CMAP_T; \
@@ -71,9 +71,9 @@ static char set_##name##_add(CMAP_SET_##name ** this, type v) \
   return CMAP_F; \
 } \
  \
-static type set_##name##_rm(CMAP_SET_##name ** this) \
+static type sset_##name##_rm(CMAP_SSET_##name ** this) \
 { \
-  CMAP_SET_##name * node_ret = *this; \
+  CMAP_SSET_##name * node_ret = *this; \
   CMAP_STREE_RMFN(name, this, node_ret); \
  \
   type ret = node_ret -> v; \
@@ -81,48 +81,48 @@ static type set_##name##_rm(CMAP_SET_##name ** this) \
   return ret; \
 } \
  \
-static void set_##name##_clean_node(void * node, void * data) \
+static void sset_##name##_clean_node(void * node, void * data) \
 { \
   CMAP_KERNEL_FREE(node); \
 } \
  \
-static void set_##name##_clean(CMAP_SET_##name ** this) \
+static void sset_##name##_clean(CMAP_SSET_##name ** this) \
 { \
-  CMAP_STREE_CLEANFN(name, this, set_##name##_clean_node, NULL); \
+  CMAP_STREE_CLEANFN(name, this, sset_##name##_clean_node, NULL); \
 } \
  \
-static void * set_##name##_log_ptr(void * node) \
+static void * sset_##name##_log_ptr(void * node) \
 { \
-  return (void *)((CMAP_SET_##name *)node) -> v; \
+  return (void *)((CMAP_SSET_##name *)node) -> v; \
 } \
  \
-static void set_##name##_log(CMAP_SET_##name * this, char lvl) \
+static void sset_##name##_log(CMAP_SSET_##name * this, char lvl) \
 { \
   cmap_stree_public.log(lvl, &CMAP_STREE_RUNNER_NAME(name), this, \
-    set_##name##_log_ptr); \
+    sset_##name##_log_ptr); \
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_IMPL(name, type) \
-CMAP_SET_STATIC_FN_IMPL(name, type) \
+#define CMAP_SSET_IMPL(name, type) \
+CMAP_SSET_STATIC_FN_IMPL(name, type) \
  \
-const CMAP_SET_##name##_PUBLIC cmap_set_##name##_public = \
+const CMAP_SSET_##name##_PUBLIC cmap_sset_##name##_public = \
 { \
-  set_##name##_is, \
-  set_##name##_add, \
-  set_##name##_rm, \
-  set_##name##_clean, \
-  set_##name##_log \
+  sset_##name##_is, \
+  sset_##name##_add, \
+  sset_##name##_rm, \
+  sset_##name##_clean, \
+  sset_##name##_log \
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SET_STATIC(name, type) \
-CMAP_SET_STRUCT_DECL(name, type) \
-CMAP_SET_STATIC_FN_IMPL(name, type)
+#define CMAP_SSET_STATIC(name, type) \
+CMAP_SSET_STRUCT_DECL(name, type) \
+CMAP_SSET_STATIC_FN_IMPL(name, type)
 
 /*******************************************************************************
 *******************************************************************************/

@@ -3,7 +3,7 @@
 
 #include "cmap.h"
 #include "cmap-kernel.h"
-#include "cmap-set.h"
+#include "cmap-sset.h"
 #include "cmap-slist.h"
 #include "cmap-log.h"
 #include "cmap-lifecycle.h"
@@ -17,7 +17,7 @@
 
 typedef struct
 {
-  CMAP_SET_lc * refs;
+  CMAP_SSET_lc * refs;
 
   int nb_created;
 } INTERNAL;
@@ -32,7 +32,7 @@ static CMAP_CONSUMEDTIME_US consumed_time = {0};
 static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  if(cmap_set_lc_public.add(&internal -> refs, lc))
+  if(cmap_sset_lc_public.add(&internal -> refs, lc))
   {
     cmap_log_public.debug("[%p][refsstore] new ref : [%p]", this, lc);
 
@@ -74,12 +74,13 @@ typedef struct
   char way_ok;
   CMAP_LIFECYCLE * org;
   CMAP_SLIST_LC_PTR * crefs;
-  CMAP_SET_lc ** visiteds;
-  CMAP_SET_lc ** way_refs;
+  CMAP_SSET_lc ** visiteds;
+  CMAP_SSET_lc ** way_refs;
 } CAT_CREFS_APPLY_DATA;
 
 static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
-  CMAP_SLIST_LC_PTR * crefs, CMAP_SET_lc ** visiteds, CMAP_SET_lc ** way_refs);
+  CMAP_SLIST_LC_PTR * crefs, CMAP_SSET_lc ** visiteds,
+  CMAP_SSET_lc ** way_refs);
 
 static void cat_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
 {
@@ -98,9 +99,10 @@ static void cat_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
 }
 
 static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
-  CMAP_SLIST_LC_PTR * crefs, CMAP_SET_lc ** visiteds, CMAP_SET_lc ** way_refs)
+  CMAP_SLIST_LC_PTR * crefs, CMAP_SSET_lc ** visiteds,
+  CMAP_SSET_lc ** way_refs)
 {
-  if(cmap_set_lc_public.add(visiteds, lc))
+  if(cmap_sset_lc_public.add(visiteds, lc))
   {
     CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
     CMAP_CALL_ARGS(lc, nested, nested_list);
@@ -110,25 +112,25 @@ static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
 
     if(data.way_ok)
     {
-      cmap_set_lc_public.add(way_refs, lc);
+      cmap_sset_lc_public.add(way_refs, lc);
       return CMAP_T;
     }
     return CMAP_F;
   }
 
-  return cmap_set_lc_public.is(*way_refs, lc);
+  return cmap_sset_lc_public.is(*way_refs, lc);
 }
 
 static CMAP_SLIST_LC_PTR * get_cycling_refs(CMAP_LIFECYCLE * lc)
 {
   CMAP_SLIST_LC_PTR * crefs = cmap_slist_lc_ptr_public.create(0);
 
-  CMAP_SET_lc * visiteds = NULL, * way_refs = NULL;
+  CMAP_SSET_lc * visiteds = NULL, * way_refs = NULL;
   cat_cycling_refs(lc, lc, crefs, &visiteds, &way_refs);
   if(visiteds != NULL)
   {
-    cmap_set_lc_public.clean(&visiteds);
-    if(way_refs != NULL) cmap_set_lc_public.clean(&way_refs);
+    cmap_sset_lc_public.clean(&visiteds);
+    if(way_refs != NULL) cmap_sset_lc_public.clean(&way_refs);
   }
 
   return crefs;
@@ -155,21 +157,21 @@ static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)
   char ret = CMAP_T;
 
   CMAP_SLIST_LC_PTR * crefs = cmap_slist_lc_ptr_public.create(0);
-  CMAP_SET_lc * visiteds = NULL, * way_refs = NULL;
+  CMAP_SSET_lc * visiteds = NULL, * way_refs = NULL;
   cat_cycling_refs(lc, lc, crefs, &visiteds, &way_refs);
-  if(visiteds != NULL) cmap_set_lc_public.clean(&visiteds);
+  if(visiteds != NULL) cmap_sset_lc_public.clean(&visiteds);
 
   if(nb_refs > (CMAP_CALL(crefs, size) + 1)) ret = CMAP_F;
   else
   {
     while(ret && (way_refs != NULL))
     {
-      CMAP_LIFECYCLE * way_ref = cmap_set_lc_public.rm(&way_refs);
+      CMAP_LIFECYCLE * way_ref = cmap_sset_lc_public.rm(&way_refs);
       if((way_ref != lc) && !stay_future_zombie(way_ref)) ret = CMAP_F;
     }
   }
 
-  if(way_refs != NULL) cmap_set_lc_public.clean(&way_refs);
+  if(way_refs != NULL) cmap_sset_lc_public.clean(&way_refs);
 
   if(ret) CMAP_CALL_ARGS(crefs, apply, zombie_crefs_apply, NULL);
   CMAP_CALL(crefs, delete);
@@ -211,10 +213,10 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   int nb_loop = 0, nb_deleted = 0, nb_ret = 0;
   char delete_zombie = CMAP_KERNEL_INSTANCE -> cfg() -> delete_zombie;
 
-  CMAP_SET_lc ** refs = &internal -> refs;
+  CMAP_SSET_lc ** refs = &internal -> refs;
   while(*refs != NULL)
   {
-    CMAP_LIFECYCLE * lc = cmap_set_lc_public.rm(refs);
+    CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
     if(lc == ret) nb_ret++;
     else
     {
