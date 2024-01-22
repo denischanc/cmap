@@ -24,8 +24,7 @@ static void impl(char ** txt)
 
   const char * fn_name = cmap_fn_name_public.name();
   if(fn_name != NULL) cmap_string_public.append_args(txt,
-    SPACE "CMAP_ENV * env = cmap_env(argc, argv);\n"
-    SPACE "cmap_env_main(env, %s);\n", fn_name);
+    SPACE "cmap_env_main(cmap_env(argc, argv), %s);\n", fn_name);
   else cmap_string_public.append(txt, SPACE "cmap_env(argc, argv);\n");
 
   cmap_string_public.append(txt,
