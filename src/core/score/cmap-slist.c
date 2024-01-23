@@ -18,26 +18,73 @@ typedef struct NAME##_CHUNK NAME##_CHUNK; \
  \
 struct NAME##_CHUNK \
 { \
-  int start, stop, size; \
+  type * first; \
+  type * last; \
+  type * start; \
+  type * stop; \
+  int size; \
   NAME##_CHUNK * next, * prev; \
 }; \
  \
 typedef struct \
 { \
-  NAME##_CHUNK * first, * last, * no_free; \
+  NAME##_CHUNK * first, * last; \
   int size, chunk_size; \
+  char used; \
 } NAME##_INTERNAL; \
+ \
+/***************************************************************************** \
+*****************************************************************************/ \
+ \
+static inline void name##_inc_w_last(type ** p, NAME##_CHUNK * chunk) \
+{ \
+  (*p)++; \
+  if(*p > chunk -> last) *p = chunk -> first; \
+} \
+ \
+static inline void name##_dec_w_last(type ** p, NAME##_CHUNK * chunk) \
+{ \
+  (*p)--; \
+  if(*p < chunk -> first) *p = chunk -> last; \
+} \
+ \
+static inline void name##_add_w_last(type ** p, int i, NAME##_CHUNK * chunk) \
+{ \
+  (*p) += i; \
+  if(*p > chunk -> last) *p = chunk -> first + ((*p - chunk -> last) - 1); \
+} \
+ \
+static inline void name##_rm_w_last(type ** p, int i, NAME##_CHUNK * chunk) \
+{ \
+  (*p) -= i; \
+  if(*p < chunk -> first) *p = chunk -> last - ((chunk -> first - *p) - 1); \
+} \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
 static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
 { \
-  CMAP_MEM * mem = CMAP_KERNEL_MEM; \
-  NAME##_CHUNK * chunk = (NAME##_CHUNK *)mem -> alloc( \
-    sizeof(NAME##_CHUNK) + internal -> chunk_size * sizeof(type)); \
-  chunk -> start = 0; \
-  chunk -> stop = 0; \
+  NAME##_CHUNK * chunk; \
+  type * first; \
+  if(internal -> used) \
+  { \
+    CMAP_MEM * mem = CMAP_KERNEL_MEM; \
+    int chunk_size = internal -> chunk_size; \
+    chunk = (NAME##_CHUNK *)mem -> alloc( \
+      sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
+    first = (type *)(chunk + 1); \
+    chunk -> first = first; \
+    chunk -> last = first + (chunk_size - 1); \
+  } \
+  else \
+  { \
+    internal -> used = CMAP_T; \
+    chunk = (NAME##_CHUNK *)(internal + 1); \
+    first = (type *)(chunk + 1); \
+  } \
+  chunk -> start = first; \
+  chunk -> stop = first; \
   chunk -> size = 0; \
   chunk -> next = NULL; \
   chunk -> prev = NULL; \
@@ -60,7 +107,8 @@ static void name##_delete_first(NAME##_INTERNAL * internal) \
   NAME##_CHUNK * chunk = internal -> first; \
   internal -> first = chunk -> next; \
   internal -> first -> prev = NULL; \
-  if(chunk != internal -> no_free) CMAP_KERNEL_FREE(chunk); \
+  if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
+  else CMAP_KERNEL_FREE(chunk); \
 } \
  \
 /***************************************************************************** \
@@ -79,7 +127,8 @@ static void name##_delete_last(NAME##_INTERNAL * internal) \
   NAME##_CHUNK * chunk = internal -> last; \
   internal -> last = chunk -> prev; \
   internal -> last -> next = NULL; \
-  if(chunk != internal -> no_free) CMAP_KERNEL_FREE(chunk); \
+  if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
+  else CMAP_KERNEL_FREE(chunk); \
 } \
  \
 /***************************************************************************** \
@@ -95,9 +144,9 @@ static void name##_push(CMAP_SLIST_##NAME * this, type v) \
     last = internal -> last; \
   } \
  \
-  ((type *)(last + 1))[last -> stop] = v; \
+  *last -> stop = v; \
  \
-  cmap_util_public.inc_w_max(&last -> stop, internal -> chunk_size); \
+  name##_inc_w_last(&last -> stop, last); \
   last -> size++; \
   internal -> size++; \
 } \
@@ -112,8 +161,8 @@ static type name##_pop(CMAP_SLIST_##NAME * this) \
   if(last -> size <= 0) return dft; \
   else \
   { \
-    cmap_util_public.dec_w_max(&last -> stop, internal -> chunk_size); \
-    type ret = ((type *)(last + 1))[last -> stop]; \
+    name##_dec_w_last(&last -> stop, last); \
+    type ret = *last -> stop; \
  \
     if((last -> size <= 1) && (last != internal -> first)) \
       name##_delete_last(internal); \
@@ -137,11 +186,11 @@ static void name##_unshift(CMAP_SLIST_##NAME * this, type v) \
     first = internal -> first; \
   } \
  \
-  cmap_util_public.dec_w_max(&first -> start, internal -> chunk_size); \
+  name##_dec_w_last(&first -> start, first); \
   first -> size++; \
   internal -> size++; \
  \
-  ((type *)(first + 1))[first -> start] = v; \
+  *first -> start = v; \
 } \
  \
 /***************************************************************************** \
@@ -154,13 +203,13 @@ static type name##_shift(CMAP_SLIST_##NAME * this) \
   if(first -> size <= 0) return dft; \
   else \
   { \
-    type ret = ((type *)(first + 1))[first -> start]; \
+    type ret = *first -> start; \
  \
     if((first -> size <= 1) && (first != internal -> last)) \
       name##_delete_first(internal); \
     else \
     { \
-      cmap_util_public.inc_w_max(&first -> start, internal -> chunk_size); \
+      name##_inc_w_last(&first -> start, first); \
       first -> size--; \
     } \
     internal -> size--; \
@@ -188,10 +237,9 @@ static NAME##_CHUNK * name##_add_begin_get_chunk(NAME##_INTERNAL * internal, \
   while(*i >= chunk -> size) \
   { \
     NAME##_CHUNK * next_chunk = chunk -> next; \
-    ((type *)(chunk + 1))[chunk -> stop] = \
-      ((type *)(next_chunk + 1))[next_chunk -> start]; \
-    cmap_util_public.inc_w_max(&chunk -> stop, internal -> chunk_size); \
-    cmap_util_public.inc_w_max(&next_chunk -> start, internal -> chunk_size); \
+    *chunk -> stop = *next_chunk -> start; \
+    name##_inc_w_last(&chunk -> stop, chunk); \
+    name##_inc_w_last(&next_chunk -> start, next_chunk); \
  \
     (*i) -= chunk -> size; \
     chunk = next_chunk; \
@@ -207,18 +255,17 @@ static void name##_add_begin(NAME##_INTERNAL * internal, int i, type v) \
 { \
   NAME##_CHUNK * chunk = name##_add_begin_get_chunk(internal, &i); \
  \
-  cmap_util_public.dec_w_max(&chunk -> start, internal -> chunk_size); \
-  int off = chunk -> start; \
-  type * v_ptr = (type *)(chunk + 1); \
+  name##_dec_w_last(&chunk -> start, chunk); \
+  type * cur = chunk -> start; \
   for(; i > 0; i--) \
   { \
-    int next_off = off; \
-    cmap_util_public.inc_w_max(&next_off, internal -> chunk_size); \
-    v_ptr[off] = v_ptr[next_off]; \
-    off = next_off; \
+    type * next = cur; \
+    name##_inc_w_last(&next, chunk); \
+    *cur = *next; \
+    cur = next; \
   } \
  \
-  v_ptr[off] = v; \
+  *cur = v; \
 } \
  \
 /***************************************************************************** \
@@ -239,11 +286,10 @@ static NAME##_CHUNK * name##_add_end_get_chunk(NAME##_INTERNAL * internal, \
  \
   while(*i >= chunk -> size) \
   { \
-    cmap_util_public.dec_w_max(&chunk -> start, internal -> chunk_size); \
+    name##_dec_w_last(&chunk -> start, chunk); \
     NAME##_CHUNK * prev_chunk = chunk -> prev; \
-    cmap_util_public.dec_w_max(&prev_chunk -> stop, internal -> chunk_size); \
-    ((type *)(chunk + 1))[chunk -> start] = \
-      ((type *)(prev_chunk + 1))[prev_chunk -> stop]; \
+    name##_dec_w_last(&prev_chunk -> stop, prev_chunk); \
+    *chunk -> start = *prev_chunk -> stop; \
  \
     (*i) -= chunk -> size; \
     chunk = prev_chunk; \
@@ -259,18 +305,17 @@ static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
 { \
   NAME##_CHUNK * chunk = name##_add_end_get_chunk(internal, &i); \
  \
-  int off = chunk -> stop; \
-  cmap_util_public.inc_w_max(&chunk -> stop, internal -> chunk_size); \
-  type * v_ptr = (type *)(chunk + 1); \
+  type * cur = chunk -> stop; \
+  name##_inc_w_last(&chunk -> stop, chunk); \
   for(; i > 0; i--) \
   { \
-    int next_off = off; \
-    cmap_util_public.dec_w_max(&next_off, internal -> chunk_size); \
-    v_ptr[off] = v_ptr[next_off]; \
-    off = next_off; \
+    type * next = cur; \
+    name##_dec_w_last(&next, chunk); \
+    *cur = *next; \
+    cur = next; \
   } \
  \
-  v_ptr[off] = v; \
+  *cur = v; \
 } \
  \
 /***************************************************************************** \
@@ -297,11 +342,10 @@ static void name##_rm_begin_upd_chunk(NAME##_INTERNAL * internal, \
   NAME##_CHUNK * first = internal -> first; \
   while(chunk != first) \
   { \
-    cmap_util_public.dec_w_max(&chunk -> start, internal -> chunk_size); \
+    name##_dec_w_last(&chunk -> start, chunk); \
     NAME##_CHUNK * prev_chunk = chunk -> prev; \
-    cmap_util_public.dec_w_max(&prev_chunk -> stop, internal -> chunk_size); \
-    ((type *)(chunk + 1))[chunk -> start] = \
-      ((type *)(prev_chunk + 1))[prev_chunk -> stop]; \
+    name##_dec_w_last(&prev_chunk -> stop, prev_chunk); \
+    *chunk -> start = *prev_chunk -> stop; \
     chunk = prev_chunk; \
   } \
  \
@@ -330,17 +374,16 @@ static type name##_rm_begin(NAME##_INTERNAL * internal, int i) \
 { \
   NAME##_CHUNK * chunk = name##_rm_begin_get_chunk(internal, &i); \
  \
-  int off = chunk -> start; \
-  cmap_util_public.inc_w_max(&chunk -> start, internal -> chunk_size); \
-  cmap_util_public.add_w_max(&off, i, internal -> chunk_size); \
-  type * v_ptr = (type *)(chunk + 1); \
-  type v = v_ptr[off]; \
+  type * cur = chunk -> start; \
+  name##_inc_w_last(&chunk -> start, chunk); \
+  name##_add_w_last(&cur, i, chunk); \
+  type v = *cur; \
   for(; i > 0; i--) \
   { \
-    int next_off = off; \
-    cmap_util_public.dec_w_max(&next_off, internal -> chunk_size); \
-    v_ptr[off] = v_ptr[next_off]; \
-    off = next_off; \
+    type * next = cur; \
+    name##_dec_w_last(&next, chunk); \
+    *cur = *next; \
+    cur = next; \
   } \
  \
   name##_rm_begin_upd_chunk(internal, chunk); \
@@ -358,10 +401,9 @@ static void name##_rm_end_upd_chunk(NAME##_INTERNAL * internal, \
   while(chunk != last) \
   { \
     NAME##_CHUNK * next_chunk = chunk -> next; \
-    ((type *)(chunk + 1))[chunk -> stop] = \
-      ((type *)(next_chunk + 1))[next_chunk -> start]; \
-    cmap_util_public.inc_w_max(&next_chunk -> start, internal -> chunk_size); \
-    cmap_util_public.inc_w_max(&chunk -> stop, internal -> chunk_size); \
+    *chunk -> stop = *next_chunk -> start; \
+    name##_inc_w_last(&next_chunk -> start, next_chunk); \
+    name##_inc_w_last(&chunk -> stop, chunk); \
     chunk = next_chunk; \
   } \
  \
@@ -390,17 +432,16 @@ static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
 { \
   NAME##_CHUNK * chunk = name##_rm_end_get_chunk(internal, &i); \
  \
-  cmap_util_public.dec_w_max(&chunk -> stop, internal -> chunk_size); \
-  int off = chunk -> stop; \
-  cmap_util_public.rm_w_max(&off, i, internal -> chunk_size); \
-  type * v_ptr = (type *)(chunk + 1); \
-  type v = v_ptr[off]; \
+  name##_dec_w_last(&chunk -> stop, chunk); \
+  type * cur = chunk -> stop; \
+  name##_rm_w_last(&cur, i, chunk); \
+  type v = *cur; \
   for(; i > 0; i--) \
   { \
-    int next_off = off; \
-    cmap_util_public.inc_w_max(&next_off, internal -> chunk_size); \
-    v_ptr[off] = v_ptr[next_off]; \
-    off = next_off; \
+    type * next = cur; \
+    name##_inc_w_last(&next, chunk); \
+    *cur = *next; \
+    cur = next; \
   } \
  \
   name##_rm_end_upd_chunk(internal, chunk); \
@@ -446,9 +487,9 @@ static type * name##_get(CMAP_SLIST_##NAME * this, int i) \
   if(chunk == NULL) return NULL; \
   else \
   { \
-    int off = chunk -> start; \
-    cmap_util_public.add_w_max(&off, i, internal -> chunk_size); \
-    return ((type *)(chunk + 1)) + off; \
+    type * cur = chunk -> start; \
+    name##_add_w_last(&cur, i, chunk); \
+    return cur; \
   } \
 } \
  \
@@ -460,7 +501,7 @@ static type * name##_first(CMAP_SLIST_##NAME * this) \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = internal -> first; \
   if(first -> size <= 0) return NULL; \
-  else return ((type *)(first + 1)) + first -> start; \
+  else return first -> start; \
 } \
  \
 static type * name##_last(CMAP_SLIST_##NAME * this) \
@@ -470,9 +511,9 @@ static type * name##_last(CMAP_SLIST_##NAME * this) \
   if(last -> size <= 0) return NULL; \
   else \
   { \
-    int stop = last -> stop; \
-    cmap_util_public.dec_w_max(&stop, internal -> chunk_size); \
-    return ((type *)(last + 1)) + stop; \
+    type * cur = last -> stop; \
+    name##_dec_w_last(&cur, last); \
+    return cur; \
   } \
 } \
  \
@@ -487,20 +528,6 @@ static int name##_size(CMAP_SLIST_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_clean(CMAP_SLIST_##NAME * this) \
-{ \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  while(internal -> first != internal -> last) name##_delete_last(internal); \
-  NAME##_CHUNK * first = internal -> first; \
-  first -> start = 0; \
-  first -> stop = 0; \
-  first -> size = 0; \
-  internal -> size = 0; \
-} \
- \
-/***************************************************************************** \
-*****************************************************************************/ \
- \
 static void name##_apply(CMAP_SLIST_##NAME * this, \
   CMAP_SLIST_##NAME##_APPLY_FN fn, void * data) \
 { \
@@ -510,15 +537,14 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
   { \
     if(chunk -> size > 0) \
     { \
-      int off = chunk -> start; \
-      type * v_ptr = (type *)(chunk + 1); \
+      type * cur = chunk -> start; \
       /* It is possible that start == stop */ \
-      fn(v_ptr + off, data); \
-      cmap_util_public.inc_w_max(&off, internal -> chunk_size); \
-      while(off != chunk -> stop) \
+      fn(cur, data); \
+      name##_inc_w_last(&cur, chunk); \
+      while(cur != chunk -> stop) \
       { \
-        fn(v_ptr + off, data); \
-        cmap_util_public.inc_w_max(&off, internal -> chunk_size); \
+        fn(cur, data); \
+        name##_inc_w_last(&cur, chunk); \
       } \
     } \
     chunk = chunk -> next; \
@@ -528,15 +554,34 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
+static void name##_clean(CMAP_SLIST_##NAME * this, \
+  CMAP_SLIST_##NAME##_APPLY_FN fn, void * data) \
+{ \
+  name##_apply(this, fn, data); \
+ \
+  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
+  while(internal -> first != internal -> last) name##_delete_last(internal); \
+  NAME##_CHUNK * first = internal -> first; \
+  type * first_first = first -> first; \
+  first -> start = first_first; \
+  first -> stop = first_first; \
+  first -> size = 0; \
+  internal -> size = 0; \
+} \
+ \
+/***************************************************************************** \
+*****************************************************************************/ \
+ \
 static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * chunk = internal -> first; \
+  NAME##_CHUNK * no_free = (NAME##_CHUNK *)(internal + 1), \
+    * chunk = internal -> first; \
   while(chunk != NULL) \
   { \
     NAME##_CHUNK * tmp = chunk; \
     chunk = chunk -> next; \
-    if(tmp != internal -> no_free) CMAP_KERNEL_FREE(tmp); \
+    if(tmp != no_free) CMAP_KERNEL_FREE(tmp); \
   } \
 } \
  \
@@ -550,18 +595,21 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
 { \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   NAME##_CHUNK * first = (NAME##_CHUNK *)(internal + 1); \
+  type * first_first = (type *)(first + 1); \
  \
-  first -> start = 0; \
-  first -> stop = 0; \
+  first -> first = first_first; \
+  first -> last = first_first + (chunk_size - 1); \
+  first -> start = first_first; \
+  first -> stop = first_first; \
   first -> size = 0; \
   first -> next = NULL; \
   first -> prev = NULL; \
  \
   internal -> first = first; \
   internal -> last = first; \
-  internal -> no_free = first; \
   internal -> size = 0; \
   internal -> chunk_size = chunk_size; \
+  internal -> used = CMAP_T; \
  \
   this -> delete = name##_delete; \
   this -> push = name##_push; \

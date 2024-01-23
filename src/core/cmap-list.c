@@ -41,7 +41,8 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 
 static int size(CMAP_LIST * this)
 {
-  return CMAP_CALL((CMAP_SLIST_MAP *)this -> internal, size);
+  CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
+  return CMAP_CALL(this_list, size);
 }
 
 /*******************************************************************************
@@ -167,8 +168,7 @@ static void clean_apply(CMAP_MAP ** val, void * data)
 static void clean(CMAP_LIST * this)
 {
   CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
-  CMAP_CALL_ARGS(this_list, apply, clean_apply, NULL);
-  CMAP_CALL(this_list, clean);
+  CMAP_CALL_ARGS(this_list, clean, clean_apply, NULL);
 }
 
 /*******************************************************************************

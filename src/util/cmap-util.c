@@ -146,35 +146,6 @@ static int is_val(CMAP_LIST * list, CMAP_MAP * val)
 /*******************************************************************************
 *******************************************************************************/
 
-static void inc_w_max(int * i, int max)
-{
-  if(*i < max - 1) (*i)++;
-  else *i = 0;
-}
-
-static void dec_w_max(int * i, int max)
-{
-  if(*i > 0) (*i)--;
-  else *i = max - 1;
-}
-
-static void add_w_max(int * i, int v, int max)
-{
-  (*i) += v;
-  if(*i < 0) while(*i < 0) (*i) += max;
-  else if(*i >= max) while(*i >= max) (*i) -= max;
-}
-
-static void rm_w_max(int * i, int v, int max)
-{
-  (*i) -= v;
-  if(*i < 0) while(*i < 0) (*i) += max;
-  else if(*i >= max) while(*i >= max) (*i) -= max;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   fill_list, vfill_list, to_list, vto_list,
@@ -183,6 +154,5 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   copy,
   dup_string,
   strdup_,
-  is_val,
-  inc_w_max, dec_w_max, add_w_max, rm_w_max
+  is_val
 };
