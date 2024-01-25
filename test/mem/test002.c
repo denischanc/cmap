@@ -31,7 +31,7 @@ static int CMAP_STREE_EVALFN_NAME(nb)(void * node, void * data)
   return (node1 -> nb - node2 -> nb);
 }
 
-CMAP_STREE_RUNNER(nb, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(nb, NULL, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -42,7 +42,7 @@ typedef struct
   int * list;
 } STREE2LIST_ARGS;
 
-static void nb_stree2list(void * node, void * data)
+static void nb_stree2list(void * node, char is_eq, void * data)
 {
   STREE2LIST_ARGS * args = (STREE2LIST_ARGS *)data;
   int nb = ((NB *)node) -> nb;
@@ -53,7 +53,7 @@ static void nb_stree2list(void * node, void * data)
 #endif
 }
 
-static void nb_delete(void * node, void * data)
+static void nb_delete(void * node, char is_eq, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
   mem -> free(node);
@@ -73,7 +73,7 @@ static char check_sort(char gt_first, STREE2LIST_ARGS * args,
   }
 
   args -> i = 0;
-  CMAP_STREE_APPLYFN(nb, stree, *apply, gt_first, args);
+  CMAP_STREE_APPLYFN(nb, stree, *apply, gt_first, CMAP_T, args);
 #ifdef DEBUG
   printf("\n");
 #endif

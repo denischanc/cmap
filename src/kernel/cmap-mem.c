@@ -162,6 +162,7 @@ static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(block_free) =
 {
   node,
   CMAP_STREE_EVALFN_NAME(block_free),
+  NULL,
   CMAP_T, CMAP_F
 };
 

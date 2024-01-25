@@ -4,7 +4,14 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_PTR_EVALFN_IMPL(name, type) \
+#define PTR_LOOP(macro) \
+  macro(map, CMAP_MAP *) \
+  macro(lc, CMAP_LIFECYCLE *)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define PTR_EVALFN_IMPL(name, type) \
 static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
 { \
   type name##_l = ((CMAP_SSET_##name *)node) -> v; \
@@ -18,7 +25,18 @@ static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_SSET_LOOP(CMAP_SSET_IMPL)
+#define PTR_LOGFN_IMPL(name, type) \
+static const char * name##_runner_log(void * node) \
+{ \
+  static char buffer[20]; \
+  snprintf(buffer, sizeof(buffer), "%p", ((CMAP_SSET_##name *)node) -> v); \
+  return buffer; \
+}
 
-CMAP_SSET_PTR_EVALFN_IMPL(map, CMAP_MAP *)
-CMAP_SSET_PTR_EVALFN_IMPL(lc, CMAP_LIFECYCLE *)
+/*******************************************************************************
+*******************************************************************************/
+
+PTR_LOOP(PTR_EVALFN_IMPL)
+PTR_LOOP(PTR_LOGFN_IMPL)
+
+CMAP_SSET_LOOP(CMAP_SSET_IMPL)

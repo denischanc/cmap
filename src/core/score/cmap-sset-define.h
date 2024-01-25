@@ -11,8 +11,8 @@
 *******************************************************************************/
 
 #define CMAP_SSET_LOOP(macro) \
-  macro(map, CMAP_MAP *) \
-  macro(lc, CMAP_LIFECYCLE *)
+  macro(map, CMAP_MAP *, map_runner_log) \
+  macro(lc, CMAP_LIFECYCLE *, lc_runner_log)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -30,7 +30,7 @@ struct CMAP_SSET_##name \
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_DECL(name, type) \
+#define CMAP_SSET_DECL(name, type, runner_log) \
 CMAP_SSET_STRUCT_DECL(name, type) \
  \
 typedef struct \
@@ -47,21 +47,19 @@ extern const CMAP_SSET_##name##_PUBLIC cmap_sset_##name##_public;
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_STATIC_FN_IMPL(name, type) \
-static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data); \
+#define CMAP_SSET_STATIC_FN_IMPL(name, type, runner_log) \
+CMAP_STREE_RUNNER(name, runner_log, CMAP_F, CMAP_F); \
  \
-CMAP_STREE_RUNNER(name, CMAP_F, CMAP_F); \
- \
-static char sset_##name##_is(CMAP_SSET_##name * this, type v) \
+static char name##_is(CMAP_SSET_##name * this, type v) \
 { \
   CMAP_SSET_##name data; \
   data.v = v; \
   return (CMAP_STREE_FINDFN(name, this, &data) != NULL); \
 } \
  \
-static char sset_##name##_add(CMAP_SSET_##name ** this, type v) \
+static char name##_add(CMAP_SSET_##name ** this, type v) \
 { \
-  if(!sset_##name##_is(*this, v)) \
+  if(!name##_is(*this, v)) \
   { \
     CMAP_KERNEL_ALLOC_PTR(node, CMAP_SSET_##name); \
     node -> v = v; \
@@ -71,7 +69,7 @@ static char sset_##name##_add(CMAP_SSET_##name ** this, type v) \
   return CMAP_F; \
 } \
  \
-static type sset_##name##_rm(CMAP_SSET_##name ** this) \
+static type name##_rm(CMAP_SSET_##name ** this) \
 { \
   CMAP_SSET_##name * node_ret = *this; \
   CMAP_STREE_RMFN(name, this, node_ret); \
@@ -81,48 +79,42 @@ static type sset_##name##_rm(CMAP_SSET_##name ** this) \
   return ret; \
 } \
  \
-static void sset_##name##_clean_node(void * node, void * data) \
+static void name##_clean_apply(void * node, char is_eq, void * data) \
 { \
   CMAP_KERNEL_FREE(node); \
 } \
  \
-static void sset_##name##_clean(CMAP_SSET_##name ** this) \
+static void name##_clean(CMAP_SSET_##name ** this) \
 { \
-  CMAP_STREE_CLEANFN(name, this, sset_##name##_clean_node, NULL); \
+  CMAP_STREE_CLEANFN(name, this, name##_clean_apply, NULL); \
 } \
  \
-static void * sset_##name##_log_ptr(void * node) \
+static void name##_log(CMAP_SSET_##name * this, char lvl) \
 { \
-  return (void *)((CMAP_SSET_##name *)node) -> v; \
-} \
- \
-static void sset_##name##_log(CMAP_SSET_##name * this, char lvl) \
-{ \
-  cmap_stree_public.log(lvl, &CMAP_STREE_RUNNER_NAME(name), this, \
-    sset_##name##_log_ptr); \
+  CMAP_STREE_LOGFN(name, lvl, this); \
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_IMPL(name, type) \
-CMAP_SSET_STATIC_FN_IMPL(name, type) \
+#define CMAP_SSET_IMPL(name, type, runner_log) \
+CMAP_SSET_STATIC_FN_IMPL(name, type, runner_log) \
  \
 const CMAP_SSET_##name##_PUBLIC cmap_sset_##name##_public = \
 { \
-  sset_##name##_is, \
-  sset_##name##_add, \
-  sset_##name##_rm, \
-  sset_##name##_clean, \
-  sset_##name##_log \
+  name##_is, \
+  name##_add, \
+  name##_rm, \
+  name##_clean, \
+  name##_log \
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_STATIC(name, type) \
+#define CMAP_SSET_STATIC(name, type, runner_log) \
 CMAP_SSET_STRUCT_DECL(name, type) \
-CMAP_SSET_STATIC_FN_IMPL(name, type)
+CMAP_SSET_STATIC_FN_IMPL(name, type, runner_log)
 
 /*******************************************************************************
 *******************************************************************************/

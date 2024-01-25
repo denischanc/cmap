@@ -4,11 +4,12 @@
 #define CMAP_STREE_EVALFN_NAME(prefix) prefix##_stree_eval
 #define CMAP_STREE_RUNNER_NAME(prefix) prefix##_stree_runner
 
-#define CMAP_STREE_RUNNER(prefix, gt_usable, lt_usable) \
+#define CMAP_STREE_RUNNER(prefix, log, gt_usable, lt_usable) \
 static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(prefix) = \
 { \
   cmap_stree_node, \
   CMAP_STREE_EVALFN_NAME(prefix), \
+  log, \
   gt_usable, lt_usable \
 }
 
@@ -28,12 +29,15 @@ static CMAP_STREE_APPLY apply = \
   after_fn \
 }
 
-#define CMAP_STREE_APPLYFN(prefix, stree, apply_, gt_first, data) \
+#define CMAP_STREE_APPLYFN(prefix, stree, apply_, gt_first, eq_apply, data) \
   cmap_stree_public.apply(&CMAP_STREE_RUNNER_NAME(prefix), stree, &apply_, \
-    gt_first, (void *)data)
+    gt_first, eq_apply, (void *)data)
 
 #define CMAP_STREE_CLEANFN(prefix, stree, clean_, data) \
   cmap_stree_public.clean(&CMAP_STREE_RUNNER_NAME(prefix), (void **)stree, \
     clean_, (void *)data)
+
+#define CMAP_STREE_LOGFN(prefix, lvl, stree) \
+  cmap_stree_public.log(lvl, &CMAP_STREE_RUNNER_NAME(prefix), stree)
 
 #endif

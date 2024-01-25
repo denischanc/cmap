@@ -486,44 +486,61 @@ static void rm(CMAP_STREE_RUNNER * runner, void ** stree, void * node)
 /*******************************************************************************
 *******************************************************************************/
 
+static void doApply(CMAP_STREE_RUNNER * runner, void * stree,
+  CMAP_STREE_APPLY * apply, char gt_first, char eq_apply, void * data,
+  char is_eq)
+{
+  CMAP_STREE_NODE * stree_node = NODE(runner, stree);
+  void * gt = stree_node -> gt, * lt = stree_node -> lt, * cur;
+
+  if(apply -> before != NULL) apply -> before(stree, is_eq, data);
+
+  cur = (gt_first ? gt : lt);
+  if(cur != NULL)
+    doApply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
+
+  cur = stree_node -> eq;
+  if(eq_apply && (cur != NULL))
+    doApply(runner, cur, apply, gt_first, eq_apply, data, CMAP_T);
+
+  if(apply -> between != NULL) apply -> between(stree, is_eq, data);
+
+  cur = (gt_first ? lt : gt);
+  if(cur != NULL)
+    doApply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
+
+  if(apply -> after != NULL) apply -> after(stree, is_eq, data);
+}
+
 static void apply(CMAP_STREE_RUNNER * runner, void * stree,
-  CMAP_STREE_APPLY * apply_, char gt_first, void * data)
+  CMAP_STREE_APPLY * apply, char gt_first, char eq_apply, void * data)
 {
   if(stree != NULL)
-  {
-    CMAP_STREE_NODE * stree_node = NODE(runner, stree);
-    void * gt = stree_node -> gt, * lt = stree_node -> lt;
-
-    if(apply_ -> before != NULL) apply_ -> before(stree, data);
-
-    apply(runner, gt_first ? gt : lt, apply_, gt_first, data);
-
-    if(apply_ -> between != NULL) apply_ -> between(stree, data);
-
-    apply(runner, gt_first ? lt : gt, apply_, gt_first, data);
-
-    if(apply_ -> after != NULL) apply_ -> after(stree, data);
-  }
+    doApply(runner, stree, apply, gt_first, eq_apply, data, CMAP_F);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void clean(CMAP_STREE_RUNNER * runner, void ** stree,
-  CMAP_STREE_APPLY_FN clean_node, void * data)
+static void doClean(CMAP_STREE_RUNNER * runner, void ** stree,
+  CMAP_STREE_APPLY_FN clean, void * data, char is_eq)
 {
   void * node = *stree;
-  if(node != NULL)
-  {
-    CMAP_STREE_NODE * node_node = NODE(runner, node);
-    clean(runner, &node_node -> gt, clean_node, data);
-    clean(runner, &node_node -> eq, clean_node, data);
-    clean(runner, &node_node -> lt, clean_node, data);
+  CMAP_STREE_NODE * node_node = NODE(runner, node);
+  void * gt = node_node -> gt, * eq = node_node -> eq, * lt = node_node -> lt;
+  if(gt != NULL) doClean(runner, &node_node -> gt, clean, data, is_eq);
+  if(eq != NULL) doClean(runner, &node_node -> eq, clean, data, CMAP_T);
+  if(lt != NULL) doClean(runner, &node_node -> lt, clean, data, is_eq);
 
-    clean_node(node, data);
+  clean(node, is_eq, data);
 
-    *stree = NULL;
-  }
+  *stree = NULL;
+}
+
+static void clean(CMAP_STREE_RUNNER * runner, void ** stree,
+  CMAP_STREE_APPLY_FN clean, void * data)
+{
+  if(*stree != NULL) doClean(runner, stree, clean, data, CMAP_F);
 }
 
 /*******************************************************************************
@@ -531,9 +548,9 @@ static void clean(CMAP_STREE_RUNNER * runner, void ** stree,
 
 typedef struct
 {
-  CMAP_SLIST_CHAR_PTR * prefix_before, * prefix_after, * prefix_between;
+  CMAP_SLIST_CHAR_PTR * prefix_before, * prefix_between, * prefix_after;
   char log_lvl;
-  void * (*ptr)(void * node);
+  CMAP_STREE_RUNNER * runner;
 } LOG_APPLY_DATA;
 
 static char * log_cat(char * left, const char * right)
@@ -548,79 +565,79 @@ static char * log_cat(char * left, const char * right)
 }
 
 static void log_push_cat(char * left, CMAP_SLIST_CHAR_PTR * prefix_before,
-  CMAP_SLIST_CHAR_PTR * prefix_after, CMAP_SLIST_CHAR_PTR * prefix_between)
+  CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
   CMAP_CALL_ARGS(prefix_before, push, log_cat(left, "   "));
-  CMAP_CALL_ARGS(prefix_after, push, log_cat(left, "  |"));
   CMAP_CALL_ARGS(prefix_between, push, log_cat(left, "  +"));
+  CMAP_CALL_ARGS(prefix_after, push, log_cat(left, "  |"));
 }
 
 static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
-  CMAP_SLIST_CHAR_PTR * prefix_after, CMAP_SLIST_CHAR_PTR * prefix_between)
+  CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_FREE(CMAP_CALL(prefix_before, pop), mem);
-  CMAP_MEM_FREE(CMAP_CALL(prefix_after, pop), mem);
   CMAP_MEM_FREE(CMAP_CALL(prefix_between, pop), mem);
+  CMAP_MEM_FREE(CMAP_CALL(prefix_after, pop), mem);
 }
 
-static void log_before_apply(void * node, void * data)
+static void log_before_apply(void * node, char is_eq, void * data)
 {
   LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
-    * prefix_after = data_ -> prefix_after,
-    * prefix_between = data_ -> prefix_between;
+    * prefix_between = data_ -> prefix_between,
+    * prefix_after = data_ -> prefix_after;
   char * left = *CMAP_CALL(prefix_before, last);
-  log_push_cat(left, prefix_before, prefix_after, prefix_between);
+  log_push_cat(left, prefix_before, prefix_between, prefix_after);
 }
 
-static void log_between_apply(void * node, void * data)
+static void log_between_apply(void * node, char is_eq, void * data)
 {
   LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
-    * prefix_after = data_ -> prefix_after,
-    * prefix_between = data_ -> prefix_between;
+    * prefix_between = data_ -> prefix_between,
+    * prefix_after = data_ -> prefix_after;
 
-  log_free(prefix_before, prefix_after, prefix_between);
+  log_free(prefix_before, prefix_between, prefix_after);
 
   char * left = *CMAP_CALL(prefix_between, last);
-  cmap_log_public.log(data_ -> log_lvl, "%s%p", left, data_ -> ptr(node));
+  const char * right = data_ -> runner -> log(node);
+  cmap_log_public.log(data_ -> log_lvl, "%s%s", left, right);
 
   left = *CMAP_CALL(prefix_after, last);
-  log_push_cat(left, prefix_after, prefix_before, prefix_between);
+  log_push_cat(left, prefix_after, prefix_between, prefix_before);
 }
 
-static void log_after_apply(void * node, void * data)
+static void log_after_apply(void * node, char is_eq, void * data)
 {
   LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
-    * prefix_after = data_ -> prefix_after,
-    * prefix_between = data_ -> prefix_between;
-  log_free(prefix_before, prefix_after, prefix_between);
+    * prefix_between = data_ -> prefix_between,
+    * prefix_after = data_ -> prefix_after;
+  log_free(prefix_before, prefix_between, prefix_after);
 }
 
-CMAP_STREE_APPLY(log_apply_stree, log_before_apply, log_between_apply,
+CMAP_STREE_APPLY(log_apply, log_before_apply, log_between_apply,
   log_after_apply);
 
-static void log_(char lvl, CMAP_STREE_RUNNER * runner, void * stree,
-  void * (*ptr)(void * node))
+static void log_(char lvl, CMAP_STREE_RUNNER * runner, void * stree)
 {
   LOG_APPLY_DATA data;
   data.prefix_before = cmap_slist_char_ptr_public.create(0);
-  data.prefix_after = cmap_slist_char_ptr_public.create(0);
   data.prefix_between = cmap_slist_char_ptr_public.create(0);
+  data.prefix_after = cmap_slist_char_ptr_public.create(0);
   data.log_lvl = lvl;
-  data.ptr = ptr;
+  data.runner = runner;
 
   CMAP_CALL_ARGS(data.prefix_before, push, (char *)" ");
-  CMAP_CALL_ARGS(data.prefix_after, push, (char *)" ");
   CMAP_CALL_ARGS(data.prefix_between, push, (char *)"+");
+  CMAP_CALL_ARGS(data.prefix_after, push, (char *)" ");
 
-  apply(runner, stree, &log_apply_stree, CMAP_T, &data);
+  apply(runner, stree, &log_apply, CMAP_T, CMAP_F, &data);
 
   CMAP_CALL(data.prefix_before, delete);
-  CMAP_CALL(data.prefix_after, delete);
   CMAP_CALL(data.prefix_between, delete);
+  CMAP_CALL(data.prefix_after, delete);
 }
 
 /*******************************************************************************

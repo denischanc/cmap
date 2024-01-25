@@ -12,3 +12,4 @@ TODO
 * map: (key, val) in pool
 * NULL test before fn call (tree, nested, ...)
 * is_log_lvl_enabled()
+* util, util_map, util_list, util_mem

@@ -45,7 +45,7 @@ static int CMAP_STREE_EVALFN_NAME(entry)(void * node, void * data)
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_STREE_RUNNER(entry, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(entry, NULL, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -173,7 +173,7 @@ typedef struct
   void * data;
 } APPLY_APPLY_DATA;
 
-static void apply_apply(void * node, void * data)
+static void apply_apply(void * node, char is_eq, void * data)
 {
   ENTRY * entry = (ENTRY *)node;
   APPLY_APPLY_DATA * data_ = (APPLY_APPLY_DATA *)data;
@@ -198,13 +198,13 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
   data_.data = data;
 
   CMAP_STREE_APPLYFN(entry, internal -> entry_stree, apply_apply_stree, CMAP_T,
-    &data_);
+    CMAP_F, &data_);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_clean(void * node, void * data)
+static void delete_clean(void * node, char is_eq, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
   ENTRY * entry = (ENTRY *)node;
