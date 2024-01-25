@@ -8,12 +8,14 @@
 #include "cmap.h"
 #include "cmap-mem.h"
 #include "cmap-stree.h"
+#include "cmap-log.h"
+#include "cmap-kernel.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 #define SIZE 10
-#define MAX (1 << 16)
+#define NB_MAX (1 << 16)
 //#define DEBUG
 
 /*******************************************************************************
@@ -31,7 +33,14 @@ static int CMAP_STREE_EVALFN_NAME(nb)(void * node, void * data)
   return (node1 -> nb - node2 -> nb);
 }
 
-CMAP_STREE_RUNNER(nb, NULL, CMAP_F, CMAP_F);
+static const char * nb_runner_log(void * node)
+{
+  static char buffer[11];
+  snprintf(buffer, sizeof(buffer), "%d", ((NB *)node) -> nb);
+  return buffer;
+}
+
+CMAP_STREE_RUNNER(nb, nb_runner_log, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
@@ -79,7 +88,7 @@ static char check_sort(char gt_first, STREE2LIST_ARGS * args,
 #endif
 
   /********** Check order */
-  int prev = gt_first ? MAX : -1, cur;
+  int prev = gt_first ? NB_MAX : -1, cur;
   for(i = 0; i < SIZE; i++)
   {
     cur = args -> list[i];
@@ -112,10 +121,12 @@ int main(int argc, char * argv[])
   for(i = 0; i < SIZE; i++)
   {
     tmp = (NB *)mem -> alloc(sizeof(NB));
-    tmp -> nb = (random() % MAX);
+    tmp -> nb = (random() % NB_MAX);
 
     CMAP_STREE_ADDFN(nb, &nb_stree, tmp, tmp);
   }
+  cmap_kernel_public.dft_cfg() -> log_lvl = CMAP_LOG_INFO;
+  CMAP_STREE_LOGFN(nb, CMAP_LOG_INFO, nb_stree);
 
   /********** Check stree */
   STREE2LIST_ARGS args;
