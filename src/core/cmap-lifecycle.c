@@ -106,6 +106,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> nested = nested;
 
   if(allocator == NULL) CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
+  else CMAP_DEC_REFS(allocator);
 
   return this;
 }
