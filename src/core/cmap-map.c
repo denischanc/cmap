@@ -10,6 +10,7 @@
 #include "cmap-util.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /* TODO : annotations */
 
@@ -206,11 +207,29 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct
+{
+  CMAP_LIFECYCLE * this;
+  CMAP_MEM * mem;
+} DELETE_APPLY_DATA;
+
 static void delete_apply(void * node, char is_eq, void * data)
 {
-  CMAP_MEM * mem = (CMAP_MEM *)data;
   ENTRY * entry = (ENTRY *)node;
+  DELETE_APPLY_DATA * data_ = (DELETE_APPLY_DATA *)data;
+  CMAP_MEM * mem = data_ -> mem;
+
   CMAP_MEM_FREE(entry -> key, mem);
+
+  CMAP_MAP * val = entry -> val;
+  if(val != NULL)
+  {
+    CMAP_LIFECYCLE * this = data_ -> this;
+    cmap_log_public.debug("[%p][%s]-nested->[[%p]==>refs--]",
+      this, CMAP_NATURE(this), val);
+    CMAP_DEC_REFS(val);
+  }
+
   CMAP_MEM_FREE(entry, mem);
 }
 
@@ -219,7 +238,10 @@ static void delete(CMAP_LIFECYCLE * this)
   INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
-  CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, delete_apply, mem);
+  DELETE_APPLY_DATA data;
+  data.this = this;
+  data.mem = mem;
+  CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, delete_apply, &data);
 
   CMAP_MEM_FREE(internal, mem);
 

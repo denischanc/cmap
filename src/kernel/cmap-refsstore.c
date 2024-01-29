@@ -45,30 +45,6 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 /*******************************************************************************
 *******************************************************************************/
 
-static void dec_nested_refs_apply(CMAP_LIFECYCLE *** lc, void * data)
-{
-  if(**lc != NULL)
-  {
-    cmap_log_public.debug("[refsstore][%p]-nested->[[%p]==>NULL]", data, **lc);
-
-    CMAP_DEC_REFS(**lc);
-    **lc = NULL;
-  }
-}
-
-static void delete_with_nested(CMAP_LIFECYCLE * lc)
-{
-  CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
-  CMAP_CALL_ARGS(lc, nested, nested_list);
-  CMAP_CALL_ARGS(nested_list, apply, dec_nested_refs_apply, lc);
-  CMAP_CALL(nested_list, delete);
-
-  CMAP_CALL(lc, delete);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 typedef struct
 {
   char way_ok;
@@ -194,7 +170,7 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
     ret = CMAP_T;
   }
 
-  if(ret) delete_with_nested(lc);
+  if(ret) CMAP_CALL(lc, delete);
   else
   {
     cmap_log_public.debug("[%p][%s] nb_refs == [%d]", lc, CMAP_NATURE(lc),

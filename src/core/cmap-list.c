@@ -5,6 +5,7 @@
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-kernel.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -176,9 +177,22 @@ static void clean(CMAP_LIST * this)
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_apply(CMAP_MAP ** val, void * data)
+{
+  if(*val != NULL)
+  {
+    cmap_log_public.debug("[%p][%s]-nested->[[%p]==>refs--]",
+      data, CMAP_NATURE(data), *val);
+    CMAP_DEC_REFS(*val);
+  }
+}
+
 static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_CALL((CMAP_SLIST_MAP *)((CMAP_LIST *)this) -> internal, delete);
+  CMAP_SLIST_MAP * this_list =
+    (CMAP_SLIST_MAP *)((CMAP_LIST *)this) -> internal;
+  CMAP_CALL_ARGS(this_list, apply, delete_apply, this);
+  CMAP_CALL(this_list, delete);
 
   cmap_map_public.delete(this);
 }
