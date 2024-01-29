@@ -39,8 +39,7 @@ struct CMAP_SLIST_##NAME \
   void (*apply)(CMAP_SLIST_##NAME * this, CMAP_SLIST_##NAME##_APPLY_FN fn, \
     void * data); \
  \
-  void (*clean)(CMAP_SLIST_##NAME * this, CMAP_SLIST_##NAME##_APPLY_FN fn, \
-    void * data); \
+  void (*clean)(CMAP_SLIST_##NAME * this); \
 }; \
  \
 typedef struct \

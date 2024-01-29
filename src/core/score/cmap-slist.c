@@ -553,11 +553,8 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_clean(CMAP_SLIST_##NAME * this, \
-  CMAP_SLIST_##NAME##_APPLY_FN fn, void * data) \
+static void name##_clean(CMAP_SLIST_##NAME * this) \
 { \
-  name##_apply(this, fn, data); \
- \
   NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
   while(internal -> first != internal -> last) name##_delete_last(internal); \
   NAME##_CHUNK * first = internal -> first; \

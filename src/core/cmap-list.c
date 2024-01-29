@@ -169,7 +169,8 @@ static void clean_apply(CMAP_MAP ** val, void * data)
 static void clean(CMAP_LIST * this)
 {
   CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
-  CMAP_CALL_ARGS(this_list, clean, clean_apply, NULL);
+  CMAP_CALL_ARGS(this_list, apply, clean_apply, NULL);
+  CMAP_CALL(this_list, clean);
 }
 
 /*******************************************************************************
