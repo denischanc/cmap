@@ -136,8 +136,7 @@ static CMAP_MAP * new(CMAP_FN * this, CMAP_LIST * args,
   CMAP_MAP * map = NULL;
 
   CMAP_MAP * prototype = CMAP_GET(this, CMAP_PROTOTYPE_NAME);
-  if(prototype != NULL)
-    map = CMAP_PROTOTYPE_NEW(prototype, CMAP_MAP, proc_ctx);
+  if(prototype != NULL) map = CMAP_PROTOTYPE_NEW(prototype, proc_ctx);
   else map = CMAP_MAP(proc_ctx);
 
   CMAP_FN_PROC(this, proc_ctx, map, args);
@@ -167,8 +166,11 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_map_public.delete(this);
 }
 
-static void init(CMAP_FN * this, CMAP_FN_TPL process_)
+static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
+  CMAP_FN_TPL process_)
 {
+  cmap_map_public.init((CMAP_MAP *)this, initargs);
+
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
   lc -> nature = nature;
@@ -185,15 +187,20 @@ static void init(CMAP_FN * this, CMAP_FN_TPL process_)
   this -> process = process;
   this -> do_process = do_process;
   this -> new = new;
+
+  return this;
 }
 
 static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
+  CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
-  CMAP_MAP * prototype_fn = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
-  CMAP_FN * this = CMAP_PROTOTYPE_NEW(prototype_fn, CMAP_FN, proc_ctx);
-  init(this, process);
-  return this;
+  initargs.prototype = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
+
+  CMAP_FN * this = (CMAP_FN *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_FN));
+  return init(this, &initargs, process);
 }
 
 /*******************************************************************************

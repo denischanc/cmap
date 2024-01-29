@@ -20,6 +20,7 @@ include_cmap_HEADERS = \
   cmap-ptr-ext.h
 
 noinst_HEADERS = \
+  cmap-initargs.h \
   cmap-map.h \
   cmap-map-define.h \
   cmap-list.h \

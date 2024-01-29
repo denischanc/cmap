@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-kernel.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -181,8 +182,11 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_map_public.delete(this);
 }
 
-static void init(CMAP_LIST * this, int chunk_size)
+static CMAP_LIST * init(CMAP_LIST * this, CMAP_INITARGS * initargs,
+  int chunk_size)
 {
+  cmap_map_public.init((CMAP_MAP *)this, initargs);
+
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
   lc -> nature = nature;
@@ -200,15 +204,20 @@ static void init(CMAP_LIST * this, int chunk_size)
   this -> shift = shift;
   this -> apply = apply;
   this -> clean = clean;
+
+  return this;
 }
 
 static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
 {
+  CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
-  CMAP_MAP * prototype_list = CMAP_CALL_ARGS(ps, list_, proc_ctx);
-  CMAP_LIST * this = CMAP_PROTOTYPE_NEW(prototype_list, CMAP_LIST, proc_ctx);
-  init(this, chunk_size);
-  return this;
+  initargs.prototype = CMAP_CALL_ARGS(ps, list_, proc_ctx);
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
+
+  CMAP_LIST * this = (CMAP_LIST *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_LIST));
+  return init(this, &initargs, chunk_size);
 }
 
 /*******************************************************************************

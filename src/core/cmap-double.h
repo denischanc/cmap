@@ -19,7 +19,8 @@ struct CMAP_DOUBLE
 typedef struct
 {
   CMAP_DOUBLE * (*create)(double val, CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_DOUBLE * double_, double val);
+  CMAP_DOUBLE * (*init)(CMAP_DOUBLE * double_, CMAP_INITARGS * initargs,
+    double val);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   double (*get)(CMAP_DOUBLE * this);

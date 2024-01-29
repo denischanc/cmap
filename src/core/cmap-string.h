@@ -25,7 +25,8 @@ typedef struct
 {
   CMAP_STRING * (*create)(const char * val, int size_inc,
     CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_STRING * this, const char * val, int size_inc);
+  CMAP_STRING * (*init)(CMAP_STRING * this, CMAP_INITARGS * initargs,
+    const char * val, int size_inc);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   char * (*val)(CMAP_STRING * this);

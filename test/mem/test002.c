@@ -149,8 +149,8 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  CMAP_STREE_CLEANFN(nb, &nb_stree, nb_delete, mem);
-  CMAP_TEST_ASSERT_NOMSG(nb_stree == NULL);
+  CMAP_STREE_QUICKAPPLYFN(nb, nb_stree, nb_delete, mem);
+  nb_stree = NULL;
 
   mem -> free(args.list);
   args.list = NULL;

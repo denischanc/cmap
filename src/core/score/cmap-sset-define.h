@@ -86,7 +86,8 @@ static void name##_clean_apply(void * node, char is_eq, void * data) \
  \
 static void name##_clean(CMAP_SSET_##name ** this) \
 { \
-  CMAP_STREE_CLEANFN(name, this, name##_clean_apply, NULL); \
+  CMAP_STREE_QUICKAPPLYFN(name, *this, name##_clean_apply, NULL); \
+  *this = NULL; \
 } \
  \
 static void name##_log(CMAP_SSET_##name * this, char lvl) \

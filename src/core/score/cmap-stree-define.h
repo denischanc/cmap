@@ -33,9 +33,9 @@ static CMAP_STREE_APPLY apply = \
   cmap_stree_public.apply(&CMAP_STREE_RUNNER_NAME(prefix), stree, &apply_, \
     gt_first, eq_apply, (void *)data)
 
-#define CMAP_STREE_CLEANFN(prefix, stree, clean_, data) \
-  cmap_stree_public.clean(&CMAP_STREE_RUNNER_NAME(prefix), (void **)stree, \
-    clean_, (void *)data)
+#define CMAP_STREE_QUICKAPPLYFN(prefix, stree, apply, data) \
+  cmap_stree_public.quick_apply(&CMAP_STREE_RUNNER_NAME(prefix), stree, \
+    apply, (void *)data)
 
 #define CMAP_STREE_LOGFN(prefix, lvl, stree) \
   cmap_stree_public.log(lvl, &CMAP_STREE_RUNNER_NAME(prefix), stree)

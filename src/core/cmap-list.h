@@ -36,7 +36,8 @@ struct CMAP_LIST
 typedef struct
 {
   CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_LIST * list, int size_inc);
+  CMAP_LIST * (*init)(CMAP_LIST * list, CMAP_INITARGS * initargs,
+    int size_inc);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);

@@ -126,8 +126,11 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_map_public.delete(this);
 }
 
-static void init(CMAP_STRING * this, const char * val_, int size_inc)
+static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
+  const char * val_, int size_inc)
 {
+  cmap_map_public.init((CMAP_MAP *)this, initargs);
+
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
   lc -> nature = nature;
@@ -146,17 +149,22 @@ static void init(CMAP_STRING * this, const char * val_, int size_inc)
   this -> append = append;
   this -> append_sub = append_sub;
   this -> clean = clean;
+
+  return this;
 }
 
 static CMAP_STRING * create(const char * val, int size_inc,
   CMAP_PROC_CTX * proc_ctx)
 {
+  CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
-  CMAP_MAP * prototype_string = CMAP_CALL_ARGS(ps, string_, proc_ctx);
+  initargs.prototype = CMAP_CALL_ARGS(ps, string_, proc_ctx);
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
+
   CMAP_STRING * this =
-    CMAP_PROTOTYPE_NEW(prototype_string, CMAP_STRING, proc_ctx);
-  init(this, val, size_inc);
-  return this;
+    (CMAP_STRING *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_STRING));
+  return init(this, &initargs, val, size_inc);
 }
 
 /*******************************************************************************

@@ -39,9 +39,8 @@ typedef struct
 
   void (*apply)(CMAP_STREE_RUNNER * runner, void * stree,
     CMAP_STREE_APPLY * apply, char gt_first, char eq_apply, void * data);
-
-  void (*clean)(CMAP_STREE_RUNNER * runner, void ** stree,
-    CMAP_STREE_APPLY_FN clean, void * data);
+  void (*quick_apply)(CMAP_STREE_RUNNER * runner, void * stree,
+    CMAP_STREE_APPLY_FN apply, void * data);
 
   void (*log)(char lvl, CMAP_STREE_RUNNER * runner, void * stree);
 } CMAP_STREE_PUBLIC;

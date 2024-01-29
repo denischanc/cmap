@@ -16,6 +16,8 @@ typedef struct
   int nb_refs;
 
   CMAP_ENV * env;
+
+  CMAP_LIFECYCLE * allocator;
 } INTERNAL;
 
 /*******************************************************************************
@@ -76,16 +78,23 @@ static void delete(CMAP_LIFECYCLE * this)
 {
   cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
 
+  INTERNAL * internal = (INTERNAL *)this -> internal;
+  CMAP_LIFECYCLE * allocator = internal -> allocator;
+
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
-  CMAP_MEM_FREE(this -> internal, mem);
-  CMAP_MEM_FREE(this, mem);
+  CMAP_MEM_FREE(internal, mem);
+  if(allocator == NULL) CMAP_MEM_FREE(this, mem);
 }
 
-static void init(CMAP_LIFECYCLE * this, CMAP_PROC_CTX * proc_ctx)
+static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
 {
+  CMAP_PROC_CTX * proc_ctx = initargs -> proc_ctx;
+  CMAP_LIFECYCLE * allocator = initargs -> allocator;
+
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);
+  internal -> allocator = allocator;
 
   this -> internal = internal;
   this -> delete = delete;
@@ -96,7 +105,9 @@ static void init(CMAP_LIFECYCLE * this, CMAP_PROC_CTX * proc_ctx)
   this -> dec_refs_only = dec_refs_only;
   this -> nested = nested;
 
-  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
+  if(allocator == NULL) CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
+
+  return this;
 }
 
 /*******************************************************************************

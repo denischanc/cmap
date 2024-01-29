@@ -60,8 +60,11 @@ static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
   CMAP_POOL_##TYPE * this = (CMAP_POOL_##TYPE *)mem -> alloc( \
     sizeof(CMAP_POOL_##TYPE) + sizeof(INTERNAL)); \
  \
+  CMAP_INITARGS initargs; \
+  initargs.allocator = NULL; \
+  initargs.proc_ctx = proc_ctx; \
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this; \
-  cmap_lifecycle_public.init(lc, proc_ctx); \
+  cmap_lifecycle_public.init(lc, &initargs); \
   lc -> delete = type##_delete; \
   lc -> nature = type##_nature; \
  \

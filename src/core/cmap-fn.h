@@ -29,7 +29,8 @@ struct CMAP_FN
 
 typedef struct {
   CMAP_FN * (*create)(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_FN * this, CMAP_FN_TPL process);
+  CMAP_FN * (*init)(CMAP_FN * this, CMAP_INITARGS * initargs,
+    CMAP_FN_TPL process);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);

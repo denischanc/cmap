@@ -5,6 +5,7 @@
 #include "cmap-lifecycle-define.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-slist.h"
+#include "cmap-initargs.h"
 
 struct CMAP_LIFECYCLE
 {
@@ -24,7 +25,7 @@ struct CMAP_LIFECYCLE
 
 typedef struct
 {
-  void (*init)(CMAP_LIFECYCLE * this, CMAP_PROC_CTX * proc_ctx);
+  CMAP_LIFECYCLE * (*init)(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void (*inc_refs)(CMAP_LIFECYCLE * this);

@@ -9,7 +9,7 @@
   CMAP_CALL_ARGS((CMAP_MAP *)map, set, key, (CMAP_MAP *)val)
 #define CMAP_GET(map, key) CMAP_CALL_ARGS((CMAP_MAP *)map, get, key)
 
-#define CMAP_PROTOTYPE_NEW(proto, struct, proc_ctx) \
-  (struct *)CMAP_CALL_ARGS(proto, new, sizeof(struct), proc_ctx)
+#define CMAP_PROTOTYPE_NEW(proto, proc_ctx) \
+  CMAP_CALL_ARGS(proto, new, proc_ctx)
 
 #endif

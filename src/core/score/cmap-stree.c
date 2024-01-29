@@ -486,7 +486,7 @@ static void rm(CMAP_STREE_RUNNER * runner, void ** stree, void * node)
 /*******************************************************************************
 *******************************************************************************/
 
-static void doApply(CMAP_STREE_RUNNER * runner, void * stree,
+static void do_apply(CMAP_STREE_RUNNER * runner, void * stree,
   CMAP_STREE_APPLY * apply, char gt_first, char eq_apply, void * data,
   char is_eq)
 {
@@ -497,17 +497,17 @@ static void doApply(CMAP_STREE_RUNNER * runner, void * stree,
 
   cur = (gt_first ? gt : lt);
   if(cur != NULL)
-    doApply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
+    do_apply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
 
   cur = stree_node -> eq;
   if(eq_apply && (cur != NULL))
-    doApply(runner, cur, apply, gt_first, eq_apply, data, CMAP_T);
+    do_apply(runner, cur, apply, gt_first, eq_apply, data, CMAP_T);
 
   if(apply -> between != NULL) apply -> between(stree, is_eq, data);
 
   cur = (gt_first ? lt : gt);
   if(cur != NULL)
-    doApply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
+    do_apply(runner, cur, apply, gt_first, eq_apply, data, is_eq);
 
   if(apply -> after != NULL) apply -> after(stree, is_eq, data);
 }
@@ -516,31 +516,29 @@ static void apply(CMAP_STREE_RUNNER * runner, void * stree,
   CMAP_STREE_APPLY * apply, char gt_first, char eq_apply, void * data)
 {
   if(stree != NULL)
-    doApply(runner, stree, apply, gt_first, eq_apply, data, CMAP_F);
+    do_apply(runner, stree, apply, gt_first, eq_apply, data, CMAP_F);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void doClean(CMAP_STREE_RUNNER * runner, void ** stree,
-  CMAP_STREE_APPLY_FN clean, void * data, char is_eq)
+static void do_quick_apply(CMAP_STREE_RUNNER * runner, void * stree,
+  CMAP_STREE_APPLY_FN apply, void * data, char is_eq)
 {
-  void * node = *stree;
-  CMAP_STREE_NODE * node_node = NODE(runner, node);
-  void * gt = node_node -> gt, * eq = node_node -> eq, * lt = node_node -> lt;
-  if(gt != NULL) doClean(runner, &node_node -> gt, clean, data, is_eq);
-  if(eq != NULL) doClean(runner, &node_node -> eq, clean, data, CMAP_T);
-  if(lt != NULL) doClean(runner, &node_node -> lt, clean, data, is_eq);
+  CMAP_STREE_NODE * stree_node = NODE(runner, stree);
+  void * gt = stree_node -> gt, * eq = stree_node -> eq,
+    * lt = stree_node -> lt;
+  if(gt != NULL) do_quick_apply(runner, gt, apply, data, is_eq);
+  if(eq != NULL) do_quick_apply(runner, eq, apply, data, CMAP_T);
+  if(lt != NULL) do_quick_apply(runner, lt, apply, data, is_eq);
 
-  clean(node, is_eq, data);
-
-  *stree = NULL;
+  apply(stree, is_eq, data);
 }
 
-static void clean(CMAP_STREE_RUNNER * runner, void ** stree,
-  CMAP_STREE_APPLY_FN clean, void * data)
+static void quick_apply(CMAP_STREE_RUNNER * runner, void * stree,
+  CMAP_STREE_APPLY_FN apply, void * data)
 {
-  if(*stree != NULL) doClean(runner, stree, clean, data, CMAP_F);
+  if(stree != NULL) do_quick_apply(runner, stree, apply, data, CMAP_F);
 }
 
 /*******************************************************************************
@@ -655,7 +653,6 @@ const CMAP_STREE_PUBLIC cmap_stree_public =
 {
   find,
   add, rm,
-  apply,
-  clean,
+  apply, quick_apply,
   log_
 };

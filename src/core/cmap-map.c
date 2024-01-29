@@ -117,15 +117,17 @@ static CMAP_MAP * get(CMAP_MAP * this, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx);
+static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs);
 
-static void * new(CMAP_MAP * this, int size, CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * new(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_MEM -> alloc(size);
-  init(map, proc_ctx);
-  INTERNAL * internal = (INTERNAL *)map -> internal;
-  internal -> prototype = this;
-  return map;
+  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_MAP));
+
+  CMAP_INITARGS initargs;
+  initargs.prototype = this;
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
+  return init(map, &initargs);
 }
 
 /*******************************************************************************
@@ -204,7 +206,7 @@ static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_clean(void * node, char is_eq, void * data)
+static void delete_apply(void * node, char is_eq, void * data)
 {
   CMAP_MEM * mem = (CMAP_MEM *)data;
   ENTRY * entry = (ENTRY *)node;
@@ -217,24 +219,24 @@ static void delete(CMAP_LIFECYCLE * this)
   INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
-  CMAP_STREE_CLEANFN(entry, &internal -> entry_stree, delete_clean, mem);
+  CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, delete_apply, mem);
 
   CMAP_MEM_FREE(internal, mem);
 
   cmap_lifecycle_public.delete(this);
 }
 
-static void init(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
 {
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  cmap_lifecycle_public.init(lc, proc_ctx);
+  cmap_lifecycle_public.init(lc, initargs);
   lc -> delete = delete;
   lc -> nature = nature;
   lc -> nested = nested;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> entry_stree = NULL;
-  internal -> prototype = NULL;
+  internal -> prototype = initargs -> prototype;
 
   this -> internal = internal;
   this -> set = set;
@@ -243,18 +245,19 @@ static void init(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
   this -> is_key = is_key;
   this -> keys = keys;
   this -> apply = apply;
+
+  return this;
 }
 
 static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx)
 {
-  return (CMAP_MAP *)new(NULL, sizeof(CMAP_MAP), proc_ctx);
+  return new(NULL, proc_ctx);
 }
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
-  CMAP_MAP * prototype_map = CMAP_CALL_ARGS(ps, map_, proc_ctx);
-  return CMAP_PROTOTYPE_NEW(prototype_map, CMAP_MAP, proc_ctx);
+  return new(CMAP_CALL_ARGS(ps, map_, proc_ctx), proc_ctx);
 }
 
 /*******************************************************************************

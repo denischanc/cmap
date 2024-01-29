@@ -65,8 +65,11 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_map_public.delete(this);
 }
 
-static void init(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr)
+static CMAP_PTR * init(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
+  CMAP_PTR_DELETE delete_ptr)
 {
+  cmap_map_public.init((CMAP_MAP *)this, initargs);
+
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
   lc -> nature = nature;
@@ -87,16 +90,21 @@ static void init(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr)
   this -> internal = internal;
   this -> get = get;
   this -> ref = ref;
+
+  return this;
 }
 
 static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx)
 {
+  CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
-  CMAP_MAP * prototype_ptr = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
-  CMAP_PTR * this = CMAP_PROTOTYPE_NEW(prototype_ptr, CMAP_PTR, proc_ctx);
-  init(this, size, delete_ptr);
-  return this;
+  initargs.prototype = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
+
+  CMAP_PTR * this = (CMAP_PTR *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_PTR));
+  return init(this, &initargs, size, delete_ptr);
 }
 
 /*******************************************************************************

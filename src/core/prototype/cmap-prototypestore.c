@@ -91,8 +91,11 @@ static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
   CMAP_PROTOTYPESTORE * this = (CMAP_PROTOTYPESTORE *)mem -> alloc(
     sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
 
+  CMAP_INITARGS initargs;
+  initargs.allocator = NULL;
+  initargs.proc_ctx = proc_ctx;
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  cmap_lifecycle_public.init(lc, proc_ctx);
+  cmap_lifecycle_public.init(lc, &initargs);
   lc -> delete = delete;
   lc -> nature = nature;
 

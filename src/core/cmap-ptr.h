@@ -20,7 +20,8 @@ typedef struct
 {
   CMAP_PTR * (*create)(int size, CMAP_PTR_DELETE delete_ptr,
     CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_PTR * this, int size, CMAP_PTR_DELETE delete_ptr);
+  CMAP_PTR * (*init)(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
+    CMAP_PTR_DELETE delete_ptr);
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void * (*get)(CMAP_PTR * this);
