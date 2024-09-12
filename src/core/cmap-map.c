@@ -61,8 +61,11 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static void nested_apply(const char * key, CMAP_MAP ** val, void * data)
 {
-  CMAP_SLIST_LC_PTR * list = (CMAP_SLIST_LC_PTR *)data;
-  CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)val);
+  if(*val != NULL)
+  {
+    CMAP_SLIST_LC_PTR * list = (CMAP_SLIST_LC_PTR *)data;
+    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)val);
+  }
 }
 
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)

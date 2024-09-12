@@ -61,16 +61,19 @@ static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
 static void cat_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
 {
   CAT_CREFS_APPLY_DATA * data_ = (CAT_CREFS_APPLY_DATA *)data;
-  if(**lc == data_ -> org)
+  if(**lc != NULL)
   {
-    CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
-    data_ -> way_ok = CMAP_T;
-  }
-  else if(**lc != NULL)
-  {
-    if(cat_cycling_refs(**lc, data_ -> org, data_ -> crefs, data_ -> visiteds,
-        data_ -> way_refs))
+    if(**lc == data_ -> org)
+    {
+      CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
       data_ -> way_ok = CMAP_T;
+    }
+    else
+    {
+      if(cat_cycling_refs(**lc, data_ -> org, data_ -> crefs, data_ -> visiteds,
+          data_ -> way_refs))
+        data_ -> way_ok = CMAP_T;
+    }
   }
 }
 
@@ -120,7 +123,7 @@ static char stay_future_zombie(CMAP_LIFECYCLE * way_ref)
   CMAP_SLIST_LC_PTR * crefs = get_cycling_refs(way_ref);
   int crefs_size = CMAP_CALL(crefs, size);
   CMAP_CALL(crefs, delete);
-  return (CMAP_CALL(way_ref, nb_refs) == crefs_size);
+  return (CMAP_CALL(way_ref, nb_refs) <= crefs_size);
 }
 
 static void zombie_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
@@ -193,17 +196,20 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
-    if(lc == ret) nb_ret++;
+    if(lc == ret)
+    {
+      CMAP_CALL(ret, dec_refs_only);
+      nb_ret++;
+    }
     else
     {
       if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
       nb_loop++;
     }
   }
+
   cmap_log_public.debug("[refsstore] deleted %d/%d, nb ret = %d",
     nb_deleted, nb_loop, nb_ret);
-
-  for(int i = 0; i < nb_ret; i++) CMAP_CALL(ret, dec_refs_only);
 }
 
 /*******************************************************************************
