@@ -1,9 +1,10 @@
 #ifndef __CMAP_STACK_DEFINE_H__
 #define __CMAP_STACK_DEFINE_H__
 
-#define CMAP_STACK_DEF(name, type) \
-typedef struct CMAP_STACK_##name CMAP_STACK_##name; \
- \
+#define CMAP_STACK_TYPE(name) \
+typedef struct CMAP_STACK_##name CMAP_STACK_##name;
+
+#define CMAP_STACK_IMPL(name, type) \
 struct CMAP_STACK_##name \
 { \
   type v; \
@@ -28,5 +29,9 @@ static type cmap_stack_##name##_pop(CMAP_STACK_##name ** stack) \
   free(tmp); \
   return ret; \
 }
+
+#define CMAP_STACK_DEF(name, type) \
+CMAP_STACK_TYPE(name) \
+CMAP_STACK_IMPL(name, type)
 
 #endif

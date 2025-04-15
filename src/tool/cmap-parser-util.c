@@ -157,7 +157,7 @@ static void instructions_root()
 
 static char * name(char * name)
 {
-  const char * tmp = cmap_kv_public.get(cmap_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(*cmap_part_public.name2map_ptr(), name);
   if(tmp != NULL) return strdup(tmp);
   else
   {
@@ -202,7 +202,7 @@ static char * path(char * map, char * name)
 
 static void set_local(char * name, char * map)
 {
-  cmap_kv_public.put(cmap_part_public.name2map(), name, map);
+  cmap_kv_public.put(cmap_part_public.name2map_ptr(), name, map);
 
   /* WARNING: definitions can be used outside current function so we need
      to set values */
@@ -221,7 +221,7 @@ static void set_local(char * name, char * map)
 
 static void set_global(char * name, char * map)
 {
-  const char * tmp = cmap_kv_public.get(cmap_part_public.name2map(), name);
+  const char * tmp = cmap_kv_public.get(*cmap_part_public.name2map_ptr(), name);
   if(tmp != NULL) set_local(name, map);
   else
   {

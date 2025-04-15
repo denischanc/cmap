@@ -34,7 +34,7 @@ typedef struct
   void (*prepend_instruction)(const char * instruction);
   char (*is_definitions)();
   char (*is_global_env)();
-  CMAP_KV * (*name2map)();
+  CMAP_KV ** (*name2map_ptr)();
   char * (*pop_instructions)();
   void (*pop_instructions_to_part)(char ** part);
 

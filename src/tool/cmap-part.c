@@ -70,13 +70,13 @@ static void push_instructions()
   tmp.global_env = (1 == 0);
   tmp.return_ = (1 == 0);
   tmp.else_ = (1 == 0);
+  tmp.name2map = NULL;
   if(is_new_ctx || (instructions == NULL))
   {
     if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp.return_fn = (1 == 1);
     else tmp.return_fn = (1 == 0);
     tmp.prefix = strdup(SPACE);
     tmp.ctx = NULL;
-    tmp.name2map = cmap_kv_public.create();
   }
   else
   {
@@ -84,7 +84,6 @@ static void push_instructions()
     tmp.prefix = strdup(instructions -> v.prefix);
     cmap_string_public.append(&tmp.prefix, SPACE);
     tmp.ctx = instructions -> v.ctx;
-    tmp.name2map = NULL;
   }
 
   cmap_stack_instructions_push(&instructions, tmp);
@@ -165,9 +164,9 @@ static char is_global_env()
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KV * name2map()
+static CMAP_KV ** name2map_ptr()
 {
-  return instructions -> v.ctx -> name2map;
+  return &(instructions -> v.ctx -> name2map);
 }
 
 /*******************************************************************************
@@ -176,7 +175,7 @@ static CMAP_KV * name2map()
 static char * pop_instructions()
 {
   INSTRUCTIONS tmp = cmap_stack_instructions_pop(&instructions);
-  if(tmp.name2map != NULL) cmap_kv_public.delete(tmp.name2map);
+  cmap_kv_public.delete(&tmp.name2map);
   free(tmp.prefix);
   return tmp.instructions;
 }
@@ -274,7 +273,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   prepend_instruction,
   is_definitions,
   is_global_env,
-  name2map,
+  name2map_ptr,
   pop_instructions,
   pop_instructions_to_part,
   return_,

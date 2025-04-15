@@ -96,13 +96,13 @@ static void uv_dummy(uv_work_t * req)
 
 static void copy_apply_fn(const char * key, CMAP_MAP ** val, void * data)
 {
-  CMAP_MAP * dst = (CMAP_MAP *)data;
-  if(dst != NULL) CMAP_SET(dst, key, *val);
+  CMAP_SET(data, key, *val);
 }
 
 static CMAP_MAP * copy(CMAP_MAP * dst, CMAP_MAP * src)
 {
-  if(src != NULL) CMAP_CALL_ARGS(src, apply, copy_apply_fn, dst);
+  if((dst != NULL) && (src != NULL))
+    CMAP_CALL_ARGS(src, apply, copy_apply_fn, dst);
   return dst;
 }
 

@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "cmap-stack-define.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -11,44 +10,33 @@
 typedef struct
 {
   char * key, * val;
-} KV_CTR;
-
-CMAP_STACK_DEF(kv, KV_CTR)
-
-struct CMAP_KV
-{
-  CMAP_STACK_kv * stack;
-};
+} KV;
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KV * create()
-{
-  CMAP_KV * kv = (CMAP_KV *)malloc(sizeof(CMAP_KV));
-  kv -> stack = NULL;
-  return kv;
-}
+CMAP_STACK_IMPL(kv, KV)
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void put(CMAP_KV * kv, const char * key, const char * val)
+static void put(CMAP_KV ** kv_ptr, const char * key, const char * val)
 {
-  CMAP_STACK_kv * stack = kv -> stack;
-  while(stack != NULL)
+  CMAP_KV * kv = *kv_ptr;
+  while(kv != NULL)
   {
-    if(!strcmp(key, stack -> v.key))
+    KV * kv_elt = &(kv -> v);
+    if(!strcmp(key, kv_elt -> key))
     {
-      free(stack -> v.val);
-      stack -> v.val = strdup(val);
+      free(kv_elt -> val);
+      kv_elt -> val = strdup(val);
       return;
     }
-    stack = stack -> next;
+    kv = kv -> next;
   }
 
-  KV_CTR ctr = { strdup(key), strdup(val) };
-  cmap_stack_kv_push(&kv -> stack, ctr);
+  KV kv_elt = { strdup(key), strdup(val) };
+  cmap_stack_kv_push(kv_ptr, kv_elt);
 }
 
 /*******************************************************************************
@@ -56,11 +44,10 @@ static void put(CMAP_KV * kv, const char * key, const char * val)
 
 static const char * get(CMAP_KV * kv, const char * key)
 {
-  CMAP_STACK_kv * stack = kv -> stack;
-  while(stack != NULL)
+  while(kv != NULL)
   {
-    if(!strcmp(key, stack -> v.key)) return stack -> v.val;
-    stack = stack -> next;
+    if(!strcmp(key, kv -> v.key)) return kv -> v.val;
+    kv = kv -> next;
   }
   return NULL;
 }
@@ -68,15 +55,14 @@ static const char * get(CMAP_KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_KV * kv)
+static void delete(CMAP_KV ** kv_ptr)
 {
-  while(kv -> stack != NULL)
+  while(*kv_ptr != NULL)
   {
-    KV_CTR ctr = cmap_stack_kv_pop(&kv -> stack);
-    free(ctr.key);
-    free(ctr.val);
+    KV kv_elt = cmap_stack_kv_pop(kv_ptr);
+    free(kv_elt.key);
+    free(kv_elt.val);
   }
-  free(kv);
 }
 
 /*******************************************************************************
@@ -84,7 +70,6 @@ static void delete(CMAP_KV * kv)
 
 const CMAP_KV_PUBLIC cmap_kv_public =
 {
-  create,
   put,
   get,
   delete
