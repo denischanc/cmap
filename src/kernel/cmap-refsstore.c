@@ -252,12 +252,12 @@ static CMAP_REFSSTORE * create()
 /*******************************************************************************
 *******************************************************************************/
 
+#ifdef CONSUMED_TIME
 static void log_consumed_time(char lvl)
 {
-#ifdef CONSUMED_TIME
   cmap_consumedtime_public.log(lvl, &consumed_time, "refsstore");
-#endif
 }
+#endif
 
 /*******************************************************************************
 *******************************************************************************/
@@ -265,5 +265,7 @@ static void log_consumed_time(char lvl)
 const CMAP_REFSSTORE_PUBLIC cmap_refsstore_public =
 {
   create,
+#ifdef CONSUMED_TIME
   log_consumed_time
+#endif
 };

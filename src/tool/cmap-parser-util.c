@@ -607,7 +607,8 @@ static void if_(char * bool_name)
   char * instructions = cmap_part_public.pop_instructions(),
     * instruction = NULL;
 
-  APPEND_INSTRUCTION_ARGS("if(%s)", bool_name);
+  char * else_ = cmap_part_public.is_n_rst_else() ? "else " : "";
+  APPEND_INSTRUCTION_ARGS("%sif(%s)", else_, bool_name);
   free(bool_name);
   APPEND_INSTRUCTION("{");
   APPEND(instructions, instructions);
@@ -620,17 +621,9 @@ static void else_empty()
   APPEND_LF();
 }
 
-static void else_if_start()
+static void else_if()
 {
-  APPEND_INSTRUCTION("else");
-  APPEND_INSTRUCTION("{");
-
-  cmap_part_public.push_instructions();
-}
-
-static void else_if_stop()
-{
-  end_of_instructions_part();
+  cmap_part_public.set_else();
 }
 
 static void else_()
@@ -855,7 +848,7 @@ static void for_impl()
 static char * or_and(char * cmp_name_l, char * cmp_name_r, const char * op)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "(%s) %s (%s)",
+  cmap_string_public.append_args(&ret, "(%s %s %s)",
     cmp_name_l, op, cmp_name_r);
   free(cmp_name_l);
   free(cmp_name_r);
@@ -906,8 +899,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   c_impl_root,
   if_,
   else_empty,
-  else_if_start,
-  else_if_stop,
+  else_if,
   else_,
   CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
   cmp_unique,

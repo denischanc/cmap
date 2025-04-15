@@ -12,7 +12,9 @@ typedef struct
 
   char (*is_this)(CMAP_MEM * mem);
 
+#ifdef CONSUMED_TIME
   void (*log_consumed_time)(char lvl);
+#endif
 } CMAP_MEM_PUBLIC;
 
 extern const CMAP_MEM_PUBLIC cmap_mem_public;

@@ -33,12 +33,12 @@ cat_c() {
 	SED_ARGS+=" -e 's/%/%%/g'"
 	SED_ARGS+=" -e 's/@\(.*\)@/\" \1 \"/g'"
 	local TPL_CHAR_PTR=$(eval $SED $SED_ARGS $TPL | \
-		while read -r; do echo -n "$REPLY\\n"; done)
+		while read -r; do echo "\"$REPLY\\n\""; done)
 	cat << _EOF_
 
 #include "$H_NAME"
 
-const char * $VAR = "$TPL_CHAR_PTR";
+const char * $VAR = $TPL_CHAR_PTR;
 _EOF_
 }
 

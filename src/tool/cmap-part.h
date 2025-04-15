@@ -44,6 +44,9 @@ typedef struct
   char (*is_return_fn)();
 
   void (*add_include)(const char * name, char is_relative);
+
+  void (*set_else)();
+  char (*is_n_rst_else)();
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;

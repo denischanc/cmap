@@ -15,7 +15,8 @@ typedef struct INSTRUCTIONS INSTRUCTIONS;
 
 struct INSTRUCTIONS
 {
-  char * instructions, definitions, global_env, return_, return_fn, * prefix;
+  char * instructions, definitions, global_env, return_, return_fn, * prefix,
+    else_;
 
   CMAP_KV * name2map;
 
@@ -68,6 +69,7 @@ static void push_instructions()
   tmp.definitions = (1 == 0);
   tmp.global_env = (1 == 0);
   tmp.return_ = (1 == 0);
+  tmp.else_ = (1 == 0);
   if(is_new_ctx || (instructions == NULL))
   {
     if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp.return_fn = (1 == 1);
@@ -230,6 +232,21 @@ static void add_include(const char * name, char is_relative)
 /*******************************************************************************
 *******************************************************************************/
 
+static void set_else()
+{
+  instructions -> v.else_ = (1 == 1);
+}
+
+static char is_n_rst_else()
+{
+  char ret = instructions -> v.else_;
+  instructions -> v.else_ = (1 == 0);
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define PART_FREE(name) free(name); name = NULL;
 
 static void clean()
@@ -264,5 +281,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_return,
   return_fn,
   is_return_fn,
-  add_include
+  add_include,
+  set_else,
+  is_n_rst_else
 };

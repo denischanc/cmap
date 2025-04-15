@@ -412,12 +412,12 @@ static char is_this(CMAP_MEM * mem_)
 /*******************************************************************************
 *******************************************************************************/
 
+#ifdef CONSUMED_TIME
 static void log_consumed_time(char lvl)
 {
-#ifdef CONSUMED_TIME
   cmap_consumedtime_public.log(lvl, &consumed_time, "memory");
-#endif
 }
+#endif
 
 /*******************************************************************************
 *******************************************************************************/
@@ -427,5 +427,7 @@ const CMAP_MEM_PUBLIC cmap_mem_public =
   instance,
   state,
   is_this,
+#ifdef CONSUMED_TIME
   log_consumed_time
+#endif
 };

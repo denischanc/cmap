@@ -207,8 +207,7 @@ if: IF '(' comparison ')' '{' instructions '}'
 } else;
 
 else: { cmap_parser_util_public.else_empty(); }
-| ELSE { cmap_parser_util_public.else_if_start(); }
-  if { cmap_parser_util_public.else_if_stop(); }
+| ELSE { cmap_parser_util_public.else_if(); } if
 | ELSE '{' instructions '}' { cmap_parser_util_public.else_(); };
 
 /*******************************************************************************

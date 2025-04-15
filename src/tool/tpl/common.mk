@@ -4,8 +4,10 @@ CMAP_TPL_CFLAGS = \
   -DCMAP_INSTALL_LIBDIR="\"$(libdir)\"" \
   -DCMAP_INSTALL_INCLUDEDIR="\"$(includedir)\""
 
-cmap-prj-$(CMAP_PRJ_NATURE)-%.c: %.tpl
-	$(top_builddir)/src/tool/tpl/tpl2hc.sh $< $@ C
+TPL2HC_SH = $(top_builddir)/src/tool/tpl/tpl2hc.sh
 
-cmap-prj-$(CMAP_PRJ_NATURE)-%.h: %.tpl
-	$(top_builddir)/src/tool/tpl/tpl2hc.sh $< $@ INCLUDE
+cmap-prj-$(CMAP_PRJ_NATURE)-%.c: %.tpl $(TPL2HC_SH)
+	$(TPL2HC_SH) $< $@ C
+
+cmap-prj-$(CMAP_PRJ_NATURE)-%.h: %.tpl $(TPL2HC_SH)
+	$(TPL2HC_SH) $< $@ INCLUDE

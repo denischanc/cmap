@@ -43,8 +43,7 @@ typedef struct
 
   void (*if_)(char * cmp_name);
   void (*else_empty)();
-  void (*else_if_start)();
-  void (*else_if_stop)();
+  void (*else_if)();
   void (*else_)();
 
   CMAP_PARSER_UTIL_CMP_LOOP(CMAP_PARSER_UTIL_CMP_DECL)
