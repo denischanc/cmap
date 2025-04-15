@@ -1,0 +1,19 @@
+#ifndef __CMAP_STRINGS_H__
+#define __CMAP_STRINGS_H__
+
+#include "cmap-stack-define.h"
+
+CMAP_STACK_TYPE(strings)
+typedef CMAP_STACK_strings CMAP_STRINGS;
+
+typedef struct
+{
+  void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
+  void (*add_strings)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * strings);
+  char (*contains)(CMAP_STRINGS * strings, const char * string);
+  void (*delete)(CMAP_STRINGS ** strings_ptr);
+} CMAP_STRINGS_PUBLIC;
+
+extern const CMAP_STRINGS_PUBLIC cmap_strings_public;
+
+#endif
