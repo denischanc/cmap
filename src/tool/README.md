@@ -1,12 +1,9 @@
 CMAP tool
 =========
-Denis Chancogne <denis.chancogne@free.fr>
-:toc:
 
 ## Contexts
 
-[mermaid,target=ctx]
-----
+```mermaid
 flowchart BT
   subgraph cmap1 [CMAP]
     subgraph c11 [C]
@@ -41,12 +38,11 @@ flowchart BT
   end
   cmap2 -- ctx_cmap_prev --> ctx111
   cmap2 -. new_ctx_fn .-> c12
-----
+```
 
 ## Parts
 
-[mermaid,target=part]
-----
+```mermaid
 flowchart TD
   subgraph C
     includes[[includes]]
@@ -57,4 +53,4 @@ flowchart TD
   subgraph H
     headers[[headers]]
   end
-----
+```
