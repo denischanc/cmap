@@ -7,36 +7,65 @@
 #include "cmap-kv.h"
 #include "cmap-option.h"
 #include "cmap-stack-define.h"
+#include "cmap-strings.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct INSTRUCTIONS INSTRUCTIONS;
+typedef struct CTX_CMAP CTX_CMAP;
 
-struct INSTRUCTIONS
+struct CTX_CMAP
 {
-  char * instructions, definitions, global_env, return_, return_fn, * prefix,
-    else_;
+  CMAP_STRINGS * vars_loc, * vars_def;
+
+  CTX_CMAP * prev;
+};
+
+typedef struct CTX_C CTX_C;
+
+struct CTX_C
+{
+  char definitions, global_env, return_, return_fn;
 
   CMAP_KV * name2map;
 
-  INSTRUCTIONS * ctx;
+  CTX_CMAP * cmap;
+
+  CTX_C * prev;
 };
 
-CMAP_STACK_DEF(instructions, INSTRUCTIONS)
+typedef struct CTX_BLOCK CTX_BLOCK;
+
+struct CTX_BLOCK
+{
+  char * instructions, * prefix, else_;
+
+  CTX_C * c;
+  CTX_BLOCK * block;
+};
+
+typedef struct
+{
+  CTX_CMAP cmap;
+  CTX_C c;
+  CTX_BLOCK block;
+} CTX;
+
+CMAP_STACK_DEF(ctx, CTX)
 
 /*******************************************************************************
 *******************************************************************************/
 
-const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1;
+const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1,
+  CMAP_PART_CTX_NATURE_ROOT = 2;
 
 #define PART_VAR(name) static char * name = NULL;
 
 CMAP_PART_LOOP(PART_VAR)
 
-static CMAP_STACK_instructions * instructions = NULL;
+static CMAP_STACK_ctx * ctxs = NULL;
 
-static char is_new_ctx = (1 == 1), ctx_nature = CMAP_PART_CTX_NATURE_DFT;
+static char is_new_ctx, ctx_nature;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -62,35 +91,116 @@ static void new_ctx(char nature)
 /*******************************************************************************
 *******************************************************************************/
 
+static CTX ctx_new()
+{
+  CTX ctx;
+
+  ctx.block.instructions = strdup("");
+  ctx.block.prefix = strdup(SPACE);
+  ctx.block.else_ = (1 == 0);
+
+  ctx.c.definitions = (1 == 0);
+  ctx.c.global_env = (1 == 0);
+  ctx.c.return_ = (1 == 0);
+  ctx.c.name2map = NULL;
+
+  return ctx;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CTX ctx_root_fn(char return_fn, CTX_CMAP * cmap_prev)
+{
+  CTX ctx = ctx_new();
+
+  ctx.c.return_fn = return_fn;
+  ctx.c.prev = NULL;
+
+  ctx.cmap.vars_loc = NULL;
+  ctx.cmap.vars_def = NULL;
+  ctx.cmap.prev = cmap_prev;
+
+  return ctx;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CTX ctx_root()
+{
+  return ctx_root_fn((1 == 0), NULL);
+}
+
+static CTX ctx_fn(CTX_C * c_cur)
+{
+  return ctx_root_fn((1 == 1), c_cur -> cmap);
+}
+
+static CTX ctx_dft(CTX_C * c_cur)
+{
+  CTX ctx = ctx_new();
+
+  ctx.c.return_fn = (1 == 0);
+  ctx.c.cmap = c_cur -> cmap;
+  ctx.c.prev = c_cur;
+
+  return ctx;
+}
+
+static CTX ctx_block(CTX_C * c_cur)
+{
+  CTX ctx;
+
+  ctx.block.instructions = strdup("");
+  ctx.block.prefix = strdup(ctxs -> v.block.prefix);
+  cmap_string_public.append(&ctx.block.prefix, SPACE);
+  ctx.block.else_ = (1 == 0);
+  ctx.block.c = c_cur;
+  ctx.block.block = ctxs -> v.block.block;
+
+  ctx.c.name2map = NULL;
+
+  return ctx;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CTX get_ctx(CTX_C * c_cur)
+{
+  if(is_new_ctx)
+  {
+    if(ctx_nature == CMAP_PART_CTX_NATURE_ROOT) return ctx_root();
+    else if(ctx_nature == CMAP_PART_CTX_NATURE_FN) return ctx_fn(c_cur);
+    else return ctx_dft(c_cur);
+  }
+  else return ctx_block(c_cur);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void push_instructions()
 {
-  INSTRUCTIONS tmp;
-  tmp.instructions = strdup("");
-  tmp.definitions = (1 == 0);
-  tmp.global_env = (1 == 0);
-  tmp.return_ = (1 == 0);
-  tmp.else_ = (1 == 0);
-  tmp.name2map = NULL;
-  if(is_new_ctx || (instructions == NULL))
-  {
-    if(ctx_nature == CMAP_PART_CTX_NATURE_FN) tmp.return_fn = (1 == 1);
-    else tmp.return_fn = (1 == 0);
-    tmp.prefix = strdup(SPACE);
-    tmp.ctx = NULL;
-  }
-  else
-  {
-    tmp.return_fn = (1 == 0);
-    tmp.prefix = strdup(instructions -> v.prefix);
-    cmap_string_public.append(&tmp.prefix, SPACE);
-    tmp.ctx = instructions -> v.ctx;
-  }
+  CTX_C * c_cur = NULL;
+  if(ctxs == NULL) new_ctx(CMAP_PART_CTX_NATURE_ROOT);
+  else c_cur = ctxs -> v.block.c;
 
-  cmap_stack_instructions_push(&instructions, tmp);
-  if(tmp.ctx == NULL) instructions -> v.ctx = &instructions -> v;
+  cmap_stack_ctx_push(&ctxs, get_ctx(c_cur));
 
-  is_new_ctx = (1 == 0);
-  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
+  if(is_new_ctx)
+  {
+    CTX * ctx = &ctxs -> v;
+
+    ctx -> block.c = &ctx -> c;
+    ctx -> block.block = &ctx -> block;
+    if((ctx_nature == CMAP_PART_CTX_NATURE_FN) ||
+      (ctx_nature == CMAP_PART_CTX_NATURE_ROOT))
+      ctx -> c.cmap = &ctx -> cmap;
+
+    is_new_ctx = (1 == 0);
+  }
 }
 
 /*******************************************************************************
@@ -98,7 +208,7 @@ static void push_instructions()
 
 static char ** instructions_()
 {
-  return &instructions -> v.instructions;
+  return &ctxs -> v.block.instructions;
 }
 
 /*******************************************************************************
@@ -106,8 +216,8 @@ static char ** instructions_()
 
 static void add_instruction(const char * instruction)
 {
-  cmap_string_public.append_args(&instructions -> v.instructions, "%s%s\n",
-    instructions -> v.prefix, instruction);
+  cmap_string_public.append_args(instructions_(), "%s%s\n",
+    ctxs -> v.block.prefix, instruction);
 }
 
 /*******************************************************************************
@@ -115,7 +225,7 @@ static void add_instruction(const char * instruction)
 
 static void add_lf()
 {
-  cmap_string_public.append(&instructions -> v.instructions, "\n");
+  cmap_string_public.append(instructions_(), "\n");
 }
 
 /*******************************************************************************
@@ -123,13 +233,12 @@ static void add_lf()
 
 static void prepend_instruction(const char * instruction)
 {
-  INSTRUCTIONS * ctx = instructions -> v.ctx;
+  char ** instructions = &ctxs -> v.block.block -> instructions;
 
-  char * tmp = ctx -> instructions;
-  ctx -> instructions = NULL;
-  cmap_string_public.append_args(&ctx -> instructions,
-    SPACE "%s\n\n", instruction);
-  cmap_string_public.append(&ctx -> instructions, tmp);
+  char * tmp = *instructions;
+  *instructions = NULL;
+  cmap_string_public.append_args(instructions, SPACE "%s\n\n", instruction);
+  cmap_string_public.append(instructions, tmp);
   free(tmp);
 }
 
@@ -138,7 +247,7 @@ static void prepend_instruction(const char * instruction)
 
 static char is_definitions()
 {
-  INSTRUCTIONS * ctx = instructions -> v.ctx;
+  CTX_C * ctx = ctxs -> v.block.c;
   if(ctx -> definitions) return (1 == 1);
   else
   {
@@ -152,7 +261,7 @@ static char is_definitions()
 
 static char is_global_env()
 {
-  INSTRUCTIONS * ctx = instructions -> v.ctx;
+  CTX_C * ctx = ctxs -> v.block.c;
   if(ctx -> global_env) return (1 == 1);
   else
   {
@@ -166,7 +275,7 @@ static char is_global_env()
 
 static CMAP_KV ** name2map_ptr()
 {
-  return &(instructions -> v.ctx -> name2map);
+  return &ctxs -> v.block.c -> name2map;
 }
 
 /*******************************************************************************
@@ -174,16 +283,16 @@ static CMAP_KV ** name2map_ptr()
 
 static char * pop_instructions()
 {
-  INSTRUCTIONS tmp = cmap_stack_instructions_pop(&instructions);
-  cmap_kv_public.delete(&tmp.name2map);
-  free(tmp.prefix);
-  return tmp.instructions;
+  CTX ctx = cmap_stack_ctx_pop(&ctxs);
+  cmap_kv_public.delete(&ctx.c.name2map);
+  free(ctx.block.prefix);
+  return ctx.block.instructions;
 }
 
 static void pop_instructions_to_part(char ** part)
 {
   char * instructions_to_append = pop_instructions();
-  if(part == NULL) part = &instructions -> v.instructions;
+  if(part == NULL) part = instructions_();
   cmap_string_public.append(part, instructions_to_append);
   free(instructions_to_append);
 }
@@ -193,12 +302,12 @@ static void pop_instructions_to_part(char ** part)
 
 static void return_()
 {
-  instructions -> v.ctx -> return_ = (1 == 1);
+  ctxs -> v.block.c -> return_ = (1 == 1);
 }
 
 static char is_return()
 {
-  return instructions -> v.ctx -> return_;
+  return ctxs -> v.block.c -> return_;
 }
 
 /*******************************************************************************
@@ -206,12 +315,12 @@ static char is_return()
 
 static void return_fn()
 {
-  instructions -> v.ctx -> return_fn = (1 == 1);
+  ctxs -> v.block.c -> return_fn = (1 == 1);
 }
 
 static char is_return_fn()
 {
-  return instructions -> v.ctx -> return_fn;
+  return ctxs -> v.block.c -> return_fn;
 }
 
 /*******************************************************************************
@@ -233,13 +342,13 @@ static void add_include(const char * name, char is_relative)
 
 static void set_else()
 {
-  instructions -> v.else_ = (1 == 1);
+  ctxs -> v.block.else_ = (1 == 1);
 }
 
 static char is_n_rst_else()
 {
-  char ret = instructions -> v.else_;
-  instructions -> v.else_ = (1 == 0);
+  char ret = ctxs -> v.block.else_;
+  ctxs -> v.block.else_ = (1 == 0);
   return ret;
 }
 
@@ -252,8 +361,7 @@ static void clean()
 {
   CMAP_PART_LOOP(PART_FREE)
 
-  is_new_ctx = (1 == 1);
-  ctx_nature = CMAP_PART_CTX_NATURE_DFT;
+  new_ctx(CMAP_PART_CTX_NATURE_ROOT);
 }
 
 /*******************************************************************************
