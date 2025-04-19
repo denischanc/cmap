@@ -196,11 +196,7 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
-    if(lc == ret)
-    {
-      CMAP_CALL(ret, dec_refs_only);
-      nb_ret++;
-    }
+    if(lc == ret) nb_ret++;
     else
     {
       if(delete_or_dec_refs_only(lc, delete_zombie)) nb_deleted++;
@@ -210,6 +206,8 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 
   cmap_log_public.debug("[refsstore] deleted %d/%d, nb ret = %d",
     nb_deleted, nb_loop, nb_ret);
+
+  if(ret != NULL) CMAP_CALL_ARGS(ret, dec_refs_only_nb, nb_ret);
 }
 
 /*******************************************************************************

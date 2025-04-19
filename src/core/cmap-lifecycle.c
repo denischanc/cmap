@@ -64,6 +64,11 @@ static void dec_refs_only(CMAP_LIFECYCLE * this)
   ((INTERNAL *)this -> internal) -> nb_refs--;
 }
 
+static void dec_refs_only_nb(CMAP_LIFECYCLE * this, int nb)
+{
+  ((INTERNAL *)this -> internal) -> nb_refs -= nb;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -108,6 +113,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> nb_refs = nb_refs;
   this -> dec_refs = dec_refs;
   this -> dec_refs_only = dec_refs_only;
+  this -> dec_refs_only_nb = dec_refs_only_nb;
   this -> nested = nested;
 
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
@@ -122,6 +128,6 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
 const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
 {
   init, delete,
-  inc_refs, nb_refs, dec_refs, dec_refs_only,
+  inc_refs, nb_refs, dec_refs, dec_refs_only, dec_refs_only_nb,
   nested
 };
