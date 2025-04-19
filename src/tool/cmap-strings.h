@@ -8,9 +8,8 @@ typedef CMAP_STACK_strings CMAP_STRINGS;
 
 typedef struct
 {
-  void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
-  void (*add_strings)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * strings);
   char (*contains)(CMAP_STRINGS * strings, const char * string);
+  void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
   void (*delete)(CMAP_STRINGS ** strings_ptr);
 } CMAP_STRINGS_PUBLIC;
 

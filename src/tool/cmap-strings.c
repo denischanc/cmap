@@ -12,26 +12,6 @@ CMAP_STACK_IMPL(strings, char *)
 /*******************************************************************************
 *******************************************************************************/
 
-static void add(CMAP_STRINGS ** strings_ptr, const char * string)
-{
-  cmap_stack_strings_push(strings_ptr, strdup(string));
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void add_strings(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * strings)
-{
-  while(strings != NULL)
-  {
-    add(strings_ptr, strings -> v);
-    strings = strings -> next;
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static char contains(CMAP_STRINGS * strings, const char * string)
 {
   while(strings != NULL)
@@ -40,6 +20,15 @@ static char contains(CMAP_STRINGS * strings, const char * string)
     strings = strings -> next;
   }
   return (1 == 0);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void add(CMAP_STRINGS ** strings_ptr, const char * string)
+{
+  if(!contains(*strings_ptr, string))
+    cmap_stack_strings_push(strings_ptr, strdup(string));
 }
 
 /*******************************************************************************
@@ -55,8 +44,7 @@ static void delete(CMAP_STRINGS ** strings_ptr)
 
 const CMAP_STRINGS_PUBLIC cmap_strings_public =
 {
-  add,
-  add_strings,
   contains,
+  add,
   delete
 };
