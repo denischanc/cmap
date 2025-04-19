@@ -55,6 +55,27 @@ static const char * get(CMAP_KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_key(CMAP_KV ** kv_ptr, const char * key)
+{
+  while(*kv_ptr != NULL)
+  {
+    if(!strcmp((*kv_ptr) -> v.key, key))
+    {
+      CMAP_KV * cur = *kv_ptr;
+      *kv_ptr = cur -> next;
+      free(cur -> v.key);
+      free(cur -> v.val);
+      free(cur);
+      return;
+    }
+
+    kv_ptr = &(*kv_ptr) -> next;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete(CMAP_KV ** kv_ptr)
 {
   while(*kv_ptr != NULL)
@@ -72,5 +93,6 @@ const CMAP_KV_PUBLIC cmap_kv_public =
 {
   put,
   get,
+  delete_key,
   delete
 };
