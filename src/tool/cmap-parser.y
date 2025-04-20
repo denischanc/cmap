@@ -29,7 +29,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token ERROR
 %token<name> STRING C_IMPL INCLUDE NAME INT
 
-%type<name> cmap arg_names_cmap creator args function arg_names names
+%type<name> cmap arg_names_cmap creator args function names
 %type<name> comparison comparison_ creator_no_bracket cmap_no_bracket
 
 %%
@@ -150,12 +150,9 @@ args: { $$ = NULL; }
 /*******************************************************************************
 *******************************************************************************/
 
-arg_names: { $$ = NULL; }
-| NAME { $$ = cmap_parser_util_public.arg_names($1); }
-| arg_names ',' NAME
-{
-  $$ = cmap_parser_util_public.arg_names_push($1, $3);
-};
+arg_names:
+| NAME { cmap_parser_util_public.arg_name($1); }
+| arg_names ',' NAME { cmap_parser_util_public.arg_name($3); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -191,11 +188,11 @@ function: FUNCTION '(' arg_names ')' '{'
   cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_FN);
 } instructions '}'
 {
-  $$ = cmap_parser_util_public.function($3, NULL);
+  $$ = cmap_parser_util_public.function(NULL);
 }
 | FUNCTION '(' arg_names ')' '(' names ')'
 {
-  $$ = cmap_parser_util_public.function($3, $6);
+  $$ = cmap_parser_util_public.function($6);
 };
 
 /*******************************************************************************

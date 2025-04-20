@@ -6,6 +6,12 @@
 
 #define SPACE "  "
 
+typedef struct
+{
+  const char * map;
+  char dirty, is_def;
+} CMAP_PART_MAP_RET;
+
 extern const char CMAP_PART_CTX_NATURE_DFT;
 extern const char CMAP_PART_CTX_NATURE_FN;
 
@@ -34,7 +40,6 @@ typedef struct
   void (*prepend_instruction)(const char * instruction);
   char (*is_definitions)();
   char (*is_global_env)();
-  CMAP_KV ** (*name2map_ptr)();
   char * (*pop_instructions)();
   void (*pop_instructions_to_part)(char ** part);
 
@@ -46,7 +51,15 @@ typedef struct
   void (*add_include)(const char * name, char is_relative);
 
   void (*set_else)();
-  char (*is_n_rst_else)();
+  char (*is_else_n_rst)();
+
+  void (*name2map)(const char * name, const char * map);
+  void (*var_loc)(const char * name, const char * map);
+  char (*var)(const char * name, const char * map);
+  CMAP_PART_MAP_RET (*get_map)(const char * name);
+
+  void (*fn_arg_name)(char * name);
+  char * (*fn_arg_names)();
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;

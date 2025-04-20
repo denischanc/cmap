@@ -10,6 +10,10 @@ typedef struct
 {
   void (*put)(CMAP_KV ** kv_ptr, const char * key, const char * val);
   const char * (*get)(CMAP_KV * kv, const char * key);
+
+  void (*dirty)(CMAP_KV * kv, const char * key);
+  char (*is_dirty_n_rst)(CMAP_KV * kv, const char * key);
+
   void (*delete_key)(CMAP_KV ** kv_ptr, const char * key);
   void (*delete)(CMAP_KV ** kv_ptr);
 } CMAP_KV_PUBLIC;

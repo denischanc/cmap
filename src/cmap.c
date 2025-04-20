@@ -49,33 +49,33 @@ void cmap_fatal()
 
 CMAP_MAP * cmap_map(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_map_public.create(proc_ctx);
+  return CMAP_MAP(proc_ctx);
 }
 
 CMAP_LIST * cmap_list(int size_inc, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_list_public.create(size_inc, proc_ctx);
+  return CMAP_LIST(size_inc, proc_ctx);
 }
 
 CMAP_FN * cmap_fn(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_fn_public.create(process, proc_ctx);
+  return CMAP_FN(process, proc_ctx);
 }
 
 CMAP_STRING * cmap_string(const char * val, int size_inc,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_string_public.create(val, size_inc, proc_ctx);
+  return CMAP_STRING(val, size_inc, proc_ctx);
 }
 
 CMAP_INT * cmap_int(int64_t val, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_int_public.create(val, proc_ctx);
+  return CMAP_INT(val, proc_ctx);
 }
 
 CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_double_public.create(val, proc_ctx);
+  return CMAP_DOUBLE(val, proc_ctx);
 }
 
 CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
@@ -95,12 +95,12 @@ const char * cmap_nature(CMAP_MAP * map)
 
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)
 {
-  CMAP_CALL_ARGS(map, set, key, val);
+  CMAP_SET(map, key, val);
 }
 
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key)
 {
-  return CMAP_CALL_ARGS(map, get, key);
+  return CMAP_GET(map, key);
 }
 
 char cmap_is_key(CMAP_MAP * map, const char * key)
@@ -113,12 +113,12 @@ char cmap_is_key(CMAP_MAP * map, const char * key)
 
 void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val)
 {
-  CMAP_CALL_ARGS(list, set, i, val);
+  CMAP_LIST_SET(list, i, val);
 }
 
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 {
-  return CMAP_CALL_ARGS(list, get, i);
+  return CMAP_LIST_GET(list, i);
 }
 
 /*******************************************************************************

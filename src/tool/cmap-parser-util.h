@@ -18,8 +18,7 @@ typedef struct
 
   char * (*args_push)(char * list, char * map);
 
-  char * (*arg_names)(char * name);
-  char * (*arg_names_push)(char * list, char * name);
+  void (*arg_name)(char * name);
 
   char * (*args_map)(char * name, char * map);
   char * (*args_map_push)(char * list, char * name, char * map);
@@ -36,7 +35,7 @@ typedef struct
   char * (*process_resolve)(char need_ret);
   char * (*process_c)(char * fn_name, char need_ret);
 
-  char * (*function)(char * args, char * fn_name);
+  char * (*function)(char * fn_name);
 
   void (*c_impl)(char * impl);
   void (*c_impl_root)(char * impl);

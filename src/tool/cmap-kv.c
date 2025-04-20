@@ -9,7 +9,7 @@
 
 typedef struct
 {
-  char * key, * val;
+  char * key, * val, dirty;
 } KV;
 
 /*******************************************************************************
@@ -35,7 +35,7 @@ static void put(CMAP_KV ** kv_ptr, const char * key, const char * val)
     kv = kv -> next;
   }
 
-  KV kv_elt = { strdup(key), strdup(val) };
+  KV kv_elt = {strdup(key), strdup(val), (1 == 0)};
   cmap_stack_kv_push(kv_ptr, kv_elt);
 }
 
@@ -50,6 +50,40 @@ static const char * get(CMAP_KV * kv, const char * key)
     kv = kv -> next;
   }
   return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void dirty(CMAP_KV * kv, const char * key)
+{
+  while(kv != NULL)
+  {
+    if(!strcmp(key, kv -> v.key))
+    {
+      kv -> v.dirty = (1 == 1);
+      return;
+    }
+    kv = kv -> next;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_dirty_n_rst(CMAP_KV * kv, const char * key)
+{
+  while(kv != NULL)
+  {
+    if(!strcmp(key, kv -> v.key))
+    {
+      char ret = kv -> v.dirty;
+      kv -> v.dirty = (1 == 0);
+      return ret;
+    }
+    kv = kv -> next;
+  }
+  return (1 == 0);
 }
 
 /*******************************************************************************
@@ -91,8 +125,7 @@ static void delete(CMAP_KV ** kv_ptr)
 
 const CMAP_KV_PUBLIC cmap_kv_public =
 {
-  put,
-  get,
-  delete_key,
-  delete
+  put, get,
+  dirty, is_dirty_n_rst,
+  delete_key, delete
 };

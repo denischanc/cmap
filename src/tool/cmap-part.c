@@ -13,6 +13,8 @@
 *******************************************************************************/
 
 typedef struct CTX_CMAP CTX_CMAP;
+typedef struct CTX_C CTX_C;
+typedef struct CTX_BLOCK CTX_BLOCK;
 
 struct CTX_CMAP
 {
@@ -20,8 +22,6 @@ struct CTX_CMAP
 
   CTX_CMAP * prev;
 };
-
-typedef struct CTX_C CTX_C;
 
 struct CTX_C
 {
@@ -31,17 +31,18 @@ struct CTX_C
 
   CTX_CMAP * cmap;
 
+  CTX_BLOCK * block;
+
   CTX_C * prev;
 };
 
-typedef struct CTX_BLOCK CTX_BLOCK;
-
 struct CTX_BLOCK
 {
-  char * instructions, * prefix, else_;
+  char * instructions, * prefix, else_, nature;
+
+  CMAP_STRINGS * fn_arg_names, * dirties;
 
   CTX_C * c;
-  CTX_BLOCK * block;
 };
 
 typedef struct
@@ -57,7 +58,7 @@ CMAP_STACK_DEF(ctx, CTX)
 *******************************************************************************/
 
 const char CMAP_PART_CTX_NATURE_DFT = 0, CMAP_PART_CTX_NATURE_FN = 1,
-  CMAP_PART_CTX_NATURE_ROOT = 2;
+  CMAP_PART_CTX_NATURE_ROOT = 2, CMAP_PART_CTX_NATURE_BLOCK = 3;
 
 #define PART_VAR(name) static char * name = NULL;
 
@@ -91,9 +92,36 @@ static void new_ctx(char nature)
 /*******************************************************************************
 *******************************************************************************/
 
-static CTX ctx_new()
+static char is_ctx_cmap(char nature)
+{
+  return ((nature == CMAP_PART_CTX_NATURE_ROOT) ||
+    (nature == CMAP_PART_CTX_NATURE_FN));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CTX ctx_common()
 {
   CTX ctx;
+
+  ctx.block.fn_arg_names = NULL;
+  ctx.block.dirties = NULL;
+
+  ctx.c.name2map = NULL;
+
+  ctx.cmap.vars_loc = NULL;
+  ctx.cmap.vars_def = NULL;
+
+  return ctx;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CTX ctx_new()
+{
+  CTX ctx = ctx_common();
 
   ctx.block.instructions = strdup("");
   ctx.block.prefix = strdup(SPACE);
@@ -102,7 +130,6 @@ static CTX ctx_new()
   ctx.c.definitions = (1 == 0);
   ctx.c.global_env = (1 == 0);
   ctx.c.return_ = (1 == 0);
-  ctx.c.name2map = NULL;
 
   return ctx;
 }
@@ -127,19 +154,43 @@ static CTX ctx_root_fn(char return_fn, CTX_CMAP * cmap_prev)
 /*******************************************************************************
 *******************************************************************************/
 
+static void ctx_fn_upd_vars_loc_apply_fn(const char * string, void * data)
+{
+  cmap_strings_public.add((CMAP_STRINGS **)data, string);
+}
+
+static void ctx_fn_upd_vars_loc(CMAP_STRINGS ** vars_loc)
+{
+  cmap_strings_public.add(vars_loc, "this");
+  cmap_strings_public.add(vars_loc, "args");
+
+  cmap_strings_public.apply(ctxs -> v.block.fn_arg_names,
+    ctx_fn_upd_vars_loc_apply_fn, vars_loc);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CTX ctx_root()
 {
-  return ctx_root_fn((1 == 0), NULL);
+  CTX ctx = ctx_root_fn((1 == 0), NULL);
+  ctx.block.nature = CMAP_PART_CTX_NATURE_ROOT;
+  return ctx;
 }
 
 static CTX ctx_fn(CTX_C * c_cur)
 {
-  return ctx_root_fn((1 == 1), c_cur -> cmap);
+  CTX ctx = ctx_root_fn((1 == 1), c_cur -> cmap);
+  ctx.block.nature = CMAP_PART_CTX_NATURE_FN;
+  ctx_fn_upd_vars_loc(&ctx.cmap.vars_loc);
+  return ctx;
 }
 
 static CTX ctx_dft(CTX_C * c_cur)
 {
   CTX ctx = ctx_new();
+
+  ctx.block.nature = CMAP_PART_CTX_NATURE_DFT;
 
   ctx.c.return_fn = (1 == 0);
   ctx.c.cmap = c_cur -> cmap;
@@ -150,16 +201,15 @@ static CTX ctx_dft(CTX_C * c_cur)
 
 static CTX ctx_block(CTX_C * c_cur)
 {
-  CTX ctx;
+  CTX ctx = ctx_common();
+
+  ctx.block.nature = CMAP_PART_CTX_NATURE_BLOCK;
 
   ctx.block.instructions = strdup("");
   ctx.block.prefix = strdup(ctxs -> v.block.prefix);
   cmap_string_public.append(&ctx.block.prefix, SPACE);
   ctx.block.else_ = (1 == 0);
   ctx.block.c = c_cur;
-  ctx.block.block = ctxs -> v.block.block;
-
-  ctx.c.name2map = NULL;
 
   return ctx;
 }
@@ -194,10 +244,8 @@ static void push_instructions()
     CTX * ctx = &ctxs -> v;
 
     ctx -> block.c = &ctx -> c;
-    ctx -> block.block = &ctx -> block;
-    if((ctx_nature == CMAP_PART_CTX_NATURE_FN) ||
-      (ctx_nature == CMAP_PART_CTX_NATURE_ROOT))
-      ctx -> c.cmap = &ctx -> cmap;
+    ctx -> c.block = &ctx -> block;
+    if(is_ctx_cmap(ctx_nature)) ctx -> c.cmap = &ctx -> cmap;
 
     is_new_ctx = (1 == 0);
   }
@@ -233,7 +281,7 @@ static void add_lf()
 
 static void prepend_instruction(const char * instruction)
 {
-  char ** instructions = &ctxs -> v.block.block -> instructions;
+  char ** instructions = &ctxs -> v.block.c -> block -> instructions;
 
   char * tmp = *instructions;
   *instructions = NULL;
@@ -273,9 +321,22 @@ static char is_global_env()
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_KV ** name2map_ptr()
+static void mng_dirties_string_fn(const char * string, void * data)
 {
-  return &ctxs -> v.block.c -> name2map;
+  CMAP_KV * name2map = (CMAP_KV *)data;
+  cmap_kv_public.dirty(name2map, string);
+}
+
+static void mng_dirties(CTX_BLOCK * block)
+{
+  if((ctxs != NULL) && (block -> nature == CMAP_PART_CTX_NATURE_BLOCK))
+  {
+    CMAP_KV * name2map = ctxs -> v.block.c -> name2map;
+    cmap_strings_public.apply(block -> dirties, mng_dirties_string_fn,
+      name2map);
+  }
+
+  cmap_strings_public.delete(&block -> dirties);
 }
 
 /*******************************************************************************
@@ -284,8 +345,15 @@ static CMAP_KV ** name2map_ptr()
 static char * pop_instructions()
 {
   CTX ctx = cmap_stack_ctx_pop(&ctxs);
+
+  mng_dirties(&ctx.block);
+
   cmap_kv_public.delete(&ctx.c.name2map);
+  cmap_strings_public.delete(&ctx.cmap.vars_loc);
+  cmap_strings_public.delete(&ctx.cmap.vars_def);
+
   free(ctx.block.prefix);
+
   return ctx.block.instructions;
 }
 
@@ -345,11 +413,148 @@ static void set_else()
   ctxs -> v.block.else_ = (1 == 1);
 }
 
-static char is_n_rst_else()
+static char is_else_n_rst()
 {
   char ret = ctxs -> v.block.else_;
   ctxs -> v.block.else_ = (1 == 0);
   return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void name2map(const char * name, const char * map)
+{
+  CTX_BLOCK * block = &ctxs -> v.block;
+
+  cmap_kv_public.put(&block -> c -> name2map, name, map);
+
+  cmap_strings_public.add(&block -> dirties, name);
+}
+
+static void name2map_upd_prev(const char * name, const char * map)
+{
+  name2map(name, map);
+
+  CTX_C * c = ctxs -> v.block.c -> prev;
+  while(c != NULL)
+  {
+    cmap_kv_public.delete_key(&c -> name2map, name);
+
+    c = c -> prev;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void var_loc(const char * name, const char * map)
+{
+  name2map_upd_prev(name, map);
+
+  cmap_strings_public.add(&ctxs -> v.block.c -> cmap -> vars_loc, name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_var_loc_prev(const char * name)
+{
+  CTX_CMAP * cmap = ctxs -> v.block.c -> cmap -> prev;
+
+  while(cmap != NULL)
+  {
+    if(cmap_strings_public.contains(cmap -> vars_loc, name)) return (1 == 1);
+
+    cmap = cmap -> prev;
+  }
+
+  return (1 == 0);
+}
+
+static char var(const char * name, const char * map)
+{
+  name2map_upd_prev(name, map);
+
+  CTX_CMAP * cmap = ctxs -> v.block.c -> cmap;
+  if(cmap_strings_public.contains(cmap -> vars_loc, name) ||
+    cmap_strings_public.contains(cmap -> vars_def, name))
+    return (1 == 1);
+
+  if(is_var_loc_prev(name))
+  {
+    cmap_strings_public.add(&cmap -> vars_loc, name);
+    return (1 == 1);
+  }
+
+  return (1 == 0);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char maybe_var_def(CTX_CMAP * cmap, const char * name)
+{
+  if(cmap_strings_public.contains(cmap -> vars_def, name)) return (1 == 1);
+  if(cmap_strings_public.contains(cmap -> vars_loc, name)) return (1 == 1);
+
+  CTX_CMAP * cmap_prev = cmap -> prev;
+  if(cmap_prev == NULL) return (1 == 0);
+
+  if(!maybe_var_def(cmap_prev, name)) return (1 == 0);
+
+  cmap_strings_public.add(&cmap -> vars_def, name);
+  return (1 == 1);
+}
+
+static CMAP_PART_MAP_RET get_map(const char * name)
+{
+  CMAP_PART_MAP_RET ret;
+
+  CTX_BLOCK * block = &ctxs -> v.block;
+  CTX_C * c = block -> c;
+  CMAP_KV * name2map = c -> name2map;
+  CTX_CMAP * cmap = c -> cmap;
+
+  ret.is_def = cmap_strings_public.contains(cmap -> vars_loc, name) ?
+    (1 == 1) : maybe_var_def(cmap, name);
+
+  ret.map = cmap_kv_public.get(name2map, name);
+  if(ret.map != NULL)
+  {
+    ret.dirty = cmap_kv_public.is_dirty_n_rst(name2map, name);
+    if(ret.dirty) cmap_strings_public.add(&block -> dirties, name);
+  }
+
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void fn_arg_name(char * name)
+{
+  cmap_strings_public.add(&ctxs -> v.block.fn_arg_names, name);
+}
+
+static void fn_arg_names_apply_fn(const char * string, void * data)
+{
+  char ** args = (char **)data;
+
+  if(*args != NULL) cmap_string_public.append(args, ", ");
+
+  cmap_string_public.append_args(args, "\"%s\"", string);
+}
+
+static char * fn_arg_names()
+{
+  char * args = NULL;
+
+  CMAP_STRINGS ** arg_names = &ctxs -> v.block.fn_arg_names;
+  cmap_strings_public.apply(*arg_names, fn_arg_names_apply_fn, &args);
+  cmap_strings_public.delete(arg_names);
+
+  return args;
 }
 
 /*******************************************************************************
@@ -381,14 +586,12 @@ const CMAP_PART_PUBLIC cmap_part_public =
   prepend_instruction,
   is_definitions,
   is_global_env,
-  name2map_ptr,
   pop_instructions,
   pop_instructions_to_part,
-  return_,
-  is_return,
-  return_fn,
-  is_return_fn,
+  return_, is_return,
+  return_fn, is_return_fn,
   add_include,
-  set_else,
-  is_n_rst_else
+  set_else, is_else_n_rst,
+  name2map, var_loc, var, get_map,
+  fn_arg_name, fn_arg_names
 };

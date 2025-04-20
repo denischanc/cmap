@@ -105,6 +105,15 @@ static void add_args(char ** instruction, char * args)
 /*******************************************************************************
 *******************************************************************************/
 
+static void prepend_map_var(const char * map_name)
+{
+  char * instruction = NULL;
+  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s = NULL;", map_name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_STACK_DEF(char, char)
 CMAP_STACK_DEF(char_ptr, char *)
 
@@ -157,27 +166,28 @@ static void instructions_root()
 
 static char * name(char * name)
 {
-  const char * tmp = cmap_kv_public.get(*cmap_part_public.name2map_ptr(), name);
-  if(tmp != NULL) return strdup(tmp);
-  else
+  CMAP_PART_MAP_RET ret = cmap_part_public.get_map(name);
+  char * instruction = NULL,
+    * map_name = (ret.map == NULL) ? next_name() : strdup(ret.map);
+
+  if((ret.map == NULL) || ret.dirty)
   {
-    /* WARNING: definitions can become from a function so we need to keep "if"
-       implementation to get this values */
-    char * map_name = next_name(), * instruction = NULL;
+    if(ret.map == NULL)
+    {
+      prepend_map_var(map_name);
+      cmap_part_public.name2map(name, map_name);
+    }
+    else cmap_string_public.append_args(&instruction, "if(%s == NULL) ",
+      map_name);
 
-    PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
-    APPEND_INSTRUCTION_ARGS("if((%s != NULL) && cmap_is_key(%s, \"%s\"))",
-      add_definitions(), add_definitions(), name);
-    APPEND_INSTRUCTION_ARGS(SPACE "%s = cmap_get(%s, \"%s\");",
-      map_name, add_definitions(), name);
-    APPEND_INSTRUCTION_ARGS("else %s = cmap_get(%s, \"%s\");",
-      map_name, add_global_env(), name);
+    const char * dst = ret.is_def ? add_definitions() : add_global_env();
+    APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, dst, name);
     APPEND_LF();
-
-    free(name);
-
-    return map_name;
   }
+
+  free(name);
+
+  return map_name;
 }
 
 /*******************************************************************************
@@ -187,7 +197,7 @@ static char * path(char * map, char * name)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, map, name);
   APPEND_LF();
 
@@ -202,12 +212,9 @@ static char * path(char * map, char * name)
 
 static void set_local(char * name, char * map)
 {
-  cmap_kv_public.put(cmap_part_public.name2map_ptr(), name, map);
+  cmap_part_public.var_loc(name, map);
 
-  /* WARNING: definitions can be used outside current function so we need
-     to set values */
   char * instruction = NULL;
-
   APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);",
     add_definitions(), name, map);
   APPEND_LF();
@@ -221,25 +228,15 @@ static void set_local(char * name, char * map)
 
 static void set_global(char * name, char * map)
 {
-  const char * tmp = cmap_kv_public.get(*cmap_part_public.name2map_ptr(), name);
-  if(tmp != NULL) set_local(name, map);
-  else
-  {
-    /* WARNING: if variable is already local, we need to update it, otherwise
-       this is a global variable */
-    char * instruction = NULL;
+  const char * dst = cmap_part_public.var(name, map) ?
+    add_definitions() : add_global_env();
 
-    APPEND_INSTRUCTION_ARGS("if((%s != NULL) && cmap_is_key(%s, \"%s\"))",
-      add_definitions(), add_definitions(), name);
-    APPEND_INSTRUCTION_ARGS(SPACE "cmap_set(%s, \"%s\", %s);",
-      add_definitions(), name, map);
-    APPEND_INSTRUCTION_ARGS("else cmap_set(%s, \"%s\", %s);",
-      add_global_env(), name, map);
-    APPEND_LF();
+  char * instruction = NULL;
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map);
+  APPEND_LF();
 
-    free(name);
-    free(map);
-  }
+  free(name);
+  free(map);
 }
 
 /*******************************************************************************
@@ -273,25 +270,10 @@ static char * args_push(char * list, char * map)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * arg_names(char * name)
+static void arg_name(char * name)
 {
-  char * ret = NULL;
-  cmap_string_public.append_args(&ret, "\"%s\"", name);
-
+  cmap_part_public.fn_arg_name(name);
   free(name);
-
-  return ret;
-}
-
-static char * arg_names_push(char * list, char * name)
-{
-  char * ret = NULL;
-  cmap_string_public.append_args(&ret, "%s, \"%s\"", list, name);
-
-  free(list);
-  free(name);
-
-  return ret;
 }
 
 /*******************************************************************************
@@ -327,7 +309,7 @@ static char * map_args(char * args)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS("%s = cmap_to_map(proc_ctx", map_name);
   APPEND_LF();
 
@@ -341,7 +323,7 @@ static char * list_args(char * args)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS(
     "%s = (CMAP_MAP *)cmap_to_list(proc_ctx", map_name);
   APPEND_LF();
@@ -356,7 +338,7 @@ static char * string(char * string)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS(
     "%s = (CMAP_MAP *)cmap_string(%s, 0, proc_ctx);", map_name, string);
   APPEND_LF();
@@ -373,7 +355,7 @@ static char * int_(char * i)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS(
     "%s = (CMAP_MAP *)cmap_int(%s, proc_ctx);", map_name, i);
   APPEND_LF();
@@ -416,7 +398,7 @@ static char * process(char * map, char * fn_name, char * args, char need_ret)
   if(need_ret)
   {
     map_name = next_name();
-    PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+    prepend_map_var(map_name);
     APPEND_INSTRUCTION_ARGS_ARGS(
       "%s = cmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s",
       map_name, map_fn, map_keep);
@@ -444,7 +426,7 @@ static char * process_fn(char * fn, char * args, char need_ret)
   if(need_ret)
   {
     map_name = next_name();
-    PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+    prepend_map_var(map_name);
     APPEND_INSTRUCTION_ARGS_ARGS(
       "%s = cmap_fn_proc((CMAP_FN *)%s, proc_ctx, NULL", map_name, fn);
   }
@@ -515,7 +497,7 @@ static char * process_c(char * fn_name, char need_ret)
   if(need_ret)
   {
     map_name = next_name();
-    PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+    prepend_map_var(map_name);
     APPEND_INSTRUCTION_ARGS("%s = cmap_delete_proc_ctx(%s, %s(%s));",
       map_name, proc_ctx_name, fn_name, proc_ctx_name);
   }
@@ -535,7 +517,7 @@ static char * process_c(char * fn_name, char need_ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * function(char * args, char * fn_name)
+static char * function(char * fn_name)
 {
   char * map_name = next_name(), * instruction = NULL;
 
@@ -553,7 +535,7 @@ static char * function(char * args, char * fn_name)
     APPEND(functions, "}\n\n");
   }
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS(
     "%s = (CMAP_MAP *)cmap_fn(%s, proc_ctx);", map_name, fn_name);
 
@@ -563,6 +545,7 @@ static char * function(char * args, char * fn_name)
     "cmap_copy_map(cmap_fn_require_definitions((CMAP_FN *)%s, proc_ctx), %s);",
     map_name, add_definitions());
 
+  char * args = cmap_part_public.fn_arg_names();
   if(args != NULL)
   {
     APPEND_INSTRUCTION_ARGS_ARGS("cmap_add_arg_names((CMAP_FN *)%s", map_name);
@@ -607,7 +590,7 @@ static void if_(char * bool_name)
   char * instructions = cmap_part_public.pop_instructions(),
     * instruction = NULL;
 
-  char * else_ = cmap_part_public.is_n_rst_else() ? "else " : "";
+  char * else_ = cmap_part_public.is_else_n_rst() ? "else " : "";
   APPEND_INSTRUCTION_ARGS("%sif(%s)", else_, bool_name);
   free(bool_name);
   APPEND_INSTRUCTION("{");
@@ -697,7 +680,7 @@ static char * new(char * map, char * args)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS(
     "%s = cmap_new((CMAP_FN *)%s, proc_ctx", map_name, map);
   APPEND_LF();
@@ -760,7 +743,7 @@ static char * sb_int(char * map, char * i)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS(
     "%s = cmap_list_get((CMAP_LIST *)%s, %s);", map_name, map, i);
   APPEND_LF();
@@ -775,7 +758,7 @@ static char * sb_string(char * map, char * string)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, %s);", map_name, map, string);
   APPEND_LF();
 
@@ -789,7 +772,7 @@ static char * sb_map(char * map, char * map_i)
 {
   char * map_name = next_name(), * instruction = NULL;
 
-  PREPEND_INSTRUCTION_ARGS("CMAP_MAP * %s = NULL;", map_name);
+  prepend_map_var(map_name);
   APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);
   APPEND_INSTRUCTION_ARGS(
     SPACE "%s = cmap_list_get((CMAP_LIST *)%s, cmap_int_get((CMAP_INT *)%s));",
@@ -872,47 +855,22 @@ static char * and(char * cmp_name_l, char * cmp_name_r)
 
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
-  include_,
-  function_c,
-  instructions_root,
-  name,
-  path,
-  set_local,
-  set_global,
-  set_path,
+  include_, function_c, instructions_root,
+  name, path,
+  set_local, set_global, set_path,
   args_push,
-  arg_names,
-  arg_names_push,
-  args_map,
-  args_map_push,
-  map_args,
-  list_args,
-  string,
-  int_,
+  arg_name,
+  args_map, args_map_push,
+  map_args, list_args, string, int_,
   return_,
-  process_prepare,
-  process_prepare_fn,
-  process_resolve,
-  process_c,
+  process_prepare, process_prepare_fn, process_resolve, process_c,
   function,
-  c_impl,
-  c_impl_root,
-  if_,
-  else_empty,
-  else_if,
-  else_,
-  CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET)
-  cmp_unique,
+  c_impl, c_impl_root,
+  if_, else_empty, else_if, else_,
+  CMAP_PARSER_UTIL_CMP_LOOP(CMP_SET) cmp_unique,
   new,
-  set_sb_int,
-  set_sb_string,
-  set_sb_map,
-  sb_int,
-  sb_string,
-  sb_map,
+  set_sb_int, set_sb_string, set_sb_map, sb_int, sb_string, sb_map,
   names,
-  for_decl,
-  for_impl,
-  or,
-  and
+  for_decl, for_impl,
+  or, and
 };

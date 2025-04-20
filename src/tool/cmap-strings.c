@@ -34,6 +34,18 @@ static void add(CMAP_STRINGS ** strings_ptr, const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
+static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
+  void * data)
+{
+  if(strings == NULL) return;
+  apply(strings -> next, fn, data);
+
+  fn(strings -> v, data);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete(CMAP_STRINGS ** strings_ptr)
 {
   while(*strings_ptr != NULL) free(cmap_stack_strings_pop(strings_ptr));
@@ -46,5 +58,6 @@ const CMAP_STRINGS_PUBLIC cmap_strings_public =
 {
   contains,
   add,
+  apply,
   delete
 };
