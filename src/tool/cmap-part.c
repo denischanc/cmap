@@ -7,7 +7,7 @@
 #include "cmap-kv.h"
 #include "cmap-option.h"
 #include "cmap-stack-define.h"
-#include "cmap-strings.h"
+#include "cmap-kv.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -144,8 +144,6 @@ static CTX ctx_root_fn(char return_fn, CTX_CMAP * cmap_prev)
   ctx.c.return_fn = return_fn;
   ctx.c.prev = NULL;
 
-  ctx.cmap.vars_loc = NULL;
-  ctx.cmap.vars_def = NULL;
   ctx.cmap.prev = cmap_prev;
 
   return ctx;
@@ -448,6 +446,24 @@ static void name2map_upd_prev(const char * name, const char * map)
 /*******************************************************************************
 *******************************************************************************/
 
+static char is_var_loc(CTX_CMAP * cmap, const char * name)
+{
+  return cmap_strings_public.contains(cmap -> vars_loc, name);
+}
+
+static char is_var_def(CTX_CMAP * cmap, const char * name)
+{
+  return cmap_strings_public.contains(cmap -> vars_def, name);
+}
+
+static char is_var_loc_or_def(CTX_CMAP * cmap, const char * name)
+{
+  return (is_var_loc(cmap, name) || is_var_def(cmap, name));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void var_loc(const char * name, const char * map)
 {
   name2map_upd_prev(name, map);
@@ -464,7 +480,7 @@ static char is_var_loc_prev(const char * name)
 
   while(cmap != NULL)
   {
-    if(cmap_strings_public.contains(cmap -> vars_loc, name)) return (1 == 1);
+    if(is_var_loc(cmap, name)) return (1 == 1);
 
     cmap = cmap -> prev;
   }
@@ -477,9 +493,7 @@ static char var(const char * name, const char * map)
   name2map_upd_prev(name, map);
 
   CTX_CMAP * cmap = ctxs -> v.block.c -> cmap;
-  if(cmap_strings_public.contains(cmap -> vars_loc, name) ||
-    cmap_strings_public.contains(cmap -> vars_def, name))
-    return (1 == 1);
+  if(is_var_loc_or_def(cmap, name)) return (1 == 1);
 
   if(is_var_loc_prev(name))
   {
@@ -495,8 +509,7 @@ static char var(const char * name, const char * map)
 
 static char maybe_var_def(CTX_CMAP * cmap, const char * name)
 {
-  if(cmap_strings_public.contains(cmap -> vars_def, name)) return (1 == 1);
-  if(cmap_strings_public.contains(cmap -> vars_loc, name)) return (1 == 1);
+  if(is_var_loc_or_def(cmap, name)) return (1 == 1);
 
   CTX_CMAP * cmap_prev = cmap -> prev;
   if(cmap_prev == NULL) return (1 == 0);
@@ -516,8 +529,7 @@ static CMAP_PART_MAP_RET get_map(const char * name)
   CMAP_KV * name2map = c -> name2map;
   CTX_CMAP * cmap = c -> cmap;
 
-  ret.is_def = cmap_strings_public.contains(cmap -> vars_loc, name) ?
-    (1 == 1) : maybe_var_def(cmap, name);
+  ret.is_def = is_var_loc(cmap, name) ? (1 == 1) : maybe_var_def(cmap, name);
 
   ret.map = cmap_kv_public.get(name2map, name);
   if(ret.map != NULL)
@@ -527,6 +539,14 @@ static CMAP_PART_MAP_RET get_map(const char * name)
   }
 
   return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_STRINGS * get_vars_def()
+{
+  return ctxs -> v.block.c -> cmap -> vars_def;
 }
 
 /*******************************************************************************
@@ -592,6 +612,6 @@ const CMAP_PART_PUBLIC cmap_part_public =
   return_fn, is_return_fn,
   add_include,
   set_else, is_else_n_rst,
-  name2map, var_loc, var, get_map,
+  name2map, var_loc, var, get_map, get_vars_def,
   fn_arg_name, fn_arg_names
 };

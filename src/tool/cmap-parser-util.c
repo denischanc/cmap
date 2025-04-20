@@ -517,12 +517,40 @@ static char * process_c(char * fn_name, char need_ret)
 /*******************************************************************************
 *******************************************************************************/
 
+static void function_def_string_fn(const char * string, void * data)
+{
+  const char * map_def = (const char *)data;
+  char * var_name = name(strdup(string)), * instruction = NULL;
+
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);",
+    map_def, string, var_name);
+
+  free(var_name);
+}
+
+static void function_def(char * map_name, CMAP_STRINGS * vars_def)
+{
+  char * map_def = next_name(), * instruction = NULL;
+
+  prepend_map_var(map_def);
+  APPEND_INSTRUCTION_ARGS(
+    "%s = cmap_fn_require_definitions((CMAP_FN *)%s, proc_ctx);",
+    map_def, map_name);
+
+  cmap_strings_public.apply(vars_def, function_def_string_fn, map_def);
+
+  free(map_def);
+}
+
 static char * function(char * fn_name)
 {
   char * map_name = next_name(), * instruction = NULL;
+  CMAP_STRINGS * vars_def = NULL;
 
   if(fn_name == NULL)
   {
+    vars_def = cmap_strings_public.clone(cmap_part_public.get_vars_def());
+
     fn_name = next_name();
 
     APPEND_ARGS(functions,
@@ -541,9 +569,11 @@ static char * function(char * fn_name)
 
   free(fn_name);
 
-  APPEND_INSTRUCTION_ARGS(
-    "cmap_copy_map(cmap_fn_require_definitions((CMAP_FN *)%s, proc_ctx), %s);",
-    map_name, add_definitions());
+  if(vars_def != NULL)
+  {
+    function_def(map_name, vars_def);
+    cmap_strings_public.delete(&vars_def);
+  }
 
   char * args = cmap_part_public.fn_arg_names();
   if(args != NULL)

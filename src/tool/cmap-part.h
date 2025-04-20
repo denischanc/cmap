@@ -2,7 +2,7 @@
 #define __CMAP_PART_H__
 
 #include "cmap-part-define.h"
-#include "cmap-kv.h"
+#include "cmap-strings.h"
 
 #define SPACE "  "
 
@@ -57,6 +57,7 @@ typedef struct
   void (*var_loc)(const char * name, const char * map);
   char (*var)(const char * name, const char * map);
   CMAP_PART_MAP_RET (*get_map)(const char * name);
+  CMAP_STRINGS * (*get_vars_def)();
 
   void (*fn_arg_name)(char * name);
   char * (*fn_arg_names)();
