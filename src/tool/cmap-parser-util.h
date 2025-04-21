@@ -16,6 +16,7 @@ typedef struct
   void (*set_global)(char * name, char * map);
   void (*set_path)(char * src, char * name, char * map);
 
+  char * (*args)(char * map);
   char * (*args_push)(char * list, char * map);
 
   void (*arg_name)(char * name);
@@ -40,7 +41,7 @@ typedef struct
   void (*c_impl)(char * impl);
   void (*c_impl_root)(char * impl);
 
-  void (*if_)(char * cmp_name);
+  void (*if_)(char * cmp_call);
   void (*else_empty)();
   void (*else_if)();
   void (*else_)();
@@ -59,11 +60,12 @@ typedef struct
 
   char * (*names)(char * names, char * name);
 
-  void (*for_decl)(char * cmp_name);
+  char * (*for_helper)();
+  void (*for_decl)(char * init_call, char * cmp_call, char * loop_call);
   void (*for_impl)();
 
-  char * (*or)(char * cmp_name_l, char * cmp_name_r);
-  char * (*and)(char * cmp_name_l, char * cmp_name_r);
+  char * (*or)(char * cmp_call_l, char * cmp_call_r);
+  char * (*and)(char * cmp_call_l, char * cmp_call_r);
 } CMAP_PARSER_UTIL_PUBLIC;
 
 extern const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public;

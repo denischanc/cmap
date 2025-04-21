@@ -14,6 +14,7 @@ typedef struct
 
 extern const char CMAP_PART_CTX_NATURE_DFT;
 extern const char CMAP_PART_CTX_NATURE_FN;
+extern const char CMAP_PART_CTX_NATURE_PARAMS;
 
 /*******************************************************************************
 =====[[ .c ]]=====
@@ -58,9 +59,11 @@ typedef struct
   char (*var)(const char * name, const char * map);
   CMAP_PART_MAP_RET (*get_map)(const char * name);
   CMAP_STRINGS * (*get_vars_def)();
+  CMAP_STRINGS * (*get_params)();
 
   void (*fn_arg_name)(char * name);
-  char * (*fn_arg_names)();
+  CMAP_STRINGS * (*get_fn_arg_names)();
+  void (*delete_fn_arg_names)();
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;
