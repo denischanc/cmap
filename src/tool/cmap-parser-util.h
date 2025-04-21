@@ -31,9 +31,9 @@ typedef struct
 
   void (*return_)(char * map);
 
-  void (*process_prepare)(char * map, char * fn_name, char * args);
-  void (*process_prepare_fn)(char * fn, char * args);
-  char * (*process_resolve)(char need_ret);
+  char * (*process)(char * map, char * fn_name, char * args);
+  char * (*process_fn)(char * fn, char * args);
+  char * (*process_instruction)(char * txt, char need_ret);
   char * (*process_c)(char * fn_name, char need_ret);
 
   char * (*function)(char * fn_name);

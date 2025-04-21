@@ -114,12 +114,6 @@ static void prepend_map_var(const char * map_name)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_STACK_DEF(char, char)
-CMAP_STACK_DEF(char_ptr, char *)
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void include_(char * includes)
 {
   APPEND_ARGS(includes, "%s\n", includes);
@@ -399,37 +393,42 @@ static void return_(char * map)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process(char * map, char * fn_name, char * args, char need_ret)
+static char * process(char * map, char * fn_name, char * args)
 {
   char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
     * map_fn = (map == NULL) ? name(fn_name) : path(map, fn_name),
-    * map_name = NULL, * instruction = NULL;
+    * instruction = NULL;
 
-  if(need_ret)
-  {
-    map_name = next_name();
-    prepend_map_var(map_name);
-    APPEND_INSTRUCTION_ARGS_ARGS(
-      "%s = cmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s",
-      map_name, map_fn, map_keep);
-  }
-  else
-  {
-    APPEND_INSTRUCTION_ARGS_ARGS("cmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s",
-      map_fn, map_keep);
-  }
-  APPEND_LF();
+  cmap_string_public.append_args(&instruction,
+    "cmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s", map_fn, map_keep);
+  add_args(&instruction, args);
 
   free(map_fn);
   free(map_keep);
 
-  return map_name;
+  return instruction;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_fn(char * fn, char * args, char need_ret)
+static char * process_fn(char * fn, char * args)
+{
+  char * instruction = NULL;
+
+  cmap_string_public.append_args(&instruction,
+    "cmap_fn_proc((CMAP_FN *)%s, proc_ctx, NULL", fn);
+  add_args(&instruction, args);
+
+  free(fn);
+
+  return instruction;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * process_instruction(char * txt, char need_ret)
 {
   char * map_name = NULL, * instruction = NULL;
 
@@ -437,59 +436,18 @@ static char * process_fn(char * fn, char * args, char need_ret)
   {
     map_name = next_name();
     prepend_map_var(map_name);
-    APPEND_INSTRUCTION_ARGS_ARGS(
-      "%s = cmap_fn_proc((CMAP_FN *)%s, proc_ctx, NULL", map_name, fn);
+
+    APPEND_INSTRUCTION_ARGS("%s = %s", map_name, txt);
   }
   else
   {
-    APPEND_INSTRUCTION_ARGS_ARGS(
-      "cmap_fn_proc((CMAP_FN *)%s, proc_ctx, NULL", fn);
+    APPEND_INSTRUCTION_ARGS("%s", txt);
   }
   APPEND_LF();
 
-  free(fn);
+  free(txt);
 
   return map_name;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define PROCESS_WAY_DFT 0
-#define PROCESS_WAY_FN 1
-
-static CMAP_STACK_char * process_way = NULL;
-static CMAP_STACK_char_ptr * process_map_or_fn = NULL,
-  * process_fn_name = NULL, * process_args = NULL;
-
-static void process_prepare(char * map, char * fn_name, char * args)
-{
-  cmap_stack_char_push(&process_way, PROCESS_WAY_DFT);
-  cmap_stack_char_ptr_push(&process_map_or_fn, map);
-  cmap_stack_char_ptr_push(&process_fn_name, fn_name);
-  cmap_stack_char_ptr_push(&process_args, args);
-}
-
-static void process_prepare_fn(char * fn, char * args)
-{
-  cmap_stack_char_push(&process_way, PROCESS_WAY_FN);
-  cmap_stack_char_ptr_push(&process_map_or_fn, fn);
-  cmap_stack_char_ptr_push(&process_args, args);
-}
-
-static char * process_resolve(char need_ret)
-{
-  if(cmap_stack_char_pop(&process_way) == PROCESS_WAY_FN)
-  {
-    return process_fn(cmap_stack_char_ptr_pop(&process_map_or_fn),
-      cmap_stack_char_ptr_pop(&process_args), need_ret);
-  }
-  else
-  {
-    return process(cmap_stack_char_ptr_pop(&process_map_or_fn),
-      cmap_stack_char_ptr_pop(&process_fn_name),
-      cmap_stack_char_ptr_pop(&process_args), need_ret);
-  }
 }
 
 /*******************************************************************************
@@ -965,7 +923,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   args_map, args_map_push,
   map_args, list_args, string, int_,
   return_,
-  process_prepare, process_prepare_fn, process_resolve, process_c,
+  process, process_fn, process_instruction, process_c,
   function,
   c_impl, c_impl_root,
   if_, else_empty, else_if, else_,
