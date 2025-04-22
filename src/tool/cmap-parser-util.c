@@ -647,17 +647,6 @@ static void c_impl_root(char * impl)
 /*******************************************************************************
 *******************************************************************************/
 
-static void end_of_instructions_part()
-{
-  cmap_part_public.pop_instructions_to_part(NULL);
-
-  APPEND_INSTRUCTION("}");
-  APPEND_LF();
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void if_(char * cmp_call)
 {
   char * instructions = cmap_part_public.pop_instructions(),
@@ -902,18 +891,35 @@ static char * for_helper()
   return call;
 }
 
-static void for_decl(char * cmp_call, char * loop_call)
+static void for_(char * cmp_call, char * loop_call)
 {
-  char * instruction = NULL;
+  char * instructions = cmap_part_public.pop_instructions(),
+    * instruction = NULL;
+
   APPEND_INSTRUCTION_ARGS("for(; %s; %s)", cmp_call, loop_call);
   free(cmp_call); free(loop_call);
-
   APPEND_INSTRUCTION("{");
+  APPEND(instructions, instructions);
+  free(instructions);
+  APPEND_INSTRUCTION("}");
+  APPEND_LF();
 }
 
-static void for_impl()
+/*******************************************************************************
+*******************************************************************************/
+
+static void while_(char * cmp_call)
 {
-  end_of_instructions_part();
+  char * instructions = cmap_part_public.pop_instructions(),
+    * instruction = NULL;
+
+  APPEND_INSTRUCTION_ARGS("while(%s)", cmp_call);
+  free(cmp_call);
+  APPEND_INSTRUCTION("{");
+  APPEND(instructions, instructions);
+  free(instructions);
+  APPEND_INSTRUCTION("}");
+  APPEND_LF();
 }
 
 /*******************************************************************************
@@ -962,6 +968,6 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
   new,
   set_sb_int, set_sb_string, set_sb_map, sb_int, sb_string, sb_map,
   names,
-  for_helper, for_decl, for_impl,
+  for_helper, for_, while_,
   or, and
 };

@@ -69,6 +69,7 @@ SPACE_D [[:space:]]+
 "new" { return NEW; }
 "[CMAP[" { return CMAP; }
 "for" { return FOR; }
+"while" { return WHILE; }
 
 {NAME_D} { set_name(yylval, yytext); return NAME; }
 {INT_D} { set_name(yylval, yytext); return INT; }

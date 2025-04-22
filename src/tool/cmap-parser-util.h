@@ -61,8 +61,8 @@ typedef struct
   char * (*names)(char * names, char * name);
 
   char * (*for_helper)();
-  void (*for_decl)(char * cmp_call, char * loop_call);
-  void (*for_impl)();
+  void (*for_)(char * cmp_call, char * loop_call);
+  void (*while_)(char * cmp_call);
 
   char * (*or)(char * cmp_call_l, char * cmp_call_r);
   char * (*and)(char * cmp_call_l, char * cmp_call_r);

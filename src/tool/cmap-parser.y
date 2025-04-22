@@ -25,7 +25,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 }
 
 %token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C CMAP FOR OR AND
+%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C CMAP FOR OR AND WHILE
 %token ERROR
 %token<name> STRING C_IMPL INCLUDE NAME INT
 
@@ -64,7 +64,8 @@ instructions: { cmap_part_public.push_instructions(); }
 | instructions instruction ';'
 | instructions C_IMPL { cmap_parser_util_public.c_impl($2); }
 | instructions if
-| instructions for;
+| instructions for
+| instructions while;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -210,8 +211,13 @@ for_helper:
   instructions_for { $$ = cmap_parser_util_public.for_helper(); };
 
 for: FOR '(' instructions_for ';' comparison ';' for_helper ')'
-  { cmap_parser_util_public.for_decl($5, $7); }
-  '{' instructions '}' { cmap_parser_util_public.for_impl(); };
+  '{' instructions '}' { cmap_parser_util_public.for_($5, $7); };
+
+/*******************************************************************************
+*******************************************************************************/
+
+while: WHILE '(' comparison ')' '{' instructions '}'
+  { cmap_parser_util_public.while_($3); };
 
 /*******************************************************************************
 *******************************************************************************/
