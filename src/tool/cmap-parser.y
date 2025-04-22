@@ -178,10 +178,10 @@ else: { cmap_parser_util_public.else_empty(); }
 *******************************************************************************/
 
 comparison:
-{
-  cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_PARAMS);
-  cmap_part_public.push_instructions();
-} comparison_ { $$ = $2; }
+  {
+    cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_PARAMS);
+    cmap_part_public.push_instructions();
+  } comparison_ { $$ = $2; }
 | '(' comparison ')' OR '(' comparison ')'
  { $$ = cmap_parser_util_public.or($2, $6); }
 | '(' comparison ')' AND '(' comparison ')'
@@ -198,15 +198,19 @@ comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
 /*******************************************************************************
 *******************************************************************************/
 
-instructions_for: { cmap_part_public.push_instructions(); }
-| { cmap_part_public.push_instructions(); } instruction
+instructions_for:
+| instruction
 | instructions_for ',' instruction;
 
-for_helper: { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_DFT); }
+for_helper:
+  {
+    cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_PARAMS);
+    cmap_part_public.push_instructions();
+  }
   instructions_for { $$ = cmap_parser_util_public.for_helper(); };
 
-for: FOR '(' for_helper ';' comparison ';' for_helper ')'
-  { cmap_parser_util_public.for_decl($3, $5, $7); }
+for: FOR '(' instructions_for ';' comparison ';' for_helper ')'
+  { cmap_parser_util_public.for_decl($5, $7); }
   '{' instructions '}' { cmap_parser_util_public.for_impl(); };
 
 /*******************************************************************************
