@@ -61,19 +61,16 @@ static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
 static void cat_crefs_apply(CMAP_LIFECYCLE *** lc, void * data)
 {
   CAT_CREFS_APPLY_DATA * data_ = (CAT_CREFS_APPLY_DATA *)data;
-  if(**lc != NULL)
+  if(**lc == data_ -> org)
   {
-    if(**lc == data_ -> org)
-    {
-      CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
+    CMAP_CALL_ARGS(data_ -> crefs, push, *lc);
+    data_ -> way_ok = CMAP_T;
+  }
+  else
+  {
+    if(cat_cycling_refs(**lc, data_ -> org, data_ -> crefs, data_ -> visiteds,
+        data_ -> way_refs))
       data_ -> way_ok = CMAP_T;
-    }
-    else
-    {
-      if(cat_cycling_refs(**lc, data_ -> org, data_ -> crefs, data_ -> visiteds,
-          data_ -> way_refs))
-        data_ -> way_ok = CMAP_T;
-    }
   }
 }
 
@@ -86,8 +83,8 @@ static char cat_cycling_refs(CMAP_LIFECYCLE * lc, CMAP_LIFECYCLE * org,
     CMAP_SLIST_LC_PTR * nested_list = cmap_slist_lc_ptr_public.create(0);
     CMAP_CALL_ARGS(lc, nested, nested_list);
     CAT_CREFS_APPLY_DATA data = { CMAP_F, org, crefs, visiteds, way_refs };
-    CMAP_CALL_ARGS(nested_list, apply, cat_crefs_apply, &data);
-    CMAP_CALL(nested_list, delete);
+    CMAP_APPLY(nested_list, cat_crefs_apply, &data);
+    CMAP_DELETE(nested_list);
 
     if(data.way_ok)
     {
@@ -122,7 +119,7 @@ static char stay_future_zombie(CMAP_LIFECYCLE * way_ref)
 {
   CMAP_SLIST_LC_PTR * crefs = get_cycling_refs(way_ref);
   int crefs_size = CMAP_CALL(crefs, size);
-  CMAP_CALL(crefs, delete);
+  CMAP_DELETE(crefs);
   return (CMAP_CALL(way_ref, nb_refs) <= crefs_size);
 }
 
@@ -153,7 +150,7 @@ static char delete_future_zombie_required(CMAP_LIFECYCLE * lc, int nb_refs)
   if(way_refs != NULL) cmap_sset_lc_public.clean(&way_refs);
 
   if(ret) CMAP_CALL_ARGS(crefs, apply, zombie_crefs_apply, NULL);
-  CMAP_CALL(crefs, delete);
+  CMAP_DELETE(crefs);
 
   return ret;
 }
@@ -173,7 +170,7 @@ static char delete_or_dec_refs_only(CMAP_LIFECYCLE * lc, char delete_zombie)
     ret = CMAP_T;
   }
 
-  if(ret) CMAP_CALL(lc, delete);
+  if(ret) CMAP_DELETE(lc);
   else
   {
     cmap_log_public.debug("[%p][%s] nb_refs == [%d]", lc, CMAP_NATURE(lc),
