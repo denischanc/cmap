@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-map.h"
@@ -146,6 +147,21 @@ static int is_val(CMAP_LIST * list, CMAP_MAP * val)
 /*******************************************************************************
 *******************************************************************************/
 
+static int64_t time_us()
+{
+  struct timeval tv = {0};
+  gettimeofday(&tv, NULL);
+
+  int64_t i = tv.tv_sec;
+  i *= 1000000;
+  i += tv.tv_usec;
+
+  return i;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   fill_list, vfill_list, to_list, vto_list,
@@ -154,5 +170,6 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
   copy,
   dup_string,
   strdup_,
-  is_val
+  is_val,
+  time_us
 };

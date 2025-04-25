@@ -3,6 +3,7 @@
 
 #include <stdarg.h>
 #include <uv.h>
+#include <stdint.h>
 #include "cmap-list-type.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-map-type.h"
@@ -29,6 +30,8 @@ typedef struct
   char * (*strdup)(const char * src);
 
   int (*is_val)(CMAP_LIST * list, CMAP_MAP * val);
+
+  int64_t (*time_us)();
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

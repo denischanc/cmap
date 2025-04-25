@@ -3,13 +3,13 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <sys/time.h>
 #include "cmap.h"
 #include "cmap-prototype-util.h"
 #include "cmap-list.h"
 #include "cmap-map.h"
 #include "cmap-int.h"
 #include "cmap-string.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -78,14 +78,7 @@ static CMAP_MAP * time_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  struct timeval tv = { 0 };
-  gettimeofday(&tv, NULL);
-
-  int64_t i = tv.tv_sec;
-  i *= 1000000;
-  i += tv.tv_usec;
-
-  CMAP_CALL_ARGS((CMAP_INT *)map, set, i);
+  CMAP_CALL_ARGS((CMAP_INT *)map, set, cmap_util_public.time_us());
 
   return map;
 }

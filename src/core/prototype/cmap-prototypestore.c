@@ -55,7 +55,7 @@ static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, \
   { \
     require_##type(this, proc_ctx); \
  \
-    internal -> type##_ok = (1 == 1); \
+    internal -> type##_ok = CMAP_T; \
     cmap_prototype_##type##_public.init(internal -> type##_, proc_ctx); \
   } \
   return internal -> type##_; \
@@ -79,7 +79,7 @@ static void delete(CMAP_LIFECYCLE * lc)
 
 #define INIT_INTERNAL(type) \
   internal -> type##_ = NULL; \
-  internal -> type##_ok = (1 == 0);
+  internal -> type##_ok = CMAP_F;
 
 #define INIT_THIS(type) \
   this -> require_##type = require_##type; \
