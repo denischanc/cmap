@@ -32,26 +32,37 @@ flowchart BT
     N14
     N15
   end
-  subgraph zombie_prevs
+  subgraph zombie_wrappers
     zombie_N14[N14]
   end
   zombie_N14 -- nested --> zombie
-  subgraph N12_prevs
+  subgraph N12_wrappers
     N12_zombie[zombie]
     N12_N15[N15]
   end
   N12_zombie & N12_N15 -- nested --> N12
-  subgraph N13_prevs
+  subgraph N13_wrappers
     N13_zombie[zombie]
   end
   N13_zombie -- nested --> N13
-  subgraph N14_prevs
+  subgraph N14_wrappers
     N14_N12[N12]
     N14_N13[N13]
   end
   N14_N12 & N14_N13 -- nested --> N14
-  subgraph N15_prevs
+  subgraph N15_wrappers
     N15_N12[N12]
   end
   N15_N12 -- nested --> N15
+```
+
+### algo
+
+```mermaid
+flowchart TB
+  nested([nested])
+  deleted{deletion known ?}
+  todo[nested, inc/dec refs]
+  nested --o deleted -- yes --> nothing
+  deleted -- no --> todo
 ```
