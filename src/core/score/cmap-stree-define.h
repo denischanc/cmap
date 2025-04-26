@@ -1,14 +1,13 @@
 #ifndef __CMAP_STREE_DEFINE_H__
 #define __CMAP_STREE_DEFINE_H__
 
-#define CMAP_STREE_EVALFN_NAME(prefix) prefix##_stree_eval
 #define CMAP_STREE_RUNNER_NAME(prefix) prefix##_stree_runner
 
-#define CMAP_STREE_RUNNER(prefix, log, gt_usable, lt_usable) \
+#define CMAP_STREE_RUNNER(prefix, eval, log, gt_usable, lt_usable) \
 static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(prefix) = \
 { \
   cmap_stree_node, \
-  CMAP_STREE_EVALFN_NAME(prefix), \
+  eval, \
   log, \
   gt_usable, lt_usable \
 }

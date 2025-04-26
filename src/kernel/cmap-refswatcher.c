@@ -17,19 +17,22 @@ typedef struct
   int64_t time;
 } REF;
 
-static int CMAP_STREE_EVALFN_NAME(ref)(void * node, void * data);
-
-CMAP_SSET_STATIC(REF, ref, REF, NULL)
-
-static int CMAP_STREE_EVALFN_NAME(ref)(void * node, void * data)
+static int ref_eval(REF v_l, REF v_r)
 {
-  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_REF *)node) -> v.lc;
-  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_REF *)data) -> v.lc;
+  CMAP_LIFECYCLE * ref_l = v_l.lc;
+  CMAP_LIFECYCLE * ref_r = v_r.lc;
 
   if(ref_l > ref_r) return 1;
   else if(ref_l < ref_r) return -1;
   else return 0;
 }
+
+static const char * ref_log_v(REF v)
+{
+  return NULL;
+}
+
+CMAP_SSET_STATIC(REF, ref, REF, ref_eval, ref_log_v)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -106,19 +109,22 @@ static void delete_ref_ext(REF_EXT * ref_ext)
 /*******************************************************************************
 *******************************************************************************/
 
-static int CMAP_STREE_EVALFN_NAME(ref_ext)(void * node, void * data);
-
-CMAP_SSET_STATIC(REF_EXT, ref_ext, REF_EXT, NULL)
-
-static int CMAP_STREE_EVALFN_NAME(ref_ext)(void * node, void * data)
+static int ref_ext_eval(REF_EXT v_l, REF_EXT v_r)
 {
-  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_REF_EXT *)node) -> v.lc;
-  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_REF_EXT *)data) -> v.lc;
+  CMAP_LIFECYCLE * ref_l = v_l.lc;
+  CMAP_LIFECYCLE * ref_r = v_r.lc;
 
   if(ref_l > ref_r) return 1;
   else if(ref_l < ref_r) return -1;
   else return 0;
 }
+
+static const char * ref_ext_log_v(REF_EXT v)
+{
+  return NULL;
+}
+
+CMAP_SSET_STATIC(REF_EXT, ref_ext, REF_EXT, ref_ext_eval, ref_ext_log_v)
 
 /*******************************************************************************
 *******************************************************************************/

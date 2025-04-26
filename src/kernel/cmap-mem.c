@@ -152,7 +152,7 @@ static CMAP_STREE_NODE * node(void * node)
   return &((BLOCK_FREE *)node) -> node;
 }
 
-static int CMAP_STREE_EVALFN_NAME(block_free)(void * node, void * data)
+static int block_free_eval(void * node, void * data)
 {
   int size = block_size((BLOCK *)node);
   return (size - *(int *)data);
@@ -161,7 +161,7 @@ static int CMAP_STREE_EVALFN_NAME(block_free)(void * node, void * data)
 static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(block_free) =
 {
   node,
-  CMAP_STREE_EVALFN_NAME(block_free),
+  block_free_eval,
   NULL,
   CMAP_T, CMAP_F
 };

@@ -27,20 +27,20 @@ typedef struct
   int nb;
 } NB;
 
-static int CMAP_STREE_EVALFN_NAME(nb)(void * node, void * data)
+static int nb_eval(void * node, void * data)
 {
   NB * node1 = (NB *)node, * node2 = (NB *)data;
   return (node1 -> nb - node2 -> nb);
 }
 
-static const char * nb_runner_log(void * node)
+static const char * nb_log(void * node)
 {
   static char buffer[11];
   snprintf(buffer, sizeof(buffer), "%d", ((NB *)node) -> nb);
   return buffer;
 }
 
-CMAP_STREE_RUNNER(nb, nb_runner_log, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(nb, nb_eval, nb_log, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/

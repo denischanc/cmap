@@ -11,8 +11,8 @@
 *******************************************************************************/
 
 #define CMAP_SSET_LOOP(macro) \
-  macro(MAP, map, CMAP_MAP *, map_runner_log) \
-  macro(LC, lc, CMAP_LIFECYCLE *, lc_runner_log)
+  macro(MAP, map, CMAP_MAP *, map_eval, map_log_v) \
+  macro(LC, lc, CMAP_LIFECYCLE *, lc_eval, lc_log_v)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -32,7 +32,7 @@ typedef void (*CMAP_SSET_APPLY_FN_##NAME)(type * v, void * data);
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_DECL(NAME, name, type, runner_log) \
+#define CMAP_SSET_DECL(NAME, name, type, eval_fn, log_fn) \
 CMAP_SSET_STRUCT_DECL(NAME, type) \
  \
 typedef struct \
@@ -54,8 +54,27 @@ extern const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public;
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, runner_log) \
-CMAP_STREE_RUNNER(name, runner_log, CMAP_F, CMAP_F); \
+#define CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, eval_fn, log_fn) \
+ \
+/***************************************************************************** \
+*****************************************************************************/ \
+ \
+static inline int eval_fn(type v_l, type v_r); \
+ \
+static int name##_stree_eval(void * node, void * data) \
+{ \
+  return eval_fn(((CMAP_SSET_##NAME *)node) -> v, \
+    ((CMAP_SSET_##NAME *)data) -> v); \
+} \
+ \
+static inline const char * log_fn(type v); \
+ \
+static const char * name##_stree_log(void * node) \
+{ \
+  return log_fn(((CMAP_SSET_##NAME *)node) -> v); \
+} \
+ \
+CMAP_STREE_RUNNER(name, name##_stree_eval, name##_stree_log, CMAP_F, CMAP_F); \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
@@ -164,8 +183,8 @@ CMAP_UNUSED static void name##_log(CMAP_SSET_##NAME * this, char lvl) \
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_IMPL(NAME, name, type, runner_log) \
-CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, runner_log) \
+#define CMAP_SSET_IMPL(NAME, name, type, eval_fn, log_fn) \
+CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, eval_fn, log_fn) \
  \
 const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public = \
 { \
@@ -183,9 +202,9 @@ const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public = \
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SSET_STATIC(NAME, name, type, runner_log) \
+#define CMAP_SSET_STATIC(NAME, name, type, eval_fn, log_fn) \
 CMAP_SSET_STRUCT_DECL(NAME, type) \
-CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, runner_log)
+CMAP_SSET_STATIC_FN_IMPL(NAME, name, type, eval_fn, log_fn)
 
 /*******************************************************************************
 *******************************************************************************/

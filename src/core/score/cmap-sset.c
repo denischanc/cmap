@@ -12,11 +12,8 @@
 *******************************************************************************/
 
 #define PTR_EVALFN_IMPL(NAME, name, type) \
-static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
+static int name##_eval(type v_l, type v_r) \
 { \
-  type v_l = ((CMAP_SSET_##NAME *)node) -> v; \
-  type v_r = ((CMAP_SSET_##NAME *)data) -> v; \
- \
   if(v_l > v_r) return 1; \
   else if(v_l < v_r) return -1; \
   else return 0; \
@@ -26,10 +23,10 @@ static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
 *******************************************************************************/
 
 #define PTR_LOGFN_IMPL(NAME, name, type) \
-static const char * name##_runner_log(void * node) \
+static const char * name##_log_v(type v) \
 { \
   static char buffer[20]; \
-  snprintf(buffer, sizeof(buffer), "%p", ((CMAP_SSET_##NAME *)node) -> v); \
+  snprintf(buffer, sizeof(buffer), "%p", v); \
   return buffer; \
 }
 

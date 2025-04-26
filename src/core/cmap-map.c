@@ -40,13 +40,13 @@ const char * CMAP_MAP_NATURE = "map";
 /*******************************************************************************
 *******************************************************************************/
 
-static int CMAP_STREE_EVALFN_NAME(entry)(void * node, void * data)
+static int entry_eval(void * node, void * data)
 {
   const char * key = (const char *)data;
   return strcmp(((ENTRY *)node) -> key, key);
 }
 
-CMAP_STREE_RUNNER(entry, NULL, CMAP_F, CMAP_F);
+CMAP_STREE_RUNNER(entry, entry_eval, NULL, CMAP_F, CMAP_F);
 
 /*******************************************************************************
 *******************************************************************************/
