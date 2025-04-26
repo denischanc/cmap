@@ -142,7 +142,7 @@ typedef struct
 
 static void apply_apply(CMAP_MAP ** val, void * data)
 {
-  APPLY_APPLY_DATA * data_ = (APPLY_APPLY_DATA *)data;
+  APPLY_APPLY_DATA * data_ = data;
 
   CMAP_MAP * old_val = *val;
   data_ -> fn(val, data_ -> data);
@@ -159,7 +159,7 @@ static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
 {
   APPLY_APPLY_DATA data_ = { fn, data };
   CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
-  CMAP_CALL_ARGS(this_list, apply, apply_apply, &data_);
+  CMAP_APPLY(this_list, apply_apply, &data_);
 }
 
 /*******************************************************************************

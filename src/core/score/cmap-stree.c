@@ -581,7 +581,7 @@ static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
 
 static void log_before_apply(void * node, char is_eq, void * data)
 {
-  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  LOG_APPLY_DATA * data_ = data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
     * prefix_between = data_ -> prefix_between,
     * prefix_after = data_ -> prefix_after;
@@ -591,7 +591,7 @@ static void log_before_apply(void * node, char is_eq, void * data)
 
 static void log_between_apply(void * node, char is_eq, void * data)
 {
-  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  LOG_APPLY_DATA * data_ = data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
     * prefix_between = data_ -> prefix_between,
     * prefix_after = data_ -> prefix_after;
@@ -608,7 +608,7 @@ static void log_between_apply(void * node, char is_eq, void * data)
 
 static void log_after_apply(void * node, char is_eq, void * data)
 {
-  LOG_APPLY_DATA * data_ = (LOG_APPLY_DATA *)data;
+  LOG_APPLY_DATA * data_ = data;
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
     * prefix_between = data_ -> prefix_between,
     * prefix_after = data_ -> prefix_after;

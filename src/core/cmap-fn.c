@@ -87,7 +87,7 @@ typedef struct
 
 static void arg_name_apply(char ** arg_name, void * data)
 {
-  ARG_NAME_APPLY_DATA * data_ = (ARG_NAME_APPLY_DATA *)data;
+  ARG_NAME_APPLY_DATA * data_ = data;
   CMAP_SET(data_ -> definitions, *arg_name,
     CMAP_LIST_GET(data_ -> args, data_ -> off++));
 }
@@ -107,7 +107,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   if(internal -> arg_names != NULL)
   {
     ARG_NAME_APPLY_DATA data = { 0, args, definitions };
-    CMAP_CALL_ARGS(internal -> arg_names, apply, arg_name_apply, &data);
+    CMAP_APPLY(internal -> arg_names, arg_name_apply, &data);
   }
 
   CMAP_SET(definitions, "this", map);

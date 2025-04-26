@@ -129,7 +129,7 @@ static void clone_params()
 
 static char * name(char *);
 
-static void get_params_apply_fn(const char * string, void * data)
+static void get_params_apply(const char * string, void * data)
 {
   char * map = name(strdup(string));
 
@@ -146,7 +146,7 @@ static PARAMS_RET get_params()
   ret.decl = strdup("");
   ret.impl = strdup("");
 
-  cmap_strings_public.apply(params, get_params_apply_fn, &ret);
+  cmap_strings_public.apply(params, get_params_apply, &ret);
   cmap_strings_public.delete(&params);
 
   return ret;
@@ -543,7 +543,7 @@ static char * process_c(char * fn_name, char need_ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static void function_def_apply_fn(const char * string, void * data)
+static void function_def_apply(const char * string, void * data)
 {
   const char * map_def = (const char *)data;
   char * var_name = name(strdup(string)), * instruction = NULL;
@@ -563,12 +563,12 @@ static void function_def(char * map_name, CMAP_STRINGS * vars_def)
     "%s = cmap_fn_require_definitions((CMAP_FN *)%s, proc_ctx);",
     map_def, map_name);
 
-  cmap_strings_public.apply(vars_def, function_def_apply_fn, map_def);
+  cmap_strings_public.apply(vars_def, function_def_apply, map_def);
 
   free(map_def);
 }
 
-static void arg_names_apply_fn(const char * string, void * data)
+static void arg_names_apply(const char * string, void * data)
 {
   cmap_string_public.append_args((char **)data, ", \"%s\"", string);
 }
@@ -578,7 +578,7 @@ static char * arg_names()
   char * args = NULL;
 
   CMAP_STRINGS * arg_names_ = cmap_part_public.get_fn_arg_names();
-  cmap_strings_public.apply(arg_names_, arg_names_apply_fn, &args);
+  cmap_strings_public.apply(arg_names_, arg_names_apply, &args);
   cmap_part_public.delete_fn_arg_names();
 
   return args;

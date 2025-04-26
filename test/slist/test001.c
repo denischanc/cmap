@@ -17,7 +17,7 @@ typedef struct
 
 static void apply(CMAP_LIFECYCLE ** lc, void * data)
 {
-  APPLY_DATA * data_ = (APPLY_DATA *)data;
+  APPLY_DATA * data_ = data;
   printf("lc = [%p]\n", *lc);
   printf("data_ -> ptr = [%p]\n", data_ -> ptr);
   CMAP_TEST_ASSERT_NOMSG(*lc == data_ -> ptr);

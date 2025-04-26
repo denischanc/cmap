@@ -18,7 +18,7 @@ typedef struct
   CMAP_PROC_CTX * proc_ctx;
 } MAP_ENTRY_DATA;
 
-static void map_entry_apply_fn(const char * key, CMAP_MAP ** val, void * data)
+static void map_entry_apply(const char * key, CMAP_MAP ** val, void * data)
 {
   MAP_ENTRY_DATA * data_ = (MAP_ENTRY_DATA *)data;
 
@@ -47,7 +47,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     data.key = key;
     data.args = args_map_kv;
     data.proc_ctx = proc_ctx;
-    CMAP_CALL_ARGS(map, apply, map_entry_apply_fn, &data);
+    CMAP_CALL_ARGS(map, apply, map_entry_apply, &data);
   }
   return map;
 }

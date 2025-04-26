@@ -13,6 +13,8 @@ struct CMAP_REFSWATCHER
   void (*upd)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
   void (*rm)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
 
+  char (*is_zombie)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+
   void (*watch)(CMAP_REFSWATCHER * this);
 };
 

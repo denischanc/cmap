@@ -155,7 +155,7 @@ typedef struct
 
 static void keys_apply(const char * key, CMAP_MAP ** val, void * data)
 {
-  KEYS_APPLY_DATA * data_ = (KEYS_APPLY_DATA *)data;
+  KEYS_APPLY_DATA * data_ = data;
   CMAP_LIST_PUSH(data_ -> keys, CMAP_STRING(key, 0, data_ -> proc_ctx));
 }
 
@@ -182,7 +182,7 @@ typedef struct
 static void apply_apply(void * node, char is_eq, void * data)
 {
   ENTRY * entry = (ENTRY *)node;
-  APPLY_APPLY_DATA * data_ = (APPLY_APPLY_DATA *)data;
+  APPLY_APPLY_DATA * data_ = data;
 
   CMAP_MAP * prev_val = entry -> val;
   data_ -> fn(entry -> key, &entry -> val, data_ -> data);
@@ -219,7 +219,7 @@ typedef struct
 static void delete_apply(void * node, char is_eq, void * data)
 {
   ENTRY * entry = (ENTRY *)node;
-  DELETE_APPLY_DATA * data_ = (DELETE_APPLY_DATA *)data;
+  DELETE_APPLY_DATA * data_ = data;
   CMAP_MEM * mem = data_ -> mem;
 
   CMAP_MEM_FREE(entry -> key, mem);

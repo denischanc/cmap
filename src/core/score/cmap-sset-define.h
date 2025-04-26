@@ -93,7 +93,8 @@ static char name##_is(CMAP_SSET_##NAME * this, type v) \
  \
 CMAP_UNUSED static type * name##_get(CMAP_SSET_##NAME * this, type v) \
 { \
-  return &name##_find(this, v) -> v; \
+  CMAP_SSET_##NAME * node = name##_find(this, v); \
+  return (node == NULL) ? NULL : &node -> v; \
 } \
  \
 /***************************************************************************** \

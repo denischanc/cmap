@@ -155,7 +155,7 @@ static CTX ctx_root_fn(char return_fn, CTX_CMAP * cmap_prev)
 /*******************************************************************************
 *******************************************************************************/
 
-static void ctx_fn_upd_vars_loc_apply_fn(const char * string, void * data)
+static void ctx_fn_upd_vars_loc_apply(const char * string, void * data)
 {
   cmap_strings_public.add((CMAP_STRINGS **)data, string);
 }
@@ -166,7 +166,7 @@ static void ctx_fn_upd_vars_loc(CMAP_STRINGS ** vars_loc)
   cmap_strings_public.add(vars_loc, "args");
 
   cmap_strings_public.apply(ctxs -> v.block.fn_arg_names,
-    ctx_fn_upd_vars_loc_apply_fn, vars_loc);
+    ctx_fn_upd_vars_loc_apply, vars_loc);
 }
 
 /*******************************************************************************
@@ -330,7 +330,7 @@ static char is_global_env()
 /*******************************************************************************
 *******************************************************************************/
 
-static void mng_dirties_apply_fn(const char * string, void * data)
+static void mng_dirties_apply(const char * string, void * data)
 {
   CMAP_KV * name2map = (CMAP_KV *)data;
   cmap_kv_public.dirty(name2map, string);
@@ -341,8 +341,7 @@ static void mng_dirties(CTX_BLOCK * block)
   if((ctxs != NULL) && (block -> nature == CMAP_PART_CTX_NATURE_BLOCK))
   {
     CMAP_KV * name2map = ctxs -> v.block.c -> name2map;
-    cmap_strings_public.apply(block -> dirties, mng_dirties_apply_fn,
-      name2map);
+    cmap_strings_public.apply(block -> dirties, mng_dirties_apply, name2map);
   }
 
   cmap_strings_public.delete(&block -> dirties);

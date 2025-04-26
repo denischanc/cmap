@@ -90,41 +90,46 @@ typedef struct
 {
   CMAP_LIFECYCLE * lc;
 
-  CMAP_SLIST_LC * wrappers;
+  CMAP_SLIST_LC * wrappers, * nesteds;
 } REF_EXT;
 
-static REF_EXT create_ref_ext(CMAP_LIFECYCLE * lc)
+static REF_EXT * create_ref_ext(CMAP_LIFECYCLE * lc)
 {
-  REF_EXT ret;
-  ret.lc = lc;
-  ret.wrappers = cmap_slist_lc_public.create(0);
+  CMAP_KERNEL_ALLOC_PTR(ret, REF_EXT);
+
+  ret -> lc = lc;
+  ret -> wrappers = cmap_slist_lc_public.create(0);
+  ret -> nesteds = cmap_slist_lc_public.create(0);
+
   return ret;
 }
 
 static void delete_ref_ext(REF_EXT * ref_ext)
 {
   CMAP_DELETE(ref_ext -> wrappers);
+  CMAP_DELETE(ref_ext -> nesteds);
+  CMAP_KERNEL_FREE(ref_ext);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int ref_ext_eval(REF_EXT v_l, REF_EXT v_r)
+static int ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
 {
-  CMAP_LIFECYCLE * ref_l = v_l.lc;
-  CMAP_LIFECYCLE * ref_r = v_r.lc;
+  CMAP_LIFECYCLE * ref_l = v_l -> lc;
+  CMAP_LIFECYCLE * ref_r = v_r -> lc;
 
   if(ref_l > ref_r) return 1;
   else if(ref_l < ref_r) return -1;
   else return 0;
 }
 
-static const char * ref_ext_log_v(REF_EXT v)
+static const char * ref_ext_log_v(REF_EXT * v)
 {
   return NULL;
 }
 
-CMAP_SSET_STATIC(REF_EXT, ref_ext, REF_EXT, ref_ext_eval, ref_ext_log_v)
+CMAP_SSET_STATIC(REF_EXT, ref_ext, REF_EXT *, ref_ext_eval, ref_ext_log_v)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -133,7 +138,6 @@ static void upd_all_ref_exts(CMAP_LIFECYCLE * cur, CMAP_LIFECYCLE * org,
   CMAP_SSET_REF_EXT ** all_ref_exts)
 {
   CMAP_SLIST_LC_PTR * nesteds = cmap_slist_lc_ptr_public.create(0);
-
   CMAP_CALL_ARGS(cur, nested, nesteds);
 
   CMAP_LIFECYCLE ** nested;
@@ -141,16 +145,21 @@ static void upd_all_ref_exts(CMAP_LIFECYCLE * cur, CMAP_LIFECYCLE * org,
   {
     REF_EXT ref_ext_nested;
     ref_ext_nested.lc = *nested;
-    REF_EXT * ref_ext_nested_ptr = ref_ext_get(*all_ref_exts, ref_ext_nested);
+    REF_EXT ** ref_ext_nested_ptr = ref_ext_get(*all_ref_exts, &ref_ext_nested);
     if(ref_ext_nested_ptr != NULL)
-      CMAP_CALL_ARGS(ref_ext_nested_ptr -> wrappers, push, cur);
+    {
+      CMAP_SLIST_LC * wrappers = (*ref_ext_nested_ptr) -> wrappers;
+      CMAP_CALL_ARGS(wrappers, push, cur);
+    }
     else
     {
-      ref_ext_nested.wrappers = cmap_slist_lc_public.create(0);
-      ref_ext_add_force(all_ref_exts, ref_ext_nested);
-      CMAP_CALL_ARGS(ref_ext_nested.wrappers, push, cur);
+      REF_EXT * ref_ext_new = create_ref_ext(*nested);
+      ref_ext_add_force(all_ref_exts, ref_ext_new);
 
-      if(*nested != org) upd_all_ref_exts(*nested, org, all_ref_exts);
+      CMAP_SLIST_LC * wrappers = ref_ext_new -> wrappers;
+      CMAP_CALL_ARGS(wrappers, push, cur);
+
+      upd_all_ref_exts(*nested, org, all_ref_exts);
     }
   }
 
@@ -168,26 +177,26 @@ typedef struct
 static void upd_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
   REF_EXT * ref_ext, CMAP_SSET_REF_EXT * all_ref_exts);
 
-static void upd_way_ref_exts_apply_fn(CMAP_LIFECYCLE ** lc, void * data)
+static void upd_way_ref_exts_apply(CMAP_LIFECYCLE ** lc, void * data)
 {
-  UPD_WAY_REF_EXTS_APPLY_DATA * data_ = (UPD_WAY_REF_EXTS_APPLY_DATA *)data;
+  UPD_WAY_REF_EXTS_APPLY_DATA * data_ = data;
 
   REF_EXT ref_ext;
   ref_ext.lc = *lc;
-  ref_ext.wrappers = NULL;
   upd_way_ref_exts(data_ -> way_ref_exts,
-    ref_ext_get(data_ -> all_ref_exts, ref_ext), data_ -> all_ref_exts);
+    *ref_ext_get(data_ -> all_ref_exts, &ref_ext), data_ -> all_ref_exts);
 }
 
 static void upd_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
   REF_EXT * ref_ext, CMAP_SSET_REF_EXT * all_ref_exts)
 {
-  if(ref_ext_add(way_ref_exts, *ref_ext))
+  if(ref_ext_add(way_ref_exts, ref_ext))
   {
     UPD_WAY_REF_EXTS_APPLY_DATA data;
     data.way_ref_exts = way_ref_exts;
     data.all_ref_exts = all_ref_exts;
-    CMAP_APPLY(ref_ext -> wrappers, upd_way_ref_exts_apply_fn, &data);
+    CMAP_SLIST_LC * wrappers = ref_ext -> wrappers;
+    CMAP_APPLY(wrappers, upd_way_ref_exts_apply, &data);
   }
 }
 
@@ -199,11 +208,13 @@ static char check_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
 {
   while(*way_ref_exts != NULL)
   {
-    REF_EXT ref_ext = ref_ext_rm(way_ref_exts);
-    int nb_wrappers = CMAP_CALL(ref_ext.wrappers, size),
-      nb_refs = CMAP_CALL(ref_ext.lc, nb_refs);
+    REF_EXT * ref_ext = ref_ext_rm(way_ref_exts);
+    CMAP_LIFECYCLE * lc = ref_ext -> lc;
+    CMAP_SLIST_LC * wrappers = ref_ext -> wrappers;
+    int nb_wrappers = CMAP_CALL(wrappers, size),
+      nb_refs = CMAP_CALL(lc, nb_refs);
 
-    if(ref_ext.lc == org)
+    if(lc == org)
     {
       if(nb_refs > (nb_wrappers + 1)) return CMAP_F;
     }
@@ -215,30 +226,54 @@ static char check_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
 /*******************************************************************************
 *******************************************************************************/
 
-static char delete_if_zombie(CMAP_LIFECYCLE * lc)
+static char is_zombie_w_all_ref_exts(CMAP_LIFECYCLE * lc,
+  CMAP_SSET_REF_EXT ** all_ref_exts)
 {
-  REF_EXT org = create_ref_ext(lc);
+  REF_EXT * org = create_ref_ext(lc);
 
-  CMAP_SSET_REF_EXT * all_ref_exts = NULL;
-  ref_ext_add(&all_ref_exts, org);
-  upd_all_ref_exts(lc, lc, &all_ref_exts);
+  ref_ext_add(all_ref_exts, org);
+  upd_all_ref_exts(lc, lc, all_ref_exts);
 
   CMAP_SSET_REF_EXT * way_ref_exts = NULL;
-  upd_way_ref_exts(&way_ref_exts, &org, all_ref_exts);
+  upd_way_ref_exts(&way_ref_exts, org, *all_ref_exts);
 
+  return check_way_ref_exts(&way_ref_exts, lc);
+}
+
+static void delete_all_ref_exts(CMAP_SSET_REF_EXT ** all_ref_exts)
+{
+  while(*all_ref_exts != NULL)
+  {
+    REF_EXT * ref_ext = ref_ext_rm(all_ref_exts);
+    delete_ref_ext(ref_ext);
+  }
+}
+
+static char is_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
+{
+  CMAP_SSET_REF_EXT * all_ref_exts = NULL;
+  char ret = is_zombie_w_all_ref_exts(lc, &all_ref_exts);
+
+  delete_all_ref_exts(&all_ref_exts);
+
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char delete_if_zombie(CMAP_LIFECYCLE * lc)
+{
   char ret = CMAP_F;
 
-  if(check_way_ref_exts(&way_ref_exts, lc))
+  CMAP_SSET_REF_EXT * all_ref_exts = NULL;
+  if(is_zombie_w_all_ref_exts(lc, &all_ref_exts))
   {
     ret = CMAP_T;
-    /* delete */
+    /* TODO : delete */
   }
 
-  while(all_ref_exts != NULL)
-  {
-    REF_EXT ref_ext = ref_ext_rm(&all_ref_exts);
-    delete_ref_ext(&ref_ext);
-  }
+  delete_all_ref_exts(&all_ref_exts);
 
   return ret;
 }
@@ -285,6 +320,7 @@ static CMAP_REFSWATCHER * create()
   this -> add = add;
   this -> upd = upd;
   this -> rm = rm;
+  this -> is_zombie = is_zombie;
   this -> watch = watch;
 
   return this;
