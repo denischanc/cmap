@@ -38,8 +38,10 @@ static int64_t get(CMAP_INT * this)
 /*******************************************************************************
 *******************************************************************************/
 
+#define OP_STEP_FN_NAME(name) op_step_##name
+
 #define OP_IMPL(name, op) \
-static CMAP_INT * name(CMAP_INT * this, int64_t val) \
+static CMAP_INT * OP_STEP_FN_NAME(name)(CMAP_INT * this, int64_t val) \
 { \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
   internal -> val op val; \
@@ -52,7 +54,7 @@ CMAP_INT_OP_LOOP(OP_IMPL)
 *******************************************************************************/
 
 #define STEP_IMPL(name, op) \
-static CMAP_INT * name(CMAP_INT * this) \
+static CMAP_INT * OP_STEP_FN_NAME(name)(CMAP_INT * this) \
 { \
   INTERNAL * internal = (INTERNAL *)this -> internal; \
   internal -> val op; \
@@ -71,7 +73,7 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_map_public.delete(this);
 }
 
-#define OP_STEP_INIT(name, op) this -> name = name;
+#define OP_STEP_INIT(name, op) this -> name = OP_STEP_FN_NAME(name);
 
 static CMAP_INT * init(CMAP_INT * this, CMAP_INITARGS * initargs, int64_t val)
 {
@@ -107,7 +109,7 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-#define OP_STEP_SET(name, op) name,
+#define OP_STEP_SET(name, op) OP_STEP_FN_NAME(name),
 
 const CMAP_INT_PUBLIC cmap_int_public =
 {
