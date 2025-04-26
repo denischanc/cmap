@@ -13,13 +13,12 @@
 static void test(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * tmp = cmap_map(proc_ctx);
-  CMAP_CALL((CMAP_LIFECYCLE *)tmp, delete);
+  CMAP_DELETE((CMAP_LIFECYCLE *)tmp);
   CMAP_KERNEL_FREE(tmp);
 }
 
 int main(int argc, char * argv[])
 {
-  cmap_bootstrap(NULL);
   cmap_env_main(cmap_env(argc, argv), test);
   return cmap_main();
 }

@@ -206,9 +206,12 @@ static void upd_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
 static char check_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
   CMAP_LIFECYCLE * org)
 {
-  while(*way_ref_exts != NULL)
+  char ret = CMAP_T;
+
+  while(ret && (*way_ref_exts != NULL))
   {
     REF_EXT * ref_ext = ref_ext_rm(way_ref_exts);
+
     CMAP_LIFECYCLE * lc = ref_ext -> lc;
     CMAP_SLIST_LC * wrappers = ref_ext -> wrappers;
     int nb_wrappers = CMAP_CALL(wrappers, size),
@@ -216,11 +219,14 @@ static char check_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
 
     if(lc == org)
     {
-      if(nb_refs > (nb_wrappers + 1)) return CMAP_F;
+      if(nb_refs > (nb_wrappers + 1)) ret = CMAP_F;
     }
-    else if(nb_refs > nb_wrappers) return CMAP_F;
+    else if(nb_refs > nb_wrappers) ret = CMAP_F;
   }
-  return CMAP_T;
+
+  ref_ext_clean(way_ref_exts);
+
+  return ret;
 }
 
 /*******************************************************************************

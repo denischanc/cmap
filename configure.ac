@@ -58,27 +58,30 @@ AC_ARG_ENABLE([consumed-time],
   [AS_HELP_STRING([--enable-consumed-time], [Consumed time logging.])], [], [])
 AM_CONDITIONAL([CONSUMED_TIME], [test "x$enable_consumed_time" = "xyes"])
 
-AC_CONFIG_FILES([Makefile
-                 src/Makefile
-                 src/components/Makefile
-                 src/components/cli/Makefile
-                 src/components/console/Makefile
-                 src/components/scheduler/Makefile
-                 src/core/Makefile
-                 src/core/cmp/Makefile
-                 src/core/prototype/Makefile
-                 src/core/score/Makefile
-                 src/kernel/Makefile
-                 src/tool/Makefile
-                 src/tool/tpl/Makefile
-                 src/tool/tpl/prj-multiple/Makefile
-                 src/tool/tpl/prj-simple/Makefile
-                 src/tool/tpl/tpl2hc.sh
-                 src/util/Makefile
-                 test/Makefile
-                 test/kernel/Makefile
-                 test/mem/Makefile
-                 test/slist/Makefile
-                 test/util/Makefile])
+AC_CONFIG_FILES([
+  Makefile
+  src/Makefile
+  src/components/Makefile
+  src/components/cli/Makefile
+  src/components/console/Makefile
+  src/components/scheduler/Makefile
+  src/core/Makefile
+  src/core/cmp/Makefile
+  src/core/prototype/Makefile
+  src/core/score/Makefile
+  src/kernel/Makefile
+  src/tool/Makefile
+  src/tool/tpl/Makefile
+  src/tool/tpl/prj-multiple/Makefile
+  src/tool/tpl/prj-simple/Makefile
+  src/tool/tpl/tpl2hc.sh
+  src/util/Makefile
+  test/Makefile
+  test/kernel/Makefile
+  test/mem/Makefile
+  test/refswatcher/Makefile
+  test/slist/Makefile
+  test/util/Makefile
+])
 AC_CONFIG_COMMANDS([tpl2hc.sh], [chmod +x src/tool/tpl/tpl2hc.sh])
 AC_OUTPUT
