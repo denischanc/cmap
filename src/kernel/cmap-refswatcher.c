@@ -19,12 +19,12 @@ typedef struct
 
 static int CMAP_STREE_EVALFN_NAME(ref)(void * node, void * data);
 
-CMAP_SSET_STATIC(ref, REF, NULL)
+CMAP_SSET_STATIC(REF, ref, REF, NULL)
 
 static int CMAP_STREE_EVALFN_NAME(ref)(void * node, void * data)
 {
-  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_ref *)node) -> v.lc;
-  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_ref *)data) -> v.lc;
+  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_REF *)node) -> v.lc;
+  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_REF *)data) -> v.lc;
 
   if(ref_l > ref_r) return 1;
   else if(ref_l < ref_r) return -1;
@@ -38,7 +38,7 @@ typedef struct
 {
   int64_t time_us;
 
-  CMAP_SSET_ref * refs;
+  CMAP_SSET_REF * refs;
 } INTERNAL;
 
 /*******************************************************************************
@@ -108,12 +108,12 @@ static void delete_ref_ext(REF_EXT * ref_ext)
 
 static int CMAP_STREE_EVALFN_NAME(ref_ext)(void * node, void * data);
 
-CMAP_SSET_STATIC(ref_ext, REF_EXT, NULL)
+CMAP_SSET_STATIC(REF_EXT, ref_ext, REF_EXT, NULL)
 
 static int CMAP_STREE_EVALFN_NAME(ref_ext)(void * node, void * data)
 {
-  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_ref_ext *)node) -> v.lc;
-  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_ref_ext *)data) -> v.lc;
+  CMAP_LIFECYCLE * ref_l = ((CMAP_SSET_REF_EXT *)node) -> v.lc;
+  CMAP_LIFECYCLE * ref_r = ((CMAP_SSET_REF_EXT *)data) -> v.lc;
 
   if(ref_l > ref_r) return 1;
   else if(ref_l < ref_r) return -1;
@@ -124,7 +124,7 @@ static int CMAP_STREE_EVALFN_NAME(ref_ext)(void * node, void * data)
 *******************************************************************************/
 
 static void upd_all_ref_exts(CMAP_LIFECYCLE * cur, CMAP_LIFECYCLE * org,
-  CMAP_SSET_ref_ext ** all_ref_exts)
+  CMAP_SSET_REF_EXT ** all_ref_exts)
 {
   CMAP_SLIST_LC_PTR * nesteds = cmap_slist_lc_ptr_public.create(0);
 
@@ -156,11 +156,11 @@ static void upd_all_ref_exts(CMAP_LIFECYCLE * cur, CMAP_LIFECYCLE * org,
 
 typedef struct
 {
-  CMAP_SSET_ref_ext ** way_ref_exts, * all_ref_exts;
+  CMAP_SSET_REF_EXT ** way_ref_exts, * all_ref_exts;
 } UPD_WAY_REF_EXTS_APPLY_DATA;
 
-static void upd_way_ref_exts(CMAP_SSET_ref_ext ** way_ref_exts,
-  REF_EXT * ref_ext, CMAP_SSET_ref_ext * all_ref_exts);
+static void upd_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
+  REF_EXT * ref_ext, CMAP_SSET_REF_EXT * all_ref_exts);
 
 static void upd_way_ref_exts_apply_fn(CMAP_LIFECYCLE ** lc, void * data)
 {
@@ -173,8 +173,8 @@ static void upd_way_ref_exts_apply_fn(CMAP_LIFECYCLE ** lc, void * data)
     ref_ext_get(data_ -> all_ref_exts, ref_ext), data_ -> all_ref_exts);
 }
 
-static void upd_way_ref_exts(CMAP_SSET_ref_ext ** way_ref_exts,
-  REF_EXT * ref_ext, CMAP_SSET_ref_ext * all_ref_exts)
+static void upd_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
+  REF_EXT * ref_ext, CMAP_SSET_REF_EXT * all_ref_exts)
 {
   if(ref_ext_add(way_ref_exts, *ref_ext))
   {
@@ -188,7 +188,7 @@ static void upd_way_ref_exts(CMAP_SSET_ref_ext ** way_ref_exts,
 /*******************************************************************************
 *******************************************************************************/
 
-static char check_way_ref_exts(CMAP_SSET_ref_ext ** way_ref_exts,
+static char check_way_ref_exts(CMAP_SSET_REF_EXT ** way_ref_exts,
   CMAP_LIFECYCLE * org)
 {
   while(*way_ref_exts != NULL)
@@ -213,11 +213,11 @@ static char delete_if_zombie(CMAP_LIFECYCLE * lc)
 {
   REF_EXT org = create_ref_ext(lc);
 
-  CMAP_SSET_ref_ext * all_ref_exts = NULL;
+  CMAP_SSET_REF_EXT * all_ref_exts = NULL;
   ref_ext_add(&all_ref_exts, org);
   upd_all_ref_exts(lc, lc, &all_ref_exts);
 
-  CMAP_SSET_ref_ext * way_ref_exts = NULL;
+  CMAP_SSET_REF_EXT * way_ref_exts = NULL;
   upd_way_ref_exts(&way_ref_exts, &org, all_ref_exts);
 
   char ret = CMAP_F;
@@ -243,7 +243,7 @@ static char delete_if_zombie(CMAP_LIFECYCLE * lc)
 static void watch(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_SSET_ref * refs = NULL;
+  CMAP_SSET_REF * refs = NULL;
 
   while(internal -> refs != NULL)
   {

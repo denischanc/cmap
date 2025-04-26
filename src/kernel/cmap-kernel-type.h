@@ -7,7 +7,7 @@
 
 typedef struct
 {
-  char failure_on_allocmem, log_lvl, delete_zombie;
+  char failure_on_allocmem, log_lvl;
 
   int64_t check_zombie_time_us;
 

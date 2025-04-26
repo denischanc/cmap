@@ -5,31 +5,31 @@
 *******************************************************************************/
 
 #define PTR_LOOP(macro) \
-  macro(map, CMAP_MAP *) \
-  macro(lc, CMAP_LIFECYCLE *)
+  macro(MAP, map, CMAP_MAP *) \
+  macro(LC, lc, CMAP_LIFECYCLE *)
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define PTR_EVALFN_IMPL(name, type) \
+#define PTR_EVALFN_IMPL(NAME, name, type) \
 static int CMAP_STREE_EVALFN_NAME(name)(void * node, void * data) \
 { \
-  type name##_l = ((CMAP_SSET_##name *)node) -> v; \
-  type name##_r = ((CMAP_SSET_##name *)data) -> v; \
+  type v_l = ((CMAP_SSET_##NAME *)node) -> v; \
+  type v_r = ((CMAP_SSET_##NAME *)data) -> v; \
  \
-  if(name##_l > name##_r) return 1; \
-  else if(name##_l < name##_r) return -1; \
+  if(v_l > v_r) return 1; \
+  else if(v_l < v_r) return -1; \
   else return 0; \
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define PTR_LOGFN_IMPL(name, type) \
+#define PTR_LOGFN_IMPL(NAME, name, type) \
 static const char * name##_runner_log(void * node) \
 { \
   static char buffer[20]; \
-  snprintf(buffer, sizeof(buffer), "%p", ((CMAP_SSET_##name *)node) -> v); \
+  snprintf(buffer, sizeof(buffer), "%p", ((CMAP_SSET_##NAME *)node) -> v); \
   return buffer; \
 }
 

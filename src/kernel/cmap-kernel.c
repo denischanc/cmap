@@ -44,7 +44,6 @@ static CMAP_KERNEL_CFG * dft_cfg()
   {
     kernel_cfg.failure_on_allocmem = CMAP_T;
     kernel_cfg.log_lvl = CMAP_LOG_FATAL;
-    kernel_cfg.delete_zombie = CMAP_F;
     kernel_cfg.check_zombie_time_us = 3000000;
     kernel_cfg.mem = NULL;
     kernel_cfg.log = NULL;
