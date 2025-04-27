@@ -14,6 +14,7 @@ struct CMAP_REFSWATCHER
   void (*rm)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
 
   char (*is_zombie)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+  void (*delete_if_zombie)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
 
   void (*watch)(CMAP_REFSWATCHER * this);
 };
