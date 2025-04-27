@@ -2,9 +2,12 @@
 #include "cmap-env.h"
 
 #include <stdlib.h>
+#include <uv.h>
 #include "cmap-kernel.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
+#include "cmap-util.h"
+#include "cmap-scheduler.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -15,11 +18,16 @@ typedef struct
 {
   CMAP_SLIST_PROC_CTX * proc_ctx;
 
+  char scheduled;
+  uv_work_t req;
+
   CMAP_PROTOTYPESTORE * prototypestore;
 
   CMAP_POOL_LOOP(POOL_VAR)
 
   CMAP_MAP * global;
+
+  CMAP_REFSWATCHER * refswatcher;
 
   CMAP_ENV * prev, * next;
 } INTERNAL;
@@ -52,6 +60,30 @@ static void pop_proc_ctx(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   CMAP_CALL(internal -> proc_ctx, pop);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void schedule(CMAP_ENV * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+
+  if(!internal -> scheduled)
+  {
+    internal -> scheduled = CMAP_T;
+
+    internal -> req.data = this;
+    cmap_util_public.uv_error(uv_queue_work(CMAP_KERNEL_INSTANCE -> uv_loop(),
+      &internal -> req, cmap_util_public.uv_dummy,
+      cmap_scheduler_public.on_schedule));
+  }
+}
+
+static void reset_scheduled(CMAP_ENV * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  internal -> scheduled = CMAP_F;
 }
 
 /*******************************************************************************
@@ -105,6 +137,17 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_REFSWATCHER * refswatcher(CMAP_ENV * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  if(internal -> refswatcher == NULL)
+    internal -> refswatcher = cmap_refswatcher_public.create();
+  return internal -> refswatcher;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define POOL_DEC_REFS(TYPE, type) \
   if(internal -> pool_##type != NULL) CMAP_DEC_REFS(internal -> pool_##type);
 
@@ -142,9 +185,11 @@ static CMAP_ENV * create(int argc, char ** argv)
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> proc_ctx = cmap_slist_proc_ctx_public.create(0);
+  internal -> scheduled = CMAP_F;
   internal -> prototypestore = NULL;
   CMAP_POOL_LOOP(POOL_SET)
   internal -> global = NULL;
+  internal -> refswatcher = NULL;
   internal -> prev = NULL;
   internal -> next = envs;
 
@@ -154,9 +199,12 @@ static CMAP_ENV * create(int argc, char ** argv)
   this -> push_proc_ctx = push_proc_ctx;
   this -> proc_ctx = proc_ctx;
   this -> pop_proc_ctx = pop_proc_ctx;
+  this -> schedule = schedule;
+  this -> reset_scheduled = reset_scheduled;
   this -> prototypestore = prototypestore;
   CMAP_POOL_LOOP(POOL_FN_SET)
   this -> global = global;
+  this -> refswatcher = refswatcher;
 
   if(envs != NULL) ((INTERNAL *)(envs + 1)) -> prev = this;
   envs = this;

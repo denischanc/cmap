@@ -6,6 +6,7 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-pool.h"
 #include "cmap-prototypestore.h"
+#include "cmap-refswatcher.h"
 
 #define CMAP_ENV_POOL_DECL(TYPE, type) \
   CMAP_POOL_##TYPE * (*pool_##type)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
@@ -21,12 +22,17 @@ struct CMAP_ENV
   CMAP_PROC_CTX * (*proc_ctx)(CMAP_ENV * this);
   void (*pop_proc_ctx)(CMAP_ENV * this);
 
+  void (*schedule)(CMAP_ENV * this);
+  void (*reset_scheduled)(CMAP_ENV * this);
+
   CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_ENV * this,
     CMAP_PROC_CTX * proc_ctx);
 
   CMAP_POOL_LOOP(CMAP_ENV_POOL_DECL)
 
   CMAP_MAP * (*global)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
+
+  CMAP_REFSWATCHER * (*refswatcher)(CMAP_ENV * this);
 };
 
 typedef struct
