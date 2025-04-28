@@ -34,6 +34,22 @@ static const char * nature(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
+#define NESTED_PUSH(type) \
+  if(internal -> type##_ != NULL) \
+    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&internal -> type##_);
+
+static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
+{
+  CMAP_PROTOTYPESTORE * this_ = (CMAP_PROTOTYPESTORE *)this;
+  INTERNAL * internal = (INTERNAL *)(this_ + 1);
+  CMAP_PROTOTYPESTORE_LOOP(NESTED_PUSH)
+
+  cmap_lifecycle_public.nested(this, list);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define IMPL(type) \
 static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
   CMAP_PROC_CTX * proc_ctx) \
@@ -98,6 +114,7 @@ static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
   cmap_lifecycle_public.init(lc, &initargs);
   lc -> delete = delete;
   lc -> nature = nature;
+  lc -> nested = nested;
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   CMAP_PROTOTYPESTORE_LOOP(INIT_INTERNAL)

@@ -88,7 +88,7 @@ static CMAP_LOG * log_()
 /*******************************************************************************
 *******************************************************************************/
 
-static uv_loop_t * uv_loop()
+static uv_loop_t * this_uv_loop()
 {
   if(internal.uv_loop == NULL)
   {
@@ -135,7 +135,7 @@ static void delete_all()
 {
   cmap_env_public.delete_all();
 
-  CMAP_MEM_FREE(uv_loop(), mem());
+  CMAP_MEM_FREE(this_uv_loop(), mem());
 }
 
 static void exit_(int ret)
@@ -166,7 +166,7 @@ static void fatal()
 static int main_()
 {
   cmap_log_public.info("Kernel start uv loop ...");
-  cmap_util_public.uv_error(uv_run(uv_loop(), UV_RUN_DEFAULT));
+  cmap_util_public.uv_error(uv_run(this_uv_loop(), UV_RUN_DEFAULT));
   cmap_log_public.info("Uv loop terminated.");
 
   exit_(EXIT_SUCCESS);
@@ -197,7 +197,7 @@ static CMAP_KERNEL * bootstrap(CMAP_KERNEL_CFG * cfg)
     kernel.cfg = cfg_;
     kernel.mem = mem;
     kernel.log = log_;
-    kernel.uv_loop = uv_loop;
+    kernel.uv_loop = this_uv_loop;
     kernel.state = state;
 
     kernel_ptr = &kernel;

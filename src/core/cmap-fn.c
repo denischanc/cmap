@@ -42,9 +42,9 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
-  INTERNAL * internal = (INTERNAL *)((CMAP_FN *)this) -> internal;
+  INTERNAL * internal = ((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL)
-    CMAP_CALL_ARGS((CMAP_LIFECYCLE *)internal -> definitions, nested, list);
+    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&internal -> definitions);
 
   cmap_map_public.nested(this, list);
 }

@@ -2,7 +2,6 @@
 #define __CMAP_UTIL_H__
 
 #include <stdarg.h>
-#include <uv.h>
 #include <stdint.h>
 #include "cmap-list-type.h"
 #include "cmap-proc-ctx-type.h"
@@ -20,7 +19,6 @@ typedef struct
   CMAP_MAP * (*vto_map)(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
 
   void (*uv_error)(int err);
-  void (*uv_dummy)(uv_work_t * req);
 
   CMAP_MAP * (*copy)(CMAP_MAP * dst, CMAP_MAP * src);
 
@@ -31,7 +29,7 @@ typedef struct
 
   int (*is_val)(CMAP_LIST * list, CMAP_MAP * val);
 
-  int64_t (*time_us)();
+  uint64_t (*time_us)();
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;

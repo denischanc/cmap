@@ -24,12 +24,13 @@ static const char * type##_nature(CMAP_LIFECYCLE * this) \
   return #type "_pool"; \
 } \
  \
-static void type##_delete(CMAP_LIFECYCLE * this) \
+static void type##_nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list) \
 { \
-  INTERNAL * internal = (INTERNAL *)(((CMAP_POOL_##TYPE *)this) + 1); \
-  CMAP_DEC_REFS(internal -> list); \
+  CMAP_POOL_##TYPE * this_ = (CMAP_POOL_##TYPE *)this; \
+  CMAP_CALL_ARGS(list, push, \
+    (CMAP_LIFECYCLE **)&((INTERNAL *)(this_ + 1)) -> list); \
  \
-  cmap_lifecycle_public.delete(this); \
+  cmap_lifecycle_public.nested(this, list); \
 } \
  \
 static CMAP_##TYPE * type##_take(CMAP_POOL_##TYPE * this, \
@@ -52,6 +53,14 @@ static void type##_release(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e) \
   } \
 } \
  \
+static void type##_delete(CMAP_LIFECYCLE * this) \
+{ \
+  INTERNAL * internal = (INTERNAL *)(((CMAP_POOL_##TYPE *)this) + 1); \
+  CMAP_DEC_REFS(internal -> list); \
+ \
+  cmap_lifecycle_public.delete(this); \
+} \
+ \
 static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
   size = (size <= 0) ? 1 << 10 : size; \
@@ -67,6 +76,7 @@ static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
   cmap_lifecycle_public.init(lc, &initargs); \
   lc -> delete = type##_delete; \
   lc -> nature = type##_nature; \
+  lc -> nested = type##_nested; \
  \
   INTERNAL * internal = (INTERNAL *)(this + 1); \
   internal -> size = size; \

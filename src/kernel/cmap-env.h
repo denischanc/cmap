@@ -22,9 +22,6 @@ struct CMAP_ENV
   CMAP_PROC_CTX * (*proc_ctx)(CMAP_ENV * this);
   void (*pop_proc_ctx)(CMAP_ENV * this);
 
-  void (*schedule)(CMAP_ENV * this);
-  void (*reset_scheduled)(CMAP_ENV * this);
-
   CMAP_PROTOTYPESTORE * (*prototypestore)(CMAP_ENV * this,
     CMAP_PROC_CTX * proc_ctx);
 
@@ -33,6 +30,8 @@ struct CMAP_ENV
   CMAP_MAP * (*global)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
 
   CMAP_REFSWATCHER * (*refswatcher)(CMAP_ENV * this);
+
+  void (*scheduler_empty)(CMAP_ENV * this);
 };
 
 typedef struct

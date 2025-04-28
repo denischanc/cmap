@@ -119,6 +119,8 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
   if(allocator != NULL) CMAP_INC_REFS(allocator);
 
+  cmap_log_public.debug("[%p] creation", this);
+
   return this;
 }
 

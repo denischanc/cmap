@@ -10,8 +10,6 @@
 
 @FUNCTION(cmap_scheduler_blt_public_create)
 {
-  local schedule = function()(cmap_scheduler_public.schedule);
-
   local internal =
   {
     jobs: [],
@@ -21,7 +19,10 @@
       if(job != null)
       {
         job.process();
-        schedule();
+      }
+      else
+      {
+        function()(cmap_scheduler_public.scheduler_empty)();
       }
     }
   };
@@ -32,7 +33,6 @@
     addJob: function(job)
     {
       this.internal.jobs.push(job);
-      schedule();
     },
     job: @PROC(cmap_job_blt_public_create)
   };

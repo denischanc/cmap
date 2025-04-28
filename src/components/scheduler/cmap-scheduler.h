@@ -8,9 +8,9 @@
 
 typedef struct
 {
-  void (*on_schedule)(uv_work_t * req, int status);
+  void (*schedule)(uv_idle_t * handle);
 
-  CMAP_MAP * (*schedule)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_MAP * (*scheduler_empty)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     CMAP_LIST * args);
 } CMAP_SCHEDULER_PUBLIC;
 

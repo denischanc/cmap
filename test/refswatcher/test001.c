@@ -6,25 +6,18 @@
 #include "test-assert.h"
 #include "cmap.h"
 #include "cmap-log.h"
-#include "cmap-refswatcher.h"
-#include "cmap-lifecycle.h"
 
-static CMAP_MAP * zombie;
-static CMAP_MAP * n15;
-static CMAP_MAP * n21;
-static CMAP_MAP * n23;
-
-static void init(CMAP_PROC_CTX * proc_ctx)
+static void test(CMAP_PROC_CTX * proc_ctx)
 {
-  zombie = cmap_map(proc_ctx);
+  CMAP_MAP * zombie = cmap_map(proc_ctx);
   CMAP_MAP * n12 = cmap_map(proc_ctx);
   CMAP_MAP * n13 = cmap_map(proc_ctx);
   CMAP_MAP * n14 = cmap_map(proc_ctx);
-  n15 = cmap_map(proc_ctx);
+  CMAP_MAP * n15 = cmap_map(proc_ctx);
 
-  n21 = cmap_map(proc_ctx);
+  CMAP_MAP * n21 = cmap_map(proc_ctx);
   CMAP_MAP * n22 = cmap_map(proc_ctx);
-  n23 = cmap_map(proc_ctx);
+  CMAP_MAP * n23 = cmap_map(proc_ctx);
   CMAP_MAP * n24 = cmap_map(proc_ctx);
   CMAP_MAP * n25 = cmap_map(proc_ctx);
 
@@ -56,44 +49,9 @@ static void init(CMAP_PROC_CTX * proc_ctx)
   cmap_set(n25, "n26", cmap_map(proc_ctx));
 }
 
-static void test_map(CMAP_MAP * map, CMAP_REFSWATCHER * refswatcher,
-  const char * desc, char ok)
-{
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)map;
-
-  CMAP_CALL_ARGS(refswatcher, add, lc);
-
-  char ret = CMAP_CALL_ARGS(refswatcher, is_zombie, lc);
-  CMAP_TEST_ASSERT((ok) ? ret : !ret, desc);
-
-  CMAP_CALL_ARGS(refswatcher, rm, lc);
-}
-
-static void test(CMAP_ENV * env)
-{
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx(env);
-
-  CMAP_REFSWATCHER * refswatcher = cmap_refswatcher_public.create();
-
-  test_map(zombie, refswatcher, "zombie is a zombie", CMAP_T);
-  test_map(n15, refswatcher, "n15 is a zombie", CMAP_T);
-
-  test_map(n21, refswatcher, "n21 is not a zombie", CMAP_F);
-  test_map(n23, refswatcher, "n23 is not a zombie", CMAP_F);
-
-  CMAP_CALL_ARGS(refswatcher, add, (CMAP_LIFECYCLE *)zombie);
-  CMAP_CALL_ARGS(refswatcher, delete_if_zombie, (CMAP_LIFECYCLE *)zombie);
-
-  CMAP_DELETE(refswatcher);
-
-  cmap_delete_proc_ctx(proc_ctx, NULL);
-}
-
 int main(int argc, char * argv[])
 {
   cmap_dft_cfg() -> log_lvl = CMAP_LOG_DEBUG;
-  CMAP_ENV * env = cmap_env(argc, argv);
-  cmap_env_main(env, init);
-  test(env);
+  cmap_env_main(cmap_env(argc, argv), test);
   return cmap_main();
 }

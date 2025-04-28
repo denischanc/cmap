@@ -9,13 +9,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void on_schedule(uv_work_t * req, int status)
+static void schedule(uv_idle_t * handle)
 {
-  CMAP_ENV * env = req -> data;
-
-  CMAP_CALL(env, reset_scheduled);
-
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(handle -> data);
   cmap_scheduler_blt_public_process(proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 }
@@ -23,11 +19,11 @@ static void on_schedule(uv_work_t * req, int status)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * schedule(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+static CMAP_MAP * scheduler_empty(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
-  CMAP_CALL(env, schedule);
+  CMAP_CALL(env, scheduler_empty);
   return NULL;
 }
 
@@ -36,6 +32,6 @@ static CMAP_MAP * schedule(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 const CMAP_SCHEDULER_PUBLIC cmap_scheduler_public =
 {
-  on_schedule,
-  schedule
+  schedule,
+  scheduler_empty
 };

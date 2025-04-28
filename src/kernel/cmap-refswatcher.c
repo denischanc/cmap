@@ -1,11 +1,15 @@
 
 #include "cmap-refswatcher.h"
 
+#include <uv.h>
+#include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-util.h"
 #include "cmap-sset.h"
 #include "cmap-lifecycle.h"
 #include "cmap-slist.h"
+#include "cmap-proc-ctx.h"
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -14,7 +18,7 @@ typedef struct
 {
   CMAP_LIFECYCLE * lc;
 
-  int64_t time;
+  uint64_t time_us;
 } REF;
 
 static int ref_eval(REF v_l, REF v_r)
@@ -39,22 +43,37 @@ CMAP_SSET_STATIC(REF, ref, REF, ref_eval, ref_log_v)
 
 typedef struct
 {
-  int64_t time_us;
+  CMAP_ENV * env;
+
+  uint64_t time_us;
 
   CMAP_SSET_REF * refs;
+
+  uv_timer_t handle;
+  char stopped;
 } INTERNAL;
 
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_if_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+
 static void add(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
-  REF ref;
-  ref.lc = lc;
-  ref.time = cmap_util_public.time_us() + internal -> time_us;
-  if(ref_add(&internal -> refs, ref)) CMAP_INC_REFS(lc);
+  if(internal -> stopped)
+  {
+    CMAP_INC_REFS(lc);
+    delete_if_zombie(this, lc);
+  }
+  else
+  {
+    REF ref;
+    ref.lc = lc;
+    ref.time_us = cmap_util_public.time_us() + internal -> time_us;
+    if(ref_add(&internal -> refs, ref)) CMAP_INC_REFS(lc);
+  }
 }
 
 /*******************************************************************************
@@ -66,9 +85,8 @@ static void upd(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 
   REF ref;
   ref.lc = lc;
-  ref.time = 0;
   REF * ref_ = ref_get(internal -> refs, ref);
-  ref_ -> time = cmap_util_public.time_us() + internal -> time_us;
+  ref_ -> time_us = cmap_util_public.time_us() + internal -> time_us;
 }
 
 /*******************************************************************************
@@ -243,32 +261,18 @@ static char check_way_ref_exts(CMAP_SSET_REF_EXT * way_ref_exts)
 static char is_zombie_w_ref_exts(CMAP_LIFECYCLE * lc,
   CMAP_SSET_REF_EXT ** all_ref_exts, CMAP_SSET_REF_EXT ** way_ref_exts)
 {
-  REF_EXT * ref_ext = upd_all_ref_exts(lc, all_ref_exts);
-  upd_way_ref_exts(way_ref_exts, ref_ext, *all_ref_exts);
   CMAP_CALL(lc, dec_refs_only);
+
+  REF_EXT * ref_ext = upd_all_ref_exts(lc, all_ref_exts);
+  if(ref_ext == NULL) return CMAP_F;
+
+  upd_way_ref_exts(way_ref_exts, ref_ext, *all_ref_exts);
   return check_way_ref_exts(*way_ref_exts);
 }
 
 static void delete_all_ref_exts(CMAP_SSET_REF_EXT ** all_ref_exts)
 {
   while(*all_ref_exts != NULL) delete_ref_ext(ref_ext_rm(all_ref_exts));
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char is_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
-{
-  CMAP_SSET_REF_EXT * all_ref_exts = NULL, * way_ref_exts = NULL;
-
-  char ret = is_zombie_w_ref_exts(lc, &all_ref_exts, &way_ref_exts);
-
-  ref_ext_clean(&way_ref_exts);
-  delete_all_ref_exts(&all_ref_exts);
-
-  CMAP_INC_REFS(lc);
-
-  return ret;
 }
 
 /*******************************************************************************
@@ -306,8 +310,15 @@ static void delete_zombie(CMAP_SSET_REF_EXT * way_ref_exts)
 static void delete_if_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 {
   CMAP_SSET_REF_EXT * all_ref_exts = NULL, * way_ref_exts = NULL;
+
   if(is_zombie_w_ref_exts(lc, &all_ref_exts, &way_ref_exts))
+  {
+    cmap_log_public.debug("[%p][%s] zombie deletion", lc, CMAP_NATURE(lc));
     delete_zombie(way_ref_exts);
+    cmap_log_public.debug("[%p][refswatcher] %d zombie(s) deleted", this,
+      ref_ext_size(way_ref_exts));
+  }
+  else if(CMAP_CALL(lc, nb_refs) <= 0) CMAP_DELETE(lc);
 
   ref_ext_clean(&way_ref_exts);
   delete_all_ref_exts(&all_ref_exts);
@@ -325,12 +336,51 @@ static void watch(CMAP_REFSWATCHER * this)
   {
     REF ref = ref_rm(&internal -> refs);
 
-    int64_t now = cmap_util_public.time_us();
-    if(ref.time <= now) ref_add(&refs, ref);
+    uint64_t now = cmap_util_public.time_us();
+    if((ref.time_us <= now) && !internal -> stopped) ref_add(&refs, ref);
     else delete_if_zombie(this, ref.lc);
   }
 
   internal -> refs = refs;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void watch_uv(uv_timer_t * handle)
+{
+  CMAP_REFSWATCHER * this = handle -> data;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(internal -> env);
+  watch(this);
+  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
+}
+
+static void this_uv_init(CMAP_REFSWATCHER * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+
+  internal -> handle.data = this;
+
+  cmap_util_public.uv_error(uv_timer_init(CMAP_KERNEL_INSTANCE -> uv_loop(),
+    &internal -> handle));
+  cmap_util_public.uv_error(uv_timer_start(&internal -> handle, watch_uv, 0,
+    internal -> time_us));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void stop(CMAP_REFSWATCHER * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+
+  internal -> stopped = CMAP_T;
+
+  cmap_util_public.uv_error(uv_timer_stop(&internal -> handle));
+
+  watch(this);
 }
 
 /*******************************************************************************
@@ -341,23 +391,26 @@ static void delete(CMAP_REFSWATCHER * this)
   CMAP_KERNEL_FREE(this);
 }
 
-static CMAP_REFSWATCHER * create()
+static CMAP_REFSWATCHER * create(CMAP_ENV * env)
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
+  CMAP_MEM * mem = kernel -> mem();
   CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)mem -> alloc(
     sizeof(CMAP_REFSWATCHER) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  internal -> time_us = CMAP_KERNEL_INSTANCE -> cfg() -> check_zombie_time_us;
+  internal -> env = env;
+  internal -> time_us = kernel -> cfg() -> check_zombie_time_us;
   internal -> refs = NULL;
+  internal -> stopped = CMAP_F;
 
   this -> delete = delete;
   this -> add = add;
   this -> upd = upd;
   this -> rm = rm;
-  this -> is_zombie = is_zombie;
-  this -> delete_if_zombie = delete_if_zombie;
-  this -> watch = watch;
+  this -> stop = stop;
+
+  this_uv_init(this);
 
   return this;
 }
@@ -365,7 +418,4 @@ static CMAP_REFSWATCHER * create()
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_REFSWATCHER_PUBLIC cmap_refswatcher_public =
-{
-  create
-};
+const CMAP_REFSWATCHER_PUBLIC cmap_refswatcher_public = { create };

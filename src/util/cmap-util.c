@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <uv.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-map.h"
@@ -76,20 +77,13 @@ static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static void uv_error(int err)
+static void this_uv_error(int err)
 {
   if(err < 0)
   {
     cmap_log_public.fatal("Libuv : %s", uv_strerror(err));
     CMAP_KERNEL_INSTANCE -> fatal();
   }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void uv_dummy(uv_work_t * req)
-{
 }
 
 /*******************************************************************************
@@ -147,12 +141,12 @@ static int is_val(CMAP_LIST * list, CMAP_MAP * val)
 /*******************************************************************************
 *******************************************************************************/
 
-static int64_t time_us()
+static uint64_t time_us()
 {
   struct timeval tv = {0};
   gettimeofday(&tv, NULL);
 
-  int64_t i = tv.tv_sec;
+  uint64_t i = tv.tv_sec;
   i *= 1000000;
   i += tv.tv_usec;
 
@@ -166,7 +160,7 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   fill_list, vfill_list, to_list, vto_list,
   to_map, vto_map,
-  uv_error, uv_dummy,
+  this_uv_error,
   copy,
   dup_string,
   strdup_,

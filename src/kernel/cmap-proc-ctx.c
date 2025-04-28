@@ -83,12 +83,15 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
   CMAP_CALL_ARGS(internal -> refs, delete, ret);
 
-  CMAP_CALL(internal -> env, pop_proc_ctx);
-  CMAP_PROC_CTX * proc_ctx_cur = CMAP_CALL(internal -> env, proc_ctx);
-
+  CMAP_ENV * env = internal -> env;
+  CMAP_CALL(env, pop_proc_ctx);
   CMAP_KERNEL_FREE(this);
 
-  if(ret != NULL) local_refs_add(proc_ctx_cur, (CMAP_LIFECYCLE *)ret, CMAP_F);
+  if(ret != NULL)
+  {
+    CMAP_PROC_CTX * proc_ctx_cur = CMAP_CALL(env, proc_ctx);
+    local_refs_add(proc_ctx_cur, (CMAP_LIFECYCLE *)ret, CMAP_F);
+  }
 
   return ret;
 }
@@ -101,7 +104,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> env = env_;
-  internal -> refs = cmap_refsstore_public.create();
+  internal -> refs = cmap_refsstore_public.create(env_);
   internal -> definitions = NULL;
   internal -> level = 1;
 

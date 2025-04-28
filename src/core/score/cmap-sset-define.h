@@ -43,6 +43,7 @@ typedef struct \
   char (*add)(CMAP_SSET_##NAME ** this, type v); \
   type (*rm)(CMAP_SSET_##NAME ** this); \
   char (*rm_v)(CMAP_SSET_##NAME ** this, type v); \
+  int (*size)(CMAP_SSET_##NAME * this); \
   void (*apply)(CMAP_SSET_##NAME * this, CMAP_SSET_APPLY_FN_##NAME fn, \
     void * data); \
   void (*clean)(CMAP_SSET_##NAME ** this); \
@@ -139,6 +140,14 @@ CMAP_UNUSED static char name##_rm_v(CMAP_SSET_##NAME ** this, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
+CMAP_UNUSED static int name##_size(CMAP_SSET_##NAME * this) \
+{ \
+  return this -> node.size; \
+} \
+ \
+/***************************************************************************** \
+*****************************************************************************/ \
+ \
 typedef struct \
 { \
   CMAP_SSET_APPLY_FN_##NAME fn; \
@@ -191,10 +200,9 @@ const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public = \
 { \
   name##_is, \
   name##_get, \
-  name##_add_force, \
-  name##_add, \
-  name##_rm, \
-  name##_rm_v, \
+  name##_add_force, name##_add, \
+  name##_rm, name##_rm_v, \
+  name##_size, \
   name##_apply, \
   name##_clean, \
   name##_log \
