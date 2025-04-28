@@ -22,6 +22,8 @@ struct CMAP_LIFECYCLE
   void (*dec_refs_only_nb)(CMAP_LIFECYCLE * this, int nb);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
+
+  void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 };
 
 typedef struct
@@ -36,6 +38,8 @@ typedef struct
   void (*dec_refs_only_nb)(CMAP_LIFECYCLE * this, int nb);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
+
+  void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;
