@@ -8,7 +8,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_blt_public_create)
+@FUNCTION(cmap_scheduler_blt_create)
 {
   local internal =
   {
@@ -34,14 +34,14 @@
     {
       this.internal.jobs.push(job);
     },
-    job: @PROC(cmap_job_blt_public_create)
+    job: @PROC(cmap_job_blt_create)
   };
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_blt_public_process)
+@FUNCTION(cmap_scheduler_blt_process)
 {
   cmap.scheduler.internal.process();
 }

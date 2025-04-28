@@ -18,4 +18,4 @@ CMAP_CONSOLE_FILE = $(CMAP_SRC_PATH)/components/console/cmap-console.cmap
 
 cmap-console-blt.c cmap-console-blt.h: $(CMAP_CONSOLE_FILE) $(CMAP_TOOL)
 	$(CMAP_TOOL) build $(CMAP_CONSOLE_FILE) cmap-console-blt \
-	  -i -fcmap_console_blt_public_create
+	  -i -fcmap_console_blt_create

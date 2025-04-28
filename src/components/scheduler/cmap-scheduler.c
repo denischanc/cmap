@@ -12,7 +12,7 @@
 static void schedule(uv_idle_t * handle)
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(handle -> data);
-  cmap_scheduler_blt_public_process(proc_ctx);
+  cmap_scheduler_blt_process(proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 }
 

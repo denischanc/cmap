@@ -9,8 +9,8 @@
 
 return
 {
-  console: @PROC(cmap_console_blt_public_create),
-  scheduler: @PROC(cmap_scheduler_blt_public_create),
+  console: @PROC(cmap_console_blt_create),
+  scheduler: @PROC(cmap_scheduler_blt_create),
   prototype: @PROC(cmap_cmap_public.prototype)
 };
 
