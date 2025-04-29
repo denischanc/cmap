@@ -26,14 +26,6 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return "prototypestore";
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 #define NESTED_PUSH(type) \
   if(internal -> type##_ != NULL) \
     CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&internal -> type##_);
@@ -108,12 +100,12 @@ static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
     sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
 
   CMAP_INITARGS initargs;
+  initargs.nature = "prototypestore";
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   cmap_lifecycle_public.init(lc, &initargs);
   lc -> delete = delete;
-  lc -> nature = nature;
   lc -> nested = nested;
 
   INTERNAL * internal = (INTERNAL *)(this + 1);

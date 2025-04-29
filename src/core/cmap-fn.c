@@ -32,14 +32,6 @@ const char * CMAP_PROTOTYPE_NAME = "prototype";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_FN_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
   INTERNAL * internal = ((CMAP_FN *)this) -> internal;
@@ -173,7 +165,6 @@ static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
-  lc -> nature = nature;
   lc -> nested = nested;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
@@ -195,6 +186,7 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  initargs.nature = CMAP_FN_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;

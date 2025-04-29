@@ -9,6 +9,8 @@ typedef struct
 {
   CMAP_MAP * (*info)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     CMAP_LIST * args);
+  CMAP_MAP * (*print)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+    CMAP_LIST * args);
   CMAP_MAP * (*error)(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     CMAP_LIST * args);
 } CMAP_CONSOLE_PUBLIC;

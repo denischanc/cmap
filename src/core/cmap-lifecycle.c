@@ -7,17 +7,22 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-env.h"
 #include "cmap-log.h"
+#include "cmap-refswatcher.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 typedef struct
 {
+  const char * nature;
+
   int nb_refs;
 
   CMAP_ENV * env;
 
   CMAP_LIFECYCLE * allocator;
+
+  char watched;
 } INTERNAL;
 
 /*******************************************************************************
@@ -25,7 +30,7 @@ typedef struct
 
 static const char * nature(CMAP_LIFECYCLE * this)
 {
-  return "lifecycle";
+  return ((INTERNAL *)(this -> internal)) -> nature;
 }
 
 /*******************************************************************************
@@ -33,7 +38,15 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static void inc_refs(CMAP_LIFECYCLE * this)
 {
-  ((INTERNAL *)this -> internal) -> nb_refs++;
+  INTERNAL * internal = this -> internal;
+
+  internal -> nb_refs++;
+
+  if(internal -> watched)
+  {
+    CMAP_REFSWATCHER * refswatcher = CMAP_CALL(internal -> env, refswatcher);
+    CMAP_CALL_ARGS(refswatcher, rm, this);
+  }
 }
 
 /*******************************************************************************
@@ -51,7 +64,7 @@ static void dec_refs(CMAP_LIFECYCLE * this)
 {
   CMAP_CALL(this, dec_refs_only);
 
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = this -> internal;
   CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
 }
@@ -86,6 +99,23 @@ static void allocated_deleted(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
+static void watched(CMAP_LIFECYCLE * this, char watched)
+{
+  INTERNAL * internal = this -> internal;
+  internal -> watched = watched;
+
+  cmap_log_public.debug("[%p][%s] %s watched", this, internal -> nature,
+    watched ? "is" : "not");
+}
+
+static char is_watched(CMAP_LIFECYCLE * this)
+{
+  return ((INTERNAL *)this -> internal) -> watched;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete(CMAP_LIFECYCLE * this)
 {
   cmap_log_public.debug("[%p][%s] deletion", this, CMAP_NATURE(this));
@@ -105,9 +135,11 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   CMAP_LIFECYCLE * allocator = initargs -> allocator;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  internal -> nature = initargs -> nature;
   internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);
   internal -> allocator = allocator;
+  internal -> watched = CMAP_F;
 
   this -> internal = internal;
   this -> delete = delete;
@@ -119,10 +151,12 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> dec_refs_only_nb = dec_refs_only_nb;
   this -> nested = nested;
   this -> allocated_deleted = allocated_deleted;
+  this -> watched = watched;
+  this -> is_watched = is_watched;
 
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
 
-  cmap_log_public.debug("[%p] creation", this);
+  cmap_log_public.debug("[%p][%s] creation", this, internal -> nature);
 
   return this;
 }
@@ -135,5 +169,6 @@ const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
   init, delete,
   inc_refs, nb_refs, dec_refs, dec_refs_only, dec_refs_only_nb,
   nested,
-  allocated_deleted
+  allocated_deleted,
+  watched, is_watched
 };

@@ -60,11 +60,17 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 static char delete_or_dec_refs_only(INTERNAL * internal, CMAP_LIFECYCLE * lc)
 {
   int nb_refs = CMAP_CALL(lc, nb_refs);
-  if(nb_refs <= 1)
-  {
-    CMAP_DELETE(lc);
+  char watched = CMAP_CALL(lc, is_watched);
+  CMAP_REFSWATCHER * refswatcher_ = refswatcher(internal);
 
-    return CMAP_T;
+  char ret;
+  if(watched) ret = (nb_refs <= 2);
+  else ret = (nb_refs <= 1);
+
+  if(ret)
+  {
+    if(watched) CMAP_CALL_ARGS(refswatcher_, rm, lc);
+    CMAP_DELETE(lc);
   }
   else
   {
@@ -72,11 +78,10 @@ static char delete_or_dec_refs_only(INTERNAL * internal, CMAP_LIFECYCLE * lc)
       nb_refs);
     CMAP_CALL(lc, dec_refs_only);
 
-    CMAP_REFSWATCHER * refswatcher_ = refswatcher(internal);
-    CMAP_CALL_ARGS(refswatcher_, add, lc);
-
-    return CMAP_F;
+    ret = CMAP_CALL_ARGS(refswatcher_, add, lc);
   }
+
+  return ret;
 }
 
 /*******************************************************************************

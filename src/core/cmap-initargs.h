@@ -3,6 +3,8 @@
 
 typedef struct
 {
+  const char * nature;
+
   CMAP_MAP * prototype;
 
   CMAP_LIFECYCLE * allocator;

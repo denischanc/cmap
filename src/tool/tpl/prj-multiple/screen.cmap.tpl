@@ -9,21 +9,37 @@ screen = function(nbCol, nbLine)
   }
 };
 
+/* https://en.wikipedia.org/wiki/ANSI_escape_code */
+
 screen.ESCAPE = "\e[";
 screen.M = "m";
 screen.A = "A";
+screen.HIDE_CURSOR = "?25l";
+screen.SHOW_CURSOR = "?25h";
 screen.RESET = "\e[0m";
 
 screen.prototype =
 {
   ctl: function(ctl)
   {
-    cmap.console.info(screen.ESCAPE, ctl);
+    cmap.console.print(screen.ESCAPE, ctl);
+  },
+
+  hideCursor: function()
+  {
+    this.ctl(screen.HIDE_CURSOR);
+    return this;
+  },
+
+  showCursor: function()
+  {
+    this.ctl(screen.SHOW_CURSOR);
+    return this;
   },
 
   up: function()
   {
-    this.ctl("".append(this.height().inc()).append(screen.A));
+    this.ctl("".append(this.height()).append(screen.A));
     return this;
   },
 

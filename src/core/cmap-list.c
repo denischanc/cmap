@@ -15,14 +15,6 @@ const char * CMAP_LIST_NATURE = "list";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_LIST_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void nested_apply(CMAP_MAP ** val, void * data)
 {
   if(*val != NULL)
@@ -207,7 +199,6 @@ static CMAP_LIST * init(CMAP_LIST * this, CMAP_INITARGS * initargs,
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
-  lc -> nature = nature;
   lc -> nested = nested;
 
   this -> internal = cmap_slist_map_public.create(chunk_size);
@@ -230,6 +221,7 @@ static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  initargs.nature = CMAP_LIST_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, list_, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;

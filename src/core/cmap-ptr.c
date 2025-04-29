@@ -25,14 +25,6 @@ const char * CMAP_PTR_NATURE = "ptr";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_PTR_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void * get(CMAP_PTR * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
@@ -72,7 +64,6 @@ static CMAP_PTR * init(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
-  lc -> nature = nature;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   if(size == 0)
@@ -99,6 +90,7 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  initargs.nature = CMAP_PTR_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, ptr_, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;

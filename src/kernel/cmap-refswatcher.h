@@ -10,8 +10,7 @@ struct CMAP_REFSWATCHER
 {
   void (*delete)(CMAP_REFSWATCHER * this);
 
-  void (*add)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
-  void (*upd)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+  char (*add)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
   void (*rm)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
 
   void (*stop)(CMAP_REFSWATCHER * this);

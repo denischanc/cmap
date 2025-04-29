@@ -7,11 +7,12 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void display(FILE * f, CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx)
+static void display(FILE * f, CMAP_LIST * args, const char * eol,
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_STRING * line = cmap_string("", 0, proc_ctx);
   cmap_lproc((CMAP_MAP *)line, "append", proc_ctx, args);
-  fprintf(f, "%s\n", cmap_string_val(line));
+  fprintf(f, "%s%s", cmap_string_val(line), eol);
 }
 
 /*******************************************************************************
@@ -20,7 +21,17 @@ static void display(FILE * f, CMAP_LIST * args, CMAP_PROC_CTX * proc_ctx)
 static CMAP_MAP * info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  display(stdout, args, proc_ctx);
+  display(stdout, args, "\n", proc_ctx);
+  return map;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_MAP * print(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  display(stdout, args, "", proc_ctx);
   return map;
 }
 
@@ -30,11 +41,11 @@ static CMAP_MAP * info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * error(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  display(stderr, args, proc_ctx);
+  display(stderr, args, "\n", proc_ctx);
   return map;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CONSOLE_PUBLIC cmap_console_public = { info, error };
+const CMAP_CONSOLE_PUBLIC cmap_console_public = { info, print, error };

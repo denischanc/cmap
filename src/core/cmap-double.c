@@ -21,14 +21,6 @@ const char * CMAP_DOUBLE_NATURE = "double";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_DOUBLE_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static double get(CMAP_DOUBLE * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
@@ -61,7 +53,6 @@ static CMAP_DOUBLE * init(CMAP_DOUBLE * this, CMAP_INITARGS * initargs,
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
-  lc -> nature = nature;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
@@ -77,6 +68,7 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  initargs.nature = CMAP_DOUBLE_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, double_, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;

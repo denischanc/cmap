@@ -19,11 +19,6 @@ typedef struct
 *******************************************************************************/
 
 #define IMPL(TYPE, type) \
-static const char * type##_nature(CMAP_LIFECYCLE * this) \
-{ \
-  return #type "_pool"; \
-} \
- \
 static void type##_nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list) \
 { \
   CMAP_POOL_##TYPE * this_ = (CMAP_POOL_##TYPE *)this; \
@@ -70,12 +65,12 @@ static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
     sizeof(CMAP_POOL_##TYPE) + sizeof(INTERNAL)); \
  \
   CMAP_INITARGS initargs; \
+  initargs.nature = #type "_pool"; \
   initargs.allocator = NULL; \
   initargs.proc_ctx = proc_ctx; \
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this; \
   cmap_lifecycle_public.init(lc, &initargs); \
   lc -> delete = type##_delete; \
-  lc -> nature = type##_nature; \
   lc -> nested = type##_nested; \
  \
   INTERNAL * internal = (INTERNAL *)(this + 1); \

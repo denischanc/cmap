@@ -18,14 +18,12 @@
 *******************************************************************************/
 
 #define CMAP_SSET_STRUCT_DECL(NAME, type) \
-typedef struct CMAP_SSET_##NAME CMAP_SSET_##NAME; \
- \
-struct CMAP_SSET_##NAME \
+typedef struct \
 { \
   CMAP_STREE_NODE node; \
  \
   type v; \
-}; \
+} CMAP_SSET_##NAME; \
  \
 typedef void (*CMAP_SSET_APPLY_FN_##NAME)(type * v, void * data);
 
@@ -134,6 +132,7 @@ CMAP_UNUSED static char name##_rm_v(CMAP_SSET_##NAME ** this, type v) \
   if(to_rm == NULL) return CMAP_F; \
  \
   CMAP_STREE_RMFN(name, this, to_rm); \
+  CMAP_KERNEL_FREE(to_rm); \
   return CMAP_T; \
 } \
  \

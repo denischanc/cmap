@@ -30,14 +30,6 @@ const char * CMAP_STRING_NATURE = "string";
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_STRING_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static char * val(CMAP_STRING * this)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
@@ -133,7 +125,6 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
-  lc -> nature = nature;
 
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
@@ -158,6 +149,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  initargs.nature = CMAP_STRING_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, string_, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;

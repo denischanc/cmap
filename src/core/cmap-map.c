@@ -51,14 +51,6 @@ CMAP_STREE_RUNNER(entry, entry_eval, NULL, CMAP_F, CMAP_F);
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * nature(CMAP_LIFECYCLE * this)
-{
-  return CMAP_MAP_NATURE;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void nested_apply(const char * key, CMAP_MAP ** val, void * data)
 {
   if(*val != NULL)
@@ -128,6 +120,7 @@ static CMAP_MAP * new(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
   CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_MAP));
 
   CMAP_INITARGS initargs;
+  initargs.nature = CMAP_MAP_NATURE;
   initargs.prototype = this;
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
@@ -256,7 +249,6 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   cmap_lifecycle_public.init(lc, initargs);
   lc -> delete = delete;
-  lc -> nature = nature;
   lc -> nested = nested;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
