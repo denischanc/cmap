@@ -42,11 +42,16 @@ static CMAP_KERNEL_CFG * dft_cfg()
 {
   if(kernel_cfg_ptr == NULL)
   {
-    kernel_cfg.failure_on_allocmem = CMAP_T;
-    kernel_cfg.log_lvl = CMAP_LOG_FATAL;
-    kernel_cfg.check_zombie_time_us = 3000000;
-    kernel_cfg.mem = NULL;
-    kernel_cfg.log = NULL;
+    kernel_cfg.mem.this = NULL;
+    kernel_cfg.mem.chunk_size = 1 << 20;
+    kernel_cfg.mem.failure_on_alloc = CMAP_T;
+    kernel_cfg.log.this = NULL;
+    kernel_cfg.log.lvl = CMAP_LOG_FATAL;
+    kernel_cfg.refs.check_zombie_time_us = 3000000;
+    kernel_cfg.core.list_chunk_size = 1 << 8;
+    kernel_cfg.core.string_size_inc_min = 1 << 6;
+    kernel_cfg.core.string_size_inc = 1 << 10;
+    kernel_cfg.pool.size = 1 << 10;
 
     kernel_cfg_ptr = &kernel_cfg;
   }
@@ -66,7 +71,7 @@ static CMAP_MEM * mem()
 {
   if(internal.mem == NULL)
   {
-    internal.mem = cfg_() -> mem;
+    internal.mem = cfg_() -> mem.this;
     if(internal.mem == NULL) internal.mem = cmap_mem_public.instance(0);
   }
   return internal.mem;
@@ -79,7 +84,7 @@ static CMAP_LOG * log_()
 {
   if(internal.log == NULL)
   {
-    internal.log = cfg_() -> log;
+    internal.log = cfg_() -> log.this;
     if(internal.log == NULL) internal.log = cmap_log_public.instance();
   }
   return internal.log;
@@ -107,7 +112,7 @@ static void check_mem(int * ret)
   {
     int s = cmap_mem_public.state() -> size_alloc;
     cmap_log_public.info("Allocated memory size : [%d].", s);
-    if((s != 0) && internal.cfg -> failure_on_allocmem) *ret = EXIT_FAILURE;
+    if((s != 0) && internal.cfg -> mem.failure_on_alloc) *ret = EXIT_FAILURE;
 
 #ifdef CONSUMED_TIME
     cmap_mem_public.log_consumed_time(CMAP_LOG_INFO);
@@ -115,17 +120,18 @@ static void check_mem(int * ret)
   }
 }
 
-static void check_refsstore()
+static void check_refs()
 {
 #ifdef CONSUMED_TIME
   cmap_refsstore_public.log_consumed_time(CMAP_LOG_INFO);
+  cmap_refswatcher_public.log_consumed_time(CMAP_LOG_INFO);
 #endif
 }
 
 static void check_all(int * ret)
 {
   check_mem(ret);
-  check_refsstore();
+  check_refs();
 }
 
 /*******************************************************************************

@@ -683,9 +683,11 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
  \
 static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
-  chunk_size = (chunk_size <= 0) ? 1 << 8 : chunk_size; \
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE; \
+  chunk_size = (chunk_size <= 0) ? \
+    kernel -> cfg() -> core.list_chunk_size : chunk_size; \
  \
-  CMAP_MEM * mem = CMAP_KERNEL_MEM; \
+  CMAP_MEM * mem = kernel -> mem(); \
   CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)mem -> alloc( \
     sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
     sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \

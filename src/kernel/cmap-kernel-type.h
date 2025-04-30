@@ -7,12 +7,40 @@
 
 typedef struct
 {
-  char failure_on_allocmem, log_lvl;
+  CMAP_MEM * this;
+  int chunk_size;
+  char failure_on_alloc;
+} CMAP_KERNEL_MEM_CFG;
 
+typedef struct
+{
+  CMAP_LOG * this;
+  char lvl;
+} CMAP_KERNEL_LOG_CFG;
+
+typedef struct
+{
   uint64_t check_zombie_time_us;
+} CMAP_KERNEL_REFS_CFG;
 
-  CMAP_MEM * mem;
-  CMAP_LOG * log;
+typedef struct
+{
+  int list_chunk_size;
+  int string_size_inc_min, string_size_inc;
+} CMAP_KERNEL_CORE_CFG;
+
+typedef struct
+{
+  int size;
+} CMAP_KERNEL_POOL_CFG;
+
+typedef struct
+{
+  CMAP_KERNEL_MEM_CFG mem;
+  CMAP_KERNEL_LOG_CFG log;
+  CMAP_KERNEL_REFS_CFG refs;
+  CMAP_KERNEL_CORE_CFG core;
+  CMAP_KERNEL_POOL_CFG pool;
 } CMAP_KERNEL_CFG;
 
 #endif

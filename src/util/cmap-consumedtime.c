@@ -24,7 +24,7 @@ static int64_t stop(CMAP_CONSUMEDTIME_US * ct)
   diff_time *= 1000000;
   diff_time += cur_tv.tv_usec - ct -> tv.tv_usec;
 
-  if(ct -> min == 0) { ct -> min = diff_time; ct -> max = diff_time; }
+  if(ct -> ok == 0) { ct -> ok = 1; ct -> min = ct -> max = diff_time; }
   else if(diff_time < ct -> min) ct -> min = diff_time;
   else if(diff_time > ct -> max) ct -> max = diff_time;
   ct -> nb++;

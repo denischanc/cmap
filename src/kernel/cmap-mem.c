@@ -18,7 +18,6 @@
 #define VAL_2 0x2a
 
 #define CHUNK_SIZE_MIN (sizeof(BLOCK_FREE) + sizeof(BLOCK))
-#define CHUNK_SIZE_DFT (1 << 20)
 
 #define BLOCK_SIZE_MIN (sizeof(BLOCK_FREE) - sizeof(BLOCK))
 
@@ -65,7 +64,7 @@ typedef struct
   BLOCK_FREE * block_free_stree;
 } INTERNAL;
 
-static INTERNAL internal = {CHUNK_SIZE_DFT, NULL, NULL, NULL};
+static INTERNAL internal = {0, NULL, NULL, NULL};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -342,8 +341,8 @@ static CMAP_MEM * instance(int chunk_size)
 {
   if(mem_ptr == NULL)
   {
-    internal.chunk_size =
-      (chunk_size > CHUNK_SIZE_MIN) ? chunk_size : CHUNK_SIZE_DFT;
+    internal.chunk_size = (chunk_size > CHUNK_SIZE_MIN) ?
+      chunk_size : CMAP_KERNEL_INSTANCE -> cfg() -> mem.chunk_size;
 
     mem.alloc = alloc;
     mem.free = free_;

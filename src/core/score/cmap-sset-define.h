@@ -11,7 +11,6 @@
 *******************************************************************************/
 
 #define CMAP_SSET_LOOP(macro) \
-  macro(MAP, map, CMAP_MAP *, map_eval, map_log_v) \
   macro(LC, lc, CMAP_LIFECYCLE *, lc_eval, lc_log_v)
 
 /*******************************************************************************

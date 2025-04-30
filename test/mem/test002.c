@@ -125,7 +125,7 @@ int main(int argc, char * argv[])
 
     CMAP_STREE_ADDFN(nb, &nb_stree, tmp, tmp);
   }
-  cmap_kernel_public.dft_cfg() -> log_lvl = CMAP_LOG_INFO;
+  cmap_kernel_public.dft_cfg() -> log.lvl = CMAP_LOG_INFO;
   CMAP_STREE_LOGFN(nb, CMAP_LOG_INFO, nb_stree);
 
   /********** Check stree */

@@ -9,6 +9,8 @@ typedef struct
   struct timeval tv;
 
   int64_t min, max, nb, total;
+
+  char ok;
 } CMAP_CONSUMEDTIME_US;
 
 typedef struct

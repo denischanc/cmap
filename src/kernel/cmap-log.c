@@ -37,13 +37,13 @@ static const char * lvl_val(char lvl)
 
 static void vlog_(char lvl, const char * msg, va_list args)
 {
-  if(lvl >= CMAP_KERNEL_INSTANCE -> cfg() -> log_lvl)
+  if(lvl >= CMAP_KERNEL_INSTANCE -> cfg() -> log.lvl)
     CMAP_KERNEL_INSTANCE -> log() -> vlog(lvl_val(lvl), msg, args);
 }
 
 static void log_(char lvl, const char * msg, ...)
 {
-  if(lvl >= CMAP_KERNEL_INSTANCE -> cfg() -> log_lvl)
+  if(lvl >= CMAP_KERNEL_INSTANCE -> cfg() -> log.lvl)
   {
     va_list args;
     va_start(args, msg);

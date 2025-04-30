@@ -67,6 +67,12 @@ static void dec_refs(CMAP_LIFECYCLE * this)
   INTERNAL * internal = this -> internal;
   CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
+
+  if(internal -> watched)
+  {
+    CMAP_REFSWATCHER * refswatcher = CMAP_CALL(internal -> env, refswatcher);
+    CMAP_CALL_ARGS(refswatcher, add, this);
+  }
 }
 
 /*******************************************************************************

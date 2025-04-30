@@ -6,12 +6,7 @@
 #include "cmap-kernel.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define SIZE_INC_MIN (1 << 6)
-#define SIZE_INC_DFT (1 << 10)
+#include "cmap-log.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -126,9 +121,12 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
+  CMAP_MEM * mem = kernel -> mem();
+  CMAP_KERNEL_CFG * cfg = kernel -> cfg();
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
-  if(size_inc < SIZE_INC_MIN) size_inc = SIZE_INC_DFT;
+  if(size_inc < cfg -> core.string_size_inc_min)
+    size_inc = cfg -> core.string_size_inc;
   internal -> size_inc = size_inc;
   internal -> size = (strlen(val_) + 1);
   internal -> size_max = adjusted_size_max(internal, 0);
@@ -156,6 +154,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
 
   CMAP_STRING * this =
     (CMAP_STRING *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_STRING));
+  cmap_log_public.debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val);
   return init(this, &initargs, val, size_inc);
 }
 

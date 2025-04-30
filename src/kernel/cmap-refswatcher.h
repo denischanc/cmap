@@ -19,6 +19,10 @@ struct CMAP_REFSWATCHER
 typedef struct
 {
   CMAP_REFSWATCHER * (*create)(CMAP_ENV * env);
+
+#ifdef CONSUMED_TIME
+  void (*log_consumed_time)(char lvl);
+#endif
 } CMAP_REFSWATCHER_PUBLIC;
 
 extern const CMAP_REFSWATCHER_PUBLIC cmap_refswatcher_public;

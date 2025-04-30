@@ -51,7 +51,7 @@ static void test(CMAP_PROC_CTX * proc_ctx)
 
 int main(int argc, char * argv[])
 {
-  cmap_dft_cfg() -> log_lvl = CMAP_LOG_DEBUG;
+  cmap_dft_cfg() -> log.lvl = CMAP_LOG_DEBUG;
   cmap_env_main(cmap_env(argc, argv), test);
   return cmap_main();
 }

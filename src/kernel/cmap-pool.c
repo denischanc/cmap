@@ -58,9 +58,10 @@ static void type##_delete(CMAP_LIFECYCLE * this) \
  \
 static CMAP_POOL_##TYPE * type##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
-  size = (size <= 0) ? 1 << 10 : size; \
+  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE; \
+  size = (size <= 0) ? kernel -> cfg() -> pool.size : size; \
  \
-  CMAP_MEM * mem = CMAP_KERNEL_MEM; \
+  CMAP_MEM * mem = kernel -> mem(); \
   CMAP_POOL_##TYPE * this = (CMAP_POOL_##TYPE *)mem -> alloc( \
     sizeof(CMAP_POOL_##TYPE) + sizeof(INTERNAL)); \
  \
