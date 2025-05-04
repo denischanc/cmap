@@ -12,6 +12,7 @@ struct CMAP_REFSWATCHER
 
   char (*add)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
   void (*rm)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+  void (*rm_only)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
 
   void (*stop)(CMAP_REFSWATCHER * this);
 };

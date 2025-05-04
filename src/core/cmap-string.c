@@ -139,6 +139,8 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   this -> append_sub = append_sub;
   this -> clean = clean;
 
+  cmap_log_public.debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val_);
+
   return this;
 }
 
@@ -154,7 +156,6 @@ static CMAP_STRING * create(const char * val, int size_inc,
 
   CMAP_STRING * this =
     (CMAP_STRING *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_STRING));
-  cmap_log_public.debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val);
   return init(this, &initargs, val, size_inc);
 }
 

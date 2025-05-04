@@ -79,7 +79,6 @@ AC_CONFIG_FILES([
   test/Makefile
   test/kernel/Makefile
   test/mem/Makefile
-  test/refswatcher/Makefile
   test/slist/Makefile
   test/util/Makefile
 ])

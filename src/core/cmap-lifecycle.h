@@ -6,6 +6,7 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-slist.h"
 #include "cmap-initargs.h"
+#include "cmap-refswatcher.h"
 
 struct CMAP_LIFECYCLE
 {
@@ -16,6 +17,7 @@ struct CMAP_LIFECYCLE
   const char * (*nature)(CMAP_LIFECYCLE * this);
 
   void (*inc_refs)(CMAP_LIFECYCLE * this);
+  void (*inc_refs_only)(CMAP_LIFECYCLE * this);
   int (*nb_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only)(CMAP_LIFECYCLE * this);
@@ -25,8 +27,12 @@ struct CMAP_LIFECYCLE
 
   void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 
-  void (*watched)(CMAP_LIFECYCLE * this, char watched);
-  char (*is_watched)(CMAP_LIFECYCLE * this);
+  void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
+  CMAP_REFSWATCHER * (*is_watched)(CMAP_LIFECYCLE * this);
+
+  void (*stored)(CMAP_LIFECYCLE * this, char ok);
+  char (*is_stored)(CMAP_LIFECYCLE * this);
+  char (*in_refs)(CMAP_LIFECYCLE * this);
 };
 
 typedef struct
@@ -35,6 +41,7 @@ typedef struct
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void (*inc_refs)(CMAP_LIFECYCLE * this);
+  void (*inc_refs_only)(CMAP_LIFECYCLE * this);
   int (*nb_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only)(CMAP_LIFECYCLE * this);
@@ -44,8 +51,12 @@ typedef struct
 
   void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 
-  void (*watched)(CMAP_LIFECYCLE * this, char watched);
-  char (*is_watched)(CMAP_LIFECYCLE * this);
+  void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
+  CMAP_REFSWATCHER * (*is_watched)(CMAP_LIFECYCLE * this);
+
+  void (*stored)(CMAP_LIFECYCLE * this, char ok);
+  char (*is_stored)(CMAP_LIFECYCLE * this);
+  char (*in_refs)(CMAP_LIFECYCLE * this);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;

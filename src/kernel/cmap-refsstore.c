@@ -33,23 +33,13 @@ static CMAP_CONSUMEDTIME_US consumed_time = {0};
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_REFSWATCHER * refswatcher(INTERNAL * internal)
-{
-  return CMAP_CALL(internal -> env, refswatcher);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
+
   if(cmap_sset_lc_public.add(&internal -> refs, lc))
   {
     cmap_log_public.debug("[%p][refsstore] new ref : [%p]", this, lc);
-
-    CMAP_INC_REFS(lc);
-
     if(created) internal -> nb_created++;
   }
 }
@@ -60,16 +50,15 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 static char delete_or_dec_refs_only(INTERNAL * internal, CMAP_LIFECYCLE * lc)
 {
   int nb_refs = CMAP_CALL(lc, nb_refs);
-  char watched = CMAP_CALL(lc, is_watched);
-  CMAP_REFSWATCHER * refswatcher_ = refswatcher(internal);
+  CMAP_REFSWATCHER * refswatcher = CMAP_CALL(lc, is_watched);
 
   char ret;
-  if(watched) ret = (nb_refs <= 2);
+  if(refswatcher != NULL) ret = (nb_refs <= 2);
   else ret = (nb_refs <= 1);
 
   if(ret)
   {
-    if(watched) CMAP_CALL_ARGS(refswatcher_, rm, lc);
+    if(refswatcher != NULL) CMAP_CALL_ARGS(refswatcher, rm, lc);
     CMAP_DELETE(lc);
   }
   else
@@ -78,7 +67,9 @@ static char delete_or_dec_refs_only(INTERNAL * internal, CMAP_LIFECYCLE * lc)
       nb_refs);
     CMAP_CALL(lc, dec_refs_only);
 
-    ret = CMAP_CALL_ARGS(refswatcher_, add, lc);
+    if(refswatcher == NULL)
+      refswatcher = CMAP_CALL(internal -> env, refswatcher);
+    ret = CMAP_CALL_ARGS(refswatcher, add, lc);
   }
 
   return ret;
@@ -95,7 +86,11 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
+    char in_refs = CMAP_CALL(lc, in_refs);
+    CMAP_CALL_ARGS(lc, stored, CMAP_F);
+
     if(lc == ret) nb_ret++;
+    else if(!in_refs) CMAP_CALL(lc, dec_refs_only);
     else
     {
       if(delete_or_dec_refs_only(internal, lc)) nb_deleted++;
@@ -106,7 +101,8 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   cmap_log_public.debug("[refsstore] deleted %d/%d, nb ret = %d",
     nb_deleted, nb_loop, nb_ret);
 
-  if(ret != NULL) CMAP_CALL_ARGS(ret, dec_refs_only_nb, nb_ret);
+  if((ret != NULL) && (nb_ret >= 1))
+    CMAP_CALL_ARGS(ret, dec_refs_only_nb, nb_ret);
 }
 
 /*******************************************************************************
