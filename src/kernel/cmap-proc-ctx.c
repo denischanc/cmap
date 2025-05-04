@@ -87,17 +87,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   CMAP_CALL(env, pop_proc_ctx);
   CMAP_KERNEL_FREE(this);
 
-  if(ret != NULL)
-  {
-    CMAP_LIFECYCLE * ret_ = (CMAP_LIFECYCLE *)ret;
-    if(!CMAP_CALL(ret_, is_stored))
-    {
-      CMAP_PROC_CTX * proc_ctx_cur = CMAP_CALL(env, proc_ctx);
-      local_refs_add(proc_ctx_cur, ret_, CMAP_F);
-      CMAP_CALL(ret_, inc_refs_only);
-      CMAP_CALL_ARGS(ret_, stored, CMAP_T);
-    }
-  }
+  if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, stored);
 
   return ret;
 }

@@ -47,6 +47,8 @@ static void inc_refs(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = this -> internal;
 
+  internal -> nb_refs++;
+
   if(internal -> refswatcher != NULL)
   {
     CMAP_CALL_ARGS(internal -> refswatcher, rm_only, this);
@@ -54,20 +56,14 @@ static void inc_refs(CMAP_LIFECYCLE * this)
 
     cmap_log_public.debug("[%p][%s] not watched", this, internal -> nature);
   }
-  else internal -> nb_refs++;
 
   if(internal -> ref_state == REF_STATE_STORED)
   {
     internal -> ref_state = REF_STATE_HOOKED;
 
-    cmap_log_public.debug("[%p][%s] ref_state = [%s]", this,
-      internal -> nature, internal -> ref_state);
+    cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
+      internal -> nature, internal -> ref_state, internal -> nb_refs);
   }
-}
-
-static void inc_refs_only(CMAP_LIFECYCLE * this)
-{
-  ((INTERNAL *)this -> internal) -> nb_refs++;
 }
 
 /*******************************************************************************
@@ -90,8 +86,8 @@ static void dec_refs(CMAP_LIFECYCLE * this)
     CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
     internal -> ref_state = REF_STATE_STORED;
 
-    cmap_log_public.debug("[%p][%s] ref_state = [%s]", this,
-      internal -> nature, internal -> ref_state);
+    cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
+      internal -> nature, internal -> ref_state, internal -> nb_refs);
   }
   else
   {
@@ -101,15 +97,10 @@ static void dec_refs(CMAP_LIFECYCLE * this)
     {
       internal -> ref_state = REF_STATE_STORED;
 
-      cmap_log_public.debug("[%p][%s] ref_state = [%s]", this,
-        internal -> nature, internal -> ref_state);
+      cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
+        internal -> nature, internal -> ref_state, internal -> nb_refs);
     }
   }
-}
-
-static void dec_refs_only(CMAP_LIFECYCLE * this)
-{
-  ((INTERNAL *)this -> internal) -> nb_refs--;
 }
 
 static void dec_refs_only_nb(CMAP_LIFECYCLE * this, int nb)
@@ -151,25 +142,35 @@ static CMAP_REFSWATCHER * is_watched(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void stored(CMAP_LIFECYCLE * this, char ok)
+static void stored(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = this -> internal;
-  internal -> ref_state = ok ? REF_STATE_STORED : REF_STATE_FREE;
+  if(internal -> ref_state != REF_STATE_FREE) return;
 
-  cmap_log_public.debug("[%p][%s] ref_state = [%s]", this, internal -> nature,
-    internal -> ref_state);
+  CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
+  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
+  internal -> nb_refs++;
+  internal -> ref_state = REF_STATE_STORED;
+
+  cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
+    internal -> nature, internal -> ref_state, internal -> nb_refs);
 }
 
-static char is_stored(CMAP_LIFECYCLE * this)
+/*******************************************************************************
+*******************************************************************************/
+
+static char in_refs(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * ret)
 {
   INTERNAL * internal = this -> internal;
-  return ((internal -> ref_state == REF_STATE_STORED) ||
-    (internal -> ref_state == REF_STATE_HOOKED));
-}
+  const char * ref_state = internal -> ref_state;
 
-static char in_refs(CMAP_LIFECYCLE * this)
-{
-  return (((INTERNAL *)this -> internal) -> ref_state == REF_STATE_STORED);
+  if(this != ret) internal -> nb_refs--;
+
+  internal -> ref_state = REF_STATE_FREE;
+  cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
+    internal -> nature, internal -> ref_state, internal -> nb_refs);
+
+  return (ref_state == REF_STATE_HOOKED) ? CMAP_F : CMAP_T;
 }
 
 /*******************************************************************************
@@ -207,17 +208,14 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> delete = delete;
   this -> nature = nature;
   this -> inc_refs = inc_refs;
-  this -> inc_refs_only = inc_refs_only;
   this -> nb_refs = nb_refs;
   this -> dec_refs = dec_refs;
-  this -> dec_refs_only = dec_refs_only;
   this -> dec_refs_only_nb = dec_refs_only_nb;
   this -> nested = nested;
   this -> allocated_deleted = allocated_deleted;
   this -> watched = watched;
   this -> is_watched = is_watched;
   this -> stored = stored;
-  this -> is_stored = is_stored;
   this -> in_refs = in_refs;
 
   cmap_log_public.debug("[%p][%s] creation", this, internal -> nature);
@@ -231,9 +229,10 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
 const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
 {
   init, delete,
-  inc_refs, inc_refs_only, nb_refs, dec_refs, dec_refs_only, dec_refs_only_nb,
+  inc_refs, nb_refs, dec_refs, dec_refs_only_nb,
   nested,
   allocated_deleted,
   watched, is_watched,
-  stored, is_stored, in_refs
+  stored,
+  in_refs
 };

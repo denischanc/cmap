@@ -17,10 +17,8 @@ struct CMAP_LIFECYCLE
   const char * (*nature)(CMAP_LIFECYCLE * this);
 
   void (*inc_refs)(CMAP_LIFECYCLE * this);
-  void (*inc_refs_only)(CMAP_LIFECYCLE * this);
   int (*nb_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs)(CMAP_LIFECYCLE * this);
-  void (*dec_refs_only)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only_nb)(CMAP_LIFECYCLE * this, int nb);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
@@ -30,9 +28,9 @@ struct CMAP_LIFECYCLE
   void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
   CMAP_REFSWATCHER * (*is_watched)(CMAP_LIFECYCLE * this);
 
-  void (*stored)(CMAP_LIFECYCLE * this, char ok);
-  char (*is_stored)(CMAP_LIFECYCLE * this);
-  char (*in_refs)(CMAP_LIFECYCLE * this);
+  void (*stored)(CMAP_LIFECYCLE * this);
+
+  char (*in_refs)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * ret);
 };
 
 typedef struct
@@ -41,10 +39,8 @@ typedef struct
   void (*delete)(CMAP_LIFECYCLE * this);
 
   void (*inc_refs)(CMAP_LIFECYCLE * this);
-  void (*inc_refs_only)(CMAP_LIFECYCLE * this);
   int (*nb_refs)(CMAP_LIFECYCLE * this);
   void (*dec_refs)(CMAP_LIFECYCLE * this);
-  void (*dec_refs_only)(CMAP_LIFECYCLE * this);
   void (*dec_refs_only_nb)(CMAP_LIFECYCLE * this, int nb);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
@@ -54,9 +50,9 @@ typedef struct
   void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
   CMAP_REFSWATCHER * (*is_watched)(CMAP_LIFECYCLE * this);
 
-  void (*stored)(CMAP_LIFECYCLE * this, char ok);
-  char (*is_stored)(CMAP_LIFECYCLE * this);
-  char (*in_refs)(CMAP_LIFECYCLE * this);
+  void (*stored)(CMAP_LIFECYCLE * this);
+
+  char (*in_refs)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * ret);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;

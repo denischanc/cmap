@@ -131,11 +131,7 @@ static char add(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
-  if(internal -> stopped)
-  {
-    CMAP_CALL(lc, inc_refs_only);
-    return delete_if_zombie(this, lc);
-  }
+  if(internal -> stopped) return delete_if_zombie(this, lc);
   else
   {
     REF ref;
@@ -149,7 +145,6 @@ static char add(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
     {
       ref.time_us = cmap_util_public.time_us() + internal -> time_us;
       ref_add_force(&internal -> refs, ref);
-      CMAP_CALL(lc, inc_refs_only);
       CMAP_CALL_ARGS(lc, watched, this);
     }
     return CMAP_F;
@@ -165,11 +160,7 @@ static void rm(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 
   REF ref;
   ref.lc = lc;
-  if(ref_rm_v(&internal -> refs, ref))
-  {
-    CMAP_CALL(lc, dec_refs_only);
-    CMAP_CALL_ARGS(lc, watched, NULL);
-  }
+  if(ref_rm_v(&internal -> refs, ref)) CMAP_CALL_ARGS(lc, watched, NULL);
 }
 
 static void rm_only(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
@@ -277,8 +268,6 @@ static char check_way_ref_exts(CMAP_SSET_REF_EXT * way_ref_exts)
 
 static char is_zombie_w_ref_exts(ZOMBIE_DATA * data)
 {
-  CMAP_CALL(data -> cur, dec_refs_only);
-
   REF_EXT * ref_ext = upd_all_ref_exts(data);
   if(ref_ext == NULL) return CMAP_F;
 
