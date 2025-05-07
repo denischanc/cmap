@@ -5,6 +5,8 @@
 
 typedef struct
 {
+  void (*delete)();
+
   void * (*alloc)(int size);
   void (*free)(void * ptr);
 } CMAP_MEM;

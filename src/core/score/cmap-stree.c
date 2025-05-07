@@ -49,10 +49,11 @@ static inline int size_max(char depth)
 
 static inline char depth_ok(int size)
 {
-  if(size == 0) return 0;
+  if((size == 0) || (size == 1)) return 0;
   else
   {
-    char depth = -1;
+    size >>= 1;
+    char depth = 0;
     while(size != 0)
     {
       size >>= 1;

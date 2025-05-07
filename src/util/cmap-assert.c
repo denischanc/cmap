@@ -10,11 +10,7 @@
 static void assert_(char cond, const char * path, int line,
   const char * msg_err)
 {
-  if(!cond)
-  {
-    cmap_log_public.fatal("[%s:%d] %s", path, line, msg_err);
-    CMAP_KERNEL_INSTANCE -> fatal();
-  }
+  if(!cond) cmap_log_public.fatal("[%s:%d] %s", path, line, msg_err);
 }
 
 /*******************************************************************************

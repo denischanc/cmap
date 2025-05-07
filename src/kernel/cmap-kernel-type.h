@@ -16,6 +16,7 @@ typedef struct
 {
   CMAP_LOG * this;
   char lvl;
+  const char * path;
 } CMAP_KERNEL_LOG_CFG;
 
 typedef struct

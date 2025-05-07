@@ -20,11 +20,10 @@ typedef struct
 
   uv_loop_t * uv_loop;
 
-  char exiting, state;
+  char state;
 } INTERNAL;
 
-static INTERNAL internal = {NULL, NULL, NULL, NULL, CMAP_F,
-  CMAP_KERNEL_S_UNKNOWN};
+static INTERNAL internal = {NULL, NULL, NULL, NULL, CMAP_KERNEL_S_UNKNOWN};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -47,6 +46,7 @@ static CMAP_KERNEL_CFG * dft_cfg()
     kernel_cfg.mem.failure_on_alloc = CMAP_T;
     kernel_cfg.log.this = NULL;
     kernel_cfg.log.lvl = CMAP_LOG_FATAL;
+    kernel_cfg.log.path = NULL;
     kernel_cfg.refs.check_zombie_time_us = 3000000;
     kernel_cfg.core.list_chunk_size = 1 << 8;
     kernel_cfg.core.string_size_inc_min = 1 << 6;
@@ -141,22 +141,24 @@ static void delete_all()
 {
   cmap_env_public.delete_all();
 
+  uv_loop_close(this_uv_loop());
   CMAP_MEM_FREE(this_uv_loop(), mem());
 }
 
 static void exit_(int ret)
 {
-  internal.state = CMAP_KERNEL_S_EXITING;
-
-  if(!internal.exiting)
+  if(internal.state != CMAP_KERNEL_S_EXITING)
   {
-    internal.exiting = CMAP_T;
+    internal.state = CMAP_KERNEL_S_EXITING;
 
     delete_all();
 
     check_all(&ret);
-
     cmap_log_public.info("Exit kernel (%d).", ret);
+
+    if(internal.log != NULL) internal.log -> delete();
+    if(internal.mem != NULL) internal.mem -> delete();
+
     exit(ret);
   }
 }

@@ -5,6 +5,8 @@
 
 typedef struct
 {
+  void (*delete)();
+
   void (*vlog)(const char * level, const char * msg, va_list args);
 } CMAP_LOG;
 

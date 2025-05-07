@@ -365,9 +365,9 @@ void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env)
+CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_proc_ctx_public.create(env);
+  return CMAP_CALL(proc_ctx, new_level);
 }
 
 CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx)

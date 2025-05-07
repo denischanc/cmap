@@ -79,15 +79,6 @@ static CMAP_CONSUMEDTIME_US consumed_time = {0};
 /*******************************************************************************
 *******************************************************************************/
 
-static void error(const char * msg)
-{
-  cmap_log_public.fatal(msg);
-  CMAP_KERNEL_INSTANCE -> fatal();
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static inline void valid_block(BLOCK * block)
 {
   block -> valid1 = VAL_1;
@@ -227,7 +218,7 @@ static CHUNK * create_chunk(int alloc_size)
   CHUNK * chunk = (CHUNK *)malloc(sizeof(CHUNK) + chunk_size);
   if(chunk == NULL)
   {
-    error("Unable to allocate new memory.");
+    cmap_log_public.fatal("Unable to allocate new memory.");
     return NULL;
   }
   else
@@ -307,8 +298,8 @@ static void free_(void * ptr)
 #endif
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
-  if(!is_block(block)) error("Invalid block ???");
-  if(block -> free) error("Memory address already free !!!");
+  if(!is_block(block)) cmap_log_public.fatal("Invalid block ???");
+  if(block -> free) cmap_log_public.fatal("Memory address already free !!!");
 
   BLOCK * next = block -> next, * prev = block -> prev;
 
@@ -337,6 +328,10 @@ static void free_(void * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete()
+{
+}
+
 static CMAP_MEM * instance(int chunk_size)
 {
   if(mem_ptr == NULL)
@@ -344,6 +339,7 @@ static CMAP_MEM * instance(int chunk_size)
     internal.chunk_size = (chunk_size > CHUNK_SIZE_MIN) ?
       chunk_size : CMAP_KERNEL_INSTANCE -> cfg() -> mem.chunk_size;
 
+    mem.delete = delete;
     mem.alloc = alloc;
     mem.free = free_;
 

@@ -77,7 +77,7 @@ CMAP_MEM_STATE * cmap_mem_state();
 CMAP_ENV * cmap_env(int argc, char ** argv);
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *));
 
-CMAP_PROC_CTX * cmap_proc_ctx(CMAP_ENV * env);
+CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx);
 CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
 

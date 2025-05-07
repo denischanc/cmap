@@ -172,8 +172,9 @@ static void delete(CMAP_ENV * this)
 
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 
-  CMAP_CALL(internal -> proc_ctx, delete);
   if(internal -> refswatcher != NULL) CMAP_DELETE(internal -> refswatcher);
+
+  CMAP_DELETE(internal -> proc_ctx);
 
   CMAP_KERNEL_FREE(this);
 }

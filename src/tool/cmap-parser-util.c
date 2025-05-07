@@ -516,8 +516,7 @@ static char * process_c(char * fn_name, char need_ret)
   char * instruction = NULL, * map_name = NULL;
 
   char * proc_ctx_name = next_name();
-  APPEND_INSTRUCTION_ARGS(
-    "CMAP_PROC_CTX * %s = cmap_proc_ctx(cmap_proc_ctx_env(proc_ctx));",
+  APPEND_INSTRUCTION_ARGS("CMAP_PROC_CTX * %s = cmap_proc_ctx(proc_ctx);",
     proc_ctx_name);
 
   if(need_ret)
@@ -597,7 +596,7 @@ static char * function(char * fn_name)
 
     APPEND_ARGS(functions,
       "static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx,\n"
-      "  CMAP_MAP * map, CMAP_LIST * args)\n{\n", fn_name);
+      "  CMAP_MAP * this, CMAP_LIST * args)\n{\n", fn_name);
 
     if(!cmap_part_public.is_return()) APPEND_INSTRUCTION("return NULL;");
     cmap_part_public.pop_instructions_to_part(cmap_part_public.functions());

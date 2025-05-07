@@ -12,6 +12,7 @@ struct CMAP_REFSSTORE
   void (*delete)(CMAP_REFSSTORE * this, CMAP_MAP * ret);
 
   void (*add)(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created);
+  void (*rm)(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc);
 };
 
 typedef struct

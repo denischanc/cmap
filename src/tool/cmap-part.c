@@ -162,11 +162,17 @@ static void ctx_fn_upd_vars_loc_apply(const char * string, void * data)
 
 static void ctx_fn_upd_vars_loc(CMAP_STRINGS ** vars_loc)
 {
-  cmap_strings_public.add(vars_loc, "this");
-  cmap_strings_public.add(vars_loc, "args");
-
   cmap_strings_public.apply(ctxs -> v.block.fn_arg_names,
     ctx_fn_upd_vars_loc_apply, vars_loc);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void ctx_fn_upd_name2map(CMAP_KV ** name2map)
+{
+  cmap_kv_public.put(name2map, "this", "this");
+  cmap_kv_public.put(name2map, "args", "args");
 }
 
 /*******************************************************************************
@@ -184,6 +190,7 @@ static CTX ctx_fn(CTX_C * c_cur)
   CTX ctx = ctx_root_fn((1 == 1), c_cur -> cmap);
   ctx.block.nature = CMAP_PART_CTX_NATURE_FN;
   ctx_fn_upd_vars_loc(&ctx.cmap.vars_loc);
+  ctx_fn_upd_name2map(&ctx.c.name2map);
   return ctx;
 }
 

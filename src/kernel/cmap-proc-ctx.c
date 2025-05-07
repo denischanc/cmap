@@ -70,6 +70,23 @@ static void local_refs_add(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc,
   CMAP_CALL_ARGS(refs, add, lc, created);
 }
 
+static void local_refs_rm(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc)
+{
+  CMAP_REFSSTORE * refs = ((INTERNAL *)(this + 1)) -> refs;
+  CMAP_CALL_ARGS(refs, rm, lc);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level);
+
+static CMAP_PROC_CTX * new_level(CMAP_PROC_CTX * this)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  return create_level(internal -> env, internal -> level + 1);
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -92,7 +109,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   return ret;
 }
 
-static CMAP_PROC_CTX * create(CMAP_ENV * env_)
+static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level)
 {
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
   CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)mem -> alloc(
@@ -102,11 +119,7 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   internal -> env = env_;
   internal -> refs = cmap_refsstore_public.create(env_);
   internal -> definitions = NULL;
-  internal -> level = 1;
-
-  CMAP_PROC_CTX * proc_ctx_parent = CMAP_CALL(env_, proc_ctx);
-  if(proc_ctx_parent != NULL)
-    internal -> level += ((INTERNAL *)(proc_ctx_parent + 1)) -> level;
+  internal -> level = level;
 
   this -> delete = delete;
   this -> env = env;
@@ -115,12 +128,19 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
   this -> global_env = global_env;
   this -> local_definitions = local_definitions;
   this -> local_refs_add = local_refs_add;
+  this -> local_refs_rm = local_refs_rm;
+  this -> new_level = new_level;
 
   CMAP_CALL_ARGS(env_, push_proc_ctx, this);
 
   cmap_log_public.debug("[%p][proc-ctx][%d] created", this, internal -> level);
 
   return this;
+}
+
+static CMAP_PROC_CTX * create(CMAP_ENV * env_)
+{
+  return create_level(env_, 1);
 }
 
 /*******************************************************************************

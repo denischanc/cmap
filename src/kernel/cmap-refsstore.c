@@ -47,22 +47,27 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 /*******************************************************************************
 *******************************************************************************/
 
+static void rm(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc)
+{
+  cmap_sset_lc_public.rm_v(&((INTERNAL *)(this + 1)) -> refs, lc);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static char delete_ref(INTERNAL * internal, CMAP_LIFECYCLE * lc)
 {
   int nb_refs = CMAP_CALL(lc, nb_refs);
   if(nb_refs <= 0)
   {
-    CMAP_REFSWATCHER * refswatcher = CMAP_CALL(lc, is_watched);
-    if(refswatcher != NULL) CMAP_CALL_ARGS(refswatcher, rm, lc);
-
     CMAP_DELETE(lc);
-
     return CMAP_T;
   }
   else
   {
     CMAP_REFSWATCHER * refswatcher = CMAP_CALL(internal -> env, refswatcher);
-    return CMAP_CALL_ARGS(refswatcher, add, lc);
+    CMAP_CALL_ARGS(refswatcher, add, lc);
+    return CMAP_F;
   }
 }
 
@@ -71,7 +76,7 @@ static char delete_ref(INTERNAL * internal, CMAP_LIFECYCLE * lc)
 
 static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
 {
-  int nb_loop = 0, nb_deleted = 0, nb_ret = 0;
+  int nb_deleted = 0;
 
   CMAP_SSET_LC ** refs = &internal -> refs;
   while(*refs != NULL)
@@ -79,19 +84,11 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
     CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
     char in_refs = CMAP_CALL_ARGS(lc, in_refs, ret);
 
-    if(lc == ret) nb_ret++;
-    else if(in_refs)
-    {
-      if(delete_ref(internal, lc)) nb_deleted++;
-      nb_loop++;
-    }
+    if(in_refs && (lc != ret) && delete_ref(internal, lc)) nb_deleted++;
   }
 
-  cmap_log_public.debug("[refsstore] deleted %d/%d, nb ret = %d",
-    nb_deleted, nb_loop, nb_ret);
-
-  if((ret != NULL) && (nb_ret >= 1))
-    CMAP_CALL_ARGS(ret, dec_refs_only_nb, nb_ret);
+  cmap_log_public.debug("[%p][refsstore] deleted %d",
+    ((CMAP_REFSSTORE *)internal) - 1, nb_deleted);
 }
 
 /*******************************************************************************
@@ -128,6 +125,7 @@ static CMAP_REFSSTORE * create(CMAP_ENV * env)
 
   this -> delete = delete;
   this -> add = add;
+  this -> rm = rm;
 
   return this;
 }

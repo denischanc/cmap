@@ -19,8 +19,9 @@ TODO
 
 ## Parser
 
-* remove CMAP block from parser
+* remove [CMAP[
 * mng abc.cde.efg in parser with name2map
+* dirties (cur, above) by block
 
 ## Doc
 

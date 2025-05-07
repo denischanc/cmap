@@ -79,11 +79,7 @@ static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, ...)
 
 static void this_uv_error(int err)
 {
-  if(err < 0)
-  {
-    cmap_log_public.fatal("Libuv : %s", uv_strerror(err));
-    CMAP_KERNEL_INSTANCE -> fatal();
-  }
+  if(err < 0) cmap_log_public.fatal("Libuv : %s", uv_strerror(err));
 }
 
 /*******************************************************************************

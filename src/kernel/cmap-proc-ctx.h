@@ -20,8 +20,12 @@ struct CMAP_PROC_CTX
   CMAP_MAP * (*global_env)(CMAP_PROC_CTX * this);
 
   CMAP_MAP * (*local_definitions)(CMAP_PROC_CTX * this);
+
   void (*local_refs_add)(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc,
     char created);
+  void (*local_refs_rm)(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc);
+
+  CMAP_PROC_CTX * (*new_level)(CMAP_PROC_CTX * this);
 };
 
 typedef struct

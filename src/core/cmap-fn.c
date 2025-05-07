@@ -87,8 +87,7 @@ static void arg_name_apply(char ** arg_name, void * data)
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
-  CMAP_PROC_CTX * new_proc_ctx = cmap_proc_ctx_public.create(env);
+  CMAP_PROC_CTX * new_proc_ctx = CMAP_CALL(proc_ctx, new_level);
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
 
@@ -101,9 +100,6 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     ARG_NAME_APPLY_DATA data = { 0, args, definitions };
     CMAP_APPLY(internal -> arg_names, arg_name_apply, &data);
   }
-
-  CMAP_SET(definitions, "this", map);
-  CMAP_SET(definitions, "args", args);
 
   return CMAP_CALL_ARGS(new_proc_ctx, delete,
     CMAP_CALL_ARGS(this, do_process, new_proc_ctx, map, args));
