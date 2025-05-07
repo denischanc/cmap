@@ -5,13 +5,15 @@ noinst_HEADERS = \
   cmap-assert-define.h \
   cmap-assert.h \
   cmap-consumedtime.h \
-  cmap-util.h
+  cmap-util.h \
+  cmap-uv.h
 
 noinst_LTLIBRARIES = libutil.la
 
 libutil_la_SOURCES = \
   cmap-assert.c \
-  cmap-util.c
+  cmap-util.c \
+  cmap-uv.c
 if CONSUMED_TIME
 libutil_la_SOURCES += cmap-consumedtime.c
 endif

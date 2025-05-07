@@ -7,6 +7,7 @@
 #include "cmap-log.h"
 #include "cmap-env.h"
 #include "cmap-refsstore.h"
+#include "cmap-uv.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -18,12 +19,10 @@ typedef struct
   CMAP_MEM * mem;
   CMAP_LOG * log;
 
-  uv_loop_t * uv_loop;
-
   char state;
 } INTERNAL;
 
-static INTERNAL internal = {NULL, NULL, NULL, NULL, CMAP_KERNEL_S_UNKNOWN};
+static INTERNAL internal = {NULL, NULL, NULL, CMAP_KERNEL_S_UNKNOWN};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -93,19 +92,6 @@ static CMAP_LOG * log_()
 /*******************************************************************************
 *******************************************************************************/
 
-static uv_loop_t * this_uv_loop()
-{
-  if(internal.uv_loop == NULL)
-  {
-    internal.uv_loop = CMAP_MEM_ALLOC(uv_loop_t, mem());
-    cmap_util_public.uv_error(uv_loop_init(internal.uv_loop));
-  }
-  return internal.uv_loop;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void check_mem(int * ret)
 {
   if(cmap_mem_public.is_this(internal.mem))
@@ -141,8 +127,7 @@ static void delete_all()
 {
   cmap_env_public.delete_all();
 
-  uv_loop_close(this_uv_loop());
-  CMAP_MEM_FREE(this_uv_loop(), mem());
+  cmap_uv_public.loop_close();
 }
 
 static void exit_(int ret)
@@ -174,7 +159,7 @@ static void fatal()
 static int main_()
 {
   cmap_log_public.info("Kernel start uv loop ...");
-  cmap_util_public.uv_error(uv_run(this_uv_loop(), UV_RUN_DEFAULT));
+  cmap_uv_public.loop_run();
   cmap_log_public.info("Uv loop terminated.");
 
   exit_(EXIT_SUCCESS);
@@ -205,7 +190,6 @@ static CMAP_KERNEL * bootstrap(CMAP_KERNEL_CFG * cfg)
     kernel.cfg = cfg_;
     kernel.mem = mem;
     kernel.log = log_;
-    kernel.uv_loop = this_uv_loop;
     kernel.state = state;
 
     kernel_ptr = &kernel;

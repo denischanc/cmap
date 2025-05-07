@@ -1,7 +1,6 @@
 
 #include "cmap-refswatcher.h"
 
-#include <uv.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-util.h"
@@ -10,6 +9,7 @@
 #include "cmap-slist.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
+#include "cmap-uv.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-consumedtime.h"
@@ -104,7 +104,7 @@ typedef struct
 
   CMAP_SSET_REF * refs;
 
-  uv_timer_t handle;
+  uv_timer_t timer;
 
   char deletion;
 } INTERNAL;
@@ -402,27 +402,23 @@ static void watch(CMAP_REFSWATCHER * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void watch_uv(uv_timer_t * handle)
+static void watch_uv(uv_timer_t * timer)
 {
-  watch(handle -> data);
+  watch(timer -> data);
 }
 
-static void this_uv_init(CMAP_REFSWATCHER * this)
+static inline void this_uv_init(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-
-  internal -> handle.data = this;
-
-  cmap_util_public.uv_error(uv_timer_init(CMAP_KERNEL_INSTANCE -> uv_loop(),
-    &internal -> handle));
-  cmap_util_public.uv_error(uv_timer_start(&internal -> handle, watch_uv, 0,
-    internal -> time_us / 1000));
+  internal -> timer.data = this;
+  cmap_uv_public.timer_start(&internal -> timer, watch_uv, 0,
+    internal -> time_us / 1000);
 }
 
 static void stop(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  cmap_util_public.uv_error(uv_timer_stop(&internal -> handle));
+  cmap_uv_public.timer_stop(&internal -> timer);
 }
 
 /*******************************************************************************

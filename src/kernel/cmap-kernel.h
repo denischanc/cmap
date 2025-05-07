@@ -3,7 +3,6 @@
 
 #include "cmap-kernel-type.h"
 #include "cmap-kernel-define.h"
-#include <uv.h>
 
 #define CMAP_KERNEL_S_UNKNOWN 0
 #define CMAP_KERNEL_S_INIT 1
@@ -20,8 +19,6 @@ typedef struct
   CMAP_KERNEL_CFG * (*cfg)();
   CMAP_MEM * (*mem)();
   CMAP_LOG * (*log)();
-
-  uv_loop_t * (*uv_loop)();
 
   char (*state)();
 } CMAP_KERNEL;

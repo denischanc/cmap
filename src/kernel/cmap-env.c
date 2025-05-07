@@ -2,12 +2,12 @@
 #include "cmap-env.h"
 
 #include <stdlib.h>
-#include <uv.h>
 #include "cmap-kernel.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-util.h"
 #include "cmap-scheduler.h"
+#include "cmap-uv.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -26,7 +26,7 @@ typedef struct
 
   CMAP_REFSWATCHER * refswatcher;
 
-  uv_idle_t handle;
+  uv_idle_t idle;
 
   CMAP_ENV * prev, * next;
 } INTERNAL;
@@ -123,23 +123,18 @@ static CMAP_REFSWATCHER * refswatcher(CMAP_ENV * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void this_uv_init(CMAP_ENV * this)
+static inline void this_uv_init(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-
-  internal -> handle.data = this;
-
-  cmap_util_public.uv_error(uv_idle_init(CMAP_KERNEL_INSTANCE -> uv_loop(),
-    &internal -> handle));
-  cmap_util_public.uv_error(uv_idle_start(&internal -> handle,
-    cmap_scheduler_public.schedule));
+  internal -> idle.data = this;
+  cmap_uv_public.idle_start(&internal -> idle, cmap_scheduler_public.schedule);
 }
 
 static void scheduler_empty(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
-  cmap_util_public.uv_error(uv_idle_stop(&internal -> handle));
+  cmap_uv_public.idle_stop(&internal -> idle);
 
   CMAP_REFSWATCHER * refswatcher = internal -> refswatcher;
   if(refswatcher != NULL) CMAP_CALL(refswatcher, stop);

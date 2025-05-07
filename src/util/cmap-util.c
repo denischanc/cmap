@@ -77,14 +77,6 @@ static CMAP_MAP * to_map(CMAP_PROC_CTX * proc_ctx, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static void this_uv_error(int err)
-{
-  if(err < 0) cmap_log_public.fatal("Libuv : %s", uv_strerror(err));
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void copy_apply(const char * key, CMAP_MAP ** val, void * data)
 {
   CMAP_SET(data, key, *val);
@@ -156,7 +148,6 @@ const CMAP_UTIL_PUBLIC cmap_util_public =
 {
   fill_list, vfill_list, to_list, vto_list,
   to_map, vto_map,
-  this_uv_error,
   copy,
   dup_string,
   strdup_,

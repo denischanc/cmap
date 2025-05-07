@@ -18,8 +18,6 @@ typedef struct
   CMAP_MAP * (*to_map)(CMAP_PROC_CTX * proc_ctx, ...);
   CMAP_MAP * (*vto_map)(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
 
-  void (*uv_error)(int err);
-
   CMAP_MAP * (*copy)(CMAP_MAP * dst, CMAP_MAP * src);
 
   CMAP_LIST * (*dup_string)(CMAP_LIST * dst, CMAP_LIST * src,

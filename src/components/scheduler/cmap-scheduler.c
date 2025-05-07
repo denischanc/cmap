@@ -9,9 +9,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void schedule(uv_idle_t * handle)
+static void schedule(uv_idle_t * idle)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(handle -> data);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(idle -> data);
   cmap_scheduler_blt_process(proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 }
