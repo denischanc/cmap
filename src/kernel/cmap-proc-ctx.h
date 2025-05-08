@@ -7,8 +7,8 @@
 #include "cmap-prototypestore.h"
 #include "cmap-pool.h"
 
-#define CMAP_PROC_CTX_POOL_DECL(TYPE, type) \
-  CMAP_POOL_##TYPE * (*pool_##type)(CMAP_PROC_CTX * this);
+#define CMAP_PROC_CTX_POOL_DECL(NAME, name, type) \
+  CMAP_POOL_##NAME * (*pool_##name)(CMAP_PROC_CTX * this);
 
 struct CMAP_PROC_CTX
 {

@@ -12,4 +12,6 @@
 #define CMAP_PROTOTYPE_NEW(proto, proc_ctx) \
   CMAP_CALL_ARGS(proto, new, proc_ctx)
 
+#define CMAP_IS_GHOST(map) CMAP_CALL((CMAP_MAP *)map, is_ghost)
+
 #endif

@@ -26,9 +26,12 @@ static void nested_apply(CMAP_MAP ** val, void * data)
 
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
-  CMAP_LIST * this_ = (CMAP_LIST *)this;
-  CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this_ -> internal;
-  CMAP_CALL_ARGS(this_list, apply, nested_apply, list);
+  if(!CMAP_IS_GHOST(this))
+  {
+    CMAP_LIST * this_ = (CMAP_LIST *)this;
+    CMAP_SLIST_MAP * this_list = this_ -> internal;
+    CMAP_CALL_ARGS(this_list, apply, nested_apply, list);
+  }
 
   cmap_map_public.nested(this, list);
 }
@@ -54,7 +57,7 @@ static CMAP_LIST * set(CMAP_LIST * this, int i, CMAP_MAP * val)
     CMAP_MAP * old_val = *val_ptr;
     *val_ptr = val;
 
-    if(val != old_val)
+    if(!CMAP_IS_GHOST(this) && (val != old_val))
     {
       if(val != NULL) CMAP_INC_REFS(val);
       if(old_val != NULL) CMAP_DEC_REFS(old_val);
@@ -75,7 +78,7 @@ static CMAP_MAP * get(CMAP_LIST * this, int i)
 static CMAP_LIST * add(CMAP_LIST * this, int i, CMAP_MAP * val)
 {
   if(CMAP_CALL_ARGS((CMAP_SLIST_MAP *)this -> internal, add, i, val) &&
-    (val != NULL)) CMAP_INC_REFS(val);
+    !CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
   return this;
 }
 
@@ -85,7 +88,7 @@ static CMAP_LIST * add(CMAP_LIST * this, int i, CMAP_MAP * val)
 static CMAP_MAP * rm(CMAP_LIST * this, int i)
 {
   CMAP_MAP * ret = CMAP_CALL_ARGS((CMAP_SLIST_MAP *)this -> internal, rm, i);
-  if(ret != NULL) CMAP_DEC_REFS(ret);
+  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
@@ -95,14 +98,14 @@ static CMAP_MAP * rm(CMAP_LIST * this, int i)
 static CMAP_LIST * push(CMAP_LIST * this, CMAP_MAP * val)
 {
   CMAP_CALL_ARGS((CMAP_SLIST_MAP *)this -> internal, push, val);
-  if(val != NULL) CMAP_INC_REFS(val);
+  if(!CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
   return this;
 }
 
 static CMAP_MAP * pop(CMAP_LIST * this)
 {
   CMAP_MAP * ret = CMAP_CALL((CMAP_SLIST_MAP *)this -> internal, pop);
-  if(ret != NULL) CMAP_DEC_REFS(ret);
+  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
@@ -112,14 +115,14 @@ static CMAP_MAP * pop(CMAP_LIST * this)
 static CMAP_LIST * unshift(CMAP_LIST * this, CMAP_MAP * val)
 {
   CMAP_CALL_ARGS((CMAP_SLIST_MAP *)this -> internal, unshift, val);
-  if(val != NULL) CMAP_INC_REFS(val);
+  if(!CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
   return this;
 }
 
 static CMAP_MAP * shift(CMAP_LIST * this)
 {
   CMAP_MAP * ret = CMAP_CALL((CMAP_SLIST_MAP *)this -> internal, shift);
-  if(ret != NULL) CMAP_DEC_REFS(ret);
+  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
@@ -130,6 +133,7 @@ typedef struct
 {
   CMAP_LIST_VAL_FN fn;
   void * data;
+  char ghost;
 } APPLY_APPLY_DATA;
 
 static void apply_apply(CMAP_MAP ** val, void * data)
@@ -139,18 +143,21 @@ static void apply_apply(CMAP_MAP ** val, void * data)
   CMAP_MAP * old_val = *val;
   data_ -> fn(val, data_ -> data);
 
-  CMAP_MAP * new_val = *val;
-  if(new_val != old_val)
+  if(!data_ -> ghost)
   {
-    if(old_val != NULL) CMAP_DEC_REFS(old_val);
-    if(new_val != NULL) CMAP_INC_REFS(new_val);
+    CMAP_MAP * new_val = *val;
+    if(new_val != old_val)
+    {
+      if(old_val != NULL) CMAP_DEC_REFS(old_val);
+      if(new_val != NULL) CMAP_INC_REFS(new_val);
+    }
   }
 }
 
 static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
 {
-  APPLY_APPLY_DATA data_ = { fn, data };
-  CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
+  APPLY_APPLY_DATA data_ = {fn, data, CMAP_IS_GHOST(this)};
+  CMAP_SLIST_MAP * this_list = this -> internal;
   CMAP_APPLY(this_list, apply_apply, &data_);
 }
 
@@ -164,8 +171,8 @@ static void clean_apply(CMAP_MAP ** val, void * data)
 
 static void clean(CMAP_LIST * this)
 {
-  CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
-  CMAP_CALL_ARGS(this_list, apply, clean_apply, NULL);
+  CMAP_SLIST_MAP * this_list = this -> internal;
+  if(!CMAP_IS_GHOST(this)) CMAP_CALL_ARGS(this_list, apply, clean_apply, NULL);
   CMAP_CALL(this_list, clean);
 }
 
@@ -184,9 +191,8 @@ static void delete_apply(CMAP_MAP ** val, void * data)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_SLIST_MAP * this_list =
-    (CMAP_SLIST_MAP *)((CMAP_LIST *)this) -> internal;
-  CMAP_CALL_ARGS(this_list, apply, delete_apply, this);
+  CMAP_SLIST_MAP * this_list = ((CMAP_LIST *)this) -> internal;
+  if(!CMAP_IS_GHOST(this)) CMAP_CALL_ARGS(this_list, apply, delete_apply, this);
   CMAP_CALL(this_list, delete);
 
   cmap_map_public.delete(this);

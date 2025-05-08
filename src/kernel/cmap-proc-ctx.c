@@ -34,11 +34,11 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_PROC_CTX * this)
   return CMAP_CALL_ARGS(env_, prototypestore, this);
 }
 
-#define POOL_IMPL(TYPE, type) \
-static CMAP_POOL_##TYPE * pool_##type(CMAP_PROC_CTX * this) \
+#define POOL_IMPL(NAME, name, type) \
+static CMAP_POOL_##NAME * pool_##name(CMAP_PROC_CTX * this) \
 { \
   CMAP_ENV * env_ = env(this); \
-  return CMAP_CALL_ARGS(env_, pool_##type, this); \
+  return CMAP_CALL_ARGS(env_, pool_##name, this); \
 }
 
 CMAP_POOL_LOOP(POOL_IMPL)
@@ -56,7 +56,10 @@ static CMAP_MAP * local_definitions(CMAP_PROC_CTX * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> definitions == NULL)
-    internal -> definitions = cmap_map_public.create_root(this);
+  {
+    CMAP_POOL_MAP_GHOST * pool = pool_map_ghost(this);
+    internal -> definitions = CMAP_CALL_ARGS(pool, take, this);
+  }
   return internal -> definitions;
 }
 
@@ -90,13 +93,19 @@ static CMAP_PROC_CTX * new_level(CMAP_PROC_CTX * this)
 /*******************************************************************************
 *******************************************************************************/
 
-#define POOL_FN_SET(TYPE, type) this -> pool_##type = pool_##type;
+#define POOL_FN_SET(NAME, name, type) this -> pool_##name = pool_##name;
 
 static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
   cmap_log_public.debug("[%p][proc-ctx][%d] deletion", this, internal -> level);
+
+  if(internal -> definitions != NULL)
+  {
+    CMAP_POOL_MAP_GHOST * pool = pool_map_ghost(this);
+    CMAP_CALL_ARGS(pool, release, internal -> definitions);
+  }
 
   CMAP_CALL_ARGS(internal -> refs, delete, ret);
 

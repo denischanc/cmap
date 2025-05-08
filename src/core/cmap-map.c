@@ -30,6 +30,8 @@ typedef struct
   ENTRY * entry_stree;
 
   CMAP_MAP * prototype;
+
+  char ghost;
 } INTERNAL;
 
 /*******************************************************************************
@@ -62,7 +64,10 @@ static void nested_apply(const char * key, CMAP_MAP ** val, void * data)
 
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
-  CMAP_CALL_ARGS((CMAP_MAP *)this, apply, nested_apply, list);
+  CMAP_MAP * this_ = (CMAP_MAP *)this;
+  INTERNAL * internal =  this_ -> internal;
+  if(!internal -> ghost)
+    CMAP_CALL_ARGS(this_, apply, nested_apply, list);
 
   cmap_lifecycle_public.nested(this, list);
 }
@@ -72,7 +77,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 
 static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = this -> internal;
 
   ENTRY * entry = CMAP_STREE_FINDFN(entry, internal -> entry_stree, key);
   if(entry == NULL)
@@ -84,9 +89,9 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
     CMAP_STREE_ADDFN(entry, &internal -> entry_stree, entry, key);
   }
 
-  if(entry -> val != NULL) CMAP_DEC_REFS(entry -> val);
+  if(!internal -> ghost && (entry -> val != NULL)) CMAP_DEC_REFS(entry -> val);
   entry -> val = val;
-  if(val != NULL) CMAP_INC_REFS(val);
+  if(!internal -> ghost && (val != NULL)) CMAP_INC_REFS(val);
 
   return val;
 }
@@ -170,6 +175,7 @@ typedef struct
 {
   CMAP_MAP_ENTRY_FN fn;
   void * data;
+  char ghost;
 } APPLY_APPLY_DATA;
 
 static void apply_apply(void * node, char is_eq, void * data)
@@ -179,25 +185,64 @@ static void apply_apply(void * node, char is_eq, void * data)
 
   CMAP_MAP * prev_val = entry -> val;
   data_ -> fn(entry -> key, &entry -> val, data_ -> data);
-  if(prev_val != entry -> val)
+  if(!data_ -> ghost && (prev_val != entry -> val))
   {
     if(prev_val != NULL) CMAP_DEC_REFS(prev_val);
     if(entry -> val != NULL) CMAP_INC_REFS(entry -> val);
   }
 }
 
-CMAP_STREE_APPLY(apply_apply_stree, NULL, apply_apply, NULL);
-
 static void apply(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = this -> internal;
+  APPLY_APPLY_DATA data_ = {fn, data, internal -> ghost};
+  CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, apply_apply, &data_);
+}
 
-  APPLY_APPLY_DATA data_;
-  data_.fn = fn;
-  data_.data = data;
+/*******************************************************************************
+*******************************************************************************/
 
-  CMAP_STREE_APPLYFN(entry, internal -> entry_stree, apply_apply_stree, CMAP_T,
-    CMAP_F, &data_);
+typedef struct
+{
+  CMAP_MEM * mem;
+  char ghost;
+} CLEAN_APPLY_DATA;
+
+static void clean_apply(void * node, char is_eq, void * data)
+{
+  ENTRY * entry = node;
+  CLEAN_APPLY_DATA * data_ = data;
+  CMAP_MEM * mem = data_ -> mem;
+
+  CMAP_MEM_FREE(entry -> key, mem);
+
+  CMAP_MAP * val = entry -> val;
+  if(!data_ -> ghost && (val != NULL)) CMAP_DEC_REFS(val);
+
+  CMAP_MEM_FREE(entry, mem);
+}
+
+static void clean(CMAP_MAP * this)
+{
+  INTERNAL * internal = this -> internal;
+  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+
+  CLEAN_APPLY_DATA data = {mem, internal -> ghost};
+  CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, clean_apply, &data);
+  internal -> entry_stree = NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void ghost(CMAP_MAP * this)
+{
+  ((INTERNAL *)this -> internal) -> ghost = CMAP_T;
+}
+
+static char is_ghost(CMAP_MAP * this)
+{
+  return ((INTERNAL *)this -> internal) -> ghost;
 }
 
 /*******************************************************************************
@@ -207,18 +252,19 @@ typedef struct
 {
   CMAP_LIFECYCLE * this;
   CMAP_MEM * mem;
+  char ghost;
 } DELETE_APPLY_DATA;
 
 static void delete_apply(void * node, char is_eq, void * data)
 {
-  ENTRY * entry = (ENTRY *)node;
+  ENTRY * entry = node;
   DELETE_APPLY_DATA * data_ = data;
   CMAP_MEM * mem = data_ -> mem;
 
   CMAP_MEM_FREE(entry -> key, mem);
 
   CMAP_MAP * val = entry -> val;
-  if(val != NULL)
+  if(!data_ -> ghost && (val != NULL))
   {
     CMAP_LIFECYCLE * this = data_ -> this;
     cmap_log_public.debug("[%p][%s]-nested->[[%p]==>refs--]",
@@ -231,12 +277,10 @@ static void delete_apply(void * node, char is_eq, void * data)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)((CMAP_MAP *)this) -> internal;
+  INTERNAL * internal = ((CMAP_MAP *)this) -> internal;
   CMAP_MEM * mem = CMAP_KERNEL_MEM;
 
-  DELETE_APPLY_DATA data;
-  data.this = this;
-  data.mem = mem;
+  DELETE_APPLY_DATA data = {this, mem, internal -> ghost};
   CMAP_STREE_QUICKAPPLYFN(entry, internal -> entry_stree, delete_apply, &data);
 
   CMAP_MEM_FREE(internal, mem);
@@ -254,6 +298,7 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
   internal -> entry_stree = NULL;
   internal -> prototype = initargs -> prototype;
+  internal -> ghost = CMAP_F;
 
   this -> internal = internal;
   this -> set = set;
@@ -262,6 +307,9 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
   this -> is_key = is_key;
   this -> keys = keys;
   this -> apply = apply;
+  this -> clean = clean;
+  this -> ghost = ghost;
+  this -> is_ghost = is_ghost;
 
   return this;
 }
@@ -288,5 +336,7 @@ const CMAP_MAP_PUBLIC cmap_map_public =
   get,
   new,
   is_key, keys,
-  apply
+  apply,
+  clean,
+  ghost, is_ghost
 };

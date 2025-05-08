@@ -7,22 +7,22 @@
 
 #define CMAP_POOL_LOOP(macro) CMAP_POOL_HANDLER_LOOP(macro)
 
-#define CMAP_POOL_DECL(TYPE, type) \
-typedef struct CMAP_POOL_##TYPE CMAP_POOL_##TYPE; \
+#define CMAP_POOL_DECL(NAME, name, type) \
+typedef struct CMAP_POOL_##NAME CMAP_POOL_##NAME; \
  \
-struct CMAP_POOL_##TYPE \
+struct CMAP_POOL_##NAME \
 { \
   CMAP_LIFECYCLE super; \
  \
-  CMAP_##TYPE * (*take)(CMAP_POOL_##TYPE * this, CMAP_PROC_CTX * proc_ctx); \
-  void (*release)(CMAP_POOL_##TYPE * this, CMAP_##TYPE * e); \
+  type (*take)(CMAP_POOL_##NAME * this, CMAP_PROC_CTX * proc_ctx); \
+  void (*release)(CMAP_POOL_##NAME * this, type e); \
 }; \
  \
 typedef struct \
 { \
-  CMAP_POOL_##TYPE * (*create)(int size, CMAP_PROC_CTX * proc_ctx); \
-} CMAP_POOL_##TYPE##_PUBLIC; \
+  CMAP_POOL_##NAME * (*create)(int size, CMAP_PROC_CTX * proc_ctx); \
+} CMAP_POOL_##NAME##_PUBLIC; \
  \
-extern const CMAP_POOL_##TYPE##_PUBLIC cmap_pool_##type##_public;
+extern const CMAP_POOL_##NAME##_PUBLIC cmap_pool_##name##_public;
 
 #endif

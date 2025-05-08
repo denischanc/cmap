@@ -8,8 +8,8 @@
 #include "cmap-prototypestore.h"
 #include "cmap-refswatcher.h"
 
-#define CMAP_ENV_POOL_DECL(TYPE, type) \
-  CMAP_POOL_##TYPE * (*pool_##type)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
+#define CMAP_ENV_POOL_DECL(NAME, name, type) \
+  CMAP_POOL_##NAME * (*pool_##name)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
 
 struct CMAP_ENV
 {

@@ -24,6 +24,11 @@ struct CMAP_MAP
   CMAP_LIST * (*keys)(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
+
+  void (*clean)(CMAP_MAP * this);
+
+  void (*ghost)(CMAP_MAP * this);
+  char (*is_ghost)(CMAP_MAP * this);
 };
 
 typedef struct
@@ -44,6 +49,11 @@ typedef struct
   CMAP_LIST * (*keys)(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx);
 
   void (*apply)(CMAP_MAP * this, CMAP_MAP_ENTRY_FN fn, void * data);
+
+  void (*clean)(CMAP_MAP * this);
+
+  void (*ghost)(CMAP_MAP * this);
+  char (*is_ghost)(CMAP_MAP * this);
 } CMAP_MAP_PUBLIC;
 
 extern const CMAP_MAP_PUBLIC cmap_map_public;

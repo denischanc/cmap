@@ -12,7 +12,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define POOL_VAR(TYPE, type) CMAP_POOL_##TYPE * pool_##type;
+#define POOL_VAR(NAME, name, type) CMAP_POOL_##NAME * pool_##name;
 
 typedef struct
 {
@@ -79,17 +79,17 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
 /*******************************************************************************
 *******************************************************************************/
 
-#define POOL_IMPL(TYPE, type) \
-static CMAP_POOL_##TYPE * pool_##type(CMAP_ENV * this, \
+#define POOL_IMPL(NAME, name, type) \
+static CMAP_POOL_##NAME * pool_##name(CMAP_ENV * this, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
   INTERNAL * internal = (INTERNAL *)(this + 1); \
-  if(internal -> pool_##type == NULL) \
+  if(internal -> pool_##name == NULL) \
   { \
-    internal -> pool_##type = cmap_pool_##type##_public.create(0, proc_ctx); \
-    CMAP_INC_REFS(internal -> pool_##type); \
+    internal -> pool_##name = cmap_pool_##name##_public.create(0, proc_ctx); \
+    CMAP_INC_REFS(internal -> pool_##name); \
   } \
-  return internal -> pool_##type; \
+  return internal -> pool_##name; \
 }
 
 CMAP_POOL_LOOP(POOL_IMPL)
@@ -143,12 +143,12 @@ static void scheduler_empty(CMAP_ENV * this)
 /*******************************************************************************
 *******************************************************************************/
 
-#define POOL_DEC_REFS(TYPE, type) \
-  if(internal -> pool_##type != NULL) CMAP_DEC_REFS(internal -> pool_##type);
+#define POOL_DEC_REFS(NAME, name, type) \
+  if(internal -> pool_##name != NULL) CMAP_DEC_REFS(internal -> pool_##name);
 
-#define POOL_SET(TYPE, type) internal -> pool_##type = NULL;
+#define POOL_SET(NAME, name, type) internal -> pool_##name = NULL;
 
-#define POOL_FN_SET(TYPE, type) this -> pool_##type = pool_##type;
+#define POOL_FN_SET(NAME, name, type) this -> pool_##name = pool_##name;
 
 static void delete(CMAP_ENV * this)
 {
@@ -220,4 +220,4 @@ static void delete_all()
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_ENV_PUBLIC cmap_env_public = { create, delete_all };
+const CMAP_ENV_PUBLIC cmap_env_public = {create, delete_all};

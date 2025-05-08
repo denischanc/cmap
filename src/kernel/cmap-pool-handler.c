@@ -3,62 +3,46 @@
 
 #include "cmap.h"
 #include "cmap-list.h"
-#include "cmap-string.h"
-#include "cmap-int.h"
+#include "cmap-map.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * list_create(CMAP_PROC_CTX * proc_ctx)
+static CMAP_LIST * list_ghost_create(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_LIST(0, proc_ctx);
+  CMAP_LIST * list = CMAP_LIST(0, proc_ctx);
+  CMAP_CALL((CMAP_MAP *)list, ghost);
+  return list;
 }
 
-static void list_clean(CMAP_LIST * this)
+static void list_ghost_clean(CMAP_LIST * this)
 {
   CMAP_CALL(this, clean);
 }
 
-const CMAP_POOL_HANDLER_LIST_PUBLIC cmap_pool_handler_list_public =
+const CMAP_POOL_HANDLER_LIST_GHOST_PUBLIC cmap_pool_handler_list_ghost_public =
 {
-  list_create,
-  list_clean
+  list_ghost_create,
+  list_ghost_clean
 };
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STRING * string_create(CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * map_ghost_create(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_STRING("", 0, proc_ctx);
+  CMAP_MAP * map = CMAP_MAP(proc_ctx);
+  CMAP_CALL(map, ghost);
+  return map;
 }
 
-static void string_clean(CMAP_STRING * this)
+static void map_ghost_clean(CMAP_MAP * this)
 {
   CMAP_CALL(this, clean);
 }
 
-const CMAP_POOL_HANDLER_STRING_PUBLIC cmap_pool_handler_string_public =
+const CMAP_POOL_HANDLER_MAP_GHOST_PUBLIC cmap_pool_handler_map_ghost_public =
 {
-  string_create,
-  string_clean
-};
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_INT * int_create(CMAP_PROC_CTX * proc_ctx)
-{
-  return CMAP_INT(0, proc_ctx);
-}
-
-static void int_clean(CMAP_INT * this)
-{
-  CMAP_CALL_ARGS(this, set, 0);
-}
-
-const CMAP_POOL_HANDLER_INT_PUBLIC cmap_pool_handler_int_public =
-{
-  int_create,
-  int_clean
+  map_ghost_create,
+  map_ghost_clean
 };

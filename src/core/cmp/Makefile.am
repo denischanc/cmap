@@ -2,7 +2,6 @@
 include $(top_srcdir)/src/common.mk
 
 noinst_HEADERS = \
-  cmap-cmp-define.h \
   cmap-cmp-double-handler.h \
   cmap-cmp.h \
   cmap-cmp-handler.h \
