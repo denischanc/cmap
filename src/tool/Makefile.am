@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/tool/common.mk
 
-SUBDIRS = tpl
+SUBDIRS = parser-util part tpl
 
 BUILT_SOURCES = cmap-parser.h
 
@@ -17,7 +17,6 @@ noinst_HEADERS = \
   cmap-file-util.h \
   cmap-fn-name-define.h \
   cmap-fn-name.h \
-  cmap-kv.h \
   cmap-option-define.h \
   cmap-option.h \
   cmap-parser-util-define.h \
@@ -38,7 +37,6 @@ cmap_tool_SOURCES = \
   cmap-clean.c \
   cmap-file-util.c \
   cmap-fn-name.c \
-  cmap-kv.c \
   cmap-option.c \
   cmap-parser-util.c \
   cmap-parser.y \
@@ -49,4 +47,4 @@ cmap_tool_SOURCES = \
   cmap-strings.c \
   cmap-tool.c
 cmap_tool_CFLAGS = $(CMAP_TOOL_CFLAGS)
-cmap_tool_LDADD = tpl/libtpl.la
+cmap_tool_LDADD = parser-util/libparser-util.la part/libpart.la tpl/libtpl.la

@@ -9,6 +9,7 @@
 #include "cmap-kv.h"
 #include "cmap-fn-name.h"
 #include "cmap-stack-define.h"
+#include "cmap-params.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -114,53 +115,6 @@ static void prepend_map_var(const char * map_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STRINGS * params = NULL;
-
-typedef struct
-{
-  char * decl;
-  char * impl;
-} PARAMS_RET;
-
-static void clone_params()
-{
-  params = cmap_strings_public.clone(cmap_part_public.get_params());
-}
-
-static char * name(char *);
-
-static void get_params_apply(const char * string, void * data)
-{
-  char * map = name(strdup(string));
-
-  PARAMS_RET * ret = (PARAMS_RET *)data;
-  cmap_string_public.append_args(&ret -> decl, ", CMAP_MAP * %s", map);
-  cmap_string_public.append_args(&ret -> impl, ", %s", map);
-
-  free(map);
-}
-
-static PARAMS_RET get_params()
-{
-  PARAMS_RET ret;
-  ret.decl = strdup("");
-  ret.impl = strdup("");
-
-  cmap_strings_public.apply(params, get_params_apply, &ret);
-  cmap_strings_public.delete(&params);
-
-  return ret;
-}
-
-static void free_params(PARAMS_RET ret)
-{
-  free(ret.decl);
-  free(ret.impl);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void include_(char * includes)
 {
   APPEND_ARGS(includes, "%s\n", includes);
@@ -175,12 +129,12 @@ static PARAMS_RET function_c_to_part(char ** part, char * name, char is_static)
   char is_return_fn = cmap_part_public.is_return_fn(),
     is_return = cmap_part_public.is_return();
 
-  clone_params();
+  cmap_params_public.clone();
 
   if(is_return_fn && !is_return) APPEND_INSTRUCTION("return NULL;");
   char * instructions = cmap_part_public.pop_instructions();
 
-  PARAMS_RET params_ret = get_params();
+  PARAMS_RET params_ret = cmap_params_public.get();
 
   cmap_string_public.append_args(part,
     "%s%s %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
@@ -205,7 +159,8 @@ static PARAMS_RET function_c_to_part(char ** part, char * name, char is_static)
 
 static void function_c(char * name, char is_static)
 {
-  free_params(function_c_to_part(cmap_part_public.main(), name, is_static));
+  cmap_params_public.delete(
+    function_c_to_part(cmap_part_public.main(), name, is_static));
 }
 
 static void instructions_root()
@@ -691,12 +646,12 @@ static char * cmp_to_bool_fn(char * cmp_name, const char * op)
   APPEND_INSTRUCTION_ARGS("return (%s %s 0);", cmp_name, op);
   free(cmp_name);
 
-  clone_params();
+  cmap_params_public.clone();
 
   char * bool_fn_name = next_name(),
     * instructions = cmap_part_public.pop_instructions();
 
-  PARAMS_RET params_ret = get_params();
+  PARAMS_RET params_ret = cmap_params_public.get();
 
   APPEND_ARGS(functions,
     "static inline char %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
@@ -708,7 +663,7 @@ static char * cmp_to_bool_fn(char * cmp_name, const char * op)
   cmap_string_public.append_args(&bool_fn_name, "(proc_ctx%s)",
     params_ret.impl);
 
-  free_params(params_ret);
+  cmap_params_public.delete(params_ret);
 
   return bool_fn_name;
 }
@@ -885,7 +840,7 @@ static char * for_helper()
 
   cmap_string_public.append_args(&call, "(proc_ctx%s)", params_ret.impl);
 
-  free_params(params_ret);
+  cmap_params_public.delete(params_ret);
 
   return call;
 }
