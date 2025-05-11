@@ -4,6 +4,7 @@
 #include "cmap-parser.h"
 #include "cmap-parser-util.h"
 #include "cmap-part.h"
+#include "cmap-part-ctx.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -160,7 +161,7 @@ process: NAME '(' args ')'
 *******************************************************************************/
 
 function: FUNCTION '(' arg_names ')' '{'
-  { cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_FN); } instructions '}'
+  { cmap_part_ctx_public.nature_fn(); } instructions '}'
   { $$ = cmap_parser_util_public.function(NULL); }
 | FUNCTION '(' arg_names ')' '(' names ')'
   { $$ = cmap_parser_util_public.function($6); };
@@ -180,7 +181,7 @@ else: { cmap_parser_util_public.else_empty(); }
 
 comparison:
   {
-    cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_PARAMS);
+    cmap_part_ctx_public.nature_params();
     cmap_part_public.push_instructions();
   } comparison_ { $$ = $2; }
 | '(' comparison ')' OR '(' comparison ')'
@@ -205,7 +206,7 @@ instructions_for:
 
 for_helper:
   {
-    cmap_part_public.new_ctx(CMAP_PART_CTX_NATURE_PARAMS);
+    cmap_part_ctx_public.nature_params();
     cmap_part_public.push_instructions();
   }
   instructions_for { $$ = cmap_parser_util_public.for_helper(); };

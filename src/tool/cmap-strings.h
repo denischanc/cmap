@@ -3,8 +3,8 @@
 
 #include "cmap-stack-define.h"
 
-CMAP_STACK_TYPE(strings)
-typedef CMAP_STACK_strings CMAP_STRINGS;
+CMAP_STACK_TYPE(STRINGS)
+typedef CMAP_STACK_STRINGS CMAP_STRINGS;
 
 typedef void (*CMAP_STRINGS_STRING_FN)(const char * string, void * data);
 

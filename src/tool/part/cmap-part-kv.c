@@ -1,5 +1,5 @@
 
-#include "cmap-kv.h"
+#include "cmap-part-kv.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -15,14 +15,14 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_STACK_IMPL(kv, KV)
+CMAP_STACK_IMPL(PART_KV, part_kv, KV)
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void put(CMAP_KV ** kv_ptr, const char * key, const char * val)
+static void put(CMAP_PART_KV ** kv_ptr, const char * key, const char * val)
 {
-  CMAP_KV * kv = *kv_ptr;
+  CMAP_PART_KV * kv = *kv_ptr;
   while(kv != NULL)
   {
     KV * kv_elt = &(kv -> v);
@@ -36,13 +36,13 @@ static void put(CMAP_KV ** kv_ptr, const char * key, const char * val)
   }
 
   KV kv_elt = {strdup(key), strdup(val), (1 == 0)};
-  cmap_stack_kv_push(kv_ptr, kv_elt);
+  cmap_stack_part_kv_push(kv_ptr, kv_elt);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * get(CMAP_KV * kv, const char * key)
+static const char * get(CMAP_PART_KV * kv, const char * key)
 {
   while(kv != NULL)
   {
@@ -55,7 +55,7 @@ static const char * get(CMAP_KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void dirty(CMAP_KV * kv, const char * key)
+static void dirty(CMAP_PART_KV * kv, const char * key)
 {
   while(kv != NULL)
   {
@@ -71,7 +71,7 @@ static void dirty(CMAP_KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_dirty_n_rst(CMAP_KV * kv, const char * key)
+static char is_dirty_n_rst(CMAP_PART_KV * kv, const char * key)
 {
   while(kv != NULL)
   {
@@ -89,13 +89,13 @@ static char is_dirty_n_rst(CMAP_KV * kv, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_key(CMAP_KV ** kv_ptr, const char * key)
+static void delete_key(CMAP_PART_KV ** kv_ptr, const char * key)
 {
   while(*kv_ptr != NULL)
   {
     if(!strcmp((*kv_ptr) -> v.key, key))
     {
-      CMAP_KV * cur = *kv_ptr;
+      CMAP_PART_KV * cur = *kv_ptr;
       *kv_ptr = cur -> next;
       free(cur -> v.key);
       free(cur -> v.val);
@@ -110,11 +110,11 @@ static void delete_key(CMAP_KV ** kv_ptr, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_KV ** kv_ptr)
+static void delete(CMAP_PART_KV ** kv_ptr)
 {
   while(*kv_ptr != NULL)
   {
-    KV kv_elt = cmap_stack_kv_pop(kv_ptr);
+    KV kv_elt = cmap_stack_part_kv_pop(kv_ptr);
     free(kv_elt.key);
     free(kv_elt.val);
   }
@@ -123,7 +123,7 @@ static void delete(CMAP_KV ** kv_ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_KV_PUBLIC cmap_kv_public =
+const CMAP_PART_KV_PUBLIC cmap_part_kv_public =
 {
   put, get,
   dirty, is_dirty_n_rst,

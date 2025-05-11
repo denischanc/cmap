@@ -7,7 +7,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_STACK_IMPL(strings, char *)
+CMAP_STACK_IMPL(STRINGS, strings, char *)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -48,7 +48,7 @@ static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
 
 static void clone_string_fn(const char * string, void * data)
 {
-  add((CMAP_STRINGS **)data, string);
+  add(data, string);
 }
 
 static CMAP_STRINGS * clone(CMAP_STRINGS * strings)
