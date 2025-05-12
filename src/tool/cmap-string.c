@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdarg.h>
 
 /*******************************************************************************
 *******************************************************************************/
@@ -23,13 +22,10 @@ static void append(char ** src, const char * txt)
 /*******************************************************************************
 *******************************************************************************/
 
-static void append_args(char ** src, const char * txt, ...)
+static void vappend_args(char ** src, const char * txt, va_list args)
 {
-  va_list args;
-  va_start(args, txt);
   static char buffer[1048576];
   vsnprintf(buffer, sizeof(buffer), txt, args);
-  va_end(args);
 
   append(src, buffer);
 }
@@ -37,8 +33,16 @@ static void append_args(char ** src, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_STRING_PUBLIC cmap_string_public =
+static void append_args(char ** src, const char * txt, ...)
 {
-  append,
-  append_args
-};
+  va_list args;
+  va_start(args, txt);
+  vappend_args(src, txt, args);
+  va_end(args);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_STRING_PUBLIC cmap_string_public = {append, vappend_args,
+  append_args};
