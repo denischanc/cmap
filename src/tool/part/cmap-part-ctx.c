@@ -111,8 +111,8 @@ static CMAP_PART_CTX fn(CMAP_PART_CTX_BLOCK * block_)
   ctx.block.nature = CMAP_PART_CTX_NATURE_FN;
 
   CMAP_PART_KV ** name2map = &ctx.c.name2map;
-  cmap_part_kv_public.put(name2map, "this", "this");
-  cmap_part_kv_public.put(name2map, "args", "args");
+  cmap_part_kv_public.put(name2map, NULL, "this", "this");
+  cmap_part_kv_public.put(name2map, NULL, "args", "args");
 
   ctx.cmap.vars_loc = cmap_strings_public.clone(block_ -> fn_arg_names);
 
@@ -195,7 +195,7 @@ static void upd(CMAP_PART_CTX * ctx)
 static void delete(CMAP_PART_CTX * ctx)
 {
   free(ctx -> block.prefix);
-  cmap_strings_public.delete(&ctx -> block.dirties);
+  cmap_part_keys_public.delete(&ctx -> block.dirties);
 
   cmap_part_kv_public.delete(&ctx -> c.name2map);
   cmap_strings_public.delete(&ctx -> c.params);

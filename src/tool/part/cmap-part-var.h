@@ -11,11 +11,14 @@ typedef struct
 
 typedef struct
 {
-  void (*put)(const char * name, const char * map, CMAP_PART_CTX * ctx);
+  void (*put)(const char * map, const char * name, const char * map_name,
+    CMAP_PART_CTX * ctx);
   void (*put_loc)(const char * name, const char * map, CMAP_PART_CTX * ctx);
-  char (*put_no_loc)(const char * name, const char * map, CMAP_PART_CTX * ctx);
+  char (*put_no_loc)(const char * map, const char * name,
+    const char * map_name, CMAP_PART_CTX * ctx);
 
-  CMAP_PART_VAR_RET (*get)(const char * name, CMAP_PART_CTX * ctx);
+  CMAP_PART_VAR_RET (*get)(const char * map, const char * name,
+    CMAP_PART_CTX * ctx);
 
   CMAP_STRINGS * (*defs)(CMAP_PART_CTX * ctx);
 } CMAP_PART_VAR_PUBLIC;

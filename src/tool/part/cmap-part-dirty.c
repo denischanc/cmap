@@ -1,17 +1,17 @@
 
 #include "cmap-part-dirty.h"
 
-#include "cmap-strings.h"
+#include "cmap-part-keys.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void name(const char * name, CMAP_PART_CTX * ctx)
+static void name(const char * map, const char * name, CMAP_PART_CTX * ctx)
 {
   CMAP_PART_CTX_BLOCK * block = &ctx -> block;
 
   if(block -> nature == CMAP_PART_CTX_NATURE_BLOCK)
-    cmap_strings_public.add(&block -> dirties, name);
+    cmap_part_keys_public.add(&block -> dirties, map, name);
 }
 
 /*******************************************************************************

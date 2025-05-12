@@ -7,6 +7,7 @@
 #include "cmap-part-ctx-define.h"
 #include "cmap-strings.h"
 #include "cmap-part-kv.h"
+#include "cmap-part-keys.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -40,7 +41,9 @@ struct CMAP_PART_CTX_BLOCK
 {
   char * instructions, * prefix, else_, nature;
 
-  CMAP_STRINGS * fn_arg_names, * dirties;
+  CMAP_STRINGS * fn_arg_names;
+
+  CMAP_PART_KEYS * dirties;
 
   CMAP_PART_CTX_C * c;
 };

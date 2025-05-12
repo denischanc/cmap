@@ -54,10 +54,11 @@ typedef struct
   void (*set_else)();
   char (*is_else_n_rst)();
 
-  void (*var)(const char * name, const char * map);
+  void (*var)(const char * map, const char * name, const char * map_name);
   void (*var_loc)(const char * name, const char * map);
-  char (*var_no_loc)(const char * name, const char * map);
-  CMAP_PART_VAR_RET (*get_map)(const char * name);
+  char (*var_no_loc)(const char * map, const char * name,
+    const char * map_name);
+  CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name);
   CMAP_STRINGS * (*get_vars_def)();
   CMAP_STRINGS * (*get_params)();
 

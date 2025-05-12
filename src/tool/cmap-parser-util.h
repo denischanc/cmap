@@ -9,12 +9,12 @@ typedef struct
   void (*function_c)(char * name, char is_static);
   void (*instructions_root)();
 
-  char * (*name)(char * name);
   char * (*path)(char * map, char * name);
+  char * (*name)(char * name);
 
   void (*set_local)(char * name, char * map);
-  void (*set_global)(char * name, char * map);
   void (*set_path)(char * src, char * name, char * map);
+  void (*set_global)(char * name, char * map);
 
   char * (*args)(char * map);
   char * (*args_push)(char * list, char * map);

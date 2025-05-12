@@ -170,9 +170,9 @@ static void instructions_root()
 /*******************************************************************************
 *******************************************************************************/
 
-static char * name(char * name)
+static char * path(char * map, char * name)
 {
-  CMAP_PART_VAR_RET ret = cmap_part_public.get_map(name);
+  CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name);
   char * instruction = NULL,
     * map_name = (ret.map == NULL) ? next_name() : strdup(ret.map);
 
@@ -181,36 +181,26 @@ static char * name(char * name)
     if(ret.map == NULL)
     {
       prepend_map_var(map_name);
-      cmap_part_public.var(name, map_name);
+      cmap_part_public.var(map, name, map_name);
     }
     else cmap_string_public.append_args(&instruction, "if(%s == NULL) ",
       map_name);
 
-    const char * dst = ret.is_def ? add_definitions() : add_global_env();
+    const char * dst = map;
+    if(dst == NULL) dst = ret.is_def ? add_definitions() : add_global_env();
     APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, dst, name);
     APPEND_LF();
   }
-
-  free(name);
-
-  return map_name;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * path(char * map, char * name)
-{
-  char * map_name = next_name(), * instruction = NULL;
-
-  prepend_map_var(map_name);
-  APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, map, name);
-  APPEND_LF();
 
   free(map);
   free(name);
 
   return map_name;
+}
+
+static char * name(char * name)
+{
+  return path(NULL, name);
 }
 
 /*******************************************************************************
@@ -232,31 +222,24 @@ static void set_local(char * name, char * map)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set_global(char * name, char * map)
+static void set_path(char * src, char * name, char * map)
 {
-  const char * dst = cmap_part_public.var_no_loc(name, map) ?
-    add_definitions() : add_global_env();
+  char is_def = cmap_part_public.var_no_loc(src, name, map);
+  const char * dst = src;
+  if(dst == NULL) dst = is_def ? add_definitions() : add_global_env();
 
   char * instruction = NULL;
   APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map);
   APPEND_LF();
 
+  free(src);
   free(name);
   free(map);
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static void set_path(char * src, char * name, char * map)
+static void set_global(char * name, char * map)
 {
-  char * instruction = NULL;
-  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", src, name, map);
-  APPEND_LF();
-
-  free(src);
-  free(name);
-  free(map);
+  set_path(NULL, name, map);
 }
 
 /*******************************************************************************
@@ -890,8 +873,8 @@ static char * and(char * cmp_call_l, char * cmp_call_r)
 const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   include_, function_c, instructions_root,
-  name, path,
-  set_local, set_global, set_path,
+  path, name,
+  set_local, set_path, set_global,
   args, args_push,
   arg_name,
   args_map, args_map_push,

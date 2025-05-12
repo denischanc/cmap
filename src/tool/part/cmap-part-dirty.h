@@ -5,7 +5,7 @@
 
 typedef struct
 {
-  void (*name)(const char * name, CMAP_PART_CTX * ctx);
+  void (*name)(const char * map, const char * name, CMAP_PART_CTX * ctx);
 } CMAP_PART_DIRTY_PUBLIC;
 
 extern const CMAP_PART_DIRTY_PUBLIC cmap_part_dirty_public;

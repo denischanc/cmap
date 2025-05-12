@@ -5,7 +5,6 @@
 #include "cmap-strings.h"
 #include "cmap-part-kv.h"
 #include "cmap-part-dirty.h"
-#include "cmap-part-params.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -44,49 +43,44 @@ static char is_loc_prev(const char * name, CMAP_PART_CTX_CMAP * cmap)
 /*******************************************************************************
 *******************************************************************************/
 
-static char maybe_var_def(const char * name, CMAP_PART_CTX_CMAP * cmap)
+static char is_def(const char * name, CMAP_PART_CTX_CMAP * cmap)
 {
   if(is_loc_or_def_cur(name, cmap)) return (1 == 1);
 
   CMAP_PART_CTX_CMAP * cmap_prev = cmap -> prev;
   if(cmap_prev == NULL) return (1 == 0);
 
-  if(!maybe_var_def(name, cmap_prev)) return (1 == 0);
+  if(!is_def(name, cmap_prev)) return (1 == 0);
 
   cmap_strings_public.add(&cmap -> vars_def, name);
   return (1 == 1);
 }
 
-static char is_def(const char * name, CMAP_PART_CTX * ctx)
-{
-  CMAP_PART_CTX_CMAP * cmap = ctx -> block.c -> cmap;
-  return is_loc_cur(name, cmap) ? (1 == 1) : maybe_var_def(name, cmap);
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
-static void put(const char * name, const char * map, CMAP_PART_CTX * ctx)
+static void put(const char * map_, const char * name, const char * map_name,
+  CMAP_PART_CTX * ctx)
 {
   CMAP_PART_CTX_BLOCK * block = &ctx -> block;
 
-  cmap_part_kv_public.put(&block -> c -> name2map, name, map);
+  cmap_part_kv_public.put(&block -> c -> name2map, map_, name, map_name);
 
-  cmap_part_dirty_public.name(name, ctx);
+  cmap_part_dirty_public.name(map_, name, ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void put_upd_prev(const char * name, const char * map,
-  CMAP_PART_CTX * ctx)
+static void put_upd_prev(const char * map_, const char * name,
+  const char * map_name, CMAP_PART_CTX * ctx)
 {
-  put(name, map, ctx);
+  put(map_, name, map_name, ctx);
 
   CMAP_PART_CTX_C * c = ctx -> block.c -> prev;
   while(c != NULL)
   {
-    cmap_part_kv_public.delete_key(&c -> name2map, name);
+    cmap_part_kv_public.delete_key(&c -> name2map, map_, name);
 
     c = c -> prev;
   }
@@ -106,17 +100,19 @@ static void put_loc_only(const char * name, CMAP_PART_CTX * ctx)
 
 static void put_loc(const char * name, const char * map, CMAP_PART_CTX * ctx)
 {
-  put_upd_prev(name, map, ctx);
+  put_upd_prev(NULL, name, map, ctx);
   put_loc_only(name, ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char put_no_loc(const char * name, const char * map,
-  CMAP_PART_CTX * ctx)
+static char put_no_loc(const char * map_, const char * name,
+  const char * map_name, CMAP_PART_CTX * ctx)
 {
-  put_upd_prev(name, map, ctx);
+  put_upd_prev(map_, name, map_name, ctx);
+
+  if(map_ != NULL) return (1 == 0);
 
   CMAP_PART_CTX_CMAP * cmap = ctx -> block.c -> cmap;
   if(is_loc_or_def_cur(name, cmap)) return (1 == 1);
@@ -133,25 +129,40 @@ static char put_no_loc(const char * name, const char * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_VAR_RET get(const char * name, CMAP_PART_CTX * ctx)
+static const char * map(const char * name, CMAP_PART_CTX_C * c)
+{
+  const char * map_ = cmap_part_kv_public.get(c -> name2map, NULL, name);
+  if(map_ != NULL) return map_;
+
+  if(c -> prev == NULL) return NULL;
+  map_ = map(name, c -> prev);
+  if(map_ == NULL) return NULL;
+
+  cmap_part_kv_public.put(&c -> name2map, NULL, name, map_);
+  cmap_strings_public.add(&c -> params, name);
+
+  return map_;
+}
+
+static CMAP_PART_VAR_RET get(const char * map_, const char * name,
+  CMAP_PART_CTX * ctx)
 {
   CMAP_PART_VAR_RET ret;
 
-  CMAP_PART_CTX_BLOCK * block = &ctx -> block;
-  CMAP_PART_CTX_C * c = block -> c;
+  CMAP_PART_CTX_C * c = ctx -> block.c;
   CMAP_PART_KV * name2map = c -> name2map;
 
-  ret.is_def = is_def(name, ctx);
+  ret.is_def = (map_ == NULL) ? is_def(name, c -> cmap) : (1 == 0);
 
-  ret.map = cmap_part_kv_public.get(name2map, name);
+  ret.map = cmap_part_kv_public.get(name2map, map_, name);
   if(ret.map != NULL)
   {
-    ret.dirty = cmap_part_kv_public.is_dirty_n_rst(name2map, name);
-    if(ret.dirty) cmap_part_dirty_public.name(name, ctx);
+    ret.dirty = cmap_part_kv_public.is_dirty_n_rst(name2map, map_, name);
+    if(ret.dirty) cmap_part_dirty_public.name(map_, name, ctx);
   }
-  else if(block -> nature == CMAP_PART_CTX_NATURE_PARAMS)
+  else if(map_ == NULL)
   {
-    ret.map = cmap_part_params_public.get(name, ctx);
+    ret.map = map(name, c);
     ret.dirty = (1 == 0);
   }
 

@@ -9,7 +9,6 @@
 #include "cmap-stack-define.h"
 #include "cmap-part-dirty.h"
 #include "cmap-part-kv.h"
-#include "cmap-part-params.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -119,10 +118,10 @@ static char is_global_env()
 /*******************************************************************************
 *******************************************************************************/
 
-static void mng_dirties_apply(const char * string, void * data)
+static void mng_dirties_apply(const char * map, const char * name, void * data)
 {
   CMAP_PART_KV * name2map = data;
-  cmap_part_kv_public.dirty(name2map, string);
+  cmap_part_kv_public.dirty(name2map, map, name);
 }
 
 static void mng_dirties(CMAP_PART_CTX_BLOCK * block)
@@ -130,7 +129,7 @@ static void mng_dirties(CMAP_PART_CTX_BLOCK * block)
   if((ctxs != NULL) && (block -> nature == CMAP_PART_CTX_NATURE_BLOCK))
   {
     CMAP_PART_KV * name2map = ctxs -> v.block.c -> name2map;
-    cmap_strings_public.apply(block -> dirties, mng_dirties_apply, name2map);
+    cmap_part_keys_public.apply(block -> dirties, mng_dirties_apply, name2map);
   }
 }
 
@@ -214,9 +213,9 @@ static char is_else_n_rst()
 /*******************************************************************************
 *******************************************************************************/
 
-static void var(const char * name, const char * map)
+static void var(const char * map, const char * name, const char * map_name)
 {
-  cmap_part_var_public.put(name, map, &ctxs -> v);
+  cmap_part_var_public.put(map, name, map_name, &ctxs -> v);
 }
 
 static void var_loc(const char * name, const char * map)
@@ -224,17 +223,18 @@ static void var_loc(const char * name, const char * map)
   cmap_part_var_public.put_loc(name, map, &ctxs -> v);
 }
 
-static char var_no_loc(const char * name, const char * map)
+static char var_no_loc(const char * map, const char * name,
+  const char * map_name)
 {
-  return cmap_part_var_public.put_no_loc(name, map, &ctxs -> v);
+  return cmap_part_var_public.put_no_loc(map, name, map_name, &ctxs -> v);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_VAR_RET get_map(const char * name)
+static CMAP_PART_VAR_RET get_map(const char * map, const char * name)
 {
-  return cmap_part_var_public.get(name, &ctxs -> v);
+  return cmap_part_var_public.get(map, name, &ctxs -> v);
 }
 
 /*******************************************************************************
@@ -247,7 +247,7 @@ static CMAP_STRINGS * get_vars_def()
 
 static CMAP_STRINGS * get_params()
 {
-  return cmap_part_params_public.this(&ctxs -> v);
+  return ctxs -> v.block.c -> params;
 }
 
 /*******************************************************************************
