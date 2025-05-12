@@ -28,7 +28,7 @@ struct CMAP_PART_CTX_C
   char definitions, global_env, return_, return_fn;
 
   CMAP_PART_KV * name2map;
-  CMAP_STRINGS * params;
+  CMAP_PART_KEYS * params;
 
   CMAP_PART_CTX_CMAP * cmap;
 
@@ -43,7 +43,7 @@ struct CMAP_PART_CTX_BLOCK
 
   CMAP_STRINGS * fn_arg_names;
 
-  CMAP_PART_KEYS * dirties;
+  CMAP_PART_KEYS * affecteds;
 
   CMAP_PART_CTX_C * c;
 };

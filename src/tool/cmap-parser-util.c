@@ -172,29 +172,26 @@ static void instructions_root()
 
 static char * path(char * map, char * name)
 {
-  CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name);
-  char * instruction = NULL,
-    * map_name = (ret.map == NULL) ? next_name() : strdup(ret.map);
+  char * map_name = next_name(), * instruction = NULL;
+  CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name, map_name);
 
-  if((ret.map == NULL) || ret.dirty)
+  if((ret.ret.map == map_name) || !ret.ret.affected)
   {
-    if(ret.map == NULL)
-    {
-      prepend_map_var(map_name);
-      cmap_part_public.var(map, name, map_name);
-    }
+    if(ret.ret.map == map_name) prepend_map_var(map_name);
     else cmap_string_public.append_args(&instruction, "if(%s == NULL) ",
-      map_name);
+      ret.ret.map);
 
     const char * dst = map;
     if(dst == NULL) dst = ret.is_def ? add_definitions() : add_global_env();
-    APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, dst, name);
+    APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");",
+      ret.ret.map, dst, name);
     APPEND_LF();
   }
 
   free(map);
   free(name);
 
+  if(map_name != ret.ret.map) map_name = strdup(ret.ret.map);
   return map_name;
 }
 

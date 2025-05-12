@@ -10,9 +10,13 @@ typedef void (*CMAP_PART_KEYS_APPLY)(const char * map, const char * name,
 
 typedef struct
 {
+  char (*contains)(CMAP_PART_KEYS * keys, const char * map, const char * name);
+
   void (*add)(CMAP_PART_KEYS ** keys, const char * map, const char * name);
 
   void (*apply)(CMAP_PART_KEYS * keys, CMAP_PART_KEYS_APPLY fn, void * data);
+
+  void (*add_all)(CMAP_PART_KEYS ** keys, CMAP_PART_KEYS * others);
 
   void (*delete)(CMAP_PART_KEYS ** keys);
 } CMAP_PART_KEYS_PUBLIC;

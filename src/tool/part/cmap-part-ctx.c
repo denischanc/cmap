@@ -5,6 +5,7 @@
 #include <string.h>
 #include "cmap-part.h"
 #include "cmap-string.h"
+#include "cmap-part-var.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -34,7 +35,7 @@ static char is_cmap(char nature)
     (nature == CMAP_PART_CTX_NATURE_FN));
 }
 
-static char is_new(char nature)
+static char is_c(char nature)
 {
   return (nature != CMAP_PART_CTX_NATURE_BLOCK);
 }
@@ -47,7 +48,7 @@ static CMAP_PART_CTX common()
   CMAP_PART_CTX ctx;
 
   ctx.block.fn_arg_names = NULL;
-  ctx.block.dirties = NULL;
+  ctx.block.affecteds = NULL;
 
   ctx.c.name2map = NULL;
   ctx.c.params = NULL;
@@ -110,11 +111,11 @@ static CMAP_PART_CTX fn(CMAP_PART_CTX_BLOCK * block_)
 
   ctx.block.nature = CMAP_PART_CTX_NATURE_FN;
 
-  CMAP_PART_KV ** name2map = &ctx.c.name2map;
-  cmap_part_kv_public.put(name2map, NULL, "this", "this");
-  cmap_part_kv_public.put(name2map, NULL, "args", "args");
-
   ctx.cmap.vars_loc = cmap_strings_public.clone(block_ -> fn_arg_names);
+  ctx.block.c = &ctx.c;
+  ctx.c.cmap = &ctx.cmap;
+  cmap_part_var_public.put_loc("this", "this", &ctx);
+  cmap_part_var_public.put_loc("args", "args", &ctx);
 
   return ctx;
 }
@@ -149,6 +150,7 @@ static CMAP_PART_CTX block(CMAP_PART_CTX_BLOCK * block_)
   ctx.block.prefix = strdup(block_ -> prefix);
   cmap_string_public.append(&ctx.block.prefix, SPACE);
   ctx.block.else_ = (1 == 0);
+  cmap_part_keys_public.add_all(&ctx.block.affecteds, block_ -> affecteds);
   ctx.block.c = block_ -> c;
 
   return ctx;
@@ -181,7 +183,7 @@ static CMAP_PART_CTX create(CMAP_PART_CTX * ctx)
 static void upd(CMAP_PART_CTX * ctx)
 {
   char nature = ctx -> block.nature;
-  if(is_new(nature))
+  if(is_c(nature))
   {
     ctx -> block.c = &ctx -> c;
     ctx -> c.block = &ctx -> block;
@@ -195,10 +197,10 @@ static void upd(CMAP_PART_CTX * ctx)
 static void delete(CMAP_PART_CTX * ctx)
 {
   free(ctx -> block.prefix);
-  cmap_part_keys_public.delete(&ctx -> block.dirties);
+  cmap_part_keys_public.delete(&ctx -> block.affecteds);
 
   cmap_part_kv_public.delete(&ctx -> c.name2map);
-  cmap_strings_public.delete(&ctx -> c.params);
+  cmap_part_keys_public.delete(&ctx -> c.params);
 
   cmap_strings_public.delete(&ctx -> cmap.vars_loc);
   cmap_strings_public.delete(&ctx -> cmap.vars_def);

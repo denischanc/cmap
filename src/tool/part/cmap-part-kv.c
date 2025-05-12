@@ -15,7 +15,7 @@ typedef struct
 typedef struct
 {
   KEY key;
-  char * map, dirty;
+  char * map;
 } KV;
 
 /*******************************************************************************
@@ -52,7 +52,7 @@ static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
     kv = kv -> next;
   }
 
-  KV kv_elt = {{NULL, strdup(name)}, strdup(map_name), (1 == 0)};
+  KV kv_elt = {{NULL, strdup(name)}, strdup(map_name)};
   if(map != NULL) kv_elt.key.map = strdup(map);
   cmap_stack_part_kv_push(kv_ptr, kv_elt);
 }
@@ -73,48 +73,12 @@ static const char * get(CMAP_PART_KV * kv, const char * map, const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void dirty(CMAP_PART_KV * kv, const char * map, const char * name)
-{
-  while(kv != NULL)
-  {
-    if(is_eq(&kv -> v.key, map, name))
-    {
-      kv -> v.dirty = (1 == 1);
-      return;
-    }
-    kv = kv -> next;
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char is_dirty_n_rst(CMAP_PART_KV * kv, const char * map,
-  const char * name)
-{
-  while(kv != NULL)
-  {
-    if(is_eq(&kv -> v.key, map, name))
-    {
-      char ret = kv -> v.dirty;
-      kv -> v.dirty = (1 == 0);
-      return ret;
-    }
-    kv = kv -> next;
-  }
-  return (1 == 0);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void apply(CMAP_PART_KV * kv, CMAP_PART_KV_APPLY fn, void * data)
 {
   while(kv != NULL)
   {
     KV * kv_elt = &kv -> v;
-    fn(kv_elt -> key.map, kv_elt -> key.name, kv_elt -> map, kv_elt -> dirty,
-      data);
+    fn(kv_elt -> key.map, kv_elt -> key.name, kv_elt -> map, data);
 
     kv = kv -> next;
   }
@@ -163,7 +127,6 @@ static void delete(CMAP_PART_KV ** kv_ptr)
 const CMAP_PART_KV_PUBLIC cmap_part_kv_public =
 {
   put, get,
-  dirty, is_dirty_n_rst,
   apply,
   delete_key, delete
 };
