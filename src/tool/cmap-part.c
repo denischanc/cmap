@@ -6,7 +6,6 @@
 #include "cmap-string.h"
 #include "cmap-option.h"
 #include "cmap-part-ctx.h"
-#include "cmap-part-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -222,8 +221,6 @@ static void delete_fn_arg_names()
 static void clean()
 {
   CMAP_PART_LOOP(PART_FREE)
-
-  cmap_part_this_args_public.clean();
 }
 
 /*******************************************************************************

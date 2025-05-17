@@ -12,6 +12,9 @@ typedef struct
 {
   CMAP_PART_CTX_NATURE_LOOP(CMAP_PART_CTX_NATURE_DECL)
 
+  void (*cmp_params)();
+  void (*cmp_no_params)();
+
   char (*is_params)(CMAP_PART_CTX * ctx);
 
   void (*push)();

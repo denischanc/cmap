@@ -27,7 +27,8 @@ noinst_HEADERS = \
   cmap-scanner.h \
   cmap-stack-define.h \
   cmap-string.h \
-  cmap-strings.h
+  cmap-strings.h \
+  cmap-util.h
 
 bin_PROGRAMS = cmap-tool
 
@@ -45,6 +46,7 @@ cmap_tool_SOURCES = \
   cmap-scanner.l \
   cmap-string.c \
   cmap-strings.c \
-  cmap-tool.c
+  cmap-tool.c \
+  cmap-util.c
 cmap_tool_CFLAGS = $(CMAP_TOOL_CFLAGS)
 cmap_tool_LDADD = parser-util/libparser-util.la part/libpart.la tpl/libtpl.la

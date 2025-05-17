@@ -33,7 +33,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %type<name> names creator creator_no_bracket cmap cmap_no_bracket
 %type<name> args arg_names_cmap
 %type<name> process function
-%type<name> comparison comparison_no_params comparison_
+%type<name> comparison comparison_no_params comparison_deep comparison_simple
 %type<name> for_helper
 
 %%
@@ -181,27 +181,23 @@ else: { cmap_parser_util_public.else_empty(); }
 /*******************************************************************************
 *******************************************************************************/
 
-comparison:
+comparison: { cmap_part_ctx_public.cmp_params(); } comparison_deep
+  { $$ = $2; };
+
+comparison_no_params: { cmap_part_ctx_public.cmp_no_params(); } comparison_deep
+  { $$ = $2; };
+
+comparison_deep:
   {
-    cmap_part_ctx_public.nature_params();
+    cmap_part_ctx_public.nature_cmp();
     cmap_part_public.push_instructions();
-  } comparison_ { $$ = $2; }
-| '(' comparison ')' OR '(' comparison ')'
- { $$ = cmap_parser_util_public.or($2, $6); }
-| '(' comparison ')' AND '(' comparison ')'
+  } comparison_simple { $$ = $2; }
+| '(' comparison_deep ')' OR '(' comparison_deep ')'
+  { $$ = cmap_parser_util_public.or($2, $6); }
+| '(' comparison_deep ')' AND '(' comparison_deep ')'
   { $$ = cmap_parser_util_public.and($2, $6); };
 
-comparison_no_params:
-  {
-    cmap_part_ctx_public.nature_proc();
-    cmap_part_public.push_instructions();
-  } comparison_ { $$ = $2; }
-| '(' comparison_no_params ')' OR '(' comparison_no_params ')'
- { $$ = cmap_parser_util_public.or($2, $6); }
-| '(' comparison_no_params ')' AND '(' comparison_no_params ')'
-  { $$ = cmap_parser_util_public.and($2, $6); };
-
-comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
+comparison_simple: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
 | cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
 | cmap '>' cmap { $$ = cmap_parser_util_public.gt($1, $3); }
 | cmap LE cmap { $$ = cmap_parser_util_public.le($1, $3); }
