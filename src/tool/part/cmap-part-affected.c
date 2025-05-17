@@ -10,6 +10,13 @@
 static void add(const char * map, const char * name, CMAP_PART_CTX * ctx)
 {
   cmap_part_keys_public.add(cmap_part_ctx_public.affecteds(ctx), map, name);
+
+  ctx = cmap_part_ctx_public.block_next(ctx);
+  while(ctx != NULL)
+  {
+    cmap_part_keys_public.add(cmap_part_ctx_public.affecteds(ctx), map, name);
+    ctx = cmap_part_ctx_public.block_next(ctx);
+  }
 }
 
 /*******************************************************************************
