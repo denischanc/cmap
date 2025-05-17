@@ -8,6 +8,8 @@ noinst_HEADERS = \
   cmap-part-keys.h \
   cmap-part-kv.h \
   cmap-part-name2map.h \
+  cmap-part-params.h \
+  cmap-part-this-args.h \
   cmap-part-var.h
 
 noinst_LTLIBRARIES = libpart.la
@@ -18,5 +20,7 @@ libpart_la_SOURCES = \
   cmap-part-keys.c \
   cmap-part-kv.c \
   cmap-part-name2map.c \
+  cmap-part-params.c \
+  cmap-part-this-args.c \
   cmap-part-var.c
 libpart_la_CFLAGS = $(CMAP_TOOL_CFLAGS)

@@ -28,6 +28,12 @@ static type cmap_stack_##name##_pop(CMAP_STACK_##NAME ** stack) \
   type ret = tmp -> v; \
   free(tmp); \
   return ret; \
+} \
+ \
+__attribute__((unused)) static CMAP_STACK_##NAME * cmap_stack_##name##_stack( \
+  type * v) \
+{ \
+  return (CMAP_STACK_##NAME *)v; \
 }
 
 #define CMAP_STACK_DEF(NAME, name, type) \

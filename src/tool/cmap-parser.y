@@ -30,9 +30,11 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token ERROR
 %token<name> STRING C_IMPL INCLUDE NAME INT
 
-%type<name> cmap arg_names_cmap creator args function names
-%type<name> comparison comparison_ creator_no_bracket cmap_no_bracket
-%type<name> for_helper process
+%type<name> names creator creator_no_bracket cmap cmap_no_bracket
+%type<name> args arg_names_cmap
+%type<name> process function
+%type<name> comparison comparison_no_params comparison_
+%type<name> for_helper
 
 %%
 
@@ -189,6 +191,16 @@ comparison:
 | '(' comparison ')' AND '(' comparison ')'
   { $$ = cmap_parser_util_public.and($2, $6); };
 
+comparison_no_params:
+  {
+    cmap_part_ctx_public.nature_proc();
+    cmap_part_public.push_instructions();
+  } comparison_ { $$ = $2; }
+| '(' comparison_no_params ')' OR '(' comparison_no_params ')'
+ { $$ = cmap_parser_util_public.or($2, $6); }
+| '(' comparison_no_params ')' AND '(' comparison_no_params ')'
+  { $$ = cmap_parser_util_public.and($2, $6); };
+
 comparison_: cmap { $$ = cmap_parser_util_public.cmp_unique($1); }
 | cmap '<' cmap { $$ = cmap_parser_util_public.lt($1, $3); }
 | cmap '>' cmap { $$ = cmap_parser_util_public.gt($1, $3); }
@@ -206,18 +218,18 @@ instructions_for:
 
 for_helper:
   {
-    cmap_part_ctx_public.nature_params();
+    cmap_part_ctx_public.nature_proc();
     cmap_part_public.push_instructions();
   }
   instructions_for { $$ = cmap_parser_util_public.for_helper(); };
 
-for: FOR '(' instructions_for ';' comparison ';' for_helper ')'
+for: FOR '(' instructions_for ';' comparison_no_params ';' for_helper ')'
   '{' instructions '}' { cmap_parser_util_public.for_($5, $7); };
 
 /*******************************************************************************
 *******************************************************************************/
 
-while: WHILE '(' comparison ')' '{' instructions '}'
+while: WHILE '(' comparison_no_params ')' '{' instructions '}'
   { cmap_parser_util_public.while_($3); };
 
 /*******************************************************************************

@@ -64,10 +64,10 @@ CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_fn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   ...);
 
-CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
-  CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
   CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args);
+CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
+  CMAP_PROC_CTX * proc_ctx, ...);
 
 CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...);
@@ -78,7 +78,6 @@ CMAP_ENV * cmap_env(int argc, char ** argv);
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *));
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx);
-CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
 
 CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx);

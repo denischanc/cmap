@@ -6,13 +6,7 @@
 #include "cmap-string.h"
 #include "cmap-option.h"
 #include "cmap-part-ctx.h"
-#include "cmap-stack-define.h"
-#include "cmap-part-kv.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_STACK_DEF(CTX, ctx, CMAP_PART_CTX)
+#include "cmap-part-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -20,8 +14,6 @@ CMAP_STACK_DEF(CTX, ctx, CMAP_PART_CTX)
 #define PART_VAR(name) static char * name = NULL;
 
 CMAP_PART_LOOP(PART_VAR)
-
-static CMAP_STACK_CTX * ctxs = NULL;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -40,11 +32,7 @@ CMAP_PART_LOOP(PART_FN)
 
 static void push_instructions()
 {
-  CMAP_PART_CTX * ctx = NULL;
-  if(ctxs != NULL) ctx = &ctxs -> v;
-
-  cmap_stack_ctx_push(&ctxs, cmap_part_ctx_public.create(ctx));
-  cmap_part_ctx_public.upd(&ctxs -> v);
+  cmap_part_ctx_public.push();
 }
 
 /*******************************************************************************
@@ -52,7 +40,7 @@ static void push_instructions()
 
 static char ** instructions_()
 {
-  return &ctxs -> v.block.instructions;
+  return cmap_part_ctx_public.instructions(NULL);
 }
 
 /*******************************************************************************
@@ -61,7 +49,7 @@ static char ** instructions_()
 static void add_instruction(const char * instruction)
 {
   cmap_string_public.append_args(instructions_(), "%s%s\n",
-    ctxs -> v.block.prefix, instruction);
+    cmap_part_ctx_public.prefix(), instruction);
 }
 
 /*******************************************************************************
@@ -77,7 +65,8 @@ static void add_lf()
 
 static void prepend_instruction(const char * instruction)
 {
-  char ** instructions = &ctxs -> v.block.c -> block -> instructions;
+  CMAP_PART_CTX * ctx_c = cmap_part_ctx_public.c();
+  char ** instructions = cmap_part_ctx_public.instructions(ctx_c);
 
   char * tmp = *instructions;
   *instructions = NULL;
@@ -91,13 +80,7 @@ static void prepend_instruction(const char * instruction)
 
 static char is_definitions()
 {
-  CMAP_PART_CTX_C * ctx = ctxs -> v.block.c;
-  if(ctx -> definitions) return (1 == 1);
-  else
-  {
-    ctx -> definitions = (1 == 1);
-    return (1 == 0);
-  }
+  return cmap_part_ctx_public.is_definitions();
 }
 
 /*******************************************************************************
@@ -105,13 +88,7 @@ static char is_definitions()
 
 static char is_global_env()
 {
-  CMAP_PART_CTX_C * ctx = ctxs -> v.block.c;
-  if(ctx -> global_env) return (1 == 1);
-  else
-  {
-    ctx -> global_env = (1 == 1);
-    return (1 == 0);
-  }
+  return cmap_part_ctx_public.is_global_env();
 }
 
 /*******************************************************************************
@@ -119,11 +96,7 @@ static char is_global_env()
 
 static char * pop_instructions()
 {
-  CMAP_PART_CTX ctx = cmap_stack_ctx_pop(&ctxs);
-
-  cmap_part_ctx_public.delete(&ctx);
-
-  return ctx.block.instructions;
+  return cmap_part_ctx_public.pop();
 }
 
 static void pop_instructions_to_part(char ** part)
@@ -139,12 +112,12 @@ static void pop_instructions_to_part(char ** part)
 
 static void return_()
 {
-  ctxs -> v.block.c -> return_ = (1 == 1);
+  cmap_part_ctx_public.return_();
 }
 
 static char is_return()
 {
-  return ctxs -> v.block.c -> return_;
+  return cmap_part_ctx_public.is_return();
 }
 
 /*******************************************************************************
@@ -152,12 +125,12 @@ static char is_return()
 
 static void return_fn()
 {
-  ctxs -> v.block.c -> return_fn = (1 == 1);
+  cmap_part_ctx_public.return_fn();
 }
 
 static char is_return_fn()
 {
-  return ctxs -> v.block.c -> return_fn;
+  return cmap_part_ctx_public.is_return_fn();
 }
 
 /*******************************************************************************
@@ -179,14 +152,12 @@ static void add_include(const char * name, char is_relative)
 
 static void set_else()
 {
-  ctxs -> v.block.else_ = (1 == 1);
+  cmap_part_ctx_public.else_();
 }
 
 static char is_else_n_rst()
 {
-  char ret = ctxs -> v.block.else_;
-  ctxs -> v.block.else_ = (1 == 0);
-  return ret;
+  return cmap_part_ctx_public.is_else();
 }
 
 /*******************************************************************************
@@ -194,13 +165,13 @@ static char is_else_n_rst()
 
 static void var_loc(const char * name, const char * map)
 {
-  cmap_part_var_public.put_loc(name, map, &ctxs -> v);
+  cmap_part_var_public.put_loc(name, map);
 }
 
 static char var_no_loc(const char * map, const char * name,
   const char * map_name)
 {
-  return cmap_part_var_public.put_no_loc(map, name, map_name, &ctxs -> v);
+  return cmap_part_var_public.put_no_loc(map, name, map_name);
 }
 
 /*******************************************************************************
@@ -209,7 +180,7 @@ static char var_no_loc(const char * map, const char * name,
 static CMAP_PART_VAR_RET get_map(const char * map, const char * name,
   const char * next_name)
 {
-  return cmap_part_var_public.get(map, name, next_name, &ctxs -> v);
+  return cmap_part_var_public.get(map, name, next_name);
 }
 
 /*******************************************************************************
@@ -217,12 +188,12 @@ static CMAP_PART_VAR_RET get_map(const char * map, const char * name,
 
 static CMAP_STRINGS * get_vars_def()
 {
-  return cmap_part_var_public.defs(&ctxs -> v);
+  return *cmap_part_ctx_public.vars_def(NULL);
 }
 
-static CMAP_PART_KEYS * get_params()
+static CMAP_STRINGS * get_params()
 {
-  return ctxs -> v.block.c -> params;
+  return *cmap_part_ctx_public.params(NULL);
 }
 
 /*******************************************************************************
@@ -230,17 +201,17 @@ static CMAP_PART_KEYS * get_params()
 
 static void fn_arg_name(char * name)
 {
-  cmap_strings_public.add(&ctxs -> v.block.fn_arg_names, name);
+  cmap_strings_public.add(cmap_part_ctx_public.fn_arg_names(NULL), name);
 }
 
 static CMAP_STRINGS * get_fn_arg_names()
 {
-  return ctxs -> v.block.fn_arg_names;
+  return *cmap_part_ctx_public.fn_arg_names(NULL);
 }
 
 static void delete_fn_arg_names()
 {
-  cmap_strings_public.delete(&ctxs -> v.block.fn_arg_names);
+  cmap_strings_public.delete(cmap_part_ctx_public.fn_arg_names(NULL));
 }
 
 /*******************************************************************************
@@ -251,6 +222,8 @@ static void delete_fn_arg_names()
 static void clean()
 {
   CMAP_PART_LOOP(PART_FREE)
+
+  cmap_part_this_args_public.clean();
 }
 
 /*******************************************************************************

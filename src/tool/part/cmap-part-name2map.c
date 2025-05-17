@@ -2,25 +2,29 @@
 #include "cmap-part-name2map.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include "cmap-part-kv.h"
 #include "cmap-part-affected.h"
-#include "cmap-part-keys.h"
+#include "cmap-part-params.h"
+#include "cmap-part-ctx.h"
+#include "cmap-parser-util.h"
+#include "cmap-part-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void put(const char * map, const char * name, const char * map_name,
-  CMAP_PART_CTX * ctx)
+static void put(const char * map, const char * name, const char * map_name)
 {
-  CMAP_PART_CTX_C * c = ctx -> block.c;
-  cmap_part_kv_public.put(&c -> name2map, map, name, map_name);
-  cmap_part_affected_public.add(map, name, &ctx -> block);
+  cmap_part_kv_public.put(cmap_part_ctx_public.name2map(NULL), map, name,
+    map_name);
+  cmap_part_affected_public.add(map, name, NULL);
 
-  c = c -> prev;
-  while(c != NULL)
+  CMAP_PART_CTX * ctx = cmap_part_ctx_public.c_prev(NULL);
+  while(ctx != NULL)
   {
-    cmap_part_kv_public.delete_key(&c -> name2map, map, name);
-    c = c -> prev;
+    cmap_part_kv_public.delete_key(cmap_part_ctx_public.name2map(ctx), map,
+      name);
+    ctx = cmap_part_ctx_public.c_prev(ctx);
   }
 }
 
@@ -28,39 +32,55 @@ static void put(const char * map, const char * name, const char * map_name,
 *******************************************************************************/
 
 static const char * get_map(const char * map, const char * name,
-  CMAP_PART_CTX_C * c)
+  CMAP_PART_CTX * ctx)
 {
-  const char * map_name = cmap_part_kv_public.get(c -> name2map, map, name);
-  if(map_name != NULL) return map_name;
+  const char * map_name = cmap_part_kv_public.get(
+    *cmap_part_ctx_public.name2map(ctx), map, name);
+  if(map_name != NULL)
+  {
+    CMAP_PART_CTX * ctx_bup =
+      cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx));
+    free(cmap_parser_util_public.path((map == NULL) ? NULL : strdup(map),
+      strdup(name)));
+    cmap_part_ctx_public.restore(ctx_bup);
 
-  if(c -> prev == NULL) return NULL;
-  map_name = get_map(map, name, c -> prev);
+    return map_name;
+  }
+
+  if(!cmap_part_ctx_public.is_params(ctx) &&
+    !cmap_part_this_args_public.is(map, name)) return NULL;
+
+  CMAP_PART_CTX * ctx_prev = cmap_part_ctx_public.c_prev(ctx);
+  if(ctx_prev == NULL) return NULL;
+  map_name = get_map(map, name, ctx_prev);
   if(map_name == NULL) return NULL;
 
-  cmap_part_keys_public.add(&c -> params, map, name);
-  cmap_part_kv_public.put(&c -> name2map, map, name, map_name);
-  cmap_part_affected_public.add(map, name, c -> block);
+  cmap_part_params_public.add(map_name, ctx);
+  cmap_part_kv_public.put(cmap_part_ctx_public.name2map(ctx), map, name,
+    map_name);
+  cmap_part_affected_public.add(map, name, ctx);
 
   return map_name;
 }
 
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
-  const char * next_name, CMAP_PART_CTX * ctx)
+  const char * next_name)
 {
   CMAP_PART_NAME2MAP_RET ret;
 
-  CMAP_PART_CTX_C * c = ctx -> block.c;
-
-  const char * map_name = cmap_part_kv_public.get(c -> name2map, map, name);
+  const char * map_name = cmap_part_kv_public.get(
+    *cmap_part_ctx_public.name2map(NULL), map, name);
   if(map_name != NULL)
   {
     ret.map = map_name;
-    ret.affected =
-      cmap_part_affected_public.contains_n_add(map, name, &ctx -> block);
+    ret.affected = cmap_part_affected_public.contains_n_add(map, name);
   }
   else
   {
-    map_name = get_map(map, name, c);
+    map_name = get_map(map, name, cmap_part_ctx_public.c());
     if(map_name != NULL)
     {
       ret.map = map_name;
@@ -68,8 +88,9 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
     }
     else
     {
-      cmap_part_kv_public.put(&c -> name2map, map, name, next_name);
-      cmap_part_affected_public.add(map, name, &ctx -> block);
+      cmap_part_kv_public.put(cmap_part_ctx_public.name2map(NULL), map, name,
+        next_name);
+      cmap_part_affected_public.add(map, name, NULL);
 
       ret.map = next_name;
     }

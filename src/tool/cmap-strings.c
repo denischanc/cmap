@@ -46,16 +46,14 @@ static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
 /*******************************************************************************
 *******************************************************************************/
 
-static void clone_string_fn(const char * string, void * data)
+static void add_all_apply(const char * string, void * data)
 {
   add(data, string);
 }
 
-static CMAP_STRINGS * clone(CMAP_STRINGS * strings)
+static void add_all(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others)
 {
-  CMAP_STRINGS * ret = NULL;
-  apply(strings, clone_string_fn, &ret);
-  return ret;
+  apply(others, add_all_apply, strings_ptr);
 }
 
 /*******************************************************************************
@@ -74,6 +72,6 @@ const CMAP_STRINGS_PUBLIC cmap_strings_public =
   contains,
   add,
   apply,
-  clone,
+  add_all,
   delete
 };

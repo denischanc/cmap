@@ -52,8 +52,8 @@ static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
     kv = kv -> next;
   }
 
-  KV kv_elt = {{NULL, strdup(name)}, strdup(map_name)};
-  if(map != NULL) kv_elt.key.map = strdup(map);
+  KV kv_elt =
+    {{(map == NULL) ? NULL : strdup(map), strdup(name)}, strdup(map_name)};
   cmap_stack_part_kv_push(kv_ptr, kv_elt);
 }
 

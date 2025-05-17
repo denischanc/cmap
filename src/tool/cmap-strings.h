@@ -11,9 +11,13 @@ typedef void (*CMAP_STRINGS_STRING_FN)(const char * string, void * data);
 typedef struct
 {
   char (*contains)(CMAP_STRINGS * strings, const char * string);
+
   void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
+
   void (*apply)(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn, void * data);
-  CMAP_STRINGS * (*clone)(CMAP_STRINGS * strings);
+
+  void (*add_all)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others);
+
   void (*delete)(CMAP_STRINGS ** strings_ptr);
 } CMAP_STRINGS_PUBLIC;
 

@@ -3,7 +3,8 @@
 
 #define CMAP_PART_CTX_NATURE_LOOP(macro) \
   macro(FN, fn) \
-  macro(PARAMS, params)
+  macro(PARAMS, params) \
+  macro(PROC, proc)
 
 #define CMAP_PART_CTX_NATURE_DECL(NAME, name) void (*nature_##name)();
 

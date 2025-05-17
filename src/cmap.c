@@ -370,11 +370,6 @@ CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx)
   return CMAP_CALL(proc_ctx, new_level);
 }
 
-CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx)
-{
-  return CMAP_CALL(proc_ctx, env);
-}
-
 CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 {
   return CMAP_CALL_ARGS(proc_ctx, delete, ret);

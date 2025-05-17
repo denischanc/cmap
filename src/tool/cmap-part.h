@@ -10,27 +10,6 @@
 
 typedef struct
 {
-  const char * map;
-  char dirty, is_def;
-} CMAP_PART_MAP_RET;
-
-extern const char CMAP_PART_CTX_NATURE_DFT;
-extern const char CMAP_PART_CTX_NATURE_FN;
-extern const char CMAP_PART_CTX_NATURE_PARAMS;
-
-/*******************************************************************************
-=====[[ .c ]]=====
-includes
-functions
-  instructions
-main
-  instructions
-
-=====[[ .h ]]=====
-headers
-*******************************************************************************/
-typedef struct
-{
   void (*clean)();
 
   CMAP_PART_LOOP(CMAP_PART_DECL)
@@ -61,7 +40,7 @@ typedef struct
   CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name,
     const char * next_name);
   CMAP_STRINGS * (*get_vars_def)();
-  CMAP_PART_KEYS * (*get_params)();
+  CMAP_STRINGS * (*get_params)();
 
   void (*fn_arg_name)(char * name);
   CMAP_STRINGS * (*get_fn_arg_names)();

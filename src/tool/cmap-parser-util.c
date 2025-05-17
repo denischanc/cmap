@@ -546,7 +546,7 @@ static char * function(char * fn_name)
 
   if(fn_name == NULL)
   {
-    vars_def = cmap_strings_public.clone(cmap_part_public.get_vars_def());
+    cmap_strings_public.add_all(&vars_def, cmap_part_public.get_vars_def());
 
     fn_name = next_name("process");
 
