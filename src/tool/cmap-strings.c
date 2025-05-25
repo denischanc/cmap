@@ -12,14 +12,22 @@ CMAP_STACK_IMPL(STRINGS, strings, char *)
 /*******************************************************************************
 *******************************************************************************/
 
-static char contains(CMAP_STRINGS * strings, const char * string)
+static int contains_helper(CMAP_STRINGS * strings, const char * string,
+  int * ret)
 {
-  while(strings != NULL)
-  {
-    if(!strcmp(string, strings -> v)) return (1 == 1);
-    strings = strings -> next;
-  }
-  return (1 == 0);
+  CMAP_STRINGS * next = strings -> next;
+  int i = (next == NULL) ? 0 : contains_helper(next, string, ret);
+
+  if(!strcmp(strings -> v, string)) *ret = i;
+
+  return i + 1;
+}
+
+static int contains(CMAP_STRINGS * strings, const char * string)
+{
+  int ret = -1;
+  if(strings != NULL) contains_helper(strings, string, &ret);
+  return ret;
 }
 
 /*******************************************************************************
@@ -27,7 +35,7 @@ static char contains(CMAP_STRINGS * strings, const char * string)
 
 static void add(CMAP_STRINGS ** strings_ptr, const char * string)
 {
-  if(!contains(*strings_ptr, string))
+  if(contains(*strings_ptr, string) == -1)
     cmap_stack_strings_push(strings_ptr, strdup(string));
 }
 

@@ -15,14 +15,14 @@
 
 typedef struct
 {
-  CMAP_STRINGS * vars_loc, * vars_def;
+  CMAP_STRINGS * vars_loc, * vars_def, * block_fn_arg_names;
 
   CMAP_PART_CTX * prev;
 } CTX_CMAP;
 
 typedef struct
 {
-  char definitions, global_env, return_, return_fn;
+  char definitions, global_env, return_, return_fn, * variables;
 
   CMAP_PART_KV * name2map;
   CMAP_STRINGS * params;
@@ -130,11 +130,13 @@ static CMAP_PART_CTX ctx_common()
   ctx.block.affecteds = NULL;
   ctx.block.next = NULL;
 
+  ctx.c.variables = strdup("");
   ctx.c.name2map = NULL;
   ctx.c.params = NULL;
 
   ctx.cmap.vars_loc = NULL;
   ctx.cmap.vars_def = NULL;
+  ctx.cmap.block_fn_arg_names = NULL;
 
   return ctx;
 }
@@ -188,7 +190,7 @@ static CMAP_PART_CTX ctx_fn(CTX_BLOCK * block_)
   CMAP_PART_CTX ctx = ctx_root_fn((1 == 1), block_ -> c -> c.cmap);
   ctx.nature = NATURE_FN;
 
-  cmap_strings_public.add_all(&ctx.cmap.vars_loc, block_ -> fn_arg_names);
+  ctx.cmap.block_fn_arg_names = block_ -> fn_arg_names;
 
   return ctx;
 }
@@ -309,6 +311,10 @@ static char * pop()
   cmap_strings_public.delete(&ctx.cmap.vars_loc);
   cmap_strings_public.delete(&ctx.cmap.vars_def);
 
+  char * variables = ctx.c.variables;
+  if(variables[0] != 0) cmap_string_public.append(&variables, "\n");
+  cmap_string_public.prepend(&ctx.block.instructions, variables);
+  free(variables);
   return ctx.block.instructions;
 }
 
@@ -379,9 +385,10 @@ static char is_##what() \
 
 GET_BLOCK(instructions, char *)
 
-static const char * prefix()
+static const char * prefix(CMAP_PART_CTX * ctx)
 {
-  return cur_ctx() -> block.prefix;
+  if(ctx == NULL) ctx = cur_ctx();
+  return ctx -> block.prefix;
 }
 
 TOGGLE_BLOCK(else_)
@@ -399,6 +406,8 @@ ONLY_ONE_IS_C(global_env)
 ONLY_ONE_SET_C(return_)
 ONLY_ONE_SET_C(return_fn)
 
+GET_C(variables, char *)
+
 GET_C(name2map, CMAP_PART_KV *)
 
 GET_C(params, CMAP_STRINGS *)
@@ -408,6 +417,7 @@ GET_C(params, CMAP_STRINGS *)
 
 GET_CMAP(vars_loc, CMAP_STRINGS *)
 GET_CMAP(vars_def, CMAP_STRINGS *)
+GET_CMAP(block_fn_arg_names, CMAP_STRINGS *)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -415,6 +425,12 @@ GET_CMAP(vars_def, CMAP_STRINGS *)
 static CMAP_PART_CTX * c()
 {
   return cur_ctx() -> block.c;
+}
+
+static CMAP_PART_CTX * cmap(CMAP_PART_CTX * ctx)
+{
+  if(ctx == NULL) ctx = cur_ctx();
+  return ctx -> block.c -> c.cmap;
 }
 
 static CMAP_PART_CTX * cmap_prev(CMAP_PART_CTX * ctx)
@@ -469,8 +485,8 @@ const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
   push, pop,
   instructions, prefix, else_, is_else_, fn_arg_names, affecteds,
   is_definitions, is_global_env, return_, is_return_,
-  return_fn, is_return_fn, name2map, params,
-  vars_loc, vars_def,
-  c, cmap_prev, c_prev, block_next, last_block,
+  return_fn, is_return_fn, variables, name2map, params,
+  vars_loc, vars_def, block_fn_arg_names,
+  c, cmap, cmap_prev, c_prev, block_next, last_block,
   restore, bup
 };

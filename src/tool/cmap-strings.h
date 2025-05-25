@@ -10,7 +10,7 @@ typedef void (*CMAP_STRINGS_STRING_FN)(const char * string, void * data);
 
 typedef struct
 {
-  char (*contains)(CMAP_STRINGS * strings, const char * string);
+  int (*contains)(CMAP_STRINGS * strings, const char * string);
 
   void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
 

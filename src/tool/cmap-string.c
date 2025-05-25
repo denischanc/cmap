@@ -44,5 +44,17 @@ static void append_args(char ** src, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
+static void prepend(char ** src, const char * txt)
+{
+  char * tmp = *src;
+  *src = NULL;
+  append(src, txt);
+  append(src, tmp);
+  free(tmp);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_STRING_PUBLIC cmap_string_public = {append, vappend_args,
-  append_args};
+  append_args, prepend};

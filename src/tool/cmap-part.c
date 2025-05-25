@@ -48,7 +48,14 @@ static char ** instructions_()
 static void add_instruction(const char * instruction)
 {
   cmap_string_public.append_args(instructions_(), "%s%s\n",
-    cmap_part_ctx_public.prefix(), instruction);
+    cmap_part_ctx_public.prefix(NULL), instruction);
+}
+
+static void add_variable(const char * variable)
+{
+  CMAP_PART_CTX * c = cmap_part_ctx_public.c();
+  cmap_string_public.append_args(cmap_part_ctx_public.variables(NULL),
+    "%s%s\n", cmap_part_ctx_public.prefix(c), variable);
 }
 
 /*******************************************************************************
@@ -234,7 +241,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   CMAP_PART_LOOP(PART_SET)
   push_instructions,
   instructions_,
-  add_instruction,
+  add_instruction, add_variable,
   add_lf,
   prepend_instruction,
   is_definitions,

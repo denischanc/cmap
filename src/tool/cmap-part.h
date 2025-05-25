@@ -17,6 +17,7 @@ typedef struct
   void (*push_instructions)();
   char ** (*instructions)();
   void (*add_instruction)(const char * instruction);
+  void (*add_variable)(const char * variable);
   void (*add_lf)();
   void (*prepend_instruction)(const char * instruction);
   char (*is_definitions)();

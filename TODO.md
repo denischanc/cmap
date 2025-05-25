@@ -16,6 +16,7 @@ TODO
 * add add_if_not_eq in stree and modify sset add
 * add consumed_time in refswatcher
 * cmap-uv.c
+* add define for references debug as CONSUMED_TIME
 
 ## Parser
 

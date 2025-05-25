@@ -54,6 +54,20 @@ static void append_instruction_args(const char * txt, ...)
   free(instruction);
 }
 
+static void append_variable_args(const char * txt, ...)
+{
+  char * variable = NULL;
+
+  va_list args;
+  va_start(args, txt);
+  cmap_string_public.vappend_args(&variable, txt, args);
+  va_end(args);
+
+  cmap_part_public.add_variable(variable);
+
+  free(variable);
+}
+
 static void prepend_instruction_args(const char * txt, ...)
 {
   char * instruction = NULL;
@@ -110,8 +124,8 @@ static void append_instruction_args_args(char * args, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * DEFINITIONS_VAR_NAME = "definitions";
-static const char * GLOBAL_ENV_VAR_NAME = "global_env";
+static const char * DEFINITIONS_VAR_NAME = "cmap_definitions_";
+static const char * GLOBAL_ENV_VAR_NAME = "cmap_global_env_";
 
 static int id = 1;
 
@@ -130,7 +144,7 @@ static char * next_name(const char * what)
 
 static const char * add_definitions()
 {
-  if(!cmap_part_public.is_definitions()) prepend_instruction_args(
+  if(!cmap_part_public.is_definitions()) append_variable_args(
     "CMAP_MAP * %s = cmap_definitions(proc_ctx);", DEFINITIONS_VAR_NAME);
   return DEFINITIONS_VAR_NAME;
 }
@@ -140,7 +154,7 @@ static const char * add_definitions()
 
 static const char * add_global_env()
 {
-  if(!cmap_part_public.is_global_env()) prepend_instruction_args(
+  if(!cmap_part_public.is_global_env()) append_variable_args(
     "CMAP_MAP * %s = cmap_global_env(proc_ctx);", GLOBAL_ENV_VAR_NAME);
   return GLOBAL_ENV_VAR_NAME;
 }
@@ -150,7 +164,7 @@ static const char * add_global_env()
 
 static void prepend_map_var(const char * map_name)
 {
-  prepend_instruction_args("CMAP_MAP * %s = NULL;", map_name);
+  append_variable_args("CMAP_MAP * %s = NULL;", map_name);
 }
 
 /*******************************************************************************
@@ -257,6 +271,17 @@ static void set_local(char * name, char * map)
 
   free(name);
   free(map);
+}
+
+static void set_fn_arg_name(char * name, int off)
+{
+  cmap_part_public.var_loc(name, name);
+
+  append_variable_args("CMAP_MAP * %s = cmap_list_get(args, %d);", name, off);
+  prepend_instruction_args("cmap_set(%s, \"%s\", %s);",
+    add_definitions(), name, name);
+
+  free(name);
 }
 
 /*******************************************************************************
@@ -900,7 +925,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   include_, function_c, instructions_root,
   path, name,
-  set_local, set_path, set_global,
+  set_local, set_fn_arg_name, set_path, set_global,
   args, args_push,
   arg_name,
   args_map, args_map_push,
