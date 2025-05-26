@@ -5,7 +5,6 @@
 #include <string.h>
 #include "cmap-part-kv.h"
 #include "cmap-part-affected.h"
-#include "cmap-part-params.h"
 #include "cmap-part-ctx.h"
 #include "cmap-parser-util.h"
 #include "cmap-part-this-args.h"
@@ -13,11 +12,17 @@
 /*******************************************************************************
 *******************************************************************************/
 
+static void put_n_affected(const char * map, const char * name,
+  const char * map_name, CMAP_PART_CTX * ctx)
+{
+  cmap_part_kv_public.put(cmap_part_ctx_public.name2map(ctx), map, name,
+    map_name);
+  cmap_part_affected_public.add(map, name, ctx);
+}
+
 static void put(const char * map, const char * name, const char * map_name)
 {
-  cmap_part_kv_public.put(cmap_part_ctx_public.name2map(NULL), map, name,
-    map_name);
-  cmap_part_affected_public.add(map, name, NULL);
+  put_n_affected(map, name, map_name, NULL);
 
   CMAP_PART_CTX * ctx = cmap_part_ctx_public.c_prev(NULL);
   while(ctx != NULL)
@@ -91,12 +96,9 @@ static const char * get_map_by_params(const char * map, const char * name,
     map_name = get_map_by_params(map, name, ctx_c_prev);
     if(map_name == NULL) return NULL;
 
-    cmap_part_params_public.add(map_name, ctx_c);
-    cmap_part_kv_public.put(cmap_part_ctx_public.name2map(ctx_c), map, name,
-      map_name);
+    cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), map_name);
+    put_n_affected(map, name, map_name, ctx_c);
   }
-
-  cmap_part_affected_public.add(map, name, ctx_c);
 
   return map_name;
 }
@@ -126,10 +128,7 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
     }
     else
     {
-      cmap_part_kv_public.put(cmap_part_ctx_public.name2map(NULL), map, name,
-        next_name);
-      cmap_part_affected_public.add(map, name, NULL);
-
+      put_n_affected(map, name, next_name, NULL);
       ret.map = next_name;
     }
   }
