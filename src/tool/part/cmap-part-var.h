@@ -16,7 +16,7 @@ typedef struct
     const char * map_name);
 
   CMAP_PART_VAR_RET (*get)(const char * map, const char * name,
-    const char * next_name);
+    char * next_name);
 } CMAP_PART_VAR_PUBLIC;
 
 extern const CMAP_PART_VAR_PUBLIC cmap_part_var_public;

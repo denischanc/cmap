@@ -8,7 +8,6 @@
 #include "cmap-part.h"
 #include "cmap-fn-name.h"
 #include "cmap-parser-util-params.h"
-#include "cmap-parser-util-argnames.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -249,8 +248,7 @@ static char * path(char * map, char * name)
   free(map);
   free(name);
 
-  if(map_name != ret.ret.map) map_name = strdup(ret.ret.map);
-  return map_name;
+  return ret.ret.map;
 }
 
 static char * name(char * name)
@@ -581,6 +579,7 @@ static char * function(char * fn_name)
 
     if(!cmap_part_public.is_return()) append_instruction("return NULL;");
     cmap_part_public.pop_instructions_to_part(cmap_part_public.functions());
+    cmap_part_public.delete_fn_arg_names();
 
     append_functions("}\n\n");
   }
@@ -596,10 +595,6 @@ static char * function(char * fn_name)
     function_def(map_name, vars_def);
     cmap_strings_public.delete(&vars_def);
   }
-
-  char * args = cmap_parser_util_argnames_public.get();
-  if(args != NULL) append_instruction_args_args(args,
-    "cmap_add_arg_names((CMAP_FN *)%s", map_name);
 
   append_lf();
 

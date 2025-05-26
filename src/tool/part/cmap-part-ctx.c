@@ -114,7 +114,6 @@ IS_WAY(cmap, NATURE_ROOT_DEF, NATURE_FN_DEF)
 IS_WAY(c, NATURE_ROOT_DEF, NATURE_FN_DEF, NATURE_PARAMS_DEF, NATURE_PROC_DEF,
   NATURE_CMP_DEF, NATURE_CMP_NO_PARAMS_DEF)
 IS_WAY(params, NATURE_PARAMS_DEF, NATURE_CMP_DEF)
-IS_WAY(fn, NATURE_FN_DEF)
 IS_WAY(root, NATURE_ROOT_DEF)
 
 /*******************************************************************************
@@ -264,16 +263,9 @@ static void upd(CTX_BLOCK * block_)
   if(is_c(ctx))
   {
     ctx -> block.c = ctx;
-    if(is_cmap(ctx))
-    {
-      ctx -> c.cmap = ctx;
-      if(is_fn(ctx)) cmap_part_this_args_public.add();
-    }
+    if(is_cmap(ctx)) ctx -> c.cmap = ctx;
   }
-  else
-  {
-    block_ -> next = ctx;
-  }
+  else block_ -> next = ctx;
 }
 
 static void push()
@@ -427,10 +419,9 @@ static CMAP_PART_CTX * c()
   return cur_ctx() -> block.c;
 }
 
-static CMAP_PART_CTX * cmap(CMAP_PART_CTX * ctx)
+static CMAP_PART_CTX * cmap()
 {
-  if(ctx == NULL) ctx = cur_ctx();
-  return ctx -> block.c -> c.cmap;
+  return c() -> c.cmap;
 }
 
 static CMAP_PART_CTX * cmap_prev(CMAP_PART_CTX * ctx)

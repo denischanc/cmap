@@ -5,29 +5,21 @@
 #include <string.h>
 #include "cmap-strings.h"
 #include "cmap-part-ctx.h"
-#include "cmap-parser-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
+static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx)
+{
+  return (cmap_strings_public.contains(
+    *cmap_part_ctx_public.block_fn_arg_names(ctx), name) != -1);
+}
+
 static char is_loc_ctx(const char * name, CMAP_PART_CTX * ctx)
 {
-  if(cmap_strings_public.contains(*cmap_part_ctx_public.vars_loc(ctx), name) !=
-    -1) return (1 == 1);
-
-  int off = cmap_strings_public.contains(
-    *cmap_part_ctx_public.block_fn_arg_names(ctx), name);
-  if(off != -1)
-  {
-    CMAP_PART_CTX * ctx_bup =
-      cmap_part_ctx_public.bup(cmap_part_ctx_public.cmap(ctx));
-    cmap_parser_util_public.set_fn_arg_name(strdup(name), off);
-    cmap_part_ctx_public.restore(ctx_bup);
-
-    return (1 == 1);
-  }
-
-  return (1 == 0);
+  return ((cmap_strings_public.contains(
+    *cmap_part_ctx_public.vars_loc(ctx), name) != -1) ||
+    is_fn_arg_name(name, ctx));
 }
 
 static char is_def_ctx(const char * name, CMAP_PART_CTX * ctx)
@@ -105,7 +97,7 @@ static char is_def(const char * name, CMAP_PART_CTX * ctx)
 }
 
 static CMAP_PART_VAR_RET get(const char * map, const char * name,
-  const char * next_name)
+  char * next_name)
 {
   CMAP_PART_VAR_RET ret;
   ret.is_def = (map == NULL) ? is_def(name, NULL) : (1 == 0);

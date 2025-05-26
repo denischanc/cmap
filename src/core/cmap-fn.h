@@ -15,8 +15,6 @@ struct CMAP_FN
 
   CMAP_MAP * (*require_definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
 
-  void (*add_arg_name)(CMAP_FN * this, const char * arg_name);
-
   CMAP_MAP * (*process)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);
 
@@ -36,8 +34,6 @@ typedef struct {
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
 
   CMAP_MAP * (*require_definitions)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx);
-
-  void (*add_arg_name)(CMAP_FN * this, const char * arg_name);
 
   CMAP_MAP * (*process)(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
     CMAP_MAP * map, CMAP_LIST * args);

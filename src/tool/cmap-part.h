@@ -39,12 +39,11 @@ typedef struct
   char (*var_no_loc)(const char * map, const char * name,
     const char * map_name);
   CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name,
-    const char * next_name);
+    char * next_name);
   CMAP_STRINGS * (*get_vars_def)();
   CMAP_STRINGS * (*get_params)();
 
   void (*fn_arg_name)(char * name);
-  CMAP_STRINGS * (*get_fn_arg_names)();
   void (*delete_fn_arg_names)();
 } CMAP_PART_PUBLIC;
 

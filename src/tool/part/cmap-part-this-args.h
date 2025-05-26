@@ -3,7 +3,6 @@
 
 typedef struct
 {
-  void (*add)();
   char (*is)(const char * map, const char * name);
 } CMAP_PART_THIS_ARGS_PUBLIC;
 

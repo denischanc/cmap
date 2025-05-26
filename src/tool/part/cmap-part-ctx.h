@@ -42,7 +42,7 @@ typedef struct
   CMAP_STRINGS ** (*block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
   CMAP_PART_CTX * (*c)();
-  CMAP_PART_CTX * (*cmap)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*cmap)();
   CMAP_PART_CTX * (*cmap_prev)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*c_prev)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*block_next)(CMAP_PART_CTX * ctx);

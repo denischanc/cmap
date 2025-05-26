@@ -49,7 +49,6 @@ void ** cmap_ptr_ref(CMAP_PTR * ptr);
 const char * cmap_string_val(CMAP_STRING * string);
 
 CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx);
-void cmap_add_arg_names(CMAP_FN * fn, ...);
 
 CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
 

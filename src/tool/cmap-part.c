@@ -184,7 +184,7 @@ static char var_no_loc(const char * map, const char * name,
 *******************************************************************************/
 
 static CMAP_PART_VAR_RET get_map(const char * map, const char * name,
-  const char * next_name)
+  char * next_name)
 {
   return cmap_part_var_public.get(map, name, next_name);
 }
@@ -208,11 +208,6 @@ static CMAP_STRINGS * get_params()
 static void fn_arg_name(char * name)
 {
   cmap_strings_public.add(cmap_part_ctx_public.fn_arg_names(NULL), name);
-}
-
-static CMAP_STRINGS * get_fn_arg_names()
-{
-  return *cmap_part_ctx_public.fn_arg_names(NULL);
 }
 
 static void delete_fn_arg_names()
@@ -253,5 +248,5 @@ const CMAP_PART_PUBLIC cmap_part_public =
   add_include,
   set_else, is_else_n_rst,
   var_loc, var_no_loc, get_map, get_vars_def, get_params,
-  fn_arg_name, get_fn_arg_names, delete_fn_arg_names
+  fn_arg_name, delete_fn_arg_names
 };
