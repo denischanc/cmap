@@ -43,10 +43,13 @@ static const char * nature(CMAP_LIFECYCLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void log_ref_state(CMAP_LIFECYCLE * this, INTERNAL * internal)
+static inline void set_ref_state(CMAP_LIFECYCLE * this, INTERNAL * internal,
+  const char * ref_state)
 {
+  internal -> ref_state = ref_state;
+
   cmap_log_public.debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", this,
-    internal -> nature, internal -> ref_state, internal -> nb_refs);
+    internal -> nature, ref_state, internal -> nb_refs);
 }
 
 /*******************************************************************************
@@ -56,9 +59,7 @@ static inline void do_store(CMAP_LIFECYCLE * this, INTERNAL * internal)
 {
   CMAP_PROC_CTX * proc_ctx = CMAP_CALL(internal -> env, proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
-  internal -> ref_state = REF_STATE_STORED;
-
-  log_ref_state(this, internal);
+  set_ref_state(this, internal, REF_STATE_STORED);
 }
 
 /*******************************************************************************
@@ -79,11 +80,7 @@ static void inc_refs(CMAP_LIFECYCLE * this)
   }
 
   if(internal -> ref_state == REF_STATE_STORED)
-  {
-    internal -> ref_state = REF_STATE_HOOKED;
-
-    log_ref_state(this, internal);
-  }
+    set_ref_state(this, internal, REF_STATE_HOOKED);
 }
 
 /*******************************************************************************
@@ -103,13 +100,10 @@ static void dec_refs(CMAP_LIFECYCLE * this)
 
   internal -> nb_refs--;
 
-  if(internal -> ref_state == REF_STATE_FREE) do_store(this, internal);
+  if(internal -> ref_state == REF_STATE_FREE)
+    do_store(this, internal);
   else if(internal -> ref_state == REF_STATE_HOOKED)
-  {
-    internal -> ref_state = REF_STATE_STORED;
-
-    log_ref_state(this, internal);
-  }
+    set_ref_state(this, internal, REF_STATE_STORED);
 }
 
 /*******************************************************************************
@@ -160,8 +154,7 @@ static char in_refs(CMAP_LIFECYCLE * this)
   INTERNAL * internal = this -> internal;
   const char * ref_state = internal -> ref_state;
 
-  internal -> ref_state = REF_STATE_FREE;
-  log_ref_state(this, internal);
+  set_ref_state(this, internal, REF_STATE_FREE);
 
   return (ref_state != REF_STATE_HOOKED);
 }
