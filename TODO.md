@@ -5,9 +5,9 @@ TODO
 
 * refactor pool, map ?
 * prototype
-** creation KO (map not initialized)
-** map: rm new(), add it in init
-** it must be referenced
+    * creation KO (map not initialized)
+    * map: rm new(), add it in init
+    * it must be referenced
 * cmap-tuning.h: memory, chunk size; pool, size; slist, chunk size; ...
 * map: (key, val) in pool
 * is_log_lvl_enabled()

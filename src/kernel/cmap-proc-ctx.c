@@ -113,7 +113,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   CMAP_CALL(env, pop_proc_ctx);
   CMAP_KERNEL_FREE(this);
 
-  if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, stored);
+  if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, store);
 
   return ret;
 }

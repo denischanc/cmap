@@ -27,9 +27,9 @@ struct CMAP_LIFECYCLE
   void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
   char (*is_watched)(CMAP_LIFECYCLE * this);
 
-  void (*stored)(CMAP_LIFECYCLE * this);
+  void (*store)(CMAP_LIFECYCLE * this);
 
-  char (*in_refs)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * ret);
+  char (*in_refs)(CMAP_LIFECYCLE * this);
 };
 
 typedef struct
@@ -48,9 +48,9 @@ typedef struct
   void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
   char (*is_watched)(CMAP_LIFECYCLE * this);
 
-  void (*stored)(CMAP_LIFECYCLE * this);
+  void (*store)(CMAP_LIFECYCLE * this);
 
-  char (*in_refs)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * ret);
+  char (*in_refs)(CMAP_LIFECYCLE * this);
 } CMAP_LIFECYCLE_PUBLIC;
 
 extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;

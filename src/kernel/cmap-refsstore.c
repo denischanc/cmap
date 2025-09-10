@@ -82,7 +82,7 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
-    char in_refs = CMAP_CALL_ARGS(lc, in_refs, ret);
+    char in_refs = CMAP_CALL(lc, in_refs);
 
     if(in_refs && (lc != ret) && delete_ref(internal, lc)) nb_deleted++;
   }
