@@ -71,7 +71,7 @@ AC_CONFIG_FILES([
   src/core/score/Makefile
   src/kernel/Makefile
   src/tool/Makefile
-  src/tool/parser-util/Makefile
+  src/tool/parser/Makefile
   src/tool/part/Makefile
   src/tool/tpl/Makefile
   src/tool/tpl/prj-multiple/Makefile

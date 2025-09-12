@@ -6,7 +6,7 @@
 #include "cmap-part-kv.h"
 #include "cmap-part-affected.h"
 #include "cmap-part-ctx.h"
-#include "cmap-parser-util.h"
+#include "cmap-parser-var.h"
 #include "cmap-part-this-args.h"
 
 /*******************************************************************************
@@ -53,7 +53,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   if(off == -1) return (1 == 0);
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
-  cmap_parser_util_public.set_fn_arg_name(strdup(name), off);
+  cmap_parser_var_public.set_fn_arg_name(strdup(name), off);
   cmap_part_ctx_public.restore(ctx_bup);
 
   return (1 == 1);
@@ -71,7 +71,7 @@ static const char * get_map_by_params(const char * map, const char * name,
   {
     CMAP_PART_CTX * ctx_bup =
       cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx_c));
-    free(cmap_parser_util_public.path((map == NULL) ? NULL : strdup(map),
+    free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
       strdup(name)));
     cmap_part_ctx_public.restore(ctx_bup);
 
