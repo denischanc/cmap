@@ -15,26 +15,7 @@ static char * cmp_to_bool_fn(char * cmp_name, const char * op)
   APPEND_INSTRUCTION_ARGS("return (%s %s 0);", cmp_name, op);
   free(cmp_name);
 
-  cmap_parser_params_public.clone();
-
-  char * bool_fn_name = NEXT_NAME("cmp"),
-    * instructions = cmap_part_public.pop_instructions();
-
-  CMAP_PARSER_PARAMS_RET params_ret = cmap_parser_params_public.get();
-
-  cmap_parser_part_public.append_args_functions(
-    "static inline char %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
-    bool_fn_name, params_ret.decl);
-  cmap_parser_part_public.append_functions(instructions);
-  free(instructions);
-  cmap_parser_part_public.append_functions("}\n\n");
-
-  cmap_string_public.append_args(&bool_fn_name, "(proc_ctx%s)",
-    params_ret.impl);
-
-  cmap_parser_params_public.delete(params_ret);
-
-  return bool_fn_name;
+  return cmap_parser_part_public.function_cmp();
 }
 
 /*******************************************************************************

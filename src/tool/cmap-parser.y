@@ -224,7 +224,7 @@ for_helper:
     cmap_part_ctx_public.nature_proc();
     cmap_part_public.push_instructions();
   }
-  instructions_for { $$ = cmap_parser_block_public.for_helper(); };
+  instructions_for { $$ = cmap_parser_part_public.for_helper(); };
 
 for: FOR '(' instructions_for ';' comparison_no_params ';' for_helper ')'
   '{' instructions '}' { cmap_parser_block_public.for_($5, $7); };

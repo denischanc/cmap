@@ -49,21 +49,6 @@ static void else_()
 /*******************************************************************************
 *******************************************************************************/
 
-static char * for_helper()
-{
-  char * call = NEXT_NAME("process_for");
-
-  CMAP_PARSER_PARAMS_RET params_ret =
-    cmap_parser_part_public.function_c_to_part(
-      cmap_part_public.functions(), strdup(call), (1 == 1));
-
-  cmap_string_public.append_args(&call, "(proc_ctx%s)", params_ret.impl);
-
-  cmap_parser_params_public.delete(params_ret);
-
-  return call;
-}
-
 static void for_(char * cmp_call, char * loop_call)
 {
   char * instructions = cmap_part_public.pop_instructions();
@@ -99,5 +84,5 @@ static void while_(char * cmp_call)
 const CMAP_PARSER_BLOCK_PUBLIC cmap_parser_block_public =
 {
   if_, else_empty, else_if, else_,
-  for_helper, for_, while_
+  for_, while_
 };

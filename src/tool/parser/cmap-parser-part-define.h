@@ -7,8 +7,4 @@
   CMAP_PART_LOOP(macro) \
   macro(instructions)
 
-#define CMAP_PARSER_PART_APPEND_DECL(part) \
-  void (*append_args_##part)(const char * txt, ...); \
-  void (*append_##part)(const char * txt);
-
 #endif

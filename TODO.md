@@ -14,15 +14,12 @@ TODO
 * util, util_map, util_list, util_mem
 * realloc, calloc for uv
 * add add_if_not_eq in stree and modify sset add
-* add consumed_time in refswatcher
-* cmap-uv.c
 * add define for references debug as CONSUMED_TIME
+* rm scheduler : uv_timer_t pool, jobs_nb in env
 
 ## Parser
 
 * remove [CMAP[
-* mng abc.cde.efg in parser with name2map
-* dirties (cur, above) by block
 
 ## Doc
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-string.h"
+#include "cmap-parser-params.h"
 #include "cmap-parser-util.h"
 #include "cmap-fn-name.h"
 #include "cmap-parser-var.h"
@@ -12,8 +13,10 @@
 /*******************************************************************************
 *******************************************************************************/
 
+#define ATTR_UNUSED __attribute__((unused))
+
 #define APPEND_ARGS_IMPL(part) \
-static void append_args_##part(const char * txt, ...) \
+ATTR_UNUSED static void append_args_##part(const char * txt, ...) \
 { \
   va_list args; \
   va_start(args, txt); \
@@ -27,7 +30,7 @@ CMAP_PARSER_PART_LOOP(APPEND_ARGS_IMPL)
 *******************************************************************************/
 
 #define APPEND_IMPL(part) \
-static void append_##part(const char * txt) \
+ATTR_UNUSED static void append_##part(const char * txt) \
 { \
   cmap_string_public.append(cmap_part_public.part(), txt); \
 }
@@ -46,8 +49,7 @@ static void include_(char * includes)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PARSER_PARAMS_RET function_c_to_part(char ** part, char * name,
-  char is_static)
+static char * function_c_to_part(char ** part, char * name, char is_static)
 {
   char is_return_fn = cmap_part_public.is_return_fn(),
     is_return = cmap_part_public.is_return();
@@ -74,13 +76,14 @@ static CMAP_PARSER_PARAMS_RET function_c_to_part(char ** part, char * name,
 
   cmap_string_public.append(part, "}\n\n");
 
-  return params_ret;
+  char * params_impl = strdup(params_ret.impl);
+  cmap_parser_params_public.delete(params_ret);
+  return params_impl;
 }
 
 static void function_c(char * name, char is_static)
 {
-  cmap_parser_params_public.delete(
-    function_c_to_part(cmap_part_public.main(), name, is_static));
+  free(function_c_to_part(cmap_part_public.main(), name, is_static));
 }
 
 static void instructions_root()
@@ -157,6 +160,33 @@ static char * function(char * fn_name)
 /*******************************************************************************
 *******************************************************************************/
 
+static char * function_cmp()
+{
+  cmap_parser_params_public.clone();
+
+  char * bool_fn_name = NEXT_NAME("cmp"),
+    * instructions = cmap_part_public.pop_instructions();
+
+  CMAP_PARSER_PARAMS_RET params_ret = cmap_parser_params_public.get();
+
+  append_args_functions(
+    "static inline char %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
+    bool_fn_name, params_ret.decl);
+  append_functions(instructions);
+  free(instructions);
+  append_functions("}\n\n");
+
+  cmap_string_public.append_args(&bool_fn_name, "(proc_ctx%s)",
+    params_ret.impl);
+
+  cmap_parser_params_public.delete(params_ret);
+
+  return bool_fn_name;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void c_impl(char * impl)
 {
   append_args_instructions("  %s\n\n", impl);
@@ -173,12 +203,29 @@ static void c_impl_root(char * impl)
 /*******************************************************************************
 *******************************************************************************/
 
+static char * for_helper()
+{
+  char * call = NEXT_NAME("process_for");
+
+  char * params_impl = function_c_to_part(
+    cmap_part_public.functions(), strdup(call), (1 == 1));
+  cmap_string_public.append_args(&call, "(proc_ctx%s)", params_impl);
+  free(params_impl);
+
+  return call;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define APPEND_SET(part) append_args_##part, append_##part,
 
 const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
 {
-  CMAP_PARSER_PART_LOOP(APPEND_SET)
-  include_, function_c_to_part, function_c, instructions_root,
+  append_instructions,
+  include_, function_c, instructions_root,
   function,
-  c_impl, c_impl_root
+  function_cmp,
+  c_impl, c_impl_root,
+  for_helper
 };
