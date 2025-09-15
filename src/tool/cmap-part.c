@@ -105,14 +105,6 @@ static char * pop_instructions()
   return cmap_part_ctx_public.pop();
 }
 
-static void pop_instructions_to_part(char ** part)
-{
-  char * instructions_to_append = pop_instructions();
-  if(part == NULL) part = instructions_();
-  cmap_string_public.append(part, instructions_to_append);
-  free(instructions_to_append);
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -242,7 +234,6 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_definitions,
   is_global_env,
   pop_instructions,
-  pop_instructions_to_part,
   return_, is_return,
   return_fn, is_return_fn,
   add_include,

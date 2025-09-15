@@ -74,7 +74,6 @@ static int generate_c(const char * out_name)
     cmap_build_main_public.impl(cmap_part_public.main());
 
   fprintf(out, "\n%s\n", *cmap_part_public.includes());
-  fprintf(out, "%s", *cmap_part_public.functions());
   fprintf(out, "%s", *cmap_part_public.main());
 
   fclose(out);

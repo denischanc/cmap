@@ -3,7 +3,6 @@
 
 #define CMAP_PART_LOOP(macro) \
   macro(includes) \
-  macro(functions) \
   macro(main) \
   macro(headers)
 

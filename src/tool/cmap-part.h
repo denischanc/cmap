@@ -23,7 +23,6 @@ typedef struct
   char (*is_definitions)();
   char (*is_global_env)();
   char * (*pop_instructions)();
-  void (*pop_instructions_to_part)(char ** part);
 
   void (*return_)();
   char (*is_return)();

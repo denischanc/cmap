@@ -66,9 +66,8 @@ flowchart BT
 flowchart TD
   subgraph C
     includes[[includes]]
-    functions[[functions]]
     main[[main]]
-    includes --> functions --> main
+    includes --> main
   end
   subgraph H
     headers[[headers]]
