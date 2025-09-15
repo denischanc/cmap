@@ -12,7 +12,7 @@
 
 static char * path(char * map, char * name)
 {
-  char * map_name = NEXT_NAME("var");
+  char * map_name = (map == NULL) ? strdup(name) : NEXT_NAME("var");
   CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name, map_name);
 
   if((ret.ret.map == map_name) || !ret.ret.affected)
