@@ -15,7 +15,7 @@ typedef struct
   void (*cmp_params)();
   void (*cmp_no_params)();
 
-  char (*is_params)(CMAP_PART_CTX * ctx);
+  char (*is_feature_params)(CMAP_PART_CTX * ctx);
 
   void (*push)();
   char * (*pop)();
@@ -31,15 +31,14 @@ typedef struct
   char (*is_global_env)();
   void (*return_)();
   char (*is_return)();
-  void (*return_fn)();
-  char (*is_return_fn)();
+  char (*return_fn)(CMAP_PART_CTX * ctx);
   char ** (*variables)(CMAP_PART_CTX * ctx);
   CMAP_PART_KV ** (*name2map)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*params)(CMAP_PART_CTX * ctx);
 
   CMAP_STRINGS ** (*vars_loc)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*vars_def)(CMAP_PART_CTX * ctx);
-  CMAP_STRINGS ** (*block_fn_arg_names)(CMAP_PART_CTX * ctx);
+  CMAP_STRINGS * (*block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
   CMAP_PART_CTX * (*c)();
   CMAP_PART_CTX * (*cmap)();

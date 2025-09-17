@@ -102,13 +102,12 @@ static char * process_c(char * fn_name, char need_ret)
 static void return_(char * map)
 {
   if(map == NULL) APPEND_INSTRUCTION(
-    cmap_part_public.is_return_fn() ? "return NULL;" : "return;");
+    cmap_part_public.return_fn() ? "return NULL;" : "return;");
   else
   {
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
-    cmap_part_public.return_fn();
     cmap_part_public.return_();
   }
 }

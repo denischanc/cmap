@@ -118,17 +118,9 @@ static char is_return()
   return cmap_part_ctx_public.is_return();
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static void return_fn()
+static char return_fn()
 {
-  cmap_part_ctx_public.return_fn();
-}
-
-static char is_return_fn()
-{
-  return cmap_part_ctx_public.is_return_fn();
+  return cmap_part_ctx_public.return_fn(NULL);
 }
 
 /*******************************************************************************
@@ -234,8 +226,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   is_definitions,
   is_global_env,
   pop_instructions,
-  return_, is_return,
-  return_fn, is_return_fn,
+  return_, is_return, return_fn,
   add_include,
   set_else, is_else_n_rst,
   var_loc, var_no_loc, get_map, get_vars_def, get_params,

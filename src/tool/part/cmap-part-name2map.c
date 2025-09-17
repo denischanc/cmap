@@ -49,7 +49,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   if(cmap_part_this_args_public.is(NULL, name)) return (1 == 1);
 
   int off = cmap_strings_public.contains(
-    *cmap_part_ctx_public.block_fn_arg_names(ctx_c), name);
+    cmap_part_ctx_public.block_fn_arg_names(ctx_c), name);
   if(off == -1) return (1 == 0);
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
@@ -86,7 +86,7 @@ static const char * get_map_by_params(const char * map, const char * name,
   }
   else
   {
-    if(!cmap_part_ctx_public.is_params(ctx_c) &&
+    if(!cmap_part_ctx_public.is_feature_params(ctx_c) &&
       !cmap_part_this_args_public.is(map, name))
     {
       if(map == NULL) is_fn_arg_name(name, ctx_c);

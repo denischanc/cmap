@@ -13,6 +13,8 @@ nodist_libconsole_la_SOURCES = cmap-console-blt.c
 libconsole_la_SOURCES = cmap-console.c
 libconsole_la_CFLAGS = $(CMAP_CFLAGS)
 
+CLEANFILES = $(BUILT_SOURCES)
+
 CMAP_CONSOLE_FILE = $(CMAP_SRC_PATH)/components/console/cmap-console.cmap
 
 cmap-console-blt.c cmap-console-blt.h: $(CMAP_CONSOLE_FILE) $(CMAP_TOOL)

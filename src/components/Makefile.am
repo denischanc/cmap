@@ -19,6 +19,8 @@ libcomponents_la_LIBADD = \
   scheduler/libscheduler.la \
   cli/libcli.la
 
+CLEANFILES = $(BUILT_SOURCES)
+
 CMAP_CMAP_FILE = $(CMAP_SRC_PATH)/components/cmap-cmap.cmap
 
 cmap-cmap-blt.c cmap-cmap-blt.h: $(CMAP_CMAP_FILE) $(CMAP_TOOL)

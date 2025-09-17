@@ -26,8 +26,7 @@ typedef struct
 
   void (*return_)();
   char (*is_return)();
-  void (*return_fn)();
-  char (*is_return_fn)();
+  char (*return_fn)();
 
   void (*add_include)(const char * name, char is_relative);
 

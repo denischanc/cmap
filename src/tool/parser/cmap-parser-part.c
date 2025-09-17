@@ -51,22 +51,20 @@ static void include_(char * includes)
 
 static char * function_c_params(char * name, char is_static)
 {
-  char is_return_fn = cmap_part_public.is_return_fn(),
-    is_return = cmap_part_public.is_return();
+  char is_return = cmap_part_public.is_return();
 
   cmap_parser_params_public.clone();
 
-  if(is_return_fn && !is_return) APPEND_INSTRUCTION("return NULL;");
   char * instructions = cmap_part_public.pop_instructions();
 
   CMAP_PARSER_PARAMS_RET params_ret = cmap_parser_params_public.get();
 
   append_args_main("%s%s %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
-    is_static ? "static " : "", is_return_fn ? "CMAP_MAP *" : "void", name,
+    is_static ? "static " : "", is_return ? "CMAP_MAP *" : "void", name,
     params_ret.decl);
 
   if(!is_static) append_args_headers("%s %s(CMAP_PROC_CTX * proc_ctx%s);\n",
-    is_return_fn ? "CMAP_MAP *" : "void", name, params_ret.decl);
+    is_return ? "CMAP_MAP *" : "void", name, params_ret.decl);
 
   free(name);
 
