@@ -7,7 +7,7 @@
 #include "cmap-part-affected.h"
 #include "cmap-part-ctx.h"
 #include "cmap-parser-var.h"
-#include "cmap-part-this-args.h"
+#include "cmap-parser-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -46,7 +46,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
     return is_fn_arg_name(name, ctx_c_prev);
   }
 
-  if(cmap_part_this_args_public.is(NULL, name)) return (1 == 1);
+  if(cmap_parser_this_args_public.is(NULL, name)) return (1 == 1);
 
   int off = cmap_strings_public.contains(
     cmap_part_ctx_public.block_fn_arg_names(ctx_c), name);
@@ -87,7 +87,7 @@ static const char * get_map_by_params(const char * map, const char * name,
   else
   {
     if(!cmap_part_ctx_public.is_feature_params(ctx_c) &&
-      !cmap_part_this_args_public.is(map, name))
+      !cmap_parser_this_args_public.is(map, name))
     {
       if(map == NULL) is_fn_arg_name(name, ctx_c);
       return NULL;

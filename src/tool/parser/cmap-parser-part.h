@@ -18,7 +18,7 @@ typedef struct
   void (*c_impl)(char * impl);
   void (*c_impl_root)(char * impl);
 
-  char * (*for_helper)();
+  char * (*for_iter)();
 } CMAP_PARSER_PART_PUBLIC;
 
 extern const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public;

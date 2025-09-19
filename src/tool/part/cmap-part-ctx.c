@@ -6,9 +6,6 @@
 #include "cmap-part.h"
 #include "cmap-string.h"
 #include "cmap-stack-define.h"
-#include "cmap-util.h"
-#include "cmap-part-var.h"
-#include "cmap-part-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -216,7 +213,7 @@ static CMAP_PART_CTX create_ctx_c(CTX_BLOCK * block_)
   return ctx;
 }
 
-static CMAP_PART_CTX create_ctx_proc(CTX_BLOCK * block_)
+static CMAP_PART_CTX create_ctx_iter(CTX_BLOCK * block_)
 {
   return create_ctx_c(block_);
 }
@@ -279,7 +276,7 @@ static void push()
     block_ = &cur_ctx() -> block;
 
     if(nature == NATURE_FN) ctx = create_ctx_fn(block_);
-    else if(nature == NATURE_PROC) ctx = create_ctx_proc(block_);
+    else if(nature == NATURE_ITER) ctx = create_ctx_iter(block_);
     else if(nature == NATURE_CMP) ctx = create_ctx_cmp(block_);
     else if(nature == NATURE_BLOCK) ctx = create_ctx_block(block_);
   }

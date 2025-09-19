@@ -6,16 +6,18 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char static_contains(const char * name, const char ** names)
+static int static_contains(const char * name, const char ** names)
 {
-  if(name == NULL) return (1 == 0);
+  if(name == NULL) return -1;
 
+  int i = 0;
   while(*names != NULL)
   {
-    if(!strcmp(*names, name)) return (1 == 1);
-    names++;
+    if(!strcmp(*names, name)) return i;
+    names++; i++;
   }
-  return (1 == 0);
+
+  return -1;
 }
 
 /*******************************************************************************

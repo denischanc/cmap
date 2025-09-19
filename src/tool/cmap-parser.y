@@ -40,7 +40,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %type<name> args arg_names_cmap
 %type<name> process function
 %type<name> comparison comparison_no_params comparison_deep comparison_simple
-%type<name> for_helper
+%type<name> for_iter
 
 %%
 
@@ -219,14 +219,14 @@ instructions_for:
 | instruction
 | instructions_for ',' instruction;
 
-for_helper:
+for_iter:
   {
-    cmap_part_ctx_public.nature_proc();
+    cmap_part_ctx_public.nature_iter();
     cmap_part_public.push_instructions();
   }
-  instructions_for { $$ = cmap_parser_part_public.for_helper(); };
+  instructions_for { $$ = cmap_parser_part_public.for_iter(); };
 
-for: FOR '(' instructions_for ';' comparison_no_params ';' for_helper ')'
+for: FOR '(' instructions_for ';' comparison_no_params ';' for_iter ')'
   '{' instructions '}' { cmap_parser_block_public.for_($5, $7); };
 
 /*******************************************************************************

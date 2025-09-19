@@ -6,6 +6,7 @@
 #include "cmap-string.h"
 #include "cmap-strings.h"
 #include "cmap-part.h"
+#include "cmap-parser-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,8 +26,11 @@ static void clone()
 
 static void get_apply(const char * map, void * data)
 {
+  const char * type = cmap_parser_this_args_public.type(map);
+  if(type == NULL) type = "CMAP_MAP";
+
   CMAP_PARSER_PARAMS_RET * ret = data;
-  cmap_string_public.append_args(&ret -> decl, ", CMAP_MAP * %s", map);
+  cmap_string_public.append_args(&ret -> decl, ", %s * %s", type, map);
   cmap_string_public.append_args(&ret -> impl, ", %s", map);
 }
 

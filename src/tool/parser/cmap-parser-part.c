@@ -9,6 +9,7 @@
 #include "cmap-fn-name.h"
 #include "cmap-parser-var.h"
 #include "cmap-strings.h"
+#include "cmap-parser-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -127,8 +128,8 @@ static char * function(char * fn_name)
 
     fn_name = NEXT_NAME("process");
 
-    append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx,\n"
-      "  CMAP_MAP * this, CMAP_LIST * args)\n{\n", fn_name);
+    append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
+      fn_name, cmap_parser_this_args_public.decl());
 
     if(!cmap_part_public.is_return()) APPEND_INSTRUCTION("return NULL;");
     char * instructions = cmap_part_public.pop_instructions();
@@ -201,7 +202,7 @@ static void c_impl_root(char * impl)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * for_helper()
+static char * for_iter()
 {
   char * call = NEXT_NAME("process_for");
 
@@ -222,5 +223,5 @@ const CMAP_PARSER_PART_PUBLIC cmap_parser_part_public =
   function,
   function_cmp,
   c_impl, c_impl_root,
-  for_helper
+  for_iter
 };

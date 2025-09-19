@@ -11,6 +11,7 @@ noinst_HEADERS = \
   cmap-parser-part-define.h \
   cmap-parser-part.h \
   cmap-parser-process.h \
+  cmap-parser-this-args.h \
   cmap-parser-util-define.h \
   cmap-parser-util.h \
   cmap-parser-var.h
@@ -25,6 +26,7 @@ libparser_la_SOURCES = \
   cmap-parser-params.c \
   cmap-parser-part.c \
   cmap-parser-process.c \
+  cmap-parser-this-args.c \
   cmap-parser-util.c \
   cmap-parser-var.c
 libparser_la_CFLAGS = $(CMAP_TOOL_CFLAGS)

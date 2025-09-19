@@ -3,7 +3,7 @@
 
 typedef struct
 {
-  char (*static_contains)(const char * name, const char ** names);
+  int (*static_contains)(const char * name, const char ** names);
 } CMAP_UTIL_PUBLIC;
 
 extern const CMAP_UTIL_PUBLIC cmap_util_public;
