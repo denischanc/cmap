@@ -2,39 +2,26 @@
 #include "cmap-part-affected.h"
 
 #include <stdlib.h>
-#include "cmap-part-keys.h"
+#include "cmap-strings.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void add(const char * map, const char * name, CMAP_PART_CTX * ctx)
+static char add(const char * map, CMAP_PART_CTX * ctx)
 {
-  cmap_part_keys_public.add(cmap_part_ctx_public.affecteds(ctx), map, name);
+  char ret = cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
 
   ctx = cmap_part_ctx_public.block_next(ctx);
   while(ctx != NULL)
   {
-    cmap_part_keys_public.add(cmap_part_ctx_public.affecteds(ctx), map, name);
+    cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
     ctx = cmap_part_ctx_public.block_next(ctx);
   }
+
+  return ret;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char contains_n_add(const char * map, const char * name)
-{
-  if(!cmap_part_keys_public.contains(*cmap_part_ctx_public.affecteds(NULL),
-    map, name))
-  {
-    add(map, name, NULL);
-    return (1 == 0);
-  }
-  else return (1 == 1);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PART_AFFECTED_PUBLIC cmap_part_affected_public = {add,
-  contains_n_add};
+const CMAP_PART_AFFECTED_PUBLIC cmap_part_affected_public = {add};

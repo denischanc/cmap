@@ -44,9 +44,7 @@ typedef struct
 {
   char * instructions, * prefix, else_;
 
-  CMAP_STRINGS * fn_arg_names;
-
-  CMAP_PART_KEYS * affecteds;
+  CMAP_STRINGS * fn_arg_names, * affecteds;
 
   CMAP_PART_CTX * c, * next;
 } CTX_BLOCK;
@@ -237,7 +235,7 @@ static CMAP_PART_CTX create_ctx_block(CTX_BLOCK * block_)
   ctx_common(&ctx);
   ctx_block(&ctx, block_);
 
-  cmap_part_keys_public.add_all(&ctx.block.affecteds, block_ -> affecteds);
+  cmap_strings_public.add_all(&ctx.block.affecteds, block_ -> affecteds);
   ctx.block.c = block_ -> c;
 
   return ctx;
@@ -293,7 +291,7 @@ static char * pop()
   if(ctxs != NULL) cur_ctx() -> block.next = NULL;
 
   free(ctx.block.prefix);
-  cmap_part_keys_public.delete(&ctx.block.affecteds);
+  cmap_strings_public.delete(&ctx.block.affecteds);
 
   cmap_part_kv_public.delete(&ctx.c.name2map);
   cmap_strings_public.delete(&ctx.c.params);
@@ -402,7 +400,7 @@ TOGGLE_BLOCK(else_)
 
 GET_BLOCK(fn_arg_names, CMAP_STRINGS *)
 
-GET_BLOCK(affecteds, CMAP_PART_KEYS *)
+GET_BLOCK(affecteds, CMAP_STRINGS *)
 
 /*******************************************************************************
 *******************************************************************************/

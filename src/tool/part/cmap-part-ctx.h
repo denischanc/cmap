@@ -3,7 +3,6 @@
 
 #include "cmap-part-ctx-define.h"
 #include "cmap-strings.h"
-#include "cmap-part-keys.h"
 #include "cmap-part-kv.h"
 
 typedef struct CMAP_PART_CTX CMAP_PART_CTX;
@@ -25,7 +24,7 @@ typedef struct
   void (*else_)();
   char (*is_else)();
   CMAP_STRINGS ** (*fn_arg_names)(CMAP_PART_CTX * ctx);
-  CMAP_PART_KEYS ** (*affecteds)(CMAP_PART_CTX * ctx);
+  CMAP_STRINGS ** (*affecteds)(CMAP_PART_CTX * ctx);
 
   char (*is_definitions)();
   char (*is_global_env)();

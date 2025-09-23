@@ -33,10 +33,14 @@ static int contains(CMAP_STRINGS * strings, const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
-static void add(CMAP_STRINGS ** strings_ptr, const char * string)
+static char add(CMAP_STRINGS ** strings_ptr, const char * string)
 {
-  if(contains(*strings_ptr, string) == -1)
+  if(contains(*strings_ptr, string) < 0)
+  {
     cmap_stack_strings_push(strings_ptr, strdup(string));
+    return (1 == 1);
+  }
+  return (1 == 0);
 }
 
 /*******************************************************************************

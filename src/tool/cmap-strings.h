@@ -12,7 +12,7 @@ typedef struct
 {
   int (*contains)(CMAP_STRINGS * strings, const char * string);
 
-  void (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
+  char (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
 
   void (*apply)(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn, void * data);
 

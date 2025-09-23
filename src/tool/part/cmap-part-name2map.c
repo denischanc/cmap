@@ -17,7 +17,7 @@ static void put_n_affected(const char * map, const char * name,
 {
   cmap_part_kv_public.put(cmap_part_ctx_public.name2map(ctx), map, name,
     map_name);
-  cmap_part_affected_public.add(map, name, ctx);
+  cmap_part_affected_public.add(map_name, ctx);
 }
 
 static void put(const char * map, const char * name, const char * map_name)
@@ -116,7 +116,7 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
   if(map_name != NULL)
   {
     ret.map = strdup(map_name);
-    ret.affected = cmap_part_affected_public.contains_n_add(map, name);
+    ret.affected = !cmap_part_affected_public.add(map_name, NULL);
   }
   else
   {
