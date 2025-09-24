@@ -50,7 +50,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 
   int off = cmap_strings_public.contains(
     cmap_part_ctx_public.block_fn_arg_names(ctx_c), name);
-  if(off == -1) return (1 == 0);
+  if(off < 0) return (1 == 0);
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
   cmap_parser_var_public.set_fn_arg_name(strdup(name), off);

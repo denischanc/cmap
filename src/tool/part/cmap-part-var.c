@@ -12,20 +12,20 @@
 static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx)
 {
   return (cmap_strings_public.contains(
-    cmap_part_ctx_public.block_fn_arg_names(ctx), name) != -1);
+    cmap_part_ctx_public.block_fn_arg_names(ctx), name) >= 0);
 }
 
 static char is_loc_ctx(const char * name, CMAP_PART_CTX * ctx)
 {
   return ((cmap_strings_public.contains(
-    *cmap_part_ctx_public.vars_loc(ctx), name) != -1) ||
+    *cmap_part_ctx_public.vars_loc(ctx), name) >= 0) ||
     is_fn_arg_name(name, ctx));
 }
 
 static char is_def_ctx(const char * name, CMAP_PART_CTX * ctx)
 {
   return (cmap_strings_public.contains(
-    *cmap_part_ctx_public.vars_def(ctx), name) != -1);
+    *cmap_part_ctx_public.vars_def(ctx), name) >= 0);
 }
 
 static char is_loc_or_def_ctx(const char * name, CMAP_PART_CTX * ctx)
