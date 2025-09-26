@@ -233,8 +233,8 @@ static void push()
   }
   cmap_stack_ctx_push(&ctxs, ctx);
 
-  CMAP_PART_CTX * cur_ctx = cur_ctx();
-  if(cur_ctx -> prev != NULL) cur_ctx -> prev -> next = cur_ctx;
+  CMAP_PART_CTX * cur_ctx_ = cur_ctx();
+  if(cur_ctx_ -> prev != NULL) cur_ctx_ -> prev -> next = cur_ctx_;
 
   nature = NATURE_BLOCK;
 }
