@@ -34,6 +34,12 @@ __attribute__((unused)) static CMAP_STACK_##NAME * cmap_stack_##name##_stack( \
   type * v) \
 { \
   return (CMAP_STACK_##NAME *)v; \
+} \
+ \
+__attribute__((unused)) static type * cmap_stack_##name##_v( \
+  CMAP_STACK_##NAME * stack) \
+{ \
+  return (type *)stack; \
 }
 
 #define CMAP_STACK_DEF(NAME, name, type) \

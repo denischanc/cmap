@@ -19,6 +19,13 @@ typedef struct
   void (*push)();
   char * (*pop)();
 
+  CMAP_PART_CTX * (*c)();
+  CMAP_PART_CTX * (*cmap)();
+  CMAP_PART_CTX * (*cmap_prev)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*c_prev)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*block_next)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*last_block)(CMAP_PART_CTX * ctx);
+
   char ** (*instructions)(CMAP_PART_CTX * ctx);
   const char * (*prefix)(CMAP_PART_CTX * ctx);
   void (*else_)();
@@ -37,14 +44,8 @@ typedef struct
 
   CMAP_STRINGS ** (*vars_loc)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*vars_def)(CMAP_PART_CTX * ctx);
-  CMAP_STRINGS * (*block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
-  CMAP_PART_CTX * (*c)();
-  CMAP_PART_CTX * (*cmap)();
-  CMAP_PART_CTX * (*cmap_prev)(CMAP_PART_CTX * ctx);
-  CMAP_PART_CTX * (*c_prev)(CMAP_PART_CTX * ctx);
-  CMAP_PART_CTX * (*block_next)(CMAP_PART_CTX * ctx);
-  CMAP_PART_CTX * (*last_block)(CMAP_PART_CTX * ctx);
+  CMAP_STRINGS * (*prev_block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
   void (*restore)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*bup)(CMAP_PART_CTX * ctx);

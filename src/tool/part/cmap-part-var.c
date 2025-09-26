@@ -12,7 +12,7 @@
 static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx)
 {
   return (cmap_strings_public.contains(
-    cmap_part_ctx_public.block_fn_arg_names(ctx), name) >= 0);
+    cmap_part_ctx_public.prev_block_fn_arg_names(ctx), name) >= 0);
 }
 
 static char is_loc_ctx(const char * name, CMAP_PART_CTX * ctx)

@@ -49,7 +49,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   if(cmap_parser_this_args_public.is(NULL, name)) return (1 == 1);
 
   int off = cmap_strings_public.contains(
-    cmap_part_ctx_public.block_fn_arg_names(ctx_c), name);
+    cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), name);
   if(off < 0) return (1 == 0);
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
