@@ -36,38 +36,38 @@ static void put(const char * map, const char * name, const char * map_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
+static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 {
   CMAP_PART_CTX * ctx_c_prev = cmap_part_ctx_public.c_prev(ctx_c);
   if(ctx_c_prev != NULL)
   {
     if(cmap_part_kv_public.get(*cmap_part_ctx_public.name2map(ctx_c_prev),
-      NULL, name) != NULL) return (1 == 0);
+      NULL, name) != NULL) return NULL;
     return is_fn_arg_name(name, ctx_c_prev);
   }
 
-  if(cmap_parser_this_args_public.is(NULL, name)) return (1 == 1);
+  if(cmap_parser_this_args_public.is(NULL, name)) return strdup(name);
 
   int off = cmap_strings_public.contains(
     cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), name);
-  if(off < 0) return (1 == 0);
+  if(off < 0) return NULL;
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
-  cmap_parser_var_public.set_fn_arg_name(strdup(name), off);
+  char * map_name = cmap_parser_var_public.set_fn_arg_name(strdup(name), off);
   cmap_part_ctx_public.restore(ctx_bup);
 
-  return (1 == 1);
+  return map_name;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * get_map_by_params(const char * map, const char * name,
+static char * get_map_by_params(const char * map, const char * name,
   CMAP_PART_CTX * ctx_c)
 {
-  const char * map_name = cmap_part_kv_public.get(
+  const char * map_name_ok = cmap_part_kv_public.get(
     *cmap_part_ctx_public.name2map(ctx_c), map, name);
-  if(map_name != NULL)
+  if(map_name_ok != NULL)
   {
     CMAP_PART_CTX * ctx_bup =
       cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx_c));
@@ -75,13 +75,13 @@ static const char * get_map_by_params(const char * map, const char * name,
       strdup(name)));
     cmap_part_ctx_public.restore(ctx_bup);
 
-    return map_name;
+    return strdup(map_name_ok);
   }
 
   CMAP_PART_CTX * ctx_c_prev = cmap_part_ctx_public.c_prev(ctx_c);
   if(ctx_c_prev == NULL)
   {
-    if((map == NULL) && is_fn_arg_name(name, ctx_c)) map_name = name;
+    if(map == NULL) return is_fn_arg_name(name, ctx_c);
     else return NULL;
   }
   else
@@ -89,18 +89,17 @@ static const char * get_map_by_params(const char * map, const char * name,
     if(!cmap_part_ctx_public.is_feature_params(ctx_c) &&
       !cmap_parser_this_args_public.is(map, name))
     {
-      if(map == NULL) is_fn_arg_name(name, ctx_c);
+      if(map == NULL) free(is_fn_arg_name(name, ctx_c));
       return NULL;
     }
 
-    map_name = get_map_by_params(map, name, ctx_c_prev);
+    char * map_name = get_map_by_params(map, name, ctx_c_prev);
     if(map_name == NULL) return NULL;
 
     cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), map_name);
     put_n_affected(map, name, map_name, ctx_c);
+    return map_name;
   }
-
-  return map_name;
 }
 
 /*******************************************************************************
@@ -111,19 +110,19 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
 {
   CMAP_PART_NAME2MAP_RET ret;
 
-  const char * map_name = cmap_part_kv_public.get(
+  const char * map_name_ok = cmap_part_kv_public.get(
     *cmap_part_ctx_public.name2map(NULL), map, name);
-  if(map_name != NULL)
+  if(map_name_ok != NULL)
   {
-    ret.map = strdup(map_name);
-    ret.affected = !cmap_part_affected_public.add(map_name, NULL);
+    ret.map = strdup(map_name_ok);
+    ret.affected = !cmap_part_affected_public.add(map_name_ok, NULL);
   }
   else
   {
-    map_name = get_map_by_params(map, name, cmap_part_ctx_public.c());
+    char * map_name = get_map_by_params(map, name, cmap_part_ctx_public.c());
     if(map_name != NULL)
     {
-      ret.map = strdup(map_name);
+      ret.map = map_name;
       ret.affected = (1 == 1);
     }
     else

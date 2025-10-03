@@ -11,56 +11,25 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process(char * map, char * fn_name, char * args)
+static char * process_append(char * map_fn, char * map, char * args,
+  char need_map_name)
 {
-  char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
-    * map_fn = (map == NULL) ? cmap_parser_var_public.name(fn_name) :
-      cmap_parser_var_public.path(map, fn_name), * instruction = NULL;
+  char * map_name = need_map_name ? NEXT_NAME_VAR() : NULL;
 
-  cmap_string_public.append_args(&instruction,
-    "cmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s", map_fn, map_keep);
-  ADD_ARGS(&instruction, args);
-
-  free(map_fn);
-  free(map_keep);
-
-  return instruction;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * process_fn(char * fn, char * args)
-{
-  char * instruction = NULL;
-
-  cmap_string_public.append_args(&instruction,
-    "cmap_fn_proc((CMAP_FN *)%s, proc_ctx, NULL", fn);
-  ADD_ARGS(&instruction, args);
-
-  free(fn);
-
-  return instruction;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * process_instruction(char * txt, char need_ret)
-{
-  char * map_name = NULL;
-
-  if(need_ret)
+  char * instruction = strdup("");
+  if(map_name != NULL)
   {
-    map_name = NEXT_NAME("var");
     PREPEND_MAP_VAR(map_name);
-
-    APPEND_INSTRUCTION_ARGS("%s = %s", map_name, txt);
+    cmap_string_public.append_args(&instruction, "%s = ", map_name);
   }
-  else APPEND_INSTRUCTION(txt);
+
+  APPEND_INSTRUCTION_ARGS_ARGS(args,
+    "%scmap_fn_proc((CMAP_FN *)%s, proc_ctx, %s", instruction, map_fn, map);
   APPEND_LF();
 
-  free(txt);
+  free(map_fn);
+  free(map);
+  free(instruction);
 
   return map_name;
 }
@@ -68,17 +37,37 @@ static char * process_instruction(char * txt, char need_ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_c(char * fn_name, char need_ret)
+static char * process(char * map, char * fn_name, char * args,
+  char need_map_name)
+{
+  char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
+    * map_fn = (map == NULL) ? cmap_parser_var_public.name(fn_name) :
+      cmap_parser_var_public.path(map, fn_name);
+  return process_append(map_fn, map_keep, args, need_map_name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * process_fn(char * fn, char * args, char need_map_name)
+{
+  return process_append(fn, strdup("NULL"), args, need_map_name);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * process_c(char * fn_name, char need_map_name)
 {
   char * map_name = NULL;
 
-  char * proc_ctx_name = NEXT_NAME("proc_ctx");
+  char * proc_ctx_name = NEXT_NAME_PROC_CTX();
   APPEND_INSTRUCTION_ARGS(
     "CMAP_PROC_CTX * %s = cmap_proc_ctx(proc_ctx);", proc_ctx_name);
 
-  if(need_ret)
+  if(need_map_name)
   {
-    map_name = NEXT_NAME("var");
+    map_name = NEXT_NAME_VAR();
     PREPEND_MAP_VAR(map_name);
     APPEND_INSTRUCTION_ARGS("%s = cmap_delete_proc_ctx(%s, %s(%s));",
       map_name, proc_ctx_name, fn_name, proc_ctx_name);
@@ -108,7 +97,7 @@ static void return_(char * map)
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
-    cmap_part_public.return_();
+    cmap_part_public.set_return();
   }
 }
 
@@ -116,4 +105,4 @@ static void return_(char * map)
 *******************************************************************************/
 
 const CMAP_PARSER_PROCESS_PUBLIC cmap_parser_process_public =
-  {process, process_fn, process_instruction, process_c, return_};
+  {process, process_fn, process_c, return_};

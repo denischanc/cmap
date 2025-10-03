@@ -9,10 +9,9 @@ typedef struct CMAP_PART_CTX CMAP_PART_CTX;
 
 typedef struct
 {
-  CMAP_PART_CTX_NATURE_LOOP(CMAP_PART_CTX_NATURE_DECL)
+  const char * (*uid)();
 
-  void (*cmp_params)();
-  void (*cmp_no_params)();
+  CMAP_PART_CTX_NATURE_LOOP(CMAP_PART_CTX_NATURE_DECL)
 
   char (*is_feature_params)(CMAP_PART_CTX * ctx);
 
@@ -28,14 +27,15 @@ typedef struct
 
   char ** (*instructions)(CMAP_PART_CTX * ctx);
   const char * (*prefix)(CMAP_PART_CTX * ctx);
-  void (*else_)();
-  char (*is_else)();
+  void (*set_else)();
+  char (*is_else_n_rst)();
+  void (*rst_cmp_params)();
   CMAP_STRINGS ** (*fn_arg_names)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*affecteds)(CMAP_PART_CTX * ctx);
 
-  char (*is_definitions)();
-  char (*is_global_env)();
-  void (*return_)();
+  char (*is_definitions_n_set)();
+  char (*is_global_env_n_set)();
+  void (*set_return)();
   char (*is_return)();
   char (*return_fn)(CMAP_PART_CTX * ctx);
   char ** (*variables)(CMAP_PART_CTX * ctx);

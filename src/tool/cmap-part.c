@@ -5,7 +5,6 @@
 #include <string.h>
 #include "cmap-string.h"
 #include "cmap-option.h"
-#include "cmap-part-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -13,6 +12,14 @@
 #define PART_VAR(name) static char * name = NULL;
 
 CMAP_PART_LOOP(PART_VAR)
+
+/*******************************************************************************
+*******************************************************************************/
+
+static const char * uid()
+{
+  return cmap_part_ctx_public.uid();
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,6 +32,17 @@ static char ** name##_() \
 }
 
 CMAP_PART_LOOP(PART_FN)
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define NATURE_FN(NAME, name, val) \
+static void nature_ctx_##name() \
+{ \
+  cmap_part_ctx_public.nature_##name(); \
+}
+
+CMAP_PART_CTX_NATURE_LOOP(NATURE_FN)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -76,7 +94,8 @@ static void prepend_instruction(const char * instruction)
 
   char * tmp = *instructions;
   *instructions = NULL;
-  cmap_string_public.append_args(instructions, SPACE "%s\n\n", instruction);
+  cmap_string_public.append_args(instructions, "%s%s\n\n",
+    cmap_part_ctx_public.prefix(ctx_c), instruction);
   cmap_string_public.append(instructions, tmp);
   free(tmp);
 }
@@ -84,17 +103,14 @@ static void prepend_instruction(const char * instruction)
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_definitions()
+static char is_definitions_n_set()
 {
-  return cmap_part_ctx_public.is_definitions();
+  return cmap_part_ctx_public.is_definitions_n_set();
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static char is_global_env()
+static char is_global_env_n_set()
 {
-  return cmap_part_ctx_public.is_global_env();
+  return cmap_part_ctx_public.is_global_env_n_set();
 }
 
 /*******************************************************************************
@@ -108,9 +124,9 @@ static char * pop_instructions()
 /*******************************************************************************
 *******************************************************************************/
 
-static void return_()
+static void set_return()
 {
-  cmap_part_ctx_public.return_();
+  cmap_part_ctx_public.set_return();
 }
 
 static char is_return()
@@ -142,12 +158,20 @@ static void add_include(const char * name, char is_relative)
 
 static void set_else()
 {
-  cmap_part_ctx_public.else_();
+  cmap_part_ctx_public.set_else();
 }
 
 static char is_else_n_rst()
 {
-  return cmap_part_ctx_public.is_else();
+  return cmap_part_ctx_public.is_else_n_rst();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void rst_cmp_params()
+{
+  cmap_part_ctx_public.rst_cmp_params();
 }
 
 /*******************************************************************************
@@ -214,21 +238,25 @@ static void clean()
 
 #define PART_SET(name) name##_,
 
+#define NATURE_SET(NAME, name, val) nature_ctx_##name,
+
 const CMAP_PART_PUBLIC cmap_part_public =
 {
   clean,
+  uid,
   CMAP_PART_LOOP(PART_SET)
+  CMAP_PART_CTX_NATURE_LOOP(NATURE_SET)
   push_instructions,
   instructions_,
   add_instruction, add_variable,
   add_lf,
   prepend_instruction,
-  is_definitions,
-  is_global_env,
+  is_definitions_n_set, is_global_env_n_set,
   pop_instructions,
-  return_, is_return, return_fn,
+  set_return, is_return, return_fn,
   add_include,
   set_else, is_else_n_rst,
+  rst_cmp_params,
   var_loc, var_no_loc, get_map, get_vars_def, get_params,
   fn_arg_name, delete_fn_arg_names
 };

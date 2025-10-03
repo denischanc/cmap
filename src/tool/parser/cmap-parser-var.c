@@ -12,7 +12,7 @@
 
 static char * path(char * map, char * name)
 {
-  char * map_name = (map == NULL) ? strdup(name) : NEXT_NAME("var");
+  char * map_name = NEXT_NAME_VAR();
   CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name, map_name);
 
   if((ret.ret.map == map_name) || !ret.ret.affected)
@@ -48,25 +48,33 @@ static char * name(char * name)
 
 static void set_local(char * name, char * map)
 {
-  cmap_part_public.var_loc(name, map);
+  char * map_name = NEXT_NAME_VAR();
+  cmap_part_public.var_loc(name, map_name);
 
+  PREPEND_MAP_VAR(map_name);
+  APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
   APPEND_INSTRUCTION_ARGS(
-    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map);
+    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
   APPEND_LF();
 
   free(name);
   free(map);
+  free(map_name);
 }
 
-static void set_fn_arg_name(char * name, int off)
+static char * set_fn_arg_name(char * name, int off)
 {
-  cmap_part_public.var_loc(name, name);
+  char * map_name = NEXT_NAME_VAR();
+  cmap_part_public.var_loc(name, map_name);
 
-  APPEND_VARIABLE_ARGS("CMAP_MAP * %s = cmap_list_get(args, %d);", name, off);
+  APPEND_VARIABLE_ARGS(
+    "CMAP_MAP * %s = cmap_list_get(args, %d);", map_name, off);
   PREPEND_INSTRUCTION_ARGS(
-    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, name);
+    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
 
   free(name);
+
+  return map_name;
 }
 
 /*******************************************************************************
@@ -74,16 +82,20 @@ static void set_fn_arg_name(char * name, int off)
 
 static void set_path(char * src, char * name, char * map)
 {
-  char is_def = cmap_part_public.var_no_loc(src, name, map);
+  char * map_name = NEXT_NAME_VAR();
+  char is_def = cmap_part_public.var_no_loc(src, name, map_name);
   const char * dst = src;
   if(dst == NULL) dst = is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();
 
-  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map);
+  PREPEND_MAP_VAR(map_name);
+  APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map_name);
   APPEND_LF();
 
   free(src);
   free(name);
   free(map);
+  free(map_name);
 }
 
 static void set_global(char * name, char * map)
@@ -138,7 +150,7 @@ static void set_sb_map(char * map, char * map_i, char * map_src)
 
 static char * sb_int(char * map, char * i)
 {
-  char * map_name = NEXT_NAME("var");
+  char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS(
@@ -153,7 +165,7 @@ static char * sb_int(char * map, char * i)
 
 static char * sb_string(char * map, char * string)
 {
-  char * map_name = NEXT_NAME("var");
+  char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, %s);", map_name, map, string);
@@ -167,7 +179,7 @@ static char * sb_string(char * map, char * string)
 
 static char * sb_map(char * map, char * map_i)
 {
-  char * map_name = NEXT_NAME("var");
+  char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);

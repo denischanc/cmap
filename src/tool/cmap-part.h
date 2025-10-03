@@ -2,16 +2,19 @@
 #define __CMAP_PART_H__
 
 #include "cmap-part-define.h"
+#include "cmap-part-ctx.h"
 #include "cmap-part-var.h"
 #include "cmap-strings.h"
-
-#define SPACE "  "
 
 typedef struct
 {
   void (*clean)();
 
+  const char * (*uid)();
+
   CMAP_PART_LOOP(CMAP_PART_DECL)
+
+  CMAP_PART_CTX_NATURE_LOOP(CMAP_PART_NATURE_DECL)
 
   void (*push_instructions)();
   char ** (*instructions)();
@@ -19,11 +22,11 @@ typedef struct
   void (*add_variable)(const char * variable);
   void (*add_lf)();
   void (*prepend_instruction)(const char * instruction);
-  char (*is_definitions)();
-  char (*is_global_env)();
+  char (*is_definitions_n_set)();
+  char (*is_global_env_n_set)();
   char * (*pop_instructions)();
 
-  void (*return_)();
+  void (*set_return)();
   char (*is_return)();
   char (*return_fn)();
 
@@ -31,6 +34,8 @@ typedef struct
 
   void (*set_else)();
   char (*is_else_n_rst)();
+
+  void (*rst_cmp_params)();
 
   void (*var_loc)(const char * name, const char * map);
   char (*var_no_loc)(const char * map, const char * name,

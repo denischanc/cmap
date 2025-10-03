@@ -2,6 +2,7 @@
 #include "cmap-part-ctx.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "cmap-part.h"
 #include "cmap-string.h"
@@ -32,12 +33,13 @@ typedef struct
   char definitions, global_env, return_, return_fn, * variables;
 
   CMAP_PART_KV * name2map;
+
   CMAP_STRINGS * params;
 } CTX_C;
 
 typedef struct
 {
-  char * instructions, * prefix, else_;
+  char * instructions, * prefix, else_, cmp_params;
 
   CMAP_STRINGS * fn_arg_names, * affecteds;
 } CTX_BLOCK;
@@ -48,7 +50,7 @@ struct CMAP_PART_CTX
   CTX_C c;
   CTX_BLOCK block;
 
-  int features;
+  int uid, uid_next, features;
 
   CMAP_PART_CTX * prev, * next;
 };
@@ -60,9 +62,9 @@ CMAP_STACK_DEF(CTX, ctx, CMAP_PART_CTX)
 
 static char nature = 0;
 
-static char cmp_params_ = (1 == 1);
-
 static CMAP_STACK_CTX * ctxs = NULL;
+
+static int uid_ctx = 0;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -75,6 +77,18 @@ static inline CMAP_PART_CTX * cur_ctx()
 /*******************************************************************************
 *******************************************************************************/
 
+static const char * uid()
+{
+  CMAP_PART_CTX * ctx = cur_ctx();
+
+  static char buffer[22];
+  snprintf(buffer, sizeof(buffer), "%d_%d", ctx -> uid, ctx -> uid_next++);
+  return buffer;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 #define NATURE_IMPL(NAME, name, val) \
 static void nature_##name() \
 { \
@@ -82,19 +96,6 @@ static void nature_##name() \
 }
 
 CMAP_PART_CTX_NATURE_LOOP(NATURE_IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void cmp_params()
-{
-  cmp_params_ = (1 == 1);
-}
-
-static void cmp_no_params()
-{
-  cmp_params_ = (1 == 0);
-}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -117,12 +118,17 @@ FEATURE_LOOP(FEATURE_IMPL)
 
 static void ctx_common(CMAP_PART_CTX * ctx)
 {
+  uid_ctx++;
+
+  ctx -> uid = uid_ctx;
+  ctx -> uid_next = 0;
   ctx -> features = 0;
   ctx -> prev = cur_ctx();
   ctx -> next = NULL;
 
   ctx -> block.instructions = strdup("");
   ctx -> block.else_ = (1 == 0);
+  ctx -> block.cmp_params = (1 == 1);
   ctx -> block.fn_arg_names = NULL;
   ctx -> block.affecteds = NULL;
 
@@ -194,10 +200,12 @@ static CMAP_PART_CTX create_ctx_iter()
   return create_ctx_c();
 }
 
+static char is_cmp_params();
+
 static CMAP_PART_CTX create_ctx_cmp()
 {
   CMAP_PART_CTX ctx = create_ctx_c();
-  if(cmp_params_) set_feature_params(&ctx);
+  if(is_cmp_params()) set_feature_params(&ctx);
   return ctx;
 }
 
@@ -353,13 +361,13 @@ static type * what(CMAP_PART_CTX * ctx) \
   return &ctx -> cmap.what; \
 }
 
-#define TOGGLE_BLOCK(what) \
-static void what() \
+#define TOGGLE_BLOCK(what, name) \
+static void set_##name() \
 { \
   cur_ctx() -> block.what = (1 == 1); \
 } \
  \
-static char is_##what() \
+static char is_##name##_n_rst() \
 { \
   if(cur_ctx() -> block.what) \
   { \
@@ -369,8 +377,19 @@ static char is_##what() \
   return (1 == 0); \
 }
 
-#define ONLY_ONE_IS_C(what) \
+#define ONLY_ONE_RST_BLOCK(what) \
+static void rst_##what() \
+{ \
+  cur_ctx() -> block.what = (1 == 0); \
+} \
+ \
 static char is_##what() \
+{ \
+  return cur_ctx() -> block.what; \
+}
+
+#define ONLY_ONE_IS_C(what) \
+static char is_##what##_n_set() \
 { \
   CMAP_PART_CTX * ctx = c(); \
   if(!ctx -> c.what) \
@@ -381,13 +400,13 @@ static char is_##what() \
   return (1 == 1); \
 }
 
-#define ONLY_ONE_SET_C(what) \
-static void what() \
+#define ONLY_ONE_SET_C(what, name) \
+static void set_##name() \
 { \
   c() -> c.what = (1 == 1); \
 } \
  \
-static char is_##what() \
+static char is_##name() \
 { \
   return c() -> c.what; \
 }
@@ -399,7 +418,9 @@ GET_BLOCK(instructions, char *)
 
 GET_BLOCK_CONST(prefix, const char *)
 
-TOGGLE_BLOCK(else_)
+TOGGLE_BLOCK(else_, else)
+
+ONLY_ONE_RST_BLOCK(cmp_params)
 
 GET_BLOCK(fn_arg_names, CMAP_STRINGS *)
 
@@ -411,7 +432,7 @@ GET_BLOCK(affecteds, CMAP_STRINGS *)
 ONLY_ONE_IS_C(definitions)
 ONLY_ONE_IS_C(global_env)
 
-ONLY_ONE_SET_C(return_)
+ONLY_ONE_SET_C(return_, return)
 GET_C_CONST(return_fn, char)
 
 GET_C(variables, char *)
@@ -472,14 +493,15 @@ static CMAP_PART_CTX * bup(CMAP_PART_CTX * ctx)
 
 const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
 {
+  uid,
   CMAP_PART_CTX_NATURE_LOOP(NATURE_SET)
-  cmp_params, cmp_no_params,
   is_feature_params,
   push, pop,
   c, cmap, cmap_prev, c_prev, block_next, last_block,
-  instructions, prefix, else_, is_else_, fn_arg_names, affecteds,
-  is_definitions, is_global_env, return_, is_return_, return_fn, variables,
-  name2map, params,
+  instructions, prefix, set_else, is_else_n_rst, rst_cmp_params, fn_arg_names,
+  affecteds,
+  is_definitions_n_set, is_global_env_n_set, set_return, is_return, return_fn,
+  variables, name2map, params,
   vars_loc, vars_def,
   prev_block_fn_arg_names,
   restore, bup

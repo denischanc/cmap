@@ -29,4 +29,18 @@
 
 #define NEXT_NAME(what) cmap_parser_util_public.next_name(what)
 
+#define NEXT_NAME_VAR() NEXT_NAME("var")
+#define NEXT_NAME_PROC_CTX() NEXT_NAME("proc_ctx")
+
+#define NEXT_NAME_MAP() NEXT_NAME("map")
+#define NEXT_NAME_LIST() NEXT_NAME("list")
+#define NEXT_NAME_STRING() NEXT_NAME("string")
+#define NEXT_NAME_INT() NEXT_NAME("int")
+
+#define NEXT_NAME_DEFS() NEXT_NAME("defs")
+#define NEXT_NAME_FN() NEXT_NAME("fn")
+#define NEXT_NAME_PROCESS() NEXT_NAME("process")
+#define NEXT_NAME_CMP() NEXT_NAME("cmp")
+#define NEXT_NAME_FOR_ITER() NEXT_NAME("for_iter")
+
 #endif

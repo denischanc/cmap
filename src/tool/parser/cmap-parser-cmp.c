@@ -42,7 +42,7 @@ CMAP_PARSER_CMP_LOOP(IMPL)
 
 static char * cmp_unique(char * map)
 {
-  char * cmp_name = NEXT_NAME("int");
+  char * cmp_name = NEXT_NAME_INT();
 
   APPEND_INSTRUCTION_ARGS("int %s;", cmp_name);
   APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map);

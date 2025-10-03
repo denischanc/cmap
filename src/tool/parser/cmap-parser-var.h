@@ -7,7 +7,7 @@ typedef struct
   char * (*name)(char * name);
 
   void (*set_local)(char * name, char * map);
-  void (*set_fn_arg_name)(char * name, int off);
+  char * (*set_fn_arg_name)(char * name, int off);
   void (*set_path)(char * src, char * name, char * map);
   void (*set_global)(char * name, char * map);
 

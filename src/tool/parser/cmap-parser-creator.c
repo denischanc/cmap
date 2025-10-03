@@ -9,7 +9,7 @@
 
 static char * map_args(char * args)
 {
-  char * map_name = NEXT_NAME("map");
+  char * map_name = NEXT_NAME_MAP();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS(args, "%s = cmap_to_map(proc_ctx", map_name);
@@ -23,7 +23,7 @@ static char * map_args(char * args)
 
 static char * list_args(char * args)
 {
-  char * map_name = NEXT_NAME("list");
+  char * map_name = NEXT_NAME_LIST();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS(args,
@@ -38,7 +38,7 @@ static char * list_args(char * args)
 
 static char * string(char * string)
 {
-  char * map_name = NEXT_NAME("string");
+  char * map_name = NEXT_NAME_STRING();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS(
@@ -55,7 +55,7 @@ static char * string(char * string)
 
 static char * int_(char * i)
 {
-  char * map_name = NEXT_NAME("int");
+  char * map_name = NEXT_NAME_INT();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS(
@@ -72,7 +72,7 @@ static char * int_(char * i)
 
 static char * new(char * map, char * args)
 {
-  char * map_name = NEXT_NAME("var");
+  char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS_ARGS(args,

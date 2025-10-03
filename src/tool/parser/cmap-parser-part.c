@@ -105,7 +105,7 @@ static void function_def_apply(const char * string, void * data)
 
 static void function_def(char * map_name, CMAP_STRINGS * vars_def)
 {
-  char * map_def = NEXT_NAME("defs");
+  char * map_def = NEXT_NAME_DEFS();
 
   PREPEND_MAP_VAR(map_def);
   APPEND_INSTRUCTION_ARGS(
@@ -119,14 +119,14 @@ static void function_def(char * map_name, CMAP_STRINGS * vars_def)
 
 static char * function(char * fn_name)
 {
-  char * map_name = NEXT_NAME("fn");
+  char * map_name = NEXT_NAME_FN();
   CMAP_STRINGS * vars_def = NULL;
 
   if(fn_name == NULL)
   {
     cmap_strings_public.add_all(&vars_def, cmap_part_public.get_vars_def());
 
-    fn_name = NEXT_NAME("process");
+    fn_name = NEXT_NAME_PROCESS();
 
     append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
       fn_name, cmap_parser_this_args_public.decl());
@@ -164,7 +164,7 @@ static char * function_cmp()
 {
   cmap_parser_params_public.clone();
 
-  char * bool_fn_name = NEXT_NAME("cmp"),
+  char * bool_fn_name = NEXT_NAME_CMP(),
     * instructions = cmap_part_public.pop_instructions();
 
   CMAP_PARSER_PARAMS_RET params_ret = cmap_parser_params_public.get();
@@ -204,7 +204,7 @@ static void c_impl_root(char * impl)
 
 static char * for_iter()
 {
-  char * call = NEXT_NAME("process_for");
+  char * call = NEXT_NAME_FOR_ITER();
 
   char * params_impl = function_c_params(strdup(call), (1 == 1));
   cmap_string_public.append_args(&call, "(proc_ctx%s)", params_impl);
