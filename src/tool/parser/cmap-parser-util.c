@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "cmap-string.h"
 #include "cmap-part.h"
+#include "cmap-part-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -100,15 +101,27 @@ static void append_instruction_args_args(char * args, const char * txt, ...)
 
 static const char * add_definitions()
 {
-  if(!cmap_part_public.is_definitions_n_set()) append_variable_args(
-    "CMAP_MAP * %s = cmap_definitions(proc_ctx);", DEFINITIONS_VAR_NAME);
+  if(!cmap_part_public.is_definitions_n_set())
+  {
+    CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
+      cmap_part_ctx_public.fn_c());
+    append_variable_args(
+      "CMAP_MAP * %s = cmap_definitions(proc_ctx);", DEFINITIONS_VAR_NAME);
+    cmap_part_ctx_public.restore(ctx_bup);
+  }
   return DEFINITIONS_VAR_NAME;
 }
 
 static const char * add_global_env()
 {
-  if(!cmap_part_public.is_global_env_n_set()) append_variable_args(
-    "CMAP_MAP * %s = cmap_global_env(proc_ctx);", GLOBAL_ENV_VAR_NAME);
+  if(!cmap_part_public.is_global_env_n_set())
+  {
+    CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
+      cmap_part_ctx_public.fn_c());
+    append_variable_args(
+      "CMAP_MAP * %s = cmap_global_env(proc_ctx);", GLOBAL_ENV_VAR_NAME);
+    cmap_part_ctx_public.restore(ctx_bup);
+  }
   return GLOBAL_ENV_VAR_NAME;
 }
 

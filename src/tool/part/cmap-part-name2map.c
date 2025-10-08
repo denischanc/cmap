@@ -38,14 +38,6 @@ static void put(const char * map, const char * name, const char * map_name)
 
 static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 {
-  CMAP_PART_CTX * ctx_c_prev = cmap_part_ctx_public.c_prev(ctx_c);
-  if(ctx_c_prev != NULL)
-  {
-    if(cmap_part_kv_public.get(*cmap_part_ctx_public.name2map(ctx_c_prev),
-      NULL, name) != NULL) return NULL;
-    return is_fn_arg_name(name, ctx_c_prev);
-  }
-
   if(cmap_parser_this_args_public.is(NULL, name)) return strdup(name);
 
   int off = cmap_strings_public.contains(
@@ -53,7 +45,7 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   if(off < 0) return NULL;
 
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
-  char * map_name = cmap_parser_var_public.set_fn_arg_name(strdup(name), off);
+  char * map_name = cmap_parser_var_public.set_fn_arg_name(name, off);
   cmap_part_ctx_public.restore(ctx_bup);
 
   return map_name;
@@ -62,44 +54,56 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * get_map_by_params(const char * map, const char * name,
-  CMAP_PART_CTX * ctx_c)
+static inline CMAP_PART_NAME2MAP_RET create_ret(char * map, char new,
+  char affected)
 {
+  CMAP_PART_NAME2MAP_RET ret;
+  ret.map = map;
+  ret.new = new;
+  ret.affected = affected;
+  return ret;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
+  const char * name, char new, CMAP_PART_CTX * ctx_c)
+{
+  CMAP_PART_NAME2MAP_RET ret;
+
   const char * map_name_ok = cmap_part_kv_public.get(
     *cmap_part_ctx_public.name2map(ctx_c), map, name);
   if(map_name_ok != NULL)
   {
-    CMAP_PART_CTX * ctx_bup =
-      cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx_c));
-    free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
-      strdup(name)));
-    cmap_part_ctx_public.restore(ctx_bup);
+    if(!new)
+    {
+      CMAP_PART_CTX * ctx_bup =
+        cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx_c));
+      free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
+        strdup(name)));
+      cmap_part_ctx_public.restore(ctx_bup);
+    }
 
-    return strdup(map_name_ok);
+    return create_ret(strdup(map_name_ok), new, (1 == 1));
   }
 
   CMAP_PART_CTX * ctx_c_prev = cmap_part_ctx_public.c_prev(ctx_c);
-  if(ctx_c_prev == NULL)
-  {
-    if(map == NULL) return is_fn_arg_name(name, ctx_c);
-    else return NULL;
-  }
+  if(ctx_c_prev == NULL) ret = create_ret(
+    (map == NULL) ? is_fn_arg_name(name, ctx_c) : NULL, new, (1 == 1));
   else
   {
-    if(!cmap_part_ctx_public.is_feature_params(ctx_c) &&
-      !cmap_parser_this_args_public.is(map, name))
+    ret = get_map_by_params(map, name, new ||
+      (!cmap_part_ctx_public.is_feature_params(ctx_c) &&
+      !cmap_parser_this_args_public.is(map, name)), ctx_c_prev);
+    if((ret.map != NULL) && !ret.new)
     {
-      if(map == NULL) free(is_fn_arg_name(name, ctx_c));
-      return NULL;
+      cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), ret.map);
+      put_n_affected(map, name, ret.map, ctx_c);
     }
-
-    char * map_name = get_map_by_params(map, name, ctx_c_prev);
-    if(map_name == NULL) return NULL;
-
-    cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), map_name);
-    put_n_affected(map, name, map_name, ctx_c);
-    return map_name;
   }
+
+  return ret;
 }
 
 /*******************************************************************************
@@ -112,24 +116,12 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
 
   const char * map_name_ok = cmap_part_kv_public.get(
     *cmap_part_ctx_public.name2map(NULL), map, name);
-  if(map_name_ok != NULL)
-  {
-    ret.map = strdup(map_name_ok);
-    ret.affected = !cmap_part_affected_public.add(map_name_ok, NULL);
-  }
+  if(map_name_ok != NULL) ret = create_ret(strdup(map_name_ok), (1 == 0),
+    !cmap_part_affected_public.add(map_name_ok, NULL));
   else
   {
-    char * map_name = get_map_by_params(map, name, cmap_part_ctx_public.c());
-    if(map_name != NULL)
-    {
-      ret.map = map_name;
-      ret.affected = (1 == 1);
-    }
-    else
-    {
-      put_n_affected(map, name, next_name, NULL);
-      ret.map = next_name;
-    }
+    ret = get_map_by_params(map, name, (1 == 0), cmap_part_ctx_public.c());
+    if(ret.map == NULL) put_n_affected(map, name, next_name, NULL);
   }
 
   return ret;

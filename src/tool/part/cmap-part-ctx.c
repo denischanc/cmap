@@ -13,8 +13,9 @@
 
 #define FEATURE_LOOP(macro) \
   macro(ctx_cmap, (1 << 0)) \
-  macro(ctx_c, (1 << 1)) \
-  macro(params, (1 << 2))
+  macro(ctx_fn_c, (1 << 1)) \
+  macro(ctx_c, (1 << 2)) \
+  macro(params, (1 << 3))
 
 #define NATURE_VAL(NAME, name, val) static const char NATURE_##NAME = val;
 
@@ -30,11 +31,16 @@ typedef struct
 
 typedef struct
 {
-  char definitions, global_env, return_, return_fn, * variables;
-
-  CMAP_PART_KV * name2map;
+  char definitions, global_env, return_, return_fn;
 
   CMAP_STRINGS * params;
+} CTX_FN_C;
+
+typedef struct
+{
+  char * variables;
+
+  CMAP_PART_KV * name2map;
 } CTX_C;
 
 typedef struct
@@ -47,6 +53,7 @@ typedef struct
 struct CMAP_PART_CTX
 {
   CTX_CMAP cmap;
+  CTX_FN_C fn_c;
   CTX_C c;
   CTX_BLOCK block;
 
@@ -132,13 +139,14 @@ static void ctx_common(CMAP_PART_CTX * ctx)
   ctx -> block.fn_arg_names = NULL;
   ctx -> block.affecteds = NULL;
 
-  ctx -> c.definitions = (1 == 0);
-  ctx -> c.global_env = (1 == 0);
-  ctx -> c.return_ = (1 == 0);
-  ctx -> c.return_fn = (1 == 0);
   ctx -> c.variables = strdup("");
   ctx -> c.name2map = NULL;
-  ctx -> c.params = NULL;
+
+  ctx -> fn_c.definitions = (1 == 0);
+  ctx -> fn_c.global_env = (1 == 0);
+  ctx -> fn_c.return_ = (1 == 0);
+  ctx -> fn_c.return_fn = (1 == 0);
+  ctx -> fn_c.params = NULL;
 
   ctx -> cmap.vars_loc = NULL;
   ctx -> cmap.vars_def = NULL;
@@ -158,13 +166,14 @@ static void prefix_block(CMAP_PART_CTX * ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_CTX create_ctx_c()
+static CMAP_PART_CTX create_ctx_fn_c()
 {
   CMAP_PART_CTX ctx;
 
   ctx_common(&ctx);
   prefix_fn(&ctx);
 
+  set_feature_ctx_fn_c(&ctx);
   set_feature_ctx_c(&ctx);
 
   return ctx;
@@ -172,7 +181,7 @@ static CMAP_PART_CTX create_ctx_c()
 
 static CMAP_PART_CTX create_ctx_cmap()
 {
-  CMAP_PART_CTX ctx = create_ctx_c();
+  CMAP_PART_CTX ctx = create_ctx_fn_c();
   set_feature_ctx_cmap(&ctx);
   return ctx;
 }
@@ -188,7 +197,7 @@ static CMAP_PART_CTX create_ctx_root()
 static CMAP_PART_CTX create_ctx_fn()
 {
   CMAP_PART_CTX ctx = create_ctx_cmap();
-  ctx.c.return_fn = (1 == 1);
+  ctx.fn_c.return_fn = (1 == 1);
   return ctx;
 }
 
@@ -197,14 +206,14 @@ static CMAP_PART_CTX create_ctx_fn()
 
 static CMAP_PART_CTX create_ctx_iter()
 {
-  return create_ctx_c();
+  return create_ctx_fn_c();
 }
 
 static char is_cmp_params();
 
 static CMAP_PART_CTX create_ctx_cmp()
 {
-  CMAP_PART_CTX ctx = create_ctx_c();
+  CMAP_PART_CTX ctx = create_ctx_fn_c();
   if(is_cmp_params()) set_feature_params(&ctx);
   return ctx;
 }
@@ -256,7 +265,8 @@ static char * pop()
   cmap_strings_public.delete(&ctx.block.affecteds);
 
   cmap_part_kv_public.delete(&ctx.c.name2map);
-  cmap_strings_public.delete(&ctx.c.params);
+
+  cmap_strings_public.delete(&ctx.fn_c.params);
 
   cmap_strings_public.delete(&ctx.cmap.vars_loc);
   cmap_strings_public.delete(&ctx.cmap.vars_def);
@@ -281,6 +291,18 @@ static CMAP_PART_CTX * c_from_ctx(CMAP_PART_CTX * ctx)
 static CMAP_PART_CTX * c()
 {
   return c_from_ctx(NULL);
+}
+
+static CMAP_PART_CTX * fn_c_from_ctx(CMAP_PART_CTX * ctx)
+{
+  if(ctx == NULL) ctx = cur_ctx();
+  while(!is_feature_ctx_fn_c(ctx)) ctx = ctx -> prev;
+  return ctx;
+}
+
+static CMAP_PART_CTX * fn_c()
+{
+  return fn_c_from_ctx(NULL);
 }
 
 static CMAP_PART_CTX * cmap_from_ctx(CMAP_PART_CTX * ctx)
@@ -347,11 +369,18 @@ static type * what(CMAP_PART_CTX * ctx) \
   return &ctx -> c.what; \
 }
 
-#define GET_C_CONST(what, type) \
+#define GET_FN_C(what, type) \
+static type * what(CMAP_PART_CTX * ctx) \
+{ \
+  ctx = fn_c_from_ctx(ctx); \
+  return &ctx -> fn_c.what; \
+}
+
+#define GET_FN_C_CONST(what, type) \
 static type what(CMAP_PART_CTX * ctx) \
 { \
-  ctx = c_from_ctx(ctx); \
-  return ctx -> c.what; \
+  ctx = fn_c_from_ctx(ctx); \
+  return ctx -> fn_c.what; \
 }
 
 #define GET_CMAP(what, type) \
@@ -388,27 +417,27 @@ static char is_##what() \
   return cur_ctx() -> block.what; \
 }
 
-#define ONLY_ONE_IS_C(what) \
+#define ONLY_ONE_IS_FN_C(what) \
 static char is_##what##_n_set() \
 { \
-  CMAP_PART_CTX * ctx = c(); \
-  if(!ctx -> c.what) \
+  CMAP_PART_CTX * ctx = fn_c(); \
+  if(!ctx -> fn_c.what) \
   { \
-    ctx -> c.what = (1 == 1); \
+    ctx -> fn_c.what = (1 == 1); \
     return (1 == 0); \
   } \
   return (1 == 1); \
 }
 
-#define ONLY_ONE_SET_C(what, name) \
+#define ONLY_ONE_SET_FN_C(what, name) \
 static void set_##name() \
 { \
-  c() -> c.what = (1 == 1); \
+  fn_c() -> fn_c.what = (1 == 1); \
 } \
  \
 static char is_##name() \
 { \
-  return c() -> c.what; \
+  return fn_c() -> fn_c.what; \
 }
 
 /*******************************************************************************
@@ -429,17 +458,20 @@ GET_BLOCK(affecteds, CMAP_STRINGS *)
 /*******************************************************************************
 *******************************************************************************/
 
-ONLY_ONE_IS_C(definitions)
-ONLY_ONE_IS_C(global_env)
-
-ONLY_ONE_SET_C(return_, return)
-GET_C_CONST(return_fn, char)
-
 GET_C(variables, char *)
 
 GET_C(name2map, CMAP_PART_KV *)
 
-GET_C(params, CMAP_STRINGS *)
+/*******************************************************************************
+*******************************************************************************/
+
+ONLY_ONE_IS_FN_C(definitions)
+ONLY_ONE_IS_FN_C(global_env)
+
+ONLY_ONE_SET_FN_C(return_, return)
+GET_FN_C_CONST(return_fn, char)
+
+GET_FN_C(params, CMAP_STRINGS *)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -497,11 +529,12 @@ const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
   CMAP_PART_CTX_NATURE_LOOP(NATURE_SET)
   is_feature_params,
   push, pop,
-  c, cmap, cmap_prev, c_prev, block_next, last_block,
+  c, fn_c, cmap, cmap_prev, c_prev, block_next, last_block,
   instructions, prefix, set_else, is_else_n_rst, rst_cmp_params, fn_arg_names,
   affecteds,
+  variables, name2map,
   is_definitions_n_set, is_global_env_n_set, set_return, is_return, return_fn,
-  variables, name2map, params,
+  params,
   vars_loc, vars_def,
   prev_block_fn_arg_names,
   restore, bup

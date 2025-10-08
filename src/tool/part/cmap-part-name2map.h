@@ -3,8 +3,7 @@
 
 typedef struct
 {
-  char * map;
-  char affected;
+  char * map, new, affected;
 } CMAP_PART_NAME2MAP_RET;
 
 typedef struct

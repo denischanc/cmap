@@ -15,18 +15,25 @@ static char * path(char * map, char * name)
   char * map_name = NEXT_NAME_VAR();
   CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name, map_name);
 
-  if((ret.ret.map == map_name) || !ret.ret.affected)
+  if(ret.ret.map == NULL) ret.ret.new = (1 == 1);
+  else
+  {
+    free(map_name);
+    map_name = ret.ret.map;
+  }
+
+  if(ret.ret.new || !ret.ret.affected)
   {
     char * instruction = strdup("");
 
-    if(ret.ret.map == map_name) PREPEND_MAP_VAR(map_name);
+    if(ret.ret.new) PREPEND_MAP_VAR(map_name);
     else cmap_string_public.append_args(&instruction, "if(%s == NULL) ",
-      ret.ret.map);
+      map_name);
 
     const char * dst = map;
     if(dst == NULL) dst = ret.is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();
     APPEND_INSTRUCTION_ARGS(
-      "%s%s = cmap_get(%s, \"%s\");", instruction, ret.ret.map, dst, name);
+      "%s%s = cmap_get(%s, \"%s\");", instruction, map_name, dst, name);
     APPEND_LF();
 
     free(instruction);
@@ -35,7 +42,7 @@ static char * path(char * map, char * name)
   free(map);
   free(name);
 
-  return ret.ret.map;
+  return map_name;
 }
 
 static char * name(char * name)
@@ -62,7 +69,7 @@ static void set_local(char * name, char * map)
   free(map_name);
 }
 
-static char * set_fn_arg_name(char * name, int off)
+static char * set_fn_arg_name(const char * name, int off)
 {
   char * map_name = NEXT_NAME_VAR();
   cmap_part_public.var_loc(name, map_name);
@@ -71,8 +78,6 @@ static char * set_fn_arg_name(char * name, int off)
     "CMAP_MAP * %s = cmap_list_get(args, %d);", map_name, off);
   PREPEND_INSTRUCTION_ARGS(
     "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
-
-  free(name);
 
   return map_name;
 }
