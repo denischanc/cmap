@@ -186,6 +186,18 @@ static CMAP_PART_CTX create_ctx_cmap()
   return ctx;
 }
 
+static CMAP_PART_CTX create_ctx_c()
+{
+  CMAP_PART_CTX ctx;
+
+  ctx_common(&ctx);
+  prefix_block(&ctx);
+
+  set_feature_ctx_c(&ctx);
+
+  return ctx;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -218,6 +230,11 @@ static CMAP_PART_CTX create_ctx_cmp()
   return ctx;
 }
 
+static CMAP_PART_CTX create_ctx_loop()
+{
+  return create_ctx_c();
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -247,6 +264,7 @@ static void push()
     else if(nature == NATURE_ITER) ctx = create_ctx_iter();
     else if(nature == NATURE_CMP) ctx = create_ctx_cmp();
     else if(nature == NATURE_BLOCK) ctx = create_ctx_block();
+    else if(nature == NATURE_LOOP) ctx = create_ctx_loop();
   }
   cmap_stack_ctx_push(&ctxs, ctx);
 

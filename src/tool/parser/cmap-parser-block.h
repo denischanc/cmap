@@ -8,7 +8,7 @@ typedef struct
   void (*else_if)();
   void (*else_)();
 
-  void (*for_)(char * cmp_call, char * loop_call);
+  void (*for_)(char * cmp_call, char * iter_call);
   void (*while_)(char * cmp_call);
 } CMAP_PARSER_BLOCK_PUBLIC;
 

@@ -5,7 +5,8 @@
   macro(FN, fn, 0) \
   macro(ITER, iter, 1) \
   macro(CMP, cmp, 2) \
-  macro(BLOCK, block, 3)
+  macro(BLOCK, block, 3) \
+  macro(LOOP, loop, 4)
 
 #define CMAP_PART_CTX_NATURE_DECL(NAME, name, val) void (*nature_##name)();
 

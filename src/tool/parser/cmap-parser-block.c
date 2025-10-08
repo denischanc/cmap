@@ -49,12 +49,12 @@ static void else_()
 /*******************************************************************************
 *******************************************************************************/
 
-static void for_(char * cmp_call, char * loop_call)
+static void for_(char * cmp_call, char * iter_call)
 {
   char * instructions = cmap_part_public.pop_instructions();
 
-  APPEND_INSTRUCTION_ARGS("for(; %s; %s)", cmp_call, loop_call);
-  free(cmp_call); free(loop_call);
+  APPEND_INSTRUCTION_ARGS("for(; %s; %s)", cmp_call, iter_call);
+  free(cmp_call); free(iter_call);
   APPEND_INSTRUCTION("{");
   cmap_parser_part_public.append_instructions(instructions);
   free(instructions);

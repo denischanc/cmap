@@ -121,7 +121,9 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
   else
   {
     ret = get_map_by_params(map, name, (1 == 0), cmap_part_ctx_public.c());
+
     if(ret.map == NULL) put_n_affected(map, name, next_name, NULL);
+    else if(ret.new) put_n_affected(map, name, ret.map, NULL);
   }
 
   return ret;

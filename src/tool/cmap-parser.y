@@ -231,13 +231,17 @@ for_iter:
   instructions_for { $$ = cmap_parser_part_public.for_iter(); };
 
 for: FOR '(' instructions_for ';' comparison_no_params ';' for_iter ')'
-  '{' instructions '}' { cmap_parser_block_public.for_($5, $7); };
+  '{'
+    { cmap_part_public.nature_ctx_loop(); } instructions
+  '}' { cmap_parser_block_public.for_($5, $7); };
 
 /*******************************************************************************
 *******************************************************************************/
 
-while: WHILE '(' comparison_no_params ')' '{' instructions '}'
-  { cmap_parser_block_public.while_($3); };
+while: WHILE '(' comparison_no_params ')'
+  '{'
+    { cmap_part_public.nature_ctx_loop(); } instructions
+  '}' { cmap_parser_block_public.while_($3); };
 
 /*******************************************************************************
 *******************************************************************************/
