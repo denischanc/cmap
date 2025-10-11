@@ -1,0 +1,27 @@
+/*******************************************************************************
+@TEST_DESC@ Set function argument to blank
+*******************************************************************************/
+[CMAP[
+
+local i = 0;
+j = 0;
+
+local set = function(who, val) {
+  if(who == "i") { i = val; }
+  else if(who == "j") { j = val; }
+
+  for(local k = 0; k < 1; k.inc()) {
+    who = "";
+  }
+
+  who_last = who;
+};
+
+set("i", 1);
+set("j", 2);
+
+if(i != 0) { cmap.fatal("i != 0"); }
+if(j != 2) { cmap.fatal("j != 2"); }
+if(who_last != "") { cmap.fatal("who_last != \"\""); }
+
+]]
