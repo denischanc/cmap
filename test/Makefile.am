@@ -1,8 +1,6 @@
 
 SUBDIRS = util mem parser slist kernel
 
-EXTRA_DIST = test_desc.sh
-
 TESTS =
 XFAIL_TESTS =
 include mem/tests.mk

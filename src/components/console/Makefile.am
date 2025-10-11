@@ -2,16 +2,16 @@
 include $(top_srcdir)/src/common.mk
 include $(top_srcdir)/src/components/common.mk
 
-BUILT_SOURCES = cmap-console-blt.c cmap-console-blt.h
-
 EXTRA_DIST = cmap-console.cmap
+
+BUILT_SOURCES = $(EXTRA_DIST:.cmap=-blt.h)
 
 noinst_HEADERS = cmap-console.h
 
 noinst_LTLIBRARIES = libconsole.la
 
-nodist_libconsole_la_SOURCES = cmap-console-blt.c
+nodist_libconsole_la_SOURCES = $(BUILT_SOURCES:.h=.c)
 libconsole_la_SOURCES = cmap-console.c
 libconsole_la_CFLAGS = $(CMAP_CFLAGS)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES:.h=.c)

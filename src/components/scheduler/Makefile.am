@@ -2,18 +2,16 @@
 include $(top_srcdir)/src/common.mk
 include $(top_srcdir)/src/components/common.mk
 
-BUILT_SOURCES = \
-  cmap-scheduler-blt.c cmap-scheduler-blt.h \
-  cmap-job-blt.c cmap-job-blt.h
+EXTRA_DIST = cmap-job.cmap cmap-scheduler.cmap
 
-EXTRA_DIST = cmap-scheduler.cmap cmap-job.cmap
+BUILT_SOURCES = $(EXTRA_DIST:.cmap=-blt.h)
 
 noinst_HEADERS = cmap-scheduler.h
 
 noinst_LTLIBRARIES = libscheduler.la
 
-nodist_libscheduler_la_SOURCES = cmap-scheduler-blt.c cmap-job-blt.c
+nodist_libscheduler_la_SOURCES = $(BUILT_SOURCES:.h=.c)
 libscheduler_la_SOURCES = cmap-scheduler.c
 libscheduler_la_CFLAGS = $(CMAP_CFLAGS)
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES:.h=.c)

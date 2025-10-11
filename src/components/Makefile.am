@@ -4,15 +4,15 @@ include $(top_srcdir)/src/components/common.mk
 
 SUBDIRS = console scheduler cli
 
-BUILT_SOURCES = cmap-cmap-blt.c cmap-cmap-blt.h
-
 EXTRA_DIST = cmap-cmap.cmap
+
+BUILT_SOURCES = $(EXTRA_DIST:.cmap=-blt.h)
 
 noinst_HEADERS = cmap-cmap.h
 
 noinst_LTLIBRARIES = libcomponents.la
 
-nodist_libcomponents_la_SOURCES = cmap-cmap-blt.c
+nodist_libcomponents_la_SOURCES = $(BUILT_SOURCES:.h=.c)
 libcomponents_la_SOURCES = cmap-cmap.c
 libcomponents_la_CFLAGS = $(CMAP_CFLAGS)
 libcomponents_la_LIBADD = \
@@ -20,4 +20,4 @@ libcomponents_la_LIBADD = \
   scheduler/libscheduler.la \
   cli/libcli.la
 
-CLEANFILES = $(BUILT_SOURCES)
+CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES:.h=.c)

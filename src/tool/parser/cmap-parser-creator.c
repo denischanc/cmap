@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap-parser-util.h"
+#include "cmap-part.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -80,6 +81,8 @@ static char * new(char * map, char * args)
   APPEND_LF();
 
   free(map);
+
+  cmap_part_public.var.proc_clean();
 
   return map_name;
 }
