@@ -424,7 +424,12 @@ static char is_##name##_n_rst() \
   return (1 == 0); \
 }
 
-#define ONLY_ONE_RST_BLOCK(what) \
+#define SET_RST_IS_BLOCK(what) \
+static void set_##what() \
+{ \
+  cur_ctx() -> block.what = (1 == 1); \
+} \
+ \
 static void rst_##what() \
 { \
   cur_ctx() -> block.what = (1 == 0); \
@@ -467,7 +472,7 @@ GET_BLOCK_CONST(prefix, const char *)
 
 TOGGLE_BLOCK(else_, else)
 
-ONLY_ONE_RST_BLOCK(cmp_params)
+SET_RST_IS_BLOCK(cmp_params)
 
 GET_BLOCK(fn_arg_names, CMAP_STRINGS *)
 
@@ -548,8 +553,8 @@ const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
   is_feature_params,
   push, pop,
   c, fn_c, cmap, cmap_prev, c_prev, block_next, last_block,
-  instructions, prefix, set_else, is_else_n_rst, rst_cmp_params, fn_arg_names,
-  affecteds,
+  instructions, prefix, set_else, is_else_n_rst,
+  set_cmp_params, rst_cmp_params, fn_arg_names, affecteds,
   variables, name2map,
   is_definitions_n_set, is_global_env_n_set, set_return, is_return, return_fn,
   params,

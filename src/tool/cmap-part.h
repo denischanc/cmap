@@ -8,9 +8,47 @@
 
 typedef struct
 {
-  void (*clean)();
-
   const char * (*uid)();
+
+  void (*set_else)();
+  char (*is_else_n_rst)();
+
+  void (*set_cmp_params)();
+  void (*rst_cmp_params)();
+
+  void (*fn_arg_name)(char * name);
+  void (*delete_fn_arg_names)();
+
+  char (*is_definitions_n_set)();
+  char (*is_global_env_n_set)();
+
+  void (*set_return)();
+  char (*is_return)();
+  char (*return_fn)();
+
+  CMAP_STRINGS * (*get_params)();
+
+  CMAP_STRINGS * (*get_vars_def)();
+} CMAP_PART_PUBLIC_CTX;
+
+typedef struct
+{
+  CMAP_PART_VAR_RET (*loc)(const char * name, const char * next_name);
+  CMAP_PART_VAR_RET (*no_loc)(const char * map, const char * name,
+    const char * next_name);
+
+  CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name,
+    char * next_name);
+
+  void (*proc_clean)();
+} CMAP_PART_PUBLIC_VAR;
+
+typedef struct
+{
+  CMAP_PART_PUBLIC_CTX ctx;
+  CMAP_PART_PUBLIC_VAR var;
+
+  void (*clean)();
 
   CMAP_PART_LOOP(CMAP_PART_DECL)
 
@@ -22,31 +60,9 @@ typedef struct
   void (*add_variable)(const char * variable);
   void (*add_lf)();
   void (*prepend_instruction)(const char * instruction);
-  char (*is_definitions_n_set)();
-  char (*is_global_env_n_set)();
   char * (*pop_instructions)();
 
-  void (*set_return)();
-  char (*is_return)();
-  char (*return_fn)();
-
   void (*add_include)(const char * name, char is_relative);
-
-  void (*set_else)();
-  char (*is_else_n_rst)();
-
-  void (*rst_cmp_params)();
-
-  void (*var_loc)(const char * name, const char * map);
-  char (*var_no_loc)(const char * map, const char * name,
-    const char * map_name);
-  CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name,
-    char * next_name);
-  CMAP_STRINGS * (*get_vars_def)();
-  CMAP_STRINGS * (*get_params)();
-
-  void (*fn_arg_name)(char * name);
-  void (*delete_fn_arg_names)();
 } CMAP_PART_PUBLIC;
 
 extern const CMAP_PART_PUBLIC cmap_part_public;

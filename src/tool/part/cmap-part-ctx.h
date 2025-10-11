@@ -30,6 +30,7 @@ typedef struct
   const char * (*prefix)(CMAP_PART_CTX * ctx);
   void (*set_else)();
   char (*is_else_n_rst)();
+  void (*set_cmp_params)();
   void (*rst_cmp_params)();
   CMAP_STRINGS ** (*fn_arg_names)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*affecteds)(CMAP_PART_CTX * ctx);

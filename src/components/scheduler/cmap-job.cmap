@@ -1,19 +1,19 @@
-[CMAP[
 
-local job = function(process)
+@FUNCTION(cmap_job_blt_create)
 {
-  this.process = process;
-};
-
-job.prototype =
-{
-  schedule: function()
+  local job = function(process)
   {
-    cmap.scheduler.addJob(this);
-    return this;
-  }
-};
+    this.process = process;
+  };
 
-return job;
+  job.prototype =
+  {
+    schedule: function()
+    {
+      cmap.scheduler.addJob(this);
+      return this;
+    }
+  };
 
-]]
+  return job;
+}

@@ -21,7 +21,32 @@ typedef struct
 /*******************************************************************************
 *******************************************************************************/
 
+static KV create_kv(const char * map, const char * name, const char * map_name)
+{
+  KV kv;
+  kv.key.map = (map == NULL) ? NULL : strdup(map);
+  kv.key.name = strdup(name);
+  kv.map = strdup(map_name);
+  return kv;
+}
+
+static void free_kv(KV * kv)
+{
+  free(kv -> key.map);
+  free(kv -> key.name);
+  free(kv -> map);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_STACK_IMPL(PART_KV, part_kv, KV)
+
+static void rm_kv(CMAP_PART_KV ** kv_ptr)
+{
+  KV kv_elt = cmap_stack_part_kv_pop(kv_ptr);
+  free_kv(&kv_elt);
+}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -40,21 +65,18 @@ static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
   const char * map_name)
 {
   CMAP_PART_KV * kv = *kv_ptr;
-  while(kv != NULL)
+  if(kv == NULL)
+    cmap_stack_part_kv_push(kv_ptr, create_kv(map, name, map_name));
+  else
   {
     KV * kv_elt = &kv -> v;
     if(is_eq(&kv_elt -> key, map, name))
     {
       free(kv_elt -> map);
       kv_elt -> map = strdup(map_name);
-      return;
     }
-    kv = kv -> next;
+    else put(&kv -> next, map, name, map_name);
   }
-
-  KV kv_elt =
-    {{(map == NULL) ? NULL : strdup(map), strdup(name)}, strdup(map_name)};
-  cmap_stack_part_kv_push(kv_ptr, kv_elt);
 }
 
 /*******************************************************************************
@@ -62,26 +84,27 @@ static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
 
 static const char * get(CMAP_PART_KV * kv, const char * map, const char * name)
 {
-  while(kv != NULL)
-  {
-    if(is_eq(&kv -> v.key, map, name)) return kv -> v.map;
-    kv = kv -> next;
-  }
-  return NULL;
+  if(kv == NULL) return NULL;
+
+  if(is_eq(&kv -> v.key, map, name)) return kv -> v.map;
+
+  return get(kv -> next, map, name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void apply(CMAP_PART_KV * kv, CMAP_PART_KV_APPLY fn, void * data)
+static void apply(CMAP_PART_KV ** kv_ptr, CMAP_PART_KV_APPLY fn, void * data)
 {
-  while(kv != NULL)
-  {
-    KV * kv_elt = &kv -> v;
-    fn(kv_elt -> key.map, kv_elt -> key.name, kv_elt -> map, data);
+  CMAP_PART_KV * kv = *kv_ptr;
+  if(kv == NULL) return;
 
-    kv = kv -> next;
-  }
+  KV * kv_elt = &kv -> v;
+  if(fn(kv_elt -> key.map, kv_elt -> key.name, kv_elt -> map, data))
+    rm_kv(kv_ptr);
+  else kv_ptr = &kv -> next;
+
+  apply(kv_ptr, fn, data);
 }
 
 /*******************************************************************************
@@ -90,21 +113,11 @@ static void apply(CMAP_PART_KV * kv, CMAP_PART_KV_APPLY fn, void * data)
 static void delete_key(CMAP_PART_KV ** kv_ptr, const char * map,
   const char * name)
 {
-  while(*kv_ptr != NULL)
-  {
-    if(is_eq(&(*kv_ptr) -> v.key, map, name))
-    {
-      CMAP_PART_KV * cur = *kv_ptr;
-      *kv_ptr = cur -> next;
-      free(cur -> v.key.map);
-      free(cur -> v.key.name);
-      free(cur -> v.map);
-      free(cur);
-      return;
-    }
+  CMAP_PART_KV * kv = *kv_ptr;
+  if(kv == NULL) return;
 
-    kv_ptr = &(*kv_ptr) -> next;
-  }
+  if(is_eq(&kv -> v.key, map, name)) rm_kv(kv_ptr);
+  else delete_key(&kv -> next, map, name);
 }
 
 /*******************************************************************************
@@ -112,13 +125,11 @@ static void delete_key(CMAP_PART_KV ** kv_ptr, const char * map,
 
 static void delete(CMAP_PART_KV ** kv_ptr)
 {
-  while(*kv_ptr != NULL)
-  {
-    KV kv_elt = cmap_stack_part_kv_pop(kv_ptr);
-    free(kv_elt.key.map);
-    free(kv_elt.key.name);
-    free(kv_elt.map);
-  }
+  if(*kv_ptr == NULL) return;
+
+  rm_kv(kv_ptr);
+
+  delete(kv_ptr);
 }
 
 /*******************************************************************************

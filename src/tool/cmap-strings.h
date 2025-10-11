@@ -14,6 +14,8 @@ typedef struct
 
   char (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
 
+  void (*set)(CMAP_STRINGS * strings, int off, const char * string);
+
   void (*apply)(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn, void * data);
 
   void (*add_all)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others);

@@ -54,10 +54,16 @@ static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   CMAP_MAP * arg = CMAP_LIST_SHIFT(args);
-  if((arg != NULL) && (CMAP_NATURE(arg) == CMAP_STRING_NATURE))
+  if(arg != NULL)
   {
-    long v = atol(CMAP_CALL((CMAP_STRING *)arg, val));
-    CMAP_CALL_ARGS((CMAP_INT *)map, set, v);
+    const char * nature = CMAP_NATURE(arg);
+    if(nature == CMAP_STRING_NATURE)
+    {
+      long v = atol(CMAP_CALL((CMAP_STRING *)arg, val));
+      CMAP_CALL_ARGS((CMAP_INT *)map, set, v);
+    }
+    else if(nature == CMAP_INT_NATURE)
+      CMAP_CALL_ARGS((CMAP_INT *)map, set, CMAP_CALL((CMAP_INT *)arg, get));
   }
   return map;
 }

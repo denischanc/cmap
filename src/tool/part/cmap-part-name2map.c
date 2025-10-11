@@ -6,6 +6,7 @@
 #include "cmap-part-kv.h"
 #include "cmap-part-affected.h"
 #include "cmap-part-ctx.h"
+#include "cmap-part-var.h"
 #include "cmap-parser-var.h"
 #include "cmap-parser-this-args.h"
 
@@ -20,9 +21,23 @@ static void put_n_affected(const char * map, const char * name,
   cmap_part_affected_public.add(map_name, ctx);
 }
 
-static void put(const char * map, const char * name, const char * map_name)
+static CMAP_PART_NAME2MAP_RET put(const char * map, const char * name,
+  const char * next_name)
 {
-  put_n_affected(map, name, map_name, NULL);
+  CMAP_PART_NAME2MAP_RET ret;
+
+  const char * map_name =
+    cmap_part_kv_public.get(*cmap_part_ctx_public.name2map(NULL), map, name);
+  if(map_name == NULL)
+  {
+    ret.map = NULL;
+    put_n_affected(map, name, next_name, NULL);
+  }
+  else
+  {
+    ret.map = strdup(map_name);
+    cmap_part_affected_public.add(map_name, NULL);
+  }
 
   CMAP_PART_CTX * ctx = cmap_part_ctx_public.c_prev(NULL);
   while(ctx != NULL)
@@ -31,6 +46,8 @@ static void put(const char * map, const char * name, const char * map_name)
       name);
     ctx = cmap_part_ctx_public.c_prev(ctx);
   }
+
+  return ret;
 }
 
 /*******************************************************************************
@@ -47,6 +64,9 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
   char * map_name = cmap_parser_var_public.set_fn_arg_name(name, off);
   cmap_part_ctx_public.restore(ctx_bup);
+
+  cmap_strings_public.set(
+    cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), off, "");
 
   return map_name;
 }
@@ -132,4 +152,27 @@ static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PART_NAME2MAP_PUBLIC cmap_part_name2map_public = {put, get};
+static char proc_clean_apply(const char * map, const char * name,
+  const char * map_name, void * data)
+{
+  CMAP_PART_CTX * ctx = data;
+  return ((map != NULL) || !cmap_part_var_public.proc_is_local(name, ctx));
+}
+
+static void proc_clean()
+{
+  CMAP_PART_CTX * ctx_c = cmap_part_ctx_public.c();
+  while(ctx_c != NULL)
+  {
+    cmap_part_kv_public.apply(cmap_part_ctx_public.name2map(ctx_c),
+      proc_clean_apply, ctx_c);
+
+    ctx_c = cmap_part_ctx_public.c_prev(ctx_c);
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_PART_NAME2MAP_PUBLIC cmap_part_name2map_public =
+  {put, get, proc_clean};

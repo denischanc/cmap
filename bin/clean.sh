@@ -1,6 +1,7 @@
 #!/bin/sh
 
 THIS_HOME=$(dirname $0)
+CMAP_DIR=$THIS_HOME/..
 
 do_rm() {
 	local ELMT_LIST=$1
@@ -13,11 +14,11 @@ do_rm() {
 
 process_pattern() {
 	local PATTERN=$1
-	local ELMT_LIST=$(find $THIS_HOME -name "$PATTERN" | tr '\n' ' ')
+	local ELMT_LIST=$(find $CMAP_DIR -name "$PATTERN" | tr '\n' ' ')
 	do_rm "$ELMT_LIST"
 }
 
-cat $THIS_HOME/.gitignore | while read PATTERN
+cat $CMAP_DIR/.gitignore | while read PATTERN
 do
 	process_pattern "$PATTERN"
 done

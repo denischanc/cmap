@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-strings.h"
-#include "cmap-part-ctx.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -36,6 +35,18 @@ static char is_loc_or_def_ctx(const char * name, CMAP_PART_CTX * ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+static char proc_is_local(const char * name, CMAP_PART_CTX * ctx)
+{
+  int off_loc =
+    cmap_strings_public.contains(*cmap_part_ctx_public.vars_loc(ctx), name);
+  int off_def =
+    cmap_strings_public.contains(*cmap_part_ctx_public.vars_def(ctx), name);
+  return ((off_loc >= 0) || (off_def >= 0));
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static char is_loc_prev(const char * name)
 {
   CMAP_PART_CTX * ctx = cmap_part_ctx_public.cmap_prev(NULL);
@@ -52,32 +63,39 @@ static char is_loc_prev(const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void put_loc(const char * name, const char * map)
+static CMAP_PART_VAR_RET put_loc(const char * name, const char * next_name)
 {
-  cmap_part_name2map_public.put(NULL, name, map);
+  CMAP_PART_VAR_RET ret;
+
+  ret.ret = cmap_part_name2map_public.put(NULL, name, next_name);
 
   cmap_strings_public.add(cmap_part_ctx_public.vars_loc(NULL), name);
+
+  return ret;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char put_no_loc(const char * map, const char * name,
-  const char * map_name)
+static CMAP_PART_VAR_RET put_no_loc(const char * map, const char * name,
+  const char * next_name)
 {
-  cmap_part_name2map_public.put(map, name, map_name);
+  CMAP_PART_VAR_RET ret;
 
-  if(map != NULL) return (1 == 0);
+  ret.ret = cmap_part_name2map_public.put(map, name, next_name);
 
-  if(is_loc_or_def_ctx(name, NULL)) return (1 == 1);
-
-  if(is_loc_prev(name))
+  if(map == NULL)
   {
-    cmap_strings_public.add(cmap_part_ctx_public.vars_loc(NULL), name);
-    return (1 == 1);
+    if(is_loc_or_def_ctx(name, NULL)) ret.is_def = (1 == 1);
+    else if(is_loc_prev(name))
+    {
+      cmap_strings_public.add(cmap_part_ctx_public.vars_loc(NULL), name);
+      ret.is_def = (1 == 1);
+    }
+    else ret.is_def = (1 == 0);
   }
 
-  return (1 == 0);
+  return ret;
 }
 
 /*******************************************************************************
@@ -108,4 +126,5 @@ static CMAP_PART_VAR_RET get(const char * map, const char * name,
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PART_VAR_PUBLIC cmap_part_var_public = {put_loc, put_no_loc, get};
+const CMAP_PART_VAR_PUBLIC cmap_part_var_public =
+  {proc_is_local, put_loc, put_no_loc, get};

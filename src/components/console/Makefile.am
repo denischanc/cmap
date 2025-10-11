@@ -1,5 +1,6 @@
 
 include $(top_srcdir)/src/common.mk
+include $(top_srcdir)/src/components/common.mk
 
 BUILT_SOURCES = cmap-console-blt.c cmap-console-blt.h
 
@@ -14,9 +15,3 @@ libconsole_la_SOURCES = cmap-console.c
 libconsole_la_CFLAGS = $(CMAP_CFLAGS)
 
 CLEANFILES = $(BUILT_SOURCES)
-
-CMAP_CONSOLE_FILE = $(CMAP_SRC_PATH)/components/console/cmap-console.cmap
-
-cmap-console-blt.c cmap-console-blt.h: $(CMAP_CONSOLE_FILE) $(CMAP_TOOL)
-	$(CMAP_TOOL) build $(CMAP_CONSOLE_FILE) cmap-console-blt \
-	  -i -fcmap_console_blt_create

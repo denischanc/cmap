@@ -18,7 +18,7 @@ static CMAP_STRINGS * params = NULL;
 
 static void clone()
 {
-  cmap_strings_public.add_all(&params, cmap_part_public.get_params());
+  cmap_strings_public.add_all(&params, cmap_part_public.ctx.get_params());
 }
 
 /*******************************************************************************

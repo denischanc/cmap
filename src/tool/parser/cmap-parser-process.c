@@ -31,6 +31,8 @@ static char * process_append(char * map_fn, char * map, char * args,
   free(map);
   free(instruction);
 
+  cmap_part_public.var.proc_clean();
+
   return map_name;
 }
 
@@ -82,6 +84,8 @@ static char * process_c(char * fn_name, char need_map_name)
   free(fn_name);
   free(proc_ctx_name);
 
+  cmap_part_public.var.proc_clean();
+
   return map_name;
 }
 
@@ -91,13 +95,13 @@ static char * process_c(char * fn_name, char need_map_name)
 static void return_(char * map)
 {
   if(map == NULL) APPEND_INSTRUCTION(
-    cmap_part_public.return_fn() ? "return NULL;" : "return;");
+    cmap_part_public.ctx.return_fn() ? "return NULL;" : "return;");
   else
   {
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
-    cmap_part_public.set_return();
+    cmap_part_public.ctx.set_return();
   }
 }
 

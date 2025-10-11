@@ -81,6 +81,7 @@ AC_CONFIG_FILES([
   test/Makefile
   test/kernel/Makefile
   test/mem/Makefile
+  test/parser/Makefile
   test/slist/Makefile
   test/util/Makefile
 ])

@@ -2,6 +2,7 @@
 #define __CMAP_PART_VAR_H__
 
 #include "cmap-part-name2map.h"
+#include "cmap-part-ctx.h"
 
 typedef struct
 {
@@ -11,9 +12,11 @@ typedef struct
 
 typedef struct
 {
-  void (*put_loc)(const char * name, const char * map);
-  char (*put_no_loc)(const char * map, const char * name,
-    const char * map_name);
+  char (*proc_is_local)(const char * name, CMAP_PART_CTX * ctx);
+
+  CMAP_PART_VAR_RET (*put_loc)(const char * name, const char * next_name);
+  CMAP_PART_VAR_RET (*put_no_loc)(const char * map, const char * name,
+    const char * next_name);
 
   CMAP_PART_VAR_RET (*get)(const char * map, const char * name,
     char * next_name);

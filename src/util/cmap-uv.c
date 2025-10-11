@@ -39,7 +39,7 @@ static void loop_run()
 
 static void loop_close()
 {
-  error(uv_loop_close(loop()));
+  if(!uv_loop_alive(loop())) error(uv_loop_close(loop()));
 }
 
 /*******************************************************************************

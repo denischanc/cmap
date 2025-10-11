@@ -23,7 +23,7 @@ static void cmap_stack_##name##_push(CMAP_STACK_##NAME ** stack, type v) \
 static type cmap_stack_##name##_pop(CMAP_STACK_##NAME ** stack) \
 { \
   CMAP_STACK_##NAME * tmp = *stack; \
-  *stack = (*stack) -> next; \
+  *stack = tmp -> next; \
  \
   type ret = tmp -> v; \
   free(tmp); \

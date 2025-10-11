@@ -52,7 +52,7 @@ static void include_(char * includes)
 
 static char * function_c_params(char * name, char is_static)
 {
-  char is_return = cmap_part_public.is_return();
+  char is_return = cmap_part_public.ctx.is_return();
 
   cmap_parser_params_public.clone();
 
@@ -124,16 +124,16 @@ static char * function(char * fn_name)
 
   if(fn_name == NULL)
   {
-    cmap_strings_public.add_all(&vars_def, cmap_part_public.get_vars_def());
+    cmap_strings_public.add_all(&vars_def, cmap_part_public.ctx.get_vars_def());
 
     fn_name = NEXT_NAME_PROCESS();
 
     append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
       fn_name, cmap_parser_this_args_public.decl());
 
-    if(!cmap_part_public.is_return()) APPEND_INSTRUCTION("return NULL;");
+    if(!cmap_part_public.ctx.is_return()) APPEND_INSTRUCTION("return NULL;");
     char * instructions = cmap_part_public.pop_instructions();
-    cmap_part_public.delete_fn_arg_names();
+    cmap_part_public.ctx.delete_fn_arg_names();
     append_main(instructions);
     free(instructions);
 

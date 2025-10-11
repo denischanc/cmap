@@ -34,7 +34,7 @@ static char * args_push(char * list, char * map)
 
 static void arg_name(char * name)
 {
-  cmap_part_public.fn_arg_name(name);
+  cmap_part_public.ctx.fn_arg_name(name);
   free(name);
 }
 

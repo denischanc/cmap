@@ -11,3 +11,6 @@ CMAP_TEST_CFLAGS = \
 CMAP_TEST_LDADD_COMMON = \
   $(CMAP_TEST_BUILD_PATH)/util/libtest.la \
   $(CMAP_BUILD_PATH)/libcmap.la
+
+%.c: $(srcdir)/%.cmap $(CMAP_TOOL)
+	$(CMAP_TOOL) build $< $(@:.c=) -ic $(CMAP_TOOL_FLAGS)

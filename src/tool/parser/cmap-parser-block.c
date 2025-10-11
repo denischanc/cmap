@@ -15,7 +15,7 @@ static void if_(char * cmp_call)
 {
   char * instructions = cmap_part_public.pop_instructions();
 
-  char * else_ = cmap_part_public.is_else_n_rst() ? "else " : "";
+  char * else_ = cmap_part_public.ctx.is_else_n_rst() ? "else " : "";
   APPEND_INSTRUCTION_ARGS("%sif(%s)", else_, cmp_call);
   free(cmp_call);
   APPEND_INSTRUCTION("{");
@@ -31,7 +31,7 @@ static void else_empty()
 
 static void else_if()
 {
-  cmap_part_public.set_else();
+  cmap_part_public.ctx.set_else();
 }
 
 static void else_()

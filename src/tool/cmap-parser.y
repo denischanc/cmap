@@ -195,8 +195,10 @@ else: { cmap_parser_block_public.else_empty(); }
 
 comparison: comparison_deep;
 
-comparison_no_params: { cmap_part_public.rst_cmp_params(); } comparison_deep
-  { $$ = $2; };
+comparison_no_params:
+  { cmap_part_public.ctx.rst_cmp_params(); }
+  comparison_deep
+  { cmap_part_public.ctx.set_cmp_params(); $$ = $2; };
 
 comparison_deep:
   {

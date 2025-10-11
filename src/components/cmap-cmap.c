@@ -29,10 +29,22 @@ static CMAP_MAP * prototype(CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_MAP * fatal_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+  CMAP_LIST * args)
+{
+  cmap_lproc(cmap_get(map, "console"), "error", proc_ctx, args);
+  cmap_fatal();
+  return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
 {
   CMAP_MAP * cmap = cmap_cmap_blt_create(proc_ctx);
   CMAP_SET(cmap, "cli", cmap_cli_public.create(proc_ctx, argc, argv));
+  CMAP_SET(cmap, "fatal", cmap_fn(fatal_fn, proc_ctx));
   return cmap;
 }
 

@@ -13,7 +13,7 @@
 static char * path(char * map, char * name)
 {
   char * map_name = NEXT_NAME_VAR();
-  CMAP_PART_VAR_RET ret = cmap_part_public.get_map(map, name, map_name);
+  CMAP_PART_VAR_RET ret = cmap_part_public.var.get_map(map, name, map_name);
 
   if(ret.ret.map == NULL) ret.ret.new = (1 == 1);
   else
@@ -56,9 +56,15 @@ static char * name(char * name)
 static void set_local(char * name, char * map)
 {
   char * map_name = NEXT_NAME_VAR();
-  cmap_part_public.var_loc(name, map_name);
+  CMAP_PART_VAR_RET ret = cmap_part_public.var.loc(name, map_name);
 
-  PREPEND_MAP_VAR(map_name);
+  if(ret.ret.map != NULL)
+  {
+    free(map_name);
+    map_name = ret.ret.map;
+  }
+  else PREPEND_MAP_VAR(map_name);
+
   APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
   APPEND_INSTRUCTION_ARGS(
     "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
@@ -72,7 +78,7 @@ static void set_local(char * name, char * map)
 static char * set_fn_arg_name(const char * name, int off)
 {
   char * map_name = NEXT_NAME_VAR();
-  cmap_part_public.var_loc(name, map_name);
+  cmap_part_public.var.loc(name, map_name);
 
   APPEND_VARIABLE_ARGS(
     "CMAP_MAP * %s = cmap_list_get(args, %d);", map_name, off);
@@ -88,11 +94,18 @@ static char * set_fn_arg_name(const char * name, int off)
 static void set_path(char * src, char * name, char * map)
 {
   char * map_name = NEXT_NAME_VAR();
-  char is_def = cmap_part_public.var_no_loc(src, name, map_name);
-  const char * dst = src;
-  if(dst == NULL) dst = is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();
+  CMAP_PART_VAR_RET ret = cmap_part_public.var.no_loc(src, name, map_name);
 
-  PREPEND_MAP_VAR(map_name);
+  const char * dst = src;
+  if(dst == NULL) dst = ret.is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();
+
+  if(ret.ret.map != NULL)
+  {
+    free(map_name);
+    map_name = ret.ret.map;
+  }
+  else PREPEND_MAP_VAR(map_name);
+
   APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
   APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map_name);
   APPEND_LF();

@@ -1,0 +1,24 @@
+/*******************************************************************************
+@TEST_DESC@ Function argument names
+*******************************************************************************/
+[CMAP[
+
+factory = function(inc)
+{
+  local i = 0;
+  return function()
+  {
+    return i.add(inc);
+  };
+};
+
+inc2 = factory(2);
+inc3 = factory(3);
+
+if(inc2() != 2) { cmap.fatal("inc2() != 2"); }
+if(inc3() != 3) { cmap.fatal("inc3() != 3"); }
+
+if(inc2() != 4) { cmap.fatal("inc2() != 4"); }
+if(inc3() != 6) { cmap.fatal("inc3() != 6"); }
+
+]]

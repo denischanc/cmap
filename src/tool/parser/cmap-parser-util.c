@@ -101,7 +101,7 @@ static void append_instruction_args_args(char * args, const char * txt, ...)
 
 static const char * add_definitions()
 {
-  if(!cmap_part_public.is_definitions_n_set())
+  if(!cmap_part_public.ctx.is_definitions_n_set())
   {
     CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
       cmap_part_ctx_public.fn_c());
@@ -114,7 +114,7 @@ static const char * add_definitions()
 
 static const char * add_global_env()
 {
-  if(!cmap_part_public.is_global_env_n_set())
+  if(!cmap_part_public.ctx.is_global_env_n_set())
   {
     CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
       cmap_part_ctx_public.fn_c());
@@ -140,7 +140,7 @@ static char * next_name(const char * what)
 {
   char * name = NULL;
   cmap_string_public.append_args(&name, "cmap_gen_%s_id%s", what,
-    cmap_part_public.uid());
+    cmap_part_public.ctx.uid());
   return name;
 }
 

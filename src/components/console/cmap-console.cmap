@@ -3,13 +3,16 @@
 #include "cmap-console.h"
 
 ]]
-[CMAP[
 
-return
+/*******************************************************************************
+*******************************************************************************/
+
+@FUNCTION(cmap_console_blt_create)
 {
-  info: function()(cmap_console_public.info),
-  print: function()(cmap_console_public.print),
-  error: function()(cmap_console_public.error)
-};
-
-]]
+  return
+  {
+    info: function()(cmap_console_public.info),
+    print: function()(cmap_console_public.print),
+    error: function()(cmap_console_public.error)
+  };
+}

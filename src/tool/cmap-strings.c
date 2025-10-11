@@ -46,6 +46,28 @@ static char add(CMAP_STRINGS ** strings_ptr, const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
+static int set_helper(CMAP_STRINGS * strings, int off, const char * string)
+{
+  if(strings == NULL) return -1;
+
+  int cur = set_helper(strings -> next, off, string) + 1;
+  if(cur == off)
+  {
+    free(strings -> v);
+    strings -> v = strdup(string);
+  }
+
+  return cur;
+}
+
+static void set(CMAP_STRINGS * strings, int off, const char * string)
+{
+  set_helper(strings, off, string);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
   void * data)
 {
@@ -83,6 +105,7 @@ const CMAP_STRINGS_PUBLIC cmap_strings_public =
 {
   contains,
   add,
+  set,
   apply,
   add_all,
   delete
