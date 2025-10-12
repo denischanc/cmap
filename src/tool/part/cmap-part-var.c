@@ -85,15 +85,7 @@ static CMAP_PART_VAR_RET put_no_loc(const char * map, const char * name,
   ret.ret = cmap_part_name2map_public.put(map, name, next_name);
 
   if(map == NULL)
-  {
-    if(is_loc_or_def_ctx(name, NULL)) ret.is_def = (1 == 1);
-    else if(is_loc_prev(name))
-    {
-      cmap_strings_public.add(cmap_part_ctx_public.vars_loc(NULL), name);
-      ret.is_def = (1 == 1);
-    }
-    else ret.is_def = (1 == 0);
-  }
+    ret.is_def = (is_loc_or_def_ctx(name, NULL) || is_loc_prev(name));
 
   return ret;
 }
