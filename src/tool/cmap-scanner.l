@@ -38,6 +38,7 @@ SPACE_D [[:space:]]+
 
 "\"" { BEGIN(STRING_S); string_start("\""); }
 <STRING_S>{
+  "\\\\" { string_append(yytext); }
   "\\\"" { string_append(yytext); }
   "\"" { BEGIN(INITIAL); string_end(yylval, "\""); return STRING; }
   . { string_append(yytext); }
