@@ -1,4 +1,3 @@
-[CMAP[
 
 screen = function(nbCol, nbLine)
 {
@@ -115,5 +114,3 @@ screen.line.pt.prototype =
     if(ctl != null) { this.ctl.clean().append(ctl); }
   }
 };
-
-]]

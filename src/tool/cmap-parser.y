@@ -30,10 +30,10 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
   char * name;
 }
 
-%token FUNCTION_C STATIC_FUNCTION_C LOCAL NULL_PTR RETURN FUNCTION PROC
-%token IF ELSE LE GE EQUAL DIFF NEW SB2_O SB2_C CMAP FOR OR AND WHILE
+%token FUNCTION_C STATIC_FUNCTION_C PROC IMPORT LOCAL NULL_PTR RETURN FUNCTION
+%token IF ELSE NEW FOR WHILE SB2_O SB2_C LE GE EQUAL DIFF OR AND
 %token ERROR
-%token<name> STRING C_IMPL INCLUDE NAME INT
+%token<name> STRING C_IMPL C_IMPL_ROOT INCLUDE NAME INT
 
 %type<name> names creator creator_no_bracket cmap cmap_no_bracket
 %type<name> args arg_names_cmap
@@ -51,10 +51,11 @@ start: include parts_or_instructions;
 include: | INCLUDE { cmap_parser_part_public.include_($1); };
 
 parts_or_instructions: parts
-| CMAP instructions SB2_C { cmap_parser_part_public.instructions_root(); };
+| instructions { cmap_parser_part_public.instructions_root(); };
 
-parts:
-| parts C_IMPL { cmap_parser_part_public.c_impl_root($2); }
+parts: C_IMPL_ROOT { cmap_parser_part_public.c_impl_root($1); }
+| function_c
+| parts C_IMPL_ROOT { cmap_parser_part_public.c_impl_root($2); }
 | parts function_c;
 
 /*******************************************************************************
@@ -174,9 +175,10 @@ process_ret: NAME '(' args ')'
 /*******************************************************************************
 *******************************************************************************/
 
-function: FUNCTION '(' arg_names ')' '{'
-  { cmap_part_public.nature_ctx_fn(); } instructions '}'
-  { $$ = cmap_parser_part_public.function(NULL); }
+function: FUNCTION '(' arg_names ')'
+  '{'
+    { cmap_part_public.nature_ctx_fn(); } instructions
+  '}' { $$ = cmap_parser_part_public.function(NULL); }
 | FUNCTION '(' arg_names ')' '(' names ')'
   { $$ = cmap_parser_part_public.function($6); };
 

@@ -1,11 +1,11 @@
-[INCLUDE[
+@INCLUDE
+{
 
 #include "random.h"
 #include "snake.h"
 #include "screen.h"
 
-]]
-[CMAP[
+}
 
 @PROC(random_global_env);
 @PROC(snake);
@@ -65,5 +65,3 @@ local init = function()
 };
 
 new cmap.scheduler.job(init).schedule();
-
-]]

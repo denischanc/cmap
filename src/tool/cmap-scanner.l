@@ -15,7 +15,7 @@ static void set_name(YYSTYPE * yylval_p, const char * name);
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
-%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S INCLUDE_S
+%x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S C_IMPL_ROOT_S INCLUDE_S
 
 NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
 INT_D \-?[[:digit:]]+
@@ -45,31 +45,41 @@ SPACE_D [[:space:]]+
   "\n" { string_append(yytext); }
 }
 
-[[:space:]]*"[C["[[:space:]]* { BEGIN(C_IMPL_S); string_start(""); }
+"@C"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_S); string_start(""); }
 <C_IMPL_S>{
-  [[:space:]]*"]]" { BEGIN(INITIAL); string_end(yylval, ""); return C_IMPL; }
+  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval, ""); return C_IMPL; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
 
-[[:space:]]*"[INCLUDE["[[:space:]]* { BEGIN(INCLUDE_S); string_start(""); }
+"@C_ROOT"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_ROOT_S); string_start("");
+  }
+<C_IMPL_ROOT_S>{
+  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval, "");
+    return C_IMPL_ROOT; }
+  . { string_append(yytext); }
+  "\n" { string_append(yytext); }
+}
+
+"@INCLUDE"[[:space:]]*"{"[[:space:]]* { BEGIN(INCLUDE_S); string_start(""); }
 <INCLUDE_S>{
-  [[:space:]]*"]]" { BEGIN(INITIAL); string_end(yylval, ""); return INCLUDE; }
+  [[:space:]]*"}" { BEGIN(INITIAL); string_end(yylval, ""); return INCLUDE; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
 
 "@FUNCTION" { return FUNCTION_C; }
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
+"@PROC" { return PROC; }
+"@IMPORT" { return IMPORT; }
+
 "local" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
-"@PROC" { return PROC; }
 "if" { return IF; }
 "else" { return ELSE; }
 "new" { return NEW; }
-"[CMAP[" { return CMAP; }
 "for" { return FOR; }
 "while" { return WHILE; }
 

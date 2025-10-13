@@ -1,4 +1,3 @@
-[CMAP[
 
 local name = cmap.cli.args[[1]];
 if(name == null) { name = "World"; }
@@ -23,5 +22,3 @@ local helloWorld = function()
 
 local job = new cmap.scheduler.job(helloWorld);
 job.schedule();
-
-]]

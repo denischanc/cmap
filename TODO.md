@@ -6,7 +6,6 @@ TODO
 * refactor pool, map ?
 * prototype
     * creation KO (map not initialized)
-    * map: rm new(), add it in init
     * it must be referenced
 * cmap-tuning.h: memory, chunk size; pool, size; slist, chunk size; ...
 * map: (key, val) in pool
@@ -16,10 +15,6 @@ TODO
 * add add_if_not_eq in stree and modify sset add
 * add define for references debug as CONSUMED_TIME
 * rm scheduler : uv_timer_t pool, jobs_nb in env
-
-## Parser
-
-* remove [CMAP[
 
 ## Doc
 

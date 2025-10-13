@@ -1,11 +1,18 @@
 /*******************************************************************************
 @TEST_DESC@ Zombie deletion
 *******************************************************************************/
-[INCLUDE[
+
+@INCLUDE
+{
 
 #include "cmap-log-ext.h"
 
-void test006(CMAP_PROC_CTX *);
+}
+
+@C_ROOT
+{{
+
+static void test006(CMAP_PROC_CTX *);
 
 int main(int argc, char * argv[])
 {
@@ -14,33 +21,33 @@ int main(int argc, char * argv[])
   return cmap_main();
 }
 
-]]
-[CMAP[
+}}
 
-zombie = "zombie";
-zombie.n12 = "n12";
-zombie.n13 = "n13";
-zombie.n22 = "n22";
-zombie.n25 = "n25";
-zombie.n31 = "n31";
+@STATIC_FUNCTION(test006)
+{
+  zombie = "zombie";
+  zombie.n12 = "n12";
+  zombie.n13 = "n13";
+  zombie.n22 = "n22";
+  zombie.n25 = "n25";
+  zombie.n31 = "n31";
 
-zombie.n12.n14 = "n14";
-zombie.n12.n15 = "n15";
-zombie.n12.n15.n12 = zombie.n12;
+  zombie.n12.n14 = "n14";
+  zombie.n12.n15 = "n15";
+  zombie.n12.n15.n12 = zombie.n12;
 
-zombie.n13.n14 = zombie.n12.n14;
-zombie.n13.n14.zombie = zombie;
+  zombie.n13.n14 = zombie.n12.n14;
+  zombie.n13.n14.zombie = zombie;
 
-n21 = "n21";
-n21.n22 = zombie.n22;
+  n21 = "n21";
+  n21.n22 = zombie.n22;
 
-n21.n22.n23 = "n23";
+  n21.n22.n23 = "n23";
 
-n21.n22.n23.n24 = "n24";
+  n21.n22.n23.n24 = "n24";
 
-n21.n22.n23.n24.n22 = zombie.n22;
-n21.n22.n23.n24.n25 = zombie.n25;
+  n21.n22.n23.n24.n22 = zombie.n22;
+  n21.n22.n23.n24.n25 = zombie.n25;
 
-n21.n22.n23.n24.n25.n26 = "n26";
-
-]]
+  n21.n22.n23.n24.n25.n26 = "n26";
+}

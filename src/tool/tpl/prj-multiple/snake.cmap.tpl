@@ -1,4 +1,3 @@
-[CMAP[
 
 snake = function(screen, start, stop, ctl)
 {
@@ -99,5 +98,3 @@ snake.prototype =
     this.nextLine(height.dec().dec());
   }
 };
-
-]]
