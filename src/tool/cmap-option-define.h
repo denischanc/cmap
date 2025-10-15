@@ -10,10 +10,11 @@
 
 #define CMAP_OPTION_BOOL_DECL(name) \
   void (*name)(); \
+  void (*set_##name)(char val); \
   char (*is_##name)();
 
 #define CMAP_OPTION_STRING_DECL(name) \
-  void (*set_##name)(char * val); \
-  char * (*name)();
+  void (*set_##name)(const char * val); \
+  const char * (*name)();
 
 #endif

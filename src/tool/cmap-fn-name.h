@@ -7,9 +7,12 @@ typedef struct
 {
   void (*clean)();
 
-  char * (*name)();
+  const char * (*name)();
 
   CMAP_FN_NAME_LOOP(CMAP_FN_NAME_DECL)
+
+  char * (*resolve)(const char * path);
+  void (*from_path_resolve)(const char * path);
 } CMAP_FN_NAME_PUBLIC;
 
 extern const CMAP_FN_NAME_PUBLIC cmap_fn_name_public;

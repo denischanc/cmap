@@ -2,19 +2,24 @@
 #include "cmap-parser-process.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <errno.h>
 #include "cmap-parser-var.h"
 #include "cmap-string.h"
 #include "cmap-parser-util.h"
 #include "cmap-part.h"
+#include "cmap-fn-name.h"
+#include "cmap-option.h"
+#include "cmap-build.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static char * process_append(char * map_fn, char * map, char * args,
-  char need_map_name)
+  char do_return)
 {
-  char * map_name = need_map_name ? NEXT_NAME_VAR() : NULL;
+  char * map_name = do_return ? NEXT_NAME_VAR() : NULL;
 
   char * instruction = strdup("");
   if(map_name != NULL)
@@ -39,27 +44,26 @@ static char * process_append(char * map_fn, char * map, char * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process(char * map, char * fn_name, char * args,
-  char need_map_name)
+static char * process(char * map, char * fn_name, char * args, char do_return)
 {
   char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
     * map_fn = (map == NULL) ? cmap_parser_var_public.name(fn_name) :
       cmap_parser_var_public.path(map, fn_name);
-  return process_append(map_fn, map_keep, args, need_map_name);
+  return process_append(map_fn, map_keep, args, do_return);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_fn(char * fn, char * args, char need_map_name)
+static char * process_fn(char * fn, char * args, char do_return)
 {
-  return process_append(fn, strdup("NULL"), args, need_map_name);
+  return process_append(fn, strdup("NULL"), args, do_return);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_c(char * fn_name, char need_map_name)
+static char * process_c(char * fn_name, char do_return)
 {
   char * map_name = NULL;
 
@@ -67,7 +71,7 @@ static char * process_c(char * fn_name, char need_map_name)
   APPEND_INSTRUCTION_ARGS(
     "CMAP_PROC_CTX * %s = cmap_proc_ctx(proc_ctx);", proc_ctx_name);
 
-  if(need_map_name)
+  if(do_return)
   {
     map_name = NEXT_NAME_VAR();
     PREPEND_MAP_VAR(map_name);
@@ -92,6 +96,93 @@ static char * process_c(char * fn_name, char need_map_name)
 /*******************************************************************************
 *******************************************************************************/
 
+typedef struct
+{
+  char * fn_name, only_c, * parse_path;
+  CMAP_PART_CTX * ctx;
+} IMPORT_CTX;
+
+static IMPORT_CTX import_ctx_bup()
+{
+  IMPORT_CTX ctx;
+  ctx.fn_name = strdup(cmap_fn_name_public.name());
+  ctx.only_c = cmap_option_public.is_only_c();
+  ctx.parse_path = strdup(cmap_build_public.get_parse_path());
+  ctx.ctx = cmap_part_public.ctx.bup();
+  return ctx;
+}
+
+static void import_ctx_set(const char * fn_name, const char * parse_path)
+{
+  cmap_fn_name_public.from_parser(fn_name);
+  cmap_option_public.only_c();
+  cmap_build_public.set_parse_path(parse_path);
+}
+
+static void import_ctx_restore(IMPORT_CTX ctx)
+{
+  cmap_fn_name_public.from_parser(ctx.fn_name);
+  free(ctx.fn_name);
+  cmap_option_public.set_only_c(ctx.only_c);
+  cmap_build_public.set_parse_path(ctx.parse_path);
+  free(ctx.parse_path);
+  cmap_part_public.ctx.restore(ctx.ctx);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char * import_parse_path(const char * path)
+{
+  if(path[0] == '/') return strdup(path);
+
+  char * parse_path = strdup(cmap_build_public.get_parse_path());
+  char * tmp = strrchr(parse_path, '/');
+  if(tmp != NULL) *(tmp + 1) = 0;
+  else { free(parse_path); parse_path = NULL; }
+
+  cmap_string_public.append(&parse_path, path);
+
+  tmp = realpath(parse_path, NULL);
+  if(tmp == NULL) fprintf(stderr, "[%s] %s\n", parse_path, strerror(errno));
+  free(parse_path);
+
+  return tmp;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static char import(char ** map_name, char * path, char * fn_name)
+{
+  const char * path_ok = path + 1;
+  path[strlen(path) - 1] = 0;
+
+  if(fn_name == NULL) fn_name = cmap_fn_name_public.resolve(path_ok);
+  char * parse_path = import_parse_path(path_ok);
+
+  if(parse_path == NULL) { free(path); free(fn_name); return (1 == 0); }
+
+  free(path);
+
+  IMPORT_CTX bup = import_ctx_bup();
+
+  import_ctx_set(fn_name, parse_path);
+  free(parse_path);
+  int ret = cmap_build_public.parse();
+
+  import_ctx_restore(bup);
+
+  if(ret != 0) { free(fn_name); return (1 == 0); }
+
+  if(map_name == NULL) process_c(fn_name, (1 == 0));
+  else *map_name = process_c(fn_name, (1 == 1));
+  return (1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void return_(char * map)
 {
   if(map == NULL) APPEND_INSTRUCTION(
@@ -109,4 +200,8 @@ static void return_(char * map)
 *******************************************************************************/
 
 const CMAP_PARSER_PROCESS_PUBLIC cmap_parser_process_public =
-  {process, process_fn, process_c, return_};
+{
+  process, process_fn,
+  process_c, import,
+  return_
+};

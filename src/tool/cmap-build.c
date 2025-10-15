@@ -19,6 +19,25 @@
 /*******************************************************************************
 *******************************************************************************/
 
+static char * parse_path = NULL;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void set_parse_path(const char * path)
+{
+  free(parse_path);
+  parse_path = (path != NULL) ? strdup(path) : NULL;
+}
+
+static const char * get_parse_path()
+{
+  return parse_path;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void add_include(const char * out_h_name)
 {
   if(!cmap_option_public.is_only_c())
@@ -35,12 +54,12 @@ static void add_include(const char * out_h_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static int parse(const char * in_name)
+static int parse()
 {
-  FILE * in = fopen(in_name, "r");
+  FILE * in = fopen(parse_path, "r");
   if(in == NULL)
   {
-    fprintf(stderr, "[%s] %s\n", in_name, strerror(errno));
+    fprintf(stderr, "[%s] %s\n", parse_path, strerror(errno));
     return 1;
   }
 
@@ -49,6 +68,7 @@ static int parse(const char * in_name)
   cmap_parser_set_in(in, scanner);
 
   int ret = cmap_parser_parse(scanner);
+  if(ret != 0) cmap_part_public.ctx.clean();
 
   cmap_parser_lex_destroy(scanner);
 
@@ -159,7 +179,7 @@ static void mng_options(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-static void usage(const char * this_name)
+static int usage(const char * this_name)
 {
   printf(
     "usage: %s %s [cmap file] [c/h root file] (options)\n"
@@ -169,6 +189,8 @@ static void usage(const char * this_name)
     "  -f,--fn [name]                       Function name\n"
     "  -m,--add-main                        Add main\n",
     this_name, CMAP_BUILD_MODULE_NAME);
+
+  return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
@@ -176,33 +198,39 @@ static void usage(const char * this_name)
 
 static int main_(int argc, char * argv[])
 {
-  if(argc < 4) usage(argv[0]);
-  else
-  {
-    optind = 4;
-    mng_options(argc, argv);
+  if(argc < 4) return usage(argv[0]);
 
-    char * in_name = argv[2], * out_name = argv[3],
-      * out_c_name = NULL, * out_h_name = NULL;
-    cmap_fn_name_public.from_basename_no_suffix(out_name);
-    cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
-    if(!cmap_option_public.is_only_c())
-      cmap_string_public.append_args(&out_h_name, "%s.h", out_name);
+  optind = 4;
+  mng_options(argc, argv);
 
-    add_include(out_h_name);
-    if(parse(in_name) != 0) return EXIT_FAILURE;
-    if(generate_c(out_c_name) != 0) return EXIT_FAILURE;
-    if(!cmap_option_public.is_only_c() && (generate_h(out_h_name) != 0))
-      return EXIT_FAILURE;
+  set_parse_path(argv[2]);
+  cmap_fn_name_public.from_path_resolve(parse_path);
 
-    cmap_clean_public.clean();
-    free(out_c_name);
-    free(out_h_name);
-  }
-  return EXIT_SUCCESS;
+  char * out_name = argv[3], * out_c_name = NULL, * out_h_name = NULL;
+  cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
+  if(!cmap_option_public.is_only_c())
+    cmap_string_public.append_args(&out_h_name, "%s.h", out_name);
+
+  add_include(out_h_name);
+  char ok = (1 == 1);
+  if(parse() != 0) ok = (1 == 0);
+  if(ok && (generate_c(out_c_name) != 0)) ok = (1 == 0);
+  if(ok && !cmap_option_public.is_only_c() && (generate_h(out_h_name) != 0))
+    ok = (1 == 0);
+
+  cmap_clean_public.clean();
+  free(out_c_name);
+  free(out_h_name);
+  set_parse_path(NULL);
+
+  return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_BUILD_PUBLIC cmap_build_public = { main_ };
+const CMAP_BUILD_PUBLIC cmap_build_public =
+{
+  set_parse_path, get_parse_path, parse,
+  main_
+};

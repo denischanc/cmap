@@ -26,12 +26,14 @@ CMAP_PART_CTX_NATURE_LOOP(NATURE_VAL)
 
 typedef struct
 {
+  char return_fn;
+
   CMAP_STRINGS * vars_loc, * vars_def;
 } CTX_CMAP;
 
 typedef struct
 {
-  char definitions, global_env, return_, return_fn;
+  char definitions, global_env, return_;
 
   CMAP_STRINGS * params;
 } CTX_FN_C;
@@ -45,7 +47,7 @@ typedef struct
 
 typedef struct
 {
-  char * instructions, * prefix, else_, cmp_params;
+  char * instructions, * prefix, cmp_params;
 
   CMAP_STRINGS * fn_arg_names, * affecteds;
 } CTX_BLOCK;
@@ -134,7 +136,6 @@ static void ctx_common(CMAP_PART_CTX * ctx)
   ctx -> next = NULL;
 
   ctx -> block.instructions = strdup("");
-  ctx -> block.else_ = (1 == 0);
   ctx -> block.cmp_params = (1 == 1);
   ctx -> block.fn_arg_names = NULL;
   ctx -> block.affecteds = NULL;
@@ -145,9 +146,9 @@ static void ctx_common(CMAP_PART_CTX * ctx)
   ctx -> fn_c.definitions = (1 == 0);
   ctx -> fn_c.global_env = (1 == 0);
   ctx -> fn_c.return_ = (1 == 0);
-  ctx -> fn_c.return_fn = (1 == 0);
   ctx -> fn_c.params = NULL;
 
+  ctx -> cmap.return_fn = (1 == 0);
   ctx -> cmap.vars_loc = NULL;
   ctx -> cmap.vars_def = NULL;
 }
@@ -209,7 +210,7 @@ static CMAP_PART_CTX create_ctx_root()
 static CMAP_PART_CTX create_ctx_fn()
 {
   CMAP_PART_CTX ctx = create_ctx_cmap();
-  ctx.fn_c.return_fn = (1 == 1);
+  ctx.cmap.return_fn = (1 == 1);
   return ctx;
 }
 
@@ -280,6 +281,7 @@ static char * pop()
   if(cur_ctx() != NULL) cur_ctx() -> next = NULL;
 
   free(ctx.block.prefix);
+  cmap_strings_public.delete(&ctx.block.fn_arg_names);
   cmap_strings_public.delete(&ctx.block.affecteds);
 
   cmap_part_kv_public.delete(&ctx.c.name2map);
@@ -394,13 +396,6 @@ static type * what(CMAP_PART_CTX * ctx) \
   return &ctx -> fn_c.what; \
 }
 
-#define GET_FN_C_CONST(what, type) \
-static type what(CMAP_PART_CTX * ctx) \
-{ \
-  ctx = fn_c_from_ctx(ctx); \
-  return ctx -> fn_c.what; \
-}
-
 #define GET_CMAP(what, type) \
 static type * what(CMAP_PART_CTX * ctx) \
 { \
@@ -408,20 +403,11 @@ static type * what(CMAP_PART_CTX * ctx) \
   return &ctx -> cmap.what; \
 }
 
-#define TOGGLE_BLOCK(what, name) \
-static void set_##name() \
+#define GET_CMAP_CONST(what, type) \
+static type what(CMAP_PART_CTX * ctx) \
 { \
-  cur_ctx() -> block.what = (1 == 1); \
-} \
- \
-static char is_##name##_n_rst() \
-{ \
-  if(cur_ctx() -> block.what) \
-  { \
-    cur_ctx() -> block.what = (1 == 0); \
-    return (1 == 1); \
-  } \
-  return (1 == 0); \
+  ctx = cmap_from_ctx(ctx); \
+  return ctx -> cmap.what; \
 }
 
 #define SET_RST_IS_BLOCK(what) \
@@ -470,8 +456,6 @@ GET_BLOCK(instructions, char *)
 
 GET_BLOCK_CONST(prefix, const char *)
 
-TOGGLE_BLOCK(else_, else)
-
 SET_RST_IS_BLOCK(cmp_params)
 
 GET_BLOCK(fn_arg_names, CMAP_STRINGS *)
@@ -492,12 +476,13 @@ ONLY_ONE_IS_FN_C(definitions)
 ONLY_ONE_IS_FN_C(global_env)
 
 ONLY_ONE_SET_FN_C(return_, return)
-GET_FN_C_CONST(return_fn, char)
 
 GET_FN_C(params, CMAP_STRINGS *)
 
 /*******************************************************************************
 *******************************************************************************/
+
+GET_CMAP_CONST(return_fn, char)
 
 GET_CMAP(vars_loc, CMAP_STRINGS *)
 GET_CMAP(vars_def, CMAP_STRINGS *)
@@ -514,9 +499,25 @@ static CMAP_STRINGS * prev_block_fn_arg_names(CMAP_PART_CTX * ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_PART_CTX * bup(CMAP_PART_CTX * ctx)
+{
+  CMAP_PART_CTX * ret = cur_ctx();
+
+  if(ctx == NULL) ctxs = NULL;
+  else if(ctx != ret)
+  {
+    ctx -> next -> prev = NULL;
+    ctx -> next = NULL;
+    ctxs = cmap_stack_ctx_stack(ctx);
+  }
+
+  return ret;
+}
+
 static void restore(CMAP_PART_CTX * ctx)
 {
-  if(ctx != cur_ctx())
+  if(cur_ctx() == NULL) ctxs = cmap_stack_ctx_stack(ctx);
+  else if(ctx != cur_ctx())
   {
     CMAP_PART_CTX * prev_ctx = ctx;
     while(prev_ctx -> prev != NULL) prev_ctx = prev_ctx -> prev;
@@ -527,18 +528,9 @@ static void restore(CMAP_PART_CTX * ctx)
   }
 }
 
-static CMAP_PART_CTX * bup(CMAP_PART_CTX * ctx)
+static void clean()
 {
-  CMAP_PART_CTX * ret = cur_ctx();
-
-  if(ctx != ret)
-  {
-    ctx -> next -> prev = NULL;
-    ctx -> next = NULL;
-    ctxs = cmap_stack_ctx_stack(ctx);
-  }
-
-  return ret;
+  while(ctxs != NULL) free(pop());
 }
 
 /*******************************************************************************
@@ -553,12 +545,10 @@ const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
   is_feature_params,
   push, pop,
   c, fn_c, cmap, cmap_prev, c_prev, block_next, last_block,
-  instructions, prefix, set_else, is_else_n_rst,
-  set_cmp_params, rst_cmp_params, fn_arg_names, affecteds,
+  instructions, prefix, set_cmp_params, rst_cmp_params, fn_arg_names, affecteds,
   variables, name2map,
-  is_definitions_n_set, is_global_env_n_set, set_return, is_return, return_fn,
-  params,
-  vars_loc, vars_def,
+  is_definitions_n_set, is_global_env_n_set, set_return, is_return, params,
+  return_fn, vars_loc, vars_def,
   prev_block_fn_arg_names,
-  restore, bup
+  bup, restore, clean
 };

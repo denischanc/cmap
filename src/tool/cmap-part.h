@@ -10,9 +10,6 @@ typedef struct
 {
   const char * (*uid)();
 
-  void (*set_else)();
-  char (*is_else_n_rst)();
-
   void (*set_cmp_params)();
   void (*rst_cmp_params)();
 
@@ -24,11 +21,16 @@ typedef struct
 
   void (*set_return)();
   char (*is_return)();
-  char (*return_fn)();
 
   CMAP_STRINGS * (*get_params)();
 
+  char (*return_fn)();
+
   CMAP_STRINGS * (*get_vars_def)();
+
+  CMAP_PART_CTX * (*bup)();
+  void (*restore)(CMAP_PART_CTX * ctx);
+  void (*clean)();
 } CMAP_PART_PUBLIC_CTX;
 
 typedef struct

@@ -24,19 +24,6 @@ static const char * uid()
 /*******************************************************************************
 *******************************************************************************/
 
-static void set_else()
-{
-  cmap_part_ctx_public.set_else();
-}
-
-static char is_else_n_rst()
-{
-  return cmap_part_ctx_public.is_else_n_rst();
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void set_cmp_params()
 {
   cmap_part_ctx_public.set_cmp_params();
@@ -86,11 +73,6 @@ static char is_return()
   return cmap_part_ctx_public.is_return();
 }
 
-static char return_fn()
-{
-  return cmap_part_ctx_public.return_fn(NULL);
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
@@ -102,9 +84,35 @@ static CMAP_STRINGS * get_params()
 /*******************************************************************************
 *******************************************************************************/
 
+static char return_fn()
+{
+  return cmap_part_ctx_public.return_fn(NULL);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static CMAP_STRINGS * get_vars_def()
 {
   return *cmap_part_ctx_public.vars_def(NULL);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_CTX * bup()
+{
+  return cmap_part_ctx_public.bup(NULL);
+}
+
+static void restore(CMAP_PART_CTX * ctx)
+{
+  cmap_part_ctx_public.restore(ctx);
+}
+
+static void ctx_clean()
+{
+  cmap_part_ctx_public.clean();
 }
 
 /*******************************************************************************
@@ -260,13 +268,14 @@ const CMAP_PART_PUBLIC cmap_part_public =
 {
   {
     uid,
-    set_else, is_else_n_rst,
     set_cmp_params, rst_cmp_params,
     fn_arg_name, delete_fn_arg_names,
     is_definitions_n_set, is_global_env_n_set,
-    set_return, is_return, return_fn,
+    set_return, is_return,
     get_params,
-    get_vars_def
+    return_fn,
+    get_vars_def,
+    bup, restore, ctx_clean
   },
   {
     loc, no_loc,

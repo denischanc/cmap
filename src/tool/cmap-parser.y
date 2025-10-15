@@ -10,6 +10,7 @@
 #include "cmap-parser-process.h"
 #include "cmap-parser-var.h"
 #include "cmap-part.h"
+#include "cmap-build.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,6 +22,8 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %}
 
 %define api.pure
+%define parse.error detailed
+%define parse.lac full
 /*%define parse.trace*/
 
 %param {yyscan_t yyscanner}
@@ -37,7 +40,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 
 %type<name> names creator creator_no_bracket cmap cmap_no_bracket
 %type<name> args arg_names_cmap
-%type<name> process_ret function
+%type<name> process_ret import_ret function
 %type<name> comparison comparison_no_params comparison_deep comparison_simple
 %type<name> for_iter
 
@@ -72,7 +75,7 @@ function_c: FUNCTION_C '(' NAME ')' '{' instructions '}'
 instructions: { cmap_part_public.push_instructions(); }
 | instructions instruction ';'
 | instructions C_IMPL { cmap_parser_part_public.c_impl($2); }
-| instructions if
+| instructions { cmap_parser_block_public.init_if(); } if
 | instructions for
 | instructions while;
 
@@ -93,7 +96,8 @@ instruction: LOCAL NAME '=' cmap { cmap_parser_var_public.set_local($2, $4); }
 | process_no_ret
 | RETURN cmap { cmap_parser_process_public.return_($2); }
 | RETURN { cmap_parser_process_public.return_(NULL); }
-| PROC '(' names ')' { cmap_parser_process_public.process_c($3, (1 == 0)); };
+| PROC '(' names ')' { cmap_parser_process_public.process_c($3, (1 == 0)); }
+| import_no_ret;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -120,7 +124,8 @@ cmap: creator
 | cmap SB2_O STRING SB2_C { $$ = cmap_parser_var_public.sb_string($1, $3); }
 | cmap '[' cmap ']' { $$ = cmap_parser_var_public.sb_map($1, $3); }
 | PROC '(' names ')'
-  { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); };
+  { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); }
+| import_ret;
 
 cmap_no_bracket: creator_no_bracket
 | NAME { $$ = cmap_parser_var_public.name($1); }
@@ -131,7 +136,8 @@ cmap_no_bracket: creator_no_bracket
   { $$ = cmap_parser_var_public.sb_string($1, $3); }
 | cmap_no_bracket '[' cmap ']' { $$ = cmap_parser_var_public.sb_map($1, $3); }
 | PROC '(' names ')'
-  { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); };
+  { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); }
+| import_ret;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -250,10 +256,23 @@ while: WHILE '(' comparison_no_params ')'
 /*******************************************************************************
 *******************************************************************************/
 
+import_no_ret: IMPORT '(' STRING ')'
+  { if(!cmap_parser_process_public.import(NULL, $3, NULL)) YYABORT; }
+| IMPORT '(' STRING ',' NAME ')'
+  { if(!cmap_parser_process_public.import(NULL, $3, $5)) YYABORT; };
+
+import_ret: IMPORT '(' STRING ')'
+  { if(!cmap_parser_process_public.import(&$$, $3, NULL)) YYABORT; }
+| IMPORT '(' STRING ',' NAME ')'
+  { if(!cmap_parser_process_public.import(&$$, $3, $5)) YYABORT; };
+
+/*******************************************************************************
+*******************************************************************************/
+
 %%
 
 static void cmap_parser_error(yyscan_t yyscanner, const char * msg)
 {
-  fprintf(stderr, "[%d:%d] %s\n", cmap_parser_get_lineno(yyscanner),
-    cmap_parser_get_column(yyscanner), msg);
+  fprintf(stderr, "[%s:%d:%d] %s\n", cmap_build_public.get_parse_path(),
+    cmap_parser_get_lineno(yyscanner), cmap_parser_get_column(yyscanner), msg);
 }

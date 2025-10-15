@@ -103,12 +103,14 @@ static void mng_options(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-static void usage(const char * this_name)
+static int usage(const char * this_name)
 {
   printf("usage: %s %s [project directory] (options)\n"
     "options:\n"
     "  -m,--multiple                        Multiple\n",
     this_name, CMAP_PRJ_MODULE_NAME);
+
+  return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
@@ -116,27 +118,25 @@ static void usage(const char * this_name)
 
 static int main_(int argc, char * argv[])
 {
-  if(argc < 3) usage(argv[0]);
+  if(argc < 3) return usage(argv[0]);
+
+  optind = 3;
+  mng_options(argc, argv);
+
+  char * dir = argv[2];
+  if(mkdir(dir, 0755) < 0)
+  {
+    fprintf(stderr, "[%s] %s\n", dir, strerror(errno));
+    return EXIT_FAILURE;
+  }
+
+  if(cmap_option_public.is_multiple())
+  {
+    if(build_files_multiple(dir) != 0) return EXIT_FAILURE;
+  }
   else
   {
-    optind = 3;
-    mng_options(argc, argv);
-
-    char * dir = argv[2];
-    if(mkdir(dir, 0755) < 0)
-    {
-      fprintf(stderr, "[%s] %s\n", dir, strerror(errno));
-      return EXIT_FAILURE;
-    }
-
-    if(cmap_option_public.is_multiple())
-    {
-      if(build_files_multiple(dir) != 0) return EXIT_FAILURE;
-    }
-    else
-    {
-      if(build_files_simple(dir) != 0) return EXIT_FAILURE;
-    }
+    if(build_files_simple(dir) != 0) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }

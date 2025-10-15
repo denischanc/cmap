@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <unistd.h>
 #include <getopt.h>
 #include "cmap-file-util.h"
 #include "cmap-option.h"
@@ -46,8 +44,6 @@ static void parts(char ** txt)
   cmap_string_public.append(txt, *cmap_part_public.includes());
   cmap_string_public.append(txt, "\n");
   impl(txt);
-
-  cmap_clean_public.clean();
 }
 
 /*******************************************************************************
@@ -81,7 +77,7 @@ static void mng_options(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-static void usage(const char * this_name)
+static int usage(const char * this_name)
 {
   printf(
     "usage: %s %s [file] (options)\n"
@@ -90,48 +86,30 @@ static void usage(const char * this_name)
     "  -i,--relative-inc                    Relative include\n"
     "  -l,--include [name]                  Include to add\n",
     this_name, CMAP_BUILD_MAIN_MODULE_NAME);
+
+  return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * include_no_suffix()
-{
-  if(cmap_option_public.include() == NULL) return NULL;
-  else
-  {
-    char * ret = strdup(cmap_option_public.include());
-    for(char * c = ret + (strlen(ret) - 1); c > ret; c--)
-    {
-      if(*c == '.')
-      {
-        *c = 0;
-        return ret;
-      }
-    }
-    return ret;
-  }
-}
-
 static int main_(int argc, char * argv[])
 {
-  if(argc < 3) usage(argv[0]);
-  else
-  {
-    optind = 3;
-    mng_options(argc, argv);
+  if(argc < 3) return usage(argv[0]);
 
-    char * include_name = include_no_suffix();
-    cmap_fn_name_public.from_basename_no_suffix(include_name);
-    free(include_name);
+  optind = 3;
+  mng_options(argc, argv);
 
-    char * txt = NULL;
-    parts(&txt);
-    int ret = cmap_file_util_public.to_file(argv[2], txt);
-    free(txt);
-    if(ret != 0) return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+  cmap_fn_name_public.from_path_resolve(cmap_option_public.include());
+
+  char * txt = NULL;
+  parts(&txt);
+  int ret = cmap_file_util_public.to_file(argv[2], txt);
+  free(txt);
+
+  cmap_clean_public.clean();
+
+  return (ret != 0) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 /*******************************************************************************

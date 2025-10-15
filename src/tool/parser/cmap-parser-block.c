@@ -7,15 +7,28 @@
 #include "cmap-parser-util.h"
 #include "cmap-parser-part.h"
 #include "cmap-string.h"
+#include "cmap-stack-define.h"
 
 /*******************************************************************************
 *******************************************************************************/
+
+CMAP_STACK_DEF(ELSE, else, char)
+
+CMAP_STACK_ELSE * elses = NULL;
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void init_if()
+{
+  cmap_stack_else_push(&elses, (1 == 0));
+}
 
 static void if_(char * cmp_call)
 {
   char * instructions = cmap_part_public.pop_instructions();
 
-  char * else_ = cmap_part_public.ctx.is_else_n_rst() ? "else " : "";
+  char * else_ = cmap_stack_else_pop(&elses) ? "else " : "";
   APPEND_INSTRUCTION_ARGS("%sif(%s)", else_, cmp_call);
   free(cmp_call);
   APPEND_INSTRUCTION("{");
@@ -31,7 +44,7 @@ static void else_empty()
 
 static void else_if()
 {
-  cmap_part_public.ctx.set_else();
+  cmap_stack_else_push(&elses, (1 == 1));
 }
 
 static void else_()
@@ -81,8 +94,17 @@ static void while_(char * cmp_call)
 /*******************************************************************************
 *******************************************************************************/
 
+static void clean()
+{
+  while(elses != NULL) cmap_stack_else_pop(&elses);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_PARSER_BLOCK_PUBLIC cmap_parser_block_public =
 {
-  if_, else_empty, else_if, else_,
-  for_, while_
+  init_if, if_, else_empty, else_if, else_,
+  for_, while_,
+  clean
 };

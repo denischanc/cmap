@@ -28,8 +28,6 @@ typedef struct
 
   char ** (*instructions)(CMAP_PART_CTX * ctx);
   const char * (*prefix)(CMAP_PART_CTX * ctx);
-  void (*set_else)();
-  char (*is_else_n_rst)();
   void (*set_cmp_params)();
   void (*rst_cmp_params)();
   CMAP_STRINGS ** (*fn_arg_names)(CMAP_PART_CTX * ctx);
@@ -42,16 +40,17 @@ typedef struct
   char (*is_global_env_n_set)();
   void (*set_return)();
   char (*is_return)();
-  char (*return_fn)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*params)(CMAP_PART_CTX * ctx);
 
+  char (*return_fn)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*vars_loc)(CMAP_PART_CTX * ctx);
   CMAP_STRINGS ** (*vars_def)(CMAP_PART_CTX * ctx);
 
   CMAP_STRINGS * (*prev_block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
-  void (*restore)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*bup)(CMAP_PART_CTX * ctx);
+  void (*restore)(CMAP_PART_CTX * ctx);
+  void (*clean)();
 } CMAP_PART_CTX_PUBLIC;
 
 extern const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public;

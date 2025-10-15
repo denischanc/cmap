@@ -17,10 +17,12 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void usage(const char * this_name)
+static int usage(const char * this_name)
 {
   printf("%s-%s\n", PACKAGE, VERSION);
   printf("usage: %s [%s]\n", this_name, CHOICE_MODULES);
+
+  return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
@@ -38,6 +40,5 @@ int main(int argc, char * argv[])
       return cmap_prj_public.main(argc, argv);
   }
 
-  usage(argv[0]);
-  return EXIT_SUCCESS;
+  return usage(argv[0]);
 }
