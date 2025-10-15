@@ -1,15 +1,7 @@
-@INCLUDE
-{
 
-#include "random.h"
-#include "snake.h"
-#include "screen.h"
-
-}
-
-@PROC(random_global_env);
-@PROC(snake);
-@PROC(screen);
+@IMPORT("random.cmap", random_);
+@IMPORT("snake.cmap");
+@IMPORT("screen.cmap");
 
 snake1TimeUs = 100.valueOf(cmap.cli.args[[1]]);
 snake2TimeUs = 300.valueOf(cmap.cli.args[[2]]);
@@ -25,10 +17,10 @@ local display = function()
     this.schedule();
 
     local timeCurMs = 0.timeUs().div(1000);
-    if((this.timeOkMs == null) || (timeCurMs > this.timeOkMs))
+    if((!this.timeOkMs) || (timeCurMs > this.timeOkMs))
     {
       this.screen.up().display();
-      if(this.timeOkMs == null) { this.timeOkMs = 0; }
+      if(!this.timeOkMs) { this.timeOkMs = 0; }
       this.timeOkMs.set(timeCurMs).add(screenTimeUs);
     }
   }
@@ -40,10 +32,10 @@ local shift = function(job, snake, periodMs)
   local timeCurMs = 0.timeUs().div(1000);
 
   if(timeCur > timeEnd) { return; }
-  else if((job.timeOkMs == null) || (timeCurMs > job.timeOkMs))
+  else if((!job.timeOkMs) || (timeCurMs > job.timeOkMs))
   {
     snake.shiftLines();
-    if(job.timeOkMs == null) { job.timeOkMs = 0; }
+    if(!job.timeOkMs) { job.timeOkMs = 0; }
     job.timeOkMs.set(timeCurMs).add(periodMs);
   }
   job.schedule();

@@ -110,7 +110,7 @@ screen.line.pt.prototype =
 
   set: function(let, ctl)
   {
-    if(let != null) { this.let.clean().append(let); }
-    if(ctl != null) { this.ctl.clean().append(ctl); }
+    if(let) { this.let.clean().append(let); }
+    if(ctl) { this.ctl.clean().append(ctl); }
   }
 };

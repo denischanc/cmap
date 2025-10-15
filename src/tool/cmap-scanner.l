@@ -100,6 +100,7 @@ SPACE_D [[:space:]]+
 "{" { return '{'; }
 "}" { return '}'; }
 ":" { return ':'; }
+"!" { return '!'; }
 
 "<" { return '<'; }
 ">" { return '>'; }

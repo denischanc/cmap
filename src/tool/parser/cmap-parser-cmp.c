@@ -3,20 +3,8 @@
 
 #include <stdlib.h>
 #include "cmap-parser-util.h"
-#include "cmap-parser-params.h"
 #include "cmap-parser-part.h"
 #include "cmap-string.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * cmp_to_bool_fn(char * cmp_name, const char * op)
-{
-  APPEND_INSTRUCTION_ARGS("return (%s %s 0);", cmp_name, op);
-  free(cmp_name);
-
-  return cmap_parser_part_public.function_cmp();
-}
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,15 +12,13 @@ static char * cmp_to_bool_fn(char * cmp_name, const char * op)
 #define IMPL(name, op) \
 static char * name(char * map_l, char * map_r) \
 { \
-  char * cmp_name = NEXT_NAME("int_" #name); \
- \
   APPEND_INSTRUCTION_ARGS( \
-    "int %s = cmap_cmp(%s, %s);", cmp_name, map_l, map_r); \
+    "return (cmap_cmp(%s, %s) " #op " 0);", map_l, map_r); \
+  \
   free(map_l); \
   free(map_r); \
-  APPEND_LF(); \
  \
-  return cmp_to_bool_fn(cmp_name, #op); \
+  return cmap_parser_part_public.function_cmp(); \
 }
 
 CMAP_PARSER_CMP_LOOP(IMPL)
@@ -40,20 +26,21 @@ CMAP_PARSER_CMP_LOOP(IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * cmp_unique(char * map)
-{
-  char * cmp_name = NEXT_NAME_INT();
-
-  APPEND_INSTRUCTION_ARGS("int %s;", cmp_name);
-  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map);
-  APPEND_INSTRUCTION_ARGS(
-    SPACE "%s = (cmap_int_get((CMAP_INT *)%s) == 0) ? 0 : 1;", cmp_name, map);
-  APPEND_INSTRUCTION_ARGS("else %s = (%s == NULL) ? 0 : 1;", cmp_name, map);
-  free(map);
-  APPEND_LF();
-
-  return cmp_to_bool_fn(cmp_name, "!=");
+#define UNIQUE_IMPL(fn, op) \
+static char * fn(char * map) \
+{ \
+  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map); \
+  APPEND_INSTRUCTION_ARGS( \
+    SPACE "return (cmap_int_get((CMAP_INT *)%s) " #op " 0);", map); \
+  APPEND_INSTRUCTION_ARGS("else return (%s " #op " NULL);", map); \
+ \
+  free(map); \
+ \
+  return cmap_parser_part_public.function_cmp(); \
 }
+
+UNIQUE_IMPL(cmp_unique, !=)
+UNIQUE_IMPL(cmp_unique_not, ==)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -85,6 +72,6 @@ static char * and(char * cmp_call_l, char * cmp_call_r)
 
 const CMAP_PARSER_CMP_PUBLIC cmap_parser_cmp_public =
 {
-  CMAP_PARSER_CMP_LOOP(SET) cmp_unique,
+  CMAP_PARSER_CMP_LOOP(SET) cmp_unique, cmp_unique_not,
   or, and
 };

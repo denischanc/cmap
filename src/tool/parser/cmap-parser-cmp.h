@@ -7,6 +7,7 @@ typedef struct
 {
   CMAP_PARSER_CMP_LOOP(CMAP_PARSER_CMP_DECL)
   char * (*cmp_unique)(char * map);
+  char * (*cmp_unique_not)(char * map);
 
   char * (*or)(char * cmp_call_l, char * cmp_call_r);
   char * (*and)(char * cmp_call_l, char * cmp_call_r);

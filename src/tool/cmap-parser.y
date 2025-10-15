@@ -224,7 +224,8 @@ comparison_simple: cmap { $$ = cmap_parser_cmp_public.cmp_unique($1); }
 | cmap LE cmap { $$ = cmap_parser_cmp_public.le($1, $3); }
 | cmap GE cmap { $$ = cmap_parser_cmp_public.ge($1, $3); }
 | cmap EQUAL cmap { $$ = cmap_parser_cmp_public.equal($1, $3); }
-| cmap DIFF cmap { $$ = cmap_parser_cmp_public.diff($1, $3); };
+| cmap DIFF cmap { $$ = cmap_parser_cmp_public.diff($1, $3); }
+| '!' cmap { $$ = cmap_parser_cmp_public.cmp_unique_not($2); };
 
 /*******************************************************************************
 *******************************************************************************/

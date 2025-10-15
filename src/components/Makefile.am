@@ -1,6 +1,5 @@
 
 include $(top_srcdir)/src/common.mk
-include $(top_srcdir)/src/components/common.mk
 
 SUBDIRS = console scheduler cli
 
@@ -21,3 +20,11 @@ libcomponents_la_LIBADD = \
   cli/libcli.la
 
 CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES:.h=.c)
+
+cmap-cmap-blt.h: $(srcdir)/cmap-cmap.cmap $(CMAP_TOOL)
+	$(CMAP_TOOL) build $< $(@:.h=) -i
+
+cmap-cmap-blt.h: \
+  $(srcdir)/console/cmap-console.cmap \
+  $(srcdir)/scheduler/cmap-job.cmap \
+  $(srcdir)/scheduler/cmap-scheduler.cmap

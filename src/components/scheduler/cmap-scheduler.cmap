@@ -3,14 +3,13 @@
 {
 
 #include "cmap-scheduler.h"
-#include "cmap-job-blt.h"
 
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_blt_create)
+@STATIC_FUNCTION(create_scheduler)
 {
   local internal =
   {
@@ -36,14 +35,14 @@
     {
       this.internal.jobs.push(job);
     },
-    job: @PROC(cmap_job_blt_create)
+    job: @IMPORT("cmap-job.cmap")
   };
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-@FUNCTION(cmap_scheduler_blt_process)
+@FUNCTION(cmap_cmap_blt_scheduler_process)
 {
   cmap.scheduler.internal.process();
 }

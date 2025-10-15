@@ -51,7 +51,7 @@ static void include_(char * includes)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * function_c_params(char * name, char is_static)
+static char * function_c_params(char * name, char is_static, char is_inline)
 {
   char is_return = cmap_part_public.ctx.is_return();
 
@@ -61,9 +61,9 @@ static char * function_c_params(char * name, char is_static)
 
   CMAP_PARSER_PARAMS_RET params_ret = cmap_parser_params_public.get();
 
-  append_args_main("%s%s %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
-    is_static ? "static " : "", is_return ? "CMAP_MAP *" : "void", name,
-    params_ret.decl);
+  append_args_main("%s%s%s %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
+    is_static ? "static " : "", is_inline ? "inline " : "",
+    is_return ? "CMAP_MAP *" : "void", name, params_ret.decl);
 
   if(!is_static) append_args_headers("%s %s(CMAP_PROC_CTX * proc_ctx%s);\n",
     is_return ? "CMAP_MAP *" : "void", name, params_ret.decl);
@@ -82,7 +82,7 @@ static char * function_c_params(char * name, char is_static)
 
 static void function_c(char * name, char is_static)
 {
-  free(function_c_params(name, is_static));
+  free(function_c_params(name, is_static, (1 == 0)));
 }
 
 static void instructions_root()
@@ -208,7 +208,7 @@ static char * for_iter()
 {
   char * call = NEXT_NAME_FOR_ITER();
 
-  char * params_impl = function_c_params(strdup(call), (1 == 1));
+  char * params_impl = function_c_params(strdup(call), (1 == 1), (1 == 1));
   cmap_string_public.append_args(&call, "(proc_ctx%s)", params_impl);
   free(params_impl);
 

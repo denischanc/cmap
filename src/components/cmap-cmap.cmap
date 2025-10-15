@@ -2,8 +2,6 @@
 @INCLUDE
 {
 
-#include "cmap-console-blt.h"
-#include "cmap-scheduler-blt.h"
 #include "cmap-cmap.h"
 
 }
@@ -15,8 +13,8 @@
 {
   return
   {
-    console: @PROC(cmap_console_blt_create),
-    scheduler: @PROC(cmap_scheduler_blt_create),
+    console: @IMPORT("console/cmap-console.cmap"),
+    scheduler: @IMPORT("scheduler/cmap-scheduler.cmap", create_scheduler),
     prototype: @PROC(cmap_cmap_public.prototype)
   };
 }

@@ -2,12 +2,12 @@
 snake = function(screen, start, stop, ctl)
 {
   this.screen = screen;
-  if(ctl != null) { this.ctl = "".append(ctl); }
+  if(ctl) { this.ctl = "".append(ctl); }
 
   this.start = 0;
-  if(start != null) { this.start.set(start); }
+  if(start) { this.start.set(start); }
   this.stop = 10;
-  if(stop != null) { this.stop.set(stop); }
+  if(stop) { this.stop.set(stop); }
 
   this.initLine();
 };

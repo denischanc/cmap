@@ -1,19 +1,16 @@
 
-@FUNCTION(cmap_job_blt_create)
+local job = function(process)
 {
-  local job = function(process)
-  {
-    this.process = process;
-  };
+  this.process = process;
+};
 
-  job.prototype =
+job.prototype =
+{
+  schedule: function()
   {
-    schedule: function()
-    {
-      cmap.scheduler.addJob(this);
-      return this;
-    }
-  };
+    cmap.scheduler.addJob(this);
+    return this;
+  }
+};
 
-  return job;
-}
+return job;

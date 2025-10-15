@@ -2,7 +2,7 @@
 #include "cmap-scheduler.h"
 
 #include "cmap.h"
-#include "cmap-scheduler-blt.h"
+#include "cmap-cmap-blt.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-env.h"
 
@@ -12,7 +12,7 @@
 static void schedule(uv_idle_t * idle)
 {
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(idle -> data);
-  cmap_scheduler_blt_process(proc_ctx);
+  cmap_cmap_blt_scheduler_process(proc_ctx);
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 }
 
