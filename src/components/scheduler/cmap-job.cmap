@@ -1,13 +1,10 @@
 
-local job = function(process)
-{
+local job = function(process) {
   this.process = process;
 };
 
-job.prototype =
-{
-  schedule: function()
-  {
+job.prototype = {
+  schedule: function() {
     cmap.scheduler.addJob(this);
     return this;
   }

@@ -9,20 +9,6 @@
 
 }
 
-@C_ROOT
-{{
-
-static void test006(CMAP_PROC_CTX *);
-
-int main(int argc, char * argv[])
-{
-  cmap_dft_cfg() -> log.lvl = CMAP_LOG_DEBUG;
-  cmap_env_main(cmap_env(argc, argv), test006);
-  return cmap_main();
-}
-
-}}
-
 @STATIC_FUNCTION(test006)
 {
   zombie = "zombie";
@@ -51,3 +37,15 @@ int main(int argc, char * argv[])
 
   n21.n22.n23.n24.n25.n26 = "n26";
 }
+
+@C_ROOT
+{{
+
+int main(int argc, char * argv[])
+{
+  cmap_dft_cfg() -> log.lvl = CMAP_LOG_DEBUG;
+  cmap_env_main(cmap_env(argc, argv), test006);
+  return cmap_main();
+}
+
+}}

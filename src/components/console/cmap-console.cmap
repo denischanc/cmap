@@ -5,8 +5,7 @@
 
 }
 
-return
-{
+return {
   info: function()(cmap_console_public.info),
   print: function()(cmap_console_public.print),
   error: function()(cmap_console_public.error)

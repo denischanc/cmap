@@ -9,10 +9,21 @@
 
 }
 
+@STATIC_FUNCTION(test003)
+{
+  local test = function() {
+    cmap.console.info("Hello ", "World ",  "!!!").info();
+    cmap.console.info();
+
+    cmap.console.error("[ERROR]");
+  };
+
+  local job = new cmap.scheduler.job(test);
+  job.schedule();
+}
+
 @C_ROOT
 {{
-
-static void test003(CMAP_PROC_CTX *);
 
 int main(int argc, char * argv[])
 {
@@ -22,17 +33,3 @@ int main(int argc, char * argv[])
 }
 
 }}
-
-@STATIC_FUNCTION(test003)
-{
-  local test = function(){
-    cmap.console.info("Hello ", "World ",  "!!!")
-      .info();
-    cmap.console.info();
-
-    cmap.console.error("[ERROR]");
-  };
-
-  local job = new cmap.scheduler.job(test);
-  job.schedule();
-}

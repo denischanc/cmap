@@ -2,8 +2,7 @@
 @TEST_DESC@ Function argument names
 *******************************************************************************/
 
-factory = function(inc)
-{
+factory = function(inc) {
   local i = 0;
   return function()
   {

@@ -11,8 +11,7 @@
 
 @FUNCTION(cmap_cmap_blt_create)
 {
-  return
-  {
+  return {
     console: @IMPORT("console/cmap-console.cmap"),
     scheduler: @IMPORT("scheduler/cmap-scheduler.cmap", create_scheduler),
     prototype: @PROC(cmap_cmap_public.prototype)

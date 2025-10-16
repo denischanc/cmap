@@ -11,28 +11,22 @@
 
 @STATIC_FUNCTION(create_scheduler)
 {
-  local internal =
-  {
+  local internal = {
     jobs: [],
-    process: function()
-    {
+    process: function() {
       local job = this.jobs.shift();
-      if(job != null)
-      {
+      if(job != null) {
         job.process();
       }
-      else
-      {
+      else {
         function()(cmap_scheduler_public.scheduler_empty)();
       }
     }
   };
 
-  return
-  {
+  return {
     internal: internal,
-    addJob: function(job)
-    {
+    addJob: function(job) {
       this.internal.jobs.push(job);
     },
     job: @IMPORT("cmap-job.cmap")

@@ -3,13 +3,11 @@ local name = cmap.cli.args[[1]];
 if(!name) { name = "World"; }
 local max = 3.valueOf(cmap.cli.args[[2]]);
 
-local hello = function(name)
-{
+local hello = function(name) {
   cmap.console.info("Hello ", name, " !!!");
 };
 
-local helloWorld = function()
-{
+local helloWorld = function() {
   if(!this.nb) { this.nb = 1; }
 
   hello(name);
