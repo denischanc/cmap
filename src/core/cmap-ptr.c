@@ -12,7 +12,6 @@
 typedef struct
 {
   void * ptr;
-  char do_free;
 
   CMAP_PTR_DELETE delete_ptr;
 } INTERNAL;
@@ -45,12 +44,14 @@ static void ** ref(CMAP_PTR * this)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  INTERNAL * internal = (INTERNAL *)((CMAP_PTR *)this) -> internal;
+  INTERNAL * internal = ((CMAP_PTR *)this) -> internal;
 
-  if(internal -> delete_ptr != NULL)
-    internal -> delete_ptr(internal -> ptr);
-
-  if(internal -> do_free) CMAP_KERNEL_FREE(internal -> ptr);
+  void * ptr = internal -> ptr;
+  if(ptr != NULL)
+  {
+    if(internal -> delete_ptr != NULL) internal -> delete_ptr(ptr);
+    CMAP_KERNEL_FREE(ptr);
+  }
 
   CMAP_KERNEL_FREE(internal);
 
@@ -66,16 +67,7 @@ static CMAP_PTR * init(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
   lc -> delete = delete;
 
   CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  if(size == 0)
-  {
-    internal -> ptr = NULL;
-    internal -> do_free = CMAP_F;
-  }
-  else
-  {
-    internal -> ptr = CMAP_KERNEL_MEM -> alloc(size);
-    internal -> do_free = CMAP_T;
-  }
+  internal -> ptr = (size == 0) ? NULL : CMAP_KERNEL_MEM -> alloc(size);
   internal -> delete_ptr = delete_ptr;
 
   this -> internal = internal;
