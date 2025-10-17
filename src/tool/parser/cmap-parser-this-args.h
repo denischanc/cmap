@@ -8,6 +8,8 @@ typedef struct
   const char * (*type)(const char * name);
 
   const char * (*decl)();
+
+  const char * (*args)();
 } CMAP_PARSER_THIS_ARGS_PUBLIC;
 
 extern const CMAP_PARSER_THIS_ARGS_PUBLIC cmap_parser_this_args_public;

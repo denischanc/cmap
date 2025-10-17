@@ -12,7 +12,7 @@ static const char * this_args[] = {"this", "args", NULL};
 
 static const char * this_args_type[] = {"CMAP_MAP", "CMAP_LIST"};
 
-static char * this_args_decl = NULL;
+static const char * this_args_decl = ", CMAP_MAP * this, CMAP_LIST * args";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -37,20 +37,19 @@ static const char * type(const char * name)
 
 static const char * decl()
 {
-  if(this_args_decl == NULL)
-  {
-    const char ** it = this_args, ** type = this_args_type;
-    while(*it != NULL)
-    {
-      cmap_string_public.append_args(&this_args_decl, ", %s * %s", *type, *it);
-      it++; type++;
-    }
-  }
   return this_args_decl;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
+static const char * args()
+{
+  return this_args[1];
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 const CMAP_PARSER_THIS_ARGS_PUBLIC cmap_parser_this_args_public =
-  {is, type, decl};
+  {is, type, decl, args};

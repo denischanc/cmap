@@ -6,6 +6,7 @@
 #include "cmap-parser-util.h"
 #include "cmap-part.h"
 #include "cmap-string.h"
+#include "cmap-parser-this-args.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -80,8 +81,8 @@ static char * set_fn_arg_name(const char * name, int off)
   char * map_name = NEXT_NAME_VAR();
   cmap_part_public.var.loc(name, map_name);
 
-  APPEND_VARIABLE_ARGS(
-    "CMAP_MAP * %s = cmap_list_get(args, %d);", map_name, off);
+  APPEND_VARIABLE_ARGS("CMAP_MAP * %s = cmap_list_get(%s, %d);",
+    map_name, cmap_parser_this_args_public.args(), off);
   PREPEND_INSTRUCTION_ARGS(
     "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
 
