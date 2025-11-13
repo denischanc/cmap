@@ -30,8 +30,8 @@ VAR=$(echo $ROOT_NAME | tr 'a-z.-' 'A-Z__')
 cat_c() {
 	local SED_ARGS="-e 's/\\\\/\\\\\\\\/g'"
 	SED_ARGS+=" -e 's/\"/\\\\\"/g'"
-	SED_ARGS+=" -e 's/%/%%/g'"
-	SED_ARGS+=" -e 's/@\(.*\)@/\" \1 \"/g'"
+	SED_ARGS+=" -e 's/ % / %% /g'"
+	SED_ARGS+=" -e 's/@\([A-Z_]\+\)@/\" \1 \"/g'"
 	local TPL_CHAR_PTR=$(eval $SED $SED_ARGS $TPL | \
 		while read -r; do echo "\"$REPLY\\n\""; done)
 	cat << _EOF_

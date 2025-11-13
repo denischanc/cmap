@@ -1,10 +1,9 @@
 
 #include "cmap-prj.h"
 
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/stat.h>
-#include <getopt.h>
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -19,16 +18,16 @@
 #include "cmap-prj-multiple-random-fn.h.h"
 #include "cmap-prj-multiple-screen.cmap.h"
 #include "cmap-prj-multiple-snake.cmap.h"
-#include "cmap-option.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int to_file(const char * dir, const char * file_name, const char * txt)
+static char to_file(const char * dir, const char * file_name, const char * txt)
 {
   char * path = NULL;
   cmap_string_public.append_args(&path, "%s/%s", dir, file_name);
-  int ret = cmap_file_util_public.to_file(path, txt);
+  char ret = cmap_file_util_public.to_file(path, txt);
   free(path);
   return ret;
 }
@@ -36,15 +35,15 @@ static int to_file(const char * dir, const char * file_name, const char * txt)
 /*******************************************************************************
 *******************************************************************************/
 
-static int build_files(const char * dir, ...)
+static char build_files(const char * dir, ...)
 {
-  int ret = 0;
+  char ret = (1 == 1);
 
   va_list fn_txts;
   va_start(fn_txts, dir);
 
   const char * fn, * txt;
-  while(((fn = va_arg(fn_txts, const char *)) != NULL) && (ret == 0))
+  while(((fn = va_arg(fn_txts, const char *)) != NULL) && ret)
   {
     txt = va_arg(fn_txts, const char *);
     ret = to_file(dir, fn, txt);
@@ -55,7 +54,7 @@ static int build_files(const char * dir, ...)
   return ret;
 }
 
-static int build_files_simple(const char * dir)
+static char build_files_simple(const char * dir)
 {
   return build_files(dir,
     "hello-world.cmap", CMAP_PRJ_SIMPLE_HELLO_WORLD_CMAP,
@@ -63,7 +62,7 @@ static int build_files_simple(const char * dir)
     NULL);
 }
 
-static int build_files_multiple(const char * dir)
+static char build_files_multiple(const char * dir)
 {
   return build_files(dir,
     "main.cmap", CMAP_PRJ_MULTIPLE_MAIN_CMAP,
@@ -79,64 +78,26 @@ static int build_files_multiple(const char * dir)
 /*******************************************************************************
 *******************************************************************************/
 
-static struct option gen_long_options[] =
-{
-  {"multiple", no_argument, NULL, 'm'},
-  {NULL, 0, NULL, 0}
-};
-
-static const char * gen_short_options = "m";
-
-static void mng_options(int argc, char * argv[])
-{
-  int o;
-  while((o = getopt_long(argc, argv, gen_short_options, gen_long_options,
-    NULL)) != -1)
-  {
-    switch(o)
-    {
-      case 'm': cmap_option_public.multiple(); break;
-    }
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static int usage(const char * this_name)
-{
-  printf("usage: %s %s [project directory] (options)\n"
-    "options:\n"
-    "  -m,--multiple                        Multiple\n",
-    this_name, CMAP_PRJ_MODULE_NAME);
-
-  return EXIT_SUCCESS;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static int main_(int argc, char * argv[])
 {
-  if(argc < 3) return usage(argv[0]);
+  int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
+  cmap_config_public.init_n_check(&argc, &argv, 2,
+    CMAP_PRJ_MODULE_NAME " [project directory]", ids);
 
-  optind = 3;
-  mng_options(argc, argv);
-
-  char * dir = argv[2];
+  char * dir = argv[1];
   if(mkdir(dir, 0755) < 0)
   {
     fprintf(stderr, "[%s] %s\n", dir, strerror(errno));
     return EXIT_FAILURE;
   }
 
-  if(cmap_option_public.is_multiple())
+  if(cmap_config_public.is_multiple())
   {
-    if(build_files_multiple(dir) != 0) return EXIT_FAILURE;
+    if(!build_files_multiple(dir)) return EXIT_FAILURE;
   }
   else
   {
-    if(build_files_simple(dir) != 0) return EXIT_FAILURE;
+    if(!build_files_simple(dir)) return EXIT_FAILURE;
   }
   return EXIT_SUCCESS;
 }
@@ -144,4 +105,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PRJ_PUBLIC cmap_prj_public = { main_ };
+const CMAP_PRJ_PUBLIC cmap_prj_public = {main_};

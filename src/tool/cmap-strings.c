@@ -93,6 +93,31 @@ static void add_all(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others)
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_STRINGS * split(const char * string)
+{
+  CMAP_STRINGS * ret = NULL;
+
+  char * work = strdup(string), * begin = work, * end = work;
+  while(1 == 1)
+  {
+    if((*end == ' ') || (*end == 0))
+    {
+      char c = *end;
+
+      if(begin < end) { *end = 0; add(&ret, begin); }
+
+      if(c == 0) { free(work); return ret; }
+
+      end++;
+      begin = end;
+    }
+    else end++;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static void delete(CMAP_STRINGS ** strings_ptr)
 {
   while(*strings_ptr != NULL) free(cmap_stack_strings_pop(strings_ptr));
@@ -102,11 +127,4 @@ static void delete(CMAP_STRINGS ** strings_ptr)
 *******************************************************************************/
 
 const CMAP_STRINGS_PUBLIC cmap_strings_public =
-{
-  contains,
-  add,
-  set,
-  apply,
-  add_all,
-  delete
-};
+  {contains, add, set, apply, add_all, split, delete};

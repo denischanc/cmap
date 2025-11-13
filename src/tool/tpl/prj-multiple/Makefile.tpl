@@ -1,10 +1,10 @@
 
 .PHONY: clean
 
-CMAP_TOOL = @CMAP_INSTALL_BINDIR@/cmap-tool
+CMAP_TOOL = @CMAP_BINDIR@/cmap-tool
 
-CFLAGS = -Wall -I@CMAP_INSTALL_INCLUDEDIR@
-LDFLAGS = -L@CMAP_INSTALL_LIBDIR@ -lcmap
+CFLAGS = -Wall -I@CMAP_INCLUDEDIR@
+LDFLAGS = -L@CMAP_LIBDIR@ -lcmap
 
 snake: random-fn.c main.c
 	gcc $(CFLAGS) $(LDFLAGS) -o $@ $^

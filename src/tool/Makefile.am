@@ -14,11 +14,12 @@ noinst_HEADERS = \
   cmap-build.h \
   cmap-build-main.h \
   cmap-clean.h \
+  cmap-compile.h \
+  cmap-config-define.h \
+  cmap-config.h \
+  cmap-exec.h \
   cmap-file-util.h \
-  cmap-fn-name-define.h \
   cmap-fn-name.h \
-  cmap-option-define.h \
-  cmap-option.h \
   cmap-part-define.h \
   cmap-part.h \
   cmap-prj.h \
@@ -34,9 +35,11 @@ cmap_tool_SOURCES = \
   cmap-build.c \
   cmap-build-main.c \
   cmap-clean.c \
+  cmap-compile.c \
+  cmap-config.c \
+  cmap-exec.c \
   cmap-file-util.c \
   cmap-fn-name.c \
-  cmap-option.c \
   cmap-parser.y \
   cmap-part.c \
   cmap-prj.c \
@@ -45,5 +48,4 @@ cmap_tool_SOURCES = \
   cmap-strings.c \
   cmap-tool.c \
   cmap-util.c
-cmap_tool_CFLAGS = $(CMAP_TOOL_CFLAGS)
 cmap_tool_LDADD = parser/libparser.la part/libpart.la tpl/libtpl.la

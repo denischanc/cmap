@@ -6,11 +6,10 @@
 #include "cmap-string.h"
 #include "cmap-parser-params.h"
 #include "cmap-parser-util.h"
-#include "cmap-fn-name.h"
 #include "cmap-parser-var.h"
 #include "cmap-strings.h"
 #include "cmap-parser-this-args.h"
-#include "cmap-option.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -87,8 +86,7 @@ static void function_c(char * name, char is_static)
 
 static void instructions_root()
 {
-  function_c(
-    strdup(cmap_fn_name_public.name()), cmap_option_public.is_only_c());
+  function_c(strdup(cmap_config_public.fn()), cmap_config_public.is_only_c());
 }
 
 /*******************************************************************************

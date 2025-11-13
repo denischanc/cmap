@@ -15,6 +15,15 @@ TODO
 * add add_if_not_eq in stree and modify sset add
 * add define for references debug as CONSUMED_TIME
 * rm scheduler : uv_timer_t pool, jobs_nb in env
+* AM_CFLAGS
+
+## Parser
+
+* refactor bup/restore ctxs on import
+* mng arguments when exec with --
+* refactor clean (today, no config clean)
+* fn name mng when compile, exec with several cmaps
+* choices in config (prj: simple, multiple, module)
 
 ## Doc
 

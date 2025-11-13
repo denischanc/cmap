@@ -17,4 +17,3 @@ libpart_la_SOURCES = \
   cmap-part-kv.c \
   cmap-part-name2map.c \
   cmap-part-var.c
-libpart_la_CFLAGS = $(CMAP_TOOL_CFLAGS)

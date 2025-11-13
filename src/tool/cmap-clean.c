@@ -11,7 +11,6 @@
 static void clean()
 {
   cmap_part_public.clean();
-  cmap_fn_name_public.clean();
   cmap_parser_block_public.clean();
 }
 

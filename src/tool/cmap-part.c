@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap-string.h"
-#include "cmap-option.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -250,7 +250,7 @@ static void add_include(const char * name, char is_relative)
 {
   if(!strncmp(name, "cmap", 4) || is_relative)
   {
-    is_relative = is_relative || cmap_option_public.is_relative_inc();
+    is_relative = is_relative || cmap_config_public.is_relative_inc();
     cmap_string_public.append_args(&includes,
       (is_relative) ? "#include \"%s\"\n" : "#include <cmap/%s>\n", name);
   }

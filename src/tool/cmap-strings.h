@@ -20,6 +20,8 @@ typedef struct
 
   void (*add_all)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others);
 
+  CMAP_STRINGS * (*split)(const char * string);
+
   void (*delete)(CMAP_STRINGS ** strings_ptr);
 } CMAP_STRINGS_PUBLIC;
 

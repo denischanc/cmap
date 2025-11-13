@@ -10,8 +10,8 @@
 #include "cmap-parser-util.h"
 #include "cmap-part.h"
 #include "cmap-fn-name.h"
-#include "cmap-option.h"
 #include "cmap-build.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -102,28 +102,26 @@ typedef struct
   CMAP_PART_CTX * ctx;
 } IMPORT_CTX;
 
-static IMPORT_CTX import_ctx_bup()
+static IMPORT_CTX import_ctx_bup(const char * fn_name, const char * parse_path)
 {
   IMPORT_CTX ctx;
-  ctx.fn_name = strdup(cmap_fn_name_public.name());
-  ctx.only_c = cmap_option_public.is_only_c();
+  ctx.fn_name = strdup(cmap_config_public.fn());
+  ctx.only_c = cmap_config_public.is_only_c();
   ctx.parse_path = strdup(cmap_build_public.get_parse_path());
   ctx.ctx = cmap_part_public.ctx.bup();
-  return ctx;
-}
 
-static void import_ctx_set(const char * fn_name, const char * parse_path)
-{
-  cmap_fn_name_public.from_parser(fn_name);
-  cmap_option_public.only_c();
+  cmap_config_public.set_fn(fn_name);
+  cmap_config_public.set_only_c(1 == 1);
   cmap_build_public.set_parse_path(parse_path);
+
+  return ctx;
 }
 
 static void import_ctx_restore(IMPORT_CTX ctx)
 {
-  cmap_fn_name_public.from_parser(ctx.fn_name);
+  cmap_config_public.set_fn(ctx.fn_name);
   free(ctx.fn_name);
-  cmap_option_public.set_only_c(ctx.only_c);
+  cmap_config_public.set_only_c(ctx.only_c);
   cmap_build_public.set_parse_path(ctx.parse_path);
   free(ctx.parse_path);
   cmap_part_public.ctx.restore(ctx.ctx);
@@ -165,12 +163,9 @@ static char import(char ** map_name, char * path, char * fn_name)
 
   free(path);
 
-  IMPORT_CTX bup = import_ctx_bup();
-
-  import_ctx_set(fn_name, parse_path);
+  IMPORT_CTX bup = import_ctx_bup(fn_name, parse_path);
   free(parse_path);
   int ret = cmap_build_public.parse();
-
   import_ctx_restore(bup);
 
   if(ret != 0) { free(fn_name); return (1 == 0); }

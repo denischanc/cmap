@@ -29,4 +29,3 @@ libparser_la_SOURCES = \
   cmap-parser-this-args.c \
   cmap-parser-util.c \
   cmap-parser-var.c
-libparser_la_CFLAGS = $(CMAP_TOOL_CFLAGS)
