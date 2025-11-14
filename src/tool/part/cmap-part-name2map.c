@@ -61,9 +61,9 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
     cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), name);
   if(off < 0) return NULL;
 
-  CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(ctx_c);
+  CMAP_PART_CTX * ctx_split = cmap_part_ctx_public.split(ctx_c);
   char * map_name = cmap_parser_var_public.set_fn_arg_name(name, off);
-  cmap_part_ctx_public.restore(ctx_bup);
+  cmap_part_ctx_public.join(ctx_split);
 
   cmap_strings_public.set(
     cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), off, "");
@@ -98,11 +98,11 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
   {
     if(!new)
     {
-      CMAP_PART_CTX * ctx_bup =
-        cmap_part_ctx_public.bup(cmap_part_ctx_public.last_block(ctx_c));
+      CMAP_PART_CTX * ctx_split =
+        cmap_part_ctx_public.split(cmap_part_ctx_public.last_block(ctx_c));
       free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
         strdup(name)));
-      cmap_part_ctx_public.restore(ctx_bup);
+      cmap_part_ctx_public.join(ctx_split);
     }
 
     return create_ret(strdup(map_name_ok), new, (1 == 1));

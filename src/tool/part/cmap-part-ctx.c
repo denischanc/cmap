@@ -499,12 +499,11 @@ static CMAP_STRINGS * prev_block_fn_arg_names(CMAP_PART_CTX * ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_CTX * bup(CMAP_PART_CTX * ctx)
+static CMAP_PART_CTX * split(CMAP_PART_CTX * ctx)
 {
   CMAP_PART_CTX * ret = cur_ctx();
 
-  if(ctx == NULL) ctxs = NULL;
-  else if(ctx != ret)
+  if(ctx != ret)
   {
     ctx -> next -> prev = NULL;
     ctx -> next = NULL;
@@ -514,10 +513,9 @@ static CMAP_PART_CTX * bup(CMAP_PART_CTX * ctx)
   return ret;
 }
 
-static void restore(CMAP_PART_CTX * ctx)
+static void join(CMAP_PART_CTX * ctx)
 {
-  if(cur_ctx() == NULL) ctxs = cmap_stack_ctx_stack(ctx);
-  else if(ctx != cur_ctx())
+  if(ctx != cur_ctx())
   {
     CMAP_PART_CTX * prev_ctx = ctx;
     while(prev_ctx -> prev != NULL) prev_ctx = prev_ctx -> prev;
@@ -527,6 +525,24 @@ static void restore(CMAP_PART_CTX * ctx)
     ctxs = cmap_stack_ctx_stack(ctx);
   }
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_CTX * bup()
+{
+  CMAP_PART_CTX * ret = cur_ctx();
+  ctxs = NULL;
+  return ret;
+}
+
+static void restore(CMAP_PART_CTX * ctx)
+{
+  ctxs = cmap_stack_ctx_stack(ctx);
+}
+
+/*******************************************************************************
+*******************************************************************************/
 
 static void clean()
 {
@@ -550,5 +566,5 @@ const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
   is_definitions_n_set, is_global_env_n_set, set_return, is_return, params,
   return_fn, vars_loc, vars_def,
   prev_block_fn_arg_names,
-  bup, restore, clean
+  split, join, bup, restore, clean
 };

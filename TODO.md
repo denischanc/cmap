@@ -19,7 +19,6 @@ TODO
 
 ## Parser
 
-* refactor bup/restore ctxs on import
 * mng arguments when exec with --
 * refactor clean (today, no config clean)
 * fn name mng when compile, exec with several cmaps

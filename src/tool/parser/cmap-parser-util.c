@@ -103,11 +103,11 @@ static const char * add_definitions()
 {
   if(!cmap_part_public.ctx.is_definitions_n_set())
   {
-    CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
+    CMAP_PART_CTX * ctx_split = cmap_part_ctx_public.split(
       cmap_part_ctx_public.fn_c());
     append_variable_args(
       "CMAP_MAP * %s = cmap_definitions(proc_ctx);", DEFINITIONS_VAR_NAME);
-    cmap_part_ctx_public.restore(ctx_bup);
+    cmap_part_ctx_public.join(ctx_split);
   }
   return DEFINITIONS_VAR_NAME;
 }
@@ -116,11 +116,11 @@ static const char * add_global_env()
 {
   if(!cmap_part_public.ctx.is_global_env_n_set())
   {
-    CMAP_PART_CTX * ctx_bup = cmap_part_ctx_public.bup(
+    CMAP_PART_CTX * ctx_split = cmap_part_ctx_public.split(
       cmap_part_ctx_public.fn_c());
     append_variable_args(
       "CMAP_MAP * %s = cmap_global_env(proc_ctx);", GLOBAL_ENV_VAR_NAME);
-    cmap_part_ctx_public.restore(ctx_bup);
+    cmap_part_ctx_public.join(ctx_split);
   }
   return GLOBAL_ENV_VAR_NAME;
 }

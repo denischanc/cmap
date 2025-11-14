@@ -48,7 +48,9 @@ typedef struct
 
   CMAP_STRINGS * (*prev_block_fn_arg_names)(CMAP_PART_CTX * ctx);
 
-  CMAP_PART_CTX * (*bup)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*split)(CMAP_PART_CTX * ctx);
+  void (*join)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*bup)();
   void (*restore)(CMAP_PART_CTX * ctx);
   void (*clean)();
 } CMAP_PART_CTX_PUBLIC;

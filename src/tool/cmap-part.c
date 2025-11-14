@@ -102,7 +102,7 @@ static CMAP_STRINGS * get_vars_def()
 
 static CMAP_PART_CTX * bup()
 {
-  return cmap_part_ctx_public.bup(NULL);
+  return cmap_part_ctx_public.bup();
 }
 
 static void restore(CMAP_PART_CTX * ctx)
