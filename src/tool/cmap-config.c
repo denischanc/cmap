@@ -6,6 +6,7 @@
 #include <string.h>
 #include <getopt.h>
 #include "cmap-string.h"
+#include "cmap-usage.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -173,57 +174,16 @@ static void mng_opts(int * argc, char *** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void usage_opt_sp(int nb)
-{
-  for(int j = 0; j < nb; j++) printf(" ");
-}
-
-static const char * usage_opt_sub_desc(const char * desc)
-{
-  static char buffer[USAGE_DESC + 1];
-  strncpy(buffer, desc, USAGE_DESC);
-  buffer[USAGE_DESC] = 0;
-  return buffer;
-}
-
-static void usage_opt_desc(const char * desc)
-{
-  const char * cur = desc;
-  int len = strlen(cur);
-  while(1 == 1)
-  {
-    if(len <= USAGE_DESC) { printf("%s\n", cur); return; }
-    else
-    {
-      printf("%s\n", usage_opt_sub_desc(cur));
-      usage_opt_sp(USAGE_OFF + USAGE_OPTS);
-
-      cur += USAGE_DESC;
-      len -= USAGE_DESC;
-    }
-  }
-}
-
 static void usage_opt(const char * long_opt, char opt, char is_arg,
   const char * desc)
 {
-  usage_opt_sp(USAGE_OFF);
+  char * val = NULL;
+  cmap_string_public.append_args(&val,
+    "-%c,--%s%s", opt, long_opt, is_arg ? " [value]" : "");
 
-  char * line = NULL;
-  cmap_string_public.append_args(&line, "-%c,--%s", opt, long_opt);
-  if(is_arg) cmap_string_public.append(&line, " [value]");
-  int len = strlen(line);
-  printf(line);
-  free(line);
+  cmap_usage_public.print_val_desc(val, desc);
 
-  if(len >= USAGE_OPTS)
-  {
-    printf("\n");
-    usage_opt_sp(USAGE_OFF + USAGE_OPTS);
-  }
-  else usage_opt_sp(USAGE_OPTS - len);
-
-  usage_opt_desc(desc);
+  free(val);
 }
 
 /*******************************************************************************
