@@ -2,35 +2,15 @@
 #include "cmap-build.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "cmap-scanner.h"
-#include "cmap-parser.h"
 #include "cmap-part.h"
 #include "cmap-string.h"
 #include "cmap-build-main.h"
 #include "cmap-fn-name.h"
-#include "cmap-clean.h"
 #include "cmap-config.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-static char * parse_path = NULL;
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void set_parse_path(const char * path)
-{
-  free(parse_path);
-  parse_path = (path != NULL) ? strdup(path) : NULL;
-}
-
-static const char * get_parse_path()
-{
-  return parse_path;
-}
+#include "cmap-do-parse.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -46,32 +26,6 @@ static void add_include(const char * out_h_name)
   cmap_part_public.add_include("stdlib.h", (1 == 0));
   cmap_part_public.add_include("cmap-int-ext.h", (1 == 0));
   cmap_part_public.add_include("cmap-string-ext.h", (1 == 0));
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static int parse()
-{
-  FILE * in = fopen(parse_path, "r");
-  if(in == NULL)
-  {
-    fprintf(stderr, "[%s] %s\n", parse_path, strerror(errno));
-    return 1;
-  }
-
-  yyscan_t scanner;
-  cmap_parser_lex_init(&scanner);
-  cmap_parser_set_in(in, scanner);
-
-  int ret = cmap_parser_parse(scanner);
-  cmap_part_public.ctx.clean();
-
-  cmap_parser_lex_destroy(scanner);
-
-  fclose(in);
-
-  return ret;
 }
 
 /*******************************************************************************
@@ -153,8 +107,7 @@ static int main_(int argc, char * argv[])
   cmap_config_public.init_n_check(&argc, &argv, 3,
     CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file]", ids);
 
-  set_parse_path(argv[1]);
-  cmap_fn_name_public.resolve_to_config(parse_path);
+  cmap_fn_name_public.resolve_to_config(argv[1]);
 
   char * out_name = argv[2], * out_c_name = NULL, * out_h_name = NULL;
   cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
@@ -163,15 +116,14 @@ static int main_(int argc, char * argv[])
 
   add_include(out_h_name);
   char ok = (1 == 1);
-  if(parse() != 0) ok = (1 == 0);
+  if(!cmap_do_parse_public.parse(argv[1])) ok = (1 == 0);
   if(ok && (generate_c(out_c_name) != 0)) ok = (1 == 0);
   if(ok && !cmap_config_public.is_only_c() && (generate_h(out_h_name) != 0))
     ok = (1 == 0);
 
-  cmap_clean_public.clean();
+  cmap_part_public.clean();
   free(out_c_name);
   free(out_h_name);
-  set_parse_path(NULL);
 
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
@@ -179,8 +131,4 @@ static int main_(int argc, char * argv[])
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_BUILD_PUBLIC cmap_build_public =
-{
-  set_parse_path, get_parse_path, parse,
-  main_
-};
+const CMAP_BUILD_PUBLIC cmap_build_public = {main_};

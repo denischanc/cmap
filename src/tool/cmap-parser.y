@@ -10,7 +10,7 @@
 #include "cmap-parser-process.h"
 #include "cmap-parser-var.h"
 #include "cmap-part.h"
-#include "cmap-build.h"
+#include "cmap-do-parse.h"
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -274,6 +274,6 @@ import_ret: IMPORT '(' STRING ')'
 
 static void cmap_parser_error(yyscan_t yyscanner, const char * msg)
 {
-  fprintf(stderr, "[%s:%d:%d] %s\n", cmap_build_public.get_parse_path(),
+  fprintf(stderr, "[%s:%d:%d] %s\n", cmap_do_parse_public.path(),
     cmap_parser_get_lineno(yyscanner), cmap_parser_get_column(yyscanner), msg);
 }

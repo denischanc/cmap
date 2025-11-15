@@ -13,10 +13,10 @@ AM_YFLAGS = -d --name-prefix=cmap_parser_ -Wcounterexamples
 noinst_HEADERS = \
   cmap-build.h \
   cmap-build-main.h \
-  cmap-clean.h \
   cmap-compile.h \
   cmap-config-define.h \
   cmap-config.h \
+  cmap-do-parse.h \
   cmap-exec.h \
   cmap-file-util.h \
   cmap-fn-name.h \
@@ -34,9 +34,9 @@ bin_PROGRAMS = cmap-tool
 cmap_tool_SOURCES = \
   cmap-build.c \
   cmap-build-main.c \
-  cmap-clean.c \
   cmap-compile.c \
   cmap-config.c \
+  cmap-do-parse.c \
   cmap-exec.c \
   cmap-file-util.c \
   cmap-fn-name.c \

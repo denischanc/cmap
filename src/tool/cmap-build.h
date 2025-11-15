@@ -5,10 +5,6 @@
 
 typedef struct
 {
-  void (*set_parse_path)(const char * path);
-  const char * (*get_parse_path)();
-  int (*parse)();
-
   int (*main)(int argc, char * argv[]);
 } CMAP_BUILD_PUBLIC;
 

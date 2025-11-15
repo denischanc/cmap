@@ -6,7 +6,6 @@
 #include "cmap-part.h"
 #include "cmap-string.h"
 #include "cmap-fn-name.h"
-#include "cmap-clean.h"
 #include "cmap-config.h"
 
 /*******************************************************************************
@@ -61,7 +60,7 @@ static int main_(int argc, char * argv[])
   char ret = cmap_file_util_public.to_file(argv[1], txt);
   free(txt);
 
-  cmap_clean_public.clean();
+  cmap_part_public.clean();
 
   return ret ? EXIT_SUCCESS : EXIT_FAILURE;
 }
