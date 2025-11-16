@@ -48,10 +48,12 @@ static void parts(char ** txt)
 
 static int main_(int argc, char * argv[])
 {
-  int ids[] = {CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_RELATIVE_INC,
-    CMAP_CONFIG_ID_INCLUDE, 0};
-  cmap_config_public.init_n_check(&argc, &argv, 2,
-    CMAP_BUILD_MAIN_MODULE_NAME " [file]", ids);
+  if(argc < 2)
+  {
+    int ids[] = {CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_RELATIVE_INC,
+      CMAP_CONFIG_ID_INCLUDE, 0};
+    return cmap_config_public.usage(CMAP_BUILD_MAIN_MODULE_NAME " [file]", ids);
+  }
 
   cmap_fn_name_public.resolve_to_config(cmap_config_public.include());
 

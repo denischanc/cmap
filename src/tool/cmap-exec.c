@@ -62,10 +62,13 @@ static int do_exec(const char * path)
 
 static int main_(int argc, char * argv[])
 {
-  int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
-    CMAP_CONFIG_ID_WORK_DIR, 0};
-  cmap_config_public.init_n_check(&argc, &argv, 2,
-    CMAP_EXEC_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+  if(argc < 2)
+  {
+    int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
+      CMAP_CONFIG_ID_WORK_DIR, 0};
+    return cmap_config_public.usage(
+      CMAP_EXEC_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+  }
 
   if(compile(argc, argv) == EXIT_FAILURE) return EXIT_FAILURE;
 

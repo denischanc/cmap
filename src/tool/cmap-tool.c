@@ -1,4 +1,6 @@
 
+#include "cmap-tool.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,9 +9,14 @@
 #include "cmap-prj.h"
 #include "cmap-compile.h"
 #include "cmap-exec.h"
-#include "cmap-string.h"
 #include "cmap-usage.h"
+#include "cmap-config.h"
 #include "config.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+const char * cmap_tool_name;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -28,10 +35,10 @@
 #define MODULE_VAL_DESC(NAME, name, desc) \
   cmap_usage_public.print_val_desc(CMAP_##NAME##_MODULE_NAME, desc);
 
-static int usage(const char * this_name)
+static int usage()
 {
   printf("%s-%s\n", PACKAGE, VERSION);
-  printf("usage: %s [module] ...\nmodules:\n", this_name);
+  printf("usage: %s [module] ...\nmodules:\n", cmap_tool_name);
   MODULE_LOOP(MODULE_VAL_DESC)
 
   return EXIT_FAILURE;
@@ -41,15 +48,20 @@ static int usage(const char * this_name)
 *******************************************************************************/
 
 #define MODULE_MAIN(NAME , name, desc) \
-  if(!strcmp(argv[1], CMAP_##NAME##_MODULE_NAME)) \
-    return cmap_##name##_public.main(argc, argv);
+  if(!strcmp(argv[0], CMAP_##NAME##_MODULE_NAME)) \
+    ret = cmap_##name##_public.main(argc, argv);
 
 int main(int argc, char * argv[])
 {
-  if(argc > 1)
-  {
-    MODULE_LOOP(MODULE_MAIN)
-  }
+  cmap_tool_name = argv[0];
 
-  return usage(argv[0]);
+  cmap_config_public.mng_opts(&argc, &argv);
+
+  if(argc < 1) return usage();
+
+  int ret = EXIT_FAILURE;
+  MODULE_LOOP(MODULE_MAIN)
+
+  cmap_config_public.clean();
+  return ret;
 }

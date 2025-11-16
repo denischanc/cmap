@@ -102,10 +102,13 @@ static int generate_h(const char * out_name)
 
 static int main_(int argc, char * argv[])
 {
-  int ids[] = {CMAP_CONFIG_ID_RELATIVE_INC, CMAP_CONFIG_ID_ONLY_C,
-    CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_ADD_MAIN, CMAP_CONFIG_ID_QUIET, 0};
-  cmap_config_public.init_n_check(&argc, &argv, 3,
-    CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file]", ids);
+  if(argc < 3)
+  {
+    int ids[] = {CMAP_CONFIG_ID_RELATIVE_INC, CMAP_CONFIG_ID_ONLY_C,
+      CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_ADD_MAIN, CMAP_CONFIG_ID_QUIET, 0};
+    return cmap_config_public.usage(
+      CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file]", ids);
+  }
 
   cmap_fn_name_public.resolve_to_config(argv[1]);
 

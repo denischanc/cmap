@@ -108,10 +108,13 @@ static void cflags_apply(const char * string, void * data)
 
 static int main_(int argc, char * argv[])
 {
-  int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
-    CMAP_CONFIG_ID_WORK_DIR, 0};
-  cmap_config_public.init_n_check(&argc, &argv, 2,
-    CMAP_COMPILE_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+  if(argc < 2)
+  {
+    int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
+      CMAP_CONFIG_ID_WORK_DIR, 0};
+    return cmap_config_public.usage(
+      CMAP_COMPILE_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+  }
 
   char ret = (1 == 1), * tgt = NULL, * deps = NULL, * cflags = strdup("");
 

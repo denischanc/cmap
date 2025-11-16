@@ -8,10 +8,11 @@ typedef struct
   CMAP_CONFIG_LOOP(CMAP_CONFIG_BOOL_DECL, CMAP_CONFIG_STRING_DECL,
     CMAP_CONFIG_STRINGS_DECL)
 
-  void (*clean)();
+  void (*mng_opts)(int * argc, char *** argv);
 
-  void (*init_n_check)(int * argc, char *** argv, int argc_min,
-    const char * usage_ext, int * config_ids);
+  int (*usage)(const char * desc, int * config_ids);
+
+  void (*clean)();
 } CMAP_CONFIG_PUBLIC;
 
 extern const CMAP_CONFIG_PUBLIC cmap_config_public;

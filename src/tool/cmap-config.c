@@ -7,13 +7,7 @@
 #include <getopt.h>
 #include "cmap-string.h"
 #include "cmap-usage.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define USAGE_OFF 2
-#define USAGE_OPTS 18
-#define USAGE_DESC 60
+#include "cmap-tool.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -198,16 +192,18 @@ static void usage_opt(const char * long_opt, char opt, char is_arg,
 #define STRINGS_USAGE(ID, name, long_opt, opt, env_var, desc) \
   if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
 
-static void usage(const char * this_name, const char * usage_ext,
-  int * config_ids)
+static int usage(const char * desc, int * config_ids)
 {
-  printf("usage: %s %s (options)\noptions:\n", this_name, usage_ext);
+  printf("usage: %s %s (options)\noptions:\n", cmap_tool_name, desc);
 
-  for(int i = 0; config_ids[i] != 0; i++)
+  int id;
+  while((id = *config_ids) != 0)
   {
-    int id = config_ids[i];
     CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
+    config_ids++;
   }
+
+  return EXIT_FAILURE;
 }
 
 /*******************************************************************************
@@ -233,24 +229,6 @@ static void clean()
 /*******************************************************************************
 *******************************************************************************/
 
-static void init_n_check(int * argc, char *** argv, int argc_min,
-  const char * usage_ext, int * config_ids)
-{
-  const char * this_name = **argv;
-
-  mng_opts(argc, argv);
-
-  if(*argc < argc_min)
-  {
-    usage(this_name, usage_ext, config_ids);
-    clean();
-    exit(EXIT_FAILURE);
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 #define BOOL_SET(ID, name, long_opt, opt, env_var, desc) set_##name, is_##name,
 
 #define STRING_SET(ID, name, long_opt, opt, env_var, desc, dft) \
@@ -261,5 +239,5 @@ static void init_n_check(int * argc, char *** argv, int argc_min,
 const CMAP_CONFIG_PUBLIC cmap_config_public =
 {
   CMAP_CONFIG_LOOP(BOOL_SET, STRING_SET, STRINGS_SET)
-  clean, init_n_check
+  mng_opts, usage, clean
 };

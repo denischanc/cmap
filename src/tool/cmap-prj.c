@@ -80,9 +80,12 @@ static char build_files_multiple(const char * dir)
 
 static int main_(int argc, char * argv[])
 {
-  int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
-  cmap_config_public.init_n_check(&argc, &argv, 2,
-    CMAP_PRJ_MODULE_NAME " [project directory]", ids);
+  if(argc < 2)
+  {
+    int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
+    return cmap_config_public.usage(
+      CMAP_PRJ_MODULE_NAME " [project directory]", ids);
+  }
 
   char * dir = argv[1];
   if(mkdir(dir, 0755) < 0)
