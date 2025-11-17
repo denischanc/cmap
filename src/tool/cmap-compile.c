@@ -16,16 +16,14 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char build(const char * path_cmap, const char * path_root, char add_main)
+static char build(char * path_cmap, char * path_root, char add_main)
 {
   cmap_config_public.set_add_main(add_main);
   cmap_config_public.set_only_c(add_main);
   cmap_config_public.set_quiet(1 == 1);
 
-  const char * argv[] = {NULL, CMAP_BUILD_MODULE_NAME, path_cmap, path_root};
-  int ret = cmap_build_public.main(4, (char **)argv);
-
-  return (ret == EXIT_SUCCESS);
+  char * argv[] = {CMAP_BUILD_MODULE_NAME, path_cmap, path_root};
+  return (cmap_build_public.main(3, argv) == EXIT_SUCCESS);
 }
 
 static char build_all(int argc, char ** argv, char ** tgt, char ** deps,
@@ -113,7 +111,7 @@ static int main_(int argc, char * argv[])
     int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
       CMAP_CONFIG_ID_WORK_DIR, 0};
     return cmap_config_public.usage(
-      CMAP_COMPILE_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+      CMAP_COMPILE_MODULE_NAME " [main cmap file] ([cmap file]...) %s", ids);
   }
 
   char ret = (1 == 1), * tgt = NULL, * deps = NULL, * cflags = strdup("");

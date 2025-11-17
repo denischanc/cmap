@@ -27,6 +27,7 @@ noinst_HEADERS = \
   cmap-stack-define.h \
   cmap-string.h \
   cmap-strings.h \
+  cmap-tool.h \
   cmap-usage.h \
   cmap-util.h
 

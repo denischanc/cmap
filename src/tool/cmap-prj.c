@@ -84,7 +84,7 @@ static int main_(int argc, char * argv[])
   {
     int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
     return cmap_config_public.usage(
-      CMAP_PRJ_MODULE_NAME " [project directory]", ids);
+      CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
   }
 
   char * dir = argv[1];

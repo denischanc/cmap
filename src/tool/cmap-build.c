@@ -107,7 +107,7 @@ static int main_(int argc, char * argv[])
     int ids[] = {CMAP_CONFIG_ID_RELATIVE_INC, CMAP_CONFIG_ID_ONLY_C,
       CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_ADD_MAIN, CMAP_CONFIG_ID_QUIET, 0};
     return cmap_config_public.usage(
-      CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file]", ids);
+      CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file] %s", ids);
   }
 
   cmap_fn_name_public.resolve_to_config(argv[1]);

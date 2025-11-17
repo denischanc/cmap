@@ -17,7 +17,7 @@
 static int compile(int argc, char ** argv)
 {
   char ** argv_compile = malloc((argc + 1) * sizeof(char *));
-  argv_compile[0] = NULL;
+  argv_compile[0] = CMAP_COMPILE_MODULE_NAME;
   for(int i = 0; i < argc; i++) argv_compile[i + 1] = argv[i];
 
   int ret = cmap_compile_public.main(argc + 1, argv_compile);
@@ -41,7 +41,7 @@ static void do_exec_upd_env()
   free(val);
 }
 
-static int do_exec(const char * path)
+static int do_exec(const char * path, int argc, char ** argv)
 {
   char * bn = cmap_file_util_public.basename_no_ext(path), * tgt = NULL;
   cmap_string_public.append_args(&tgt,
@@ -49,11 +49,15 @@ static int do_exec(const char * path)
   free(bn);
 
   do_exec_upd_env();
-  char * const argv[] = {tgt, NULL};
-  execv(tgt, argv);
+  char ** argv_exec = malloc((argc + 2) * sizeof(char *));
+  argv_exec[0] = tgt;
+  for(int i = 0; i < argc; i++) argv_exec[i + 1] = argv[i];
+  argv_exec[argc + 1] = NULL;
+  execv(tgt, argv_exec);
 
   fprintf(stderr, "[%s] %s\n", tgt, strerror(errno));
   free(tgt);
+  free(argv_exec);
   return EXIT_FAILURE;
 }
 
@@ -66,13 +70,23 @@ static int main_(int argc, char * argv[])
   {
     int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
       CMAP_CONFIG_ID_WORK_DIR, 0};
-    return cmap_config_public.usage(
-      CMAP_EXEC_MODULE_NAME " [main cmap file] ([cmap file]...)", ids);
+    return cmap_config_public.usage(CMAP_EXEC_MODULE_NAME
+      " [main cmap file] ([cmap file]...) %s (-- [exec args]...)", ids);
   }
 
-  if(compile(argc, argv) == EXIT_FAILURE) return EXIT_FAILURE;
+  int exec_args_off = argc, argc_compile = argc - 1;
+  for(int i = 2; (i < argc) && (exec_args_off == argc); i++)
+  {
+    if(!strcmp(argv[i], "--"))
+    {
+      exec_args_off = i + 1;
+      argc_compile = i - 1;
+    }
+  }
 
-  return do_exec(argv[1]);
+  if(compile(argc_compile, argv + 1) == EXIT_FAILURE) return EXIT_FAILURE;
+
+  return do_exec(argv[1], argc - exec_args_off, argv + exec_args_off);
 }
 
 /*******************************************************************************

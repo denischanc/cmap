@@ -140,6 +140,10 @@ static inline int nb_opts()
 
 static void mng_opts(int * argc, char *** argv)
 {
+  int argc_bup = *argc;
+  for(int i = 0; (i < *argc) && (*argc == argc_bup); i++)
+    if(!strcmp((*argv)[i], "--")) *argc = i;
+
   struct option last_opt = {NULL, 0, NULL, 0},
     * long_opts = malloc((nb_opts() + 1) * sizeof(struct option));
   char * short_opts = NULL;
@@ -161,7 +165,7 @@ static void mng_opts(int * argc, char *** argv)
   free(long_opts);
   free(short_opts);
 
-  *argc -= optind;
+  *argc = argc_bup - optind;
   *argv += optind;
 }
 
@@ -194,13 +198,20 @@ static void usage_opt(const char * long_opt, char opt, char is_arg,
 
 static int usage(const char * desc, int * config_ids)
 {
-  printf("usage: %s %s (options)\noptions:\n", cmap_tool_name, desc);
+  printf("usage: %s ", cmap_tool_name);
 
-  int id;
-  while((id = *config_ids) != 0)
+  if(strstr(desc, "%s") == NULL) printf("%s\n", desc);
+  else
   {
-    CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
-    config_ids++;
+    printf(desc, "(options)");
+    printf("\noptions:\n");
+
+    int id;
+    while((id = *config_ids) != 0)
+    {
+      CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
+      config_ids++;
+    }
   }
 
   return EXIT_FAILURE;

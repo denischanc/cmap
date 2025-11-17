@@ -52,7 +52,8 @@ static int main_(int argc, char * argv[])
   {
     int ids[] = {CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_RELATIVE_INC,
       CMAP_CONFIG_ID_INCLUDE, 0};
-    return cmap_config_public.usage(CMAP_BUILD_MAIN_MODULE_NAME " [file]", ids);
+    return cmap_config_public.usage(CMAP_BUILD_MAIN_MODULE_NAME " [file] %s",
+      ids);
   }
 
   cmap_fn_name_public.resolve_to_config(cmap_config_public.include());
