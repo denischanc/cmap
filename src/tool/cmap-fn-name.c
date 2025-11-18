@@ -25,17 +25,22 @@ static char * resolve(const char * path)
 /*******************************************************************************
 *******************************************************************************/
 
-static void resolve_to_config(const char * path)
+static void to_config(const char * path)
 {
-  if((path != NULL) && (cmap_config_public.fn() == NULL))
-  {
-    char * fn_name = resolve(path);
-    cmap_config_public.set_fn(fn_name);
-    free(fn_name);
-  }
+  if(path == NULL) return;
+
+  char * fn_name = resolve(path);
+  cmap_config_public.set_fn(fn_name);
+  free(fn_name);
+}
+
+static void to_config_when_null(const char * path)
+{
+  if(cmap_config_public.fn() == NULL) to_config(path);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_FN_NAME_PUBLIC cmap_fn_name_public = {resolve, resolve_to_config};
+const CMAP_FN_NAME_PUBLIC cmap_fn_name_public =
+  {resolve, to_config, to_config_when_null};

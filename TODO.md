@@ -19,7 +19,6 @@ TODO
 
 ## Parser
 
-* fn name mng when compile, exec with several cmaps
 * choices in config (prj: simple, multiple, module)
 
 ## Doc

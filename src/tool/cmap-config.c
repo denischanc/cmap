@@ -61,7 +61,7 @@ static char is_##name() \
 static void set_##name(const char * v) \
 { \
   free(name##_proc); \
-  name##_proc = strdup(v); \
+  name##_proc = (v == NULL) ? NULL : strdup(v); \
 } \
  \
 static const char * name() \

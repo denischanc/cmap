@@ -1,15 +1,16 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.72])
 AC_INIT([cmap], [0.1.0-dev], [denis.chancogne@free.fr])
 LT_INIT([win32-dll])
 AC_CONFIG_SRCDIR([src/cmap.c])
 AC_CONFIG_HEADERS([src/config.h])
-AM_INIT_AUTOMAKE([subdir-objects])
+AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([m4])
 
 # Checks for programs.
+AC_PROG_AR
 AC_PROG_AWK
 AC_PROG_YACC
 AC_PROG_CC
@@ -17,34 +18,25 @@ AC_PROG_LEX([noyywrap])
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_MKDIR_P
 AC_PROG_SED
 
 # Checks for libraries.
 AC_CHECK_LIB([uv], [uv_run])
 
 # Checks for header files.
-AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([inttypes.h libintl.h malloc.h stdint.h sys/param.h sys/time.h
-  unistd.h])
+AC_CHECK_HEADERS([stdint.h sys/param.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
-AC_TYPE_INT16_T
-AC_TYPE_INT32_T
 AC_TYPE_INT64_T
-AC_TYPE_INT8_T
-AC_TYPE_SIZE_T
-AC_TYPE_UINT16_T
-AC_TYPE_UINT32_T
-AC_TYPE_UINT8_T
-AC_CHECK_TYPES([ptrdiff_t])
+AC_TYPE_UINT64_T
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gettimeofday memset mkdir strdup strerror])
+AC_CHECK_FUNCS([gettimeofday mkdir realpath setenv strdup strerror strrchr
+  strstr])
 
 # Checks for platform.
 AC_MSG_NOTICE([Host cpu : --$host_cpu--])

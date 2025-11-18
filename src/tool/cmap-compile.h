@@ -5,6 +5,8 @@
 
 typedef struct
 {
+  char * (*exec_path)(const char * cmap_path);
+
   int (*main)(int argc, char * argv[]);
 } CMAP_COMPILE_PUBLIC;
 

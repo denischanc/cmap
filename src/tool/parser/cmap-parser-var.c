@@ -201,15 +201,14 @@ static char * sb_map(char * map, char * map_i)
   char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
-  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);
-  APPEND_INSTRUCTION_ARGS(
-    SPACE "%s = cmap_list_get((CMAP_LIST *)%s, cmap_int_get((CMAP_INT *)%s));",
-    map_name, map, map_i);
+  APPEND_INSTRUCTION_ARGS("if((cmap_nature(%s) == CMAP_LIST_NATURE) && "
+    "(cmap_nature(%s) == CMAP_INT_NATURE))", map, map_i);
+  APPEND_INSTRUCTION_ARGS(SPACE "%s = cmap_list_get((CMAP_LIST *)%s, "
+    "cmap_int_get((CMAP_INT *)%s));", map_name, map, map_i);
   APPEND_INSTRUCTION_ARGS(
     "else if(cmap_nature(%s) == CMAP_STRING_NATURE)", map_i);
-  APPEND_INSTRUCTION_ARGS(
-    SPACE "%s = cmap_get(%s, cmap_string_val((CMAP_STRING *)%s));",
-    map_name, map, map_i);
+  APPEND_INSTRUCTION_ARGS(SPACE "%s = cmap_get(%s, "
+    "cmap_string_val((CMAP_STRING *)%s));", map_name, map, map_i);
   APPEND_LF();
 
   free(map);

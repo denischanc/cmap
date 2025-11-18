@@ -56,7 +56,7 @@ static int main_(int argc, char * argv[])
       ids);
   }
 
-  cmap_fn_name_public.resolve_to_config(cmap_config_public.include());
+  cmap_fn_name_public.to_config_when_null(cmap_config_public.include());
 
   char * txt = NULL;
   parts(&txt);

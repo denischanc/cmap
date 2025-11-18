@@ -41,22 +41,19 @@ static void do_exec_upd_env()
   free(val);
 }
 
-static int do_exec(const char * path, int argc, char ** argv)
+static int do_exec(const char * cmap_path, int argc, char ** argv)
 {
-  char * bn = cmap_file_util_public.basename_no_ext(path), * tgt = NULL;
-  cmap_string_public.append_args(&tgt,
-    "%s/%s", cmap_config_public.work_dir(), bn);
-  free(bn);
+  char * exec_path = cmap_compile_public.exec_path(cmap_path);
 
   do_exec_upd_env();
   char ** argv_exec = malloc((argc + 2) * sizeof(char *));
-  argv_exec[0] = tgt;
+  argv_exec[0] = exec_path;
   for(int i = 0; i < argc; i++) argv_exec[i + 1] = argv[i];
   argv_exec[argc + 1] = NULL;
-  execv(tgt, argv_exec);
+  execv(exec_path, argv_exec);
 
-  fprintf(stderr, "[%s] %s\n", tgt, strerror(errno));
-  free(tgt);
+  fprintf(stderr, "[%s] %s\n", exec_path, strerror(errno));
+  free(exec_path);
   free(argv_exec);
   return EXIT_FAILURE;
 }

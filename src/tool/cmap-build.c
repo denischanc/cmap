@@ -4,13 +4,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include "cmap-part.h"
 #include "cmap-string.h"
 #include "cmap-build-main.h"
 #include "cmap-fn-name.h"
 #include "cmap-config.h"
 #include "cmap-do-parse.h"
+#include "cmap-file-util.h"
+
+/*******************************************************************************
+*******************************************************************************/
+
+static const char * C_INCLUDES[] = {"stdlib.h", "cmap-int-ext.h",
+  "cmap-string-ext.h", "cmap-list-ext.h", NULL};
 
 /*******************************************************************************
 *******************************************************************************/
@@ -19,37 +25,28 @@ static void add_include(const char * out_h_name)
 {
   if(!cmap_config_public.is_only_c())
   {
-    cmap_part_public.add_include(out_h_name, (1 == 1));
+    cmap_part_public.add_include(
+      cmap_file_util_public.basename(out_h_name), (1 == 1));
     cmap_string_public.append(cmap_part_public.includes(), "\n");
   }
   else cmap_part_public.add_include("cmap-ext.h", (1 == 0));
-  cmap_part_public.add_include("stdlib.h", (1 == 0));
-  cmap_part_public.add_include("cmap-int-ext.h", (1 == 0));
-  cmap_part_public.add_include("cmap-string-ext.h", (1 == 0));
+
+  for(const char ** include = C_INCLUDES; *include != NULL; include++)
+    cmap_part_public.add_include(*include, (1 == 0));
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int generate_c(const char * out_name)
+static char generate_c(const char * out_name)
 {
-  FILE * out = fopen(out_name, "w");
-  if(out == NULL)
-  {
-    fprintf(stderr, "[%s] %s\n", out_name, strerror(errno));
-    return 1;
-  }
   if(!cmap_config_public.is_quiet()) printf("==[[ Generate : _%s_\n", out_name);
 
   if(cmap_config_public.is_add_main())
     cmap_build_main_public.impl(cmap_part_public.main());
 
-  fprintf(out, "\n%s\n", *cmap_part_public.includes());
-  fprintf(out, "%s", *cmap_part_public.main());
-
-  fclose(out);
-
-  return 0;
+  return cmap_file_util_public.to_file(out_name, "\n%s\n%s",
+    *cmap_part_public.includes(), *cmap_part_public.main());
 }
 
 /*******************************************************************************
@@ -69,19 +66,13 @@ static char * create_upper(const char * name)
   return ret;
 }
 
-static int generate_h(const char * out_name)
+static char generate_h(const char * out_name)
 {
-  FILE * out = fopen(out_name, "w");
-  if(out == NULL)
-  {
-    fprintf(stderr, "[%s] %s\n", out_name, strerror(errno));
-    return 1;
-  }
   if(!cmap_config_public.is_quiet()) printf("==[[ Generate : _%s_\n", out_name);
 
   char * upper_out_name = create_upper(out_name);
 
-  fprintf(out,
+  char ret = cmap_file_util_public.to_file(out_name,
     "#ifndef __%s__\n"
     "#define __%s__\n\n"
     "#include %s\n\n"
@@ -92,9 +83,7 @@ static int generate_h(const char * out_name)
 
   free(upper_out_name);
 
-  fclose(out);
-
-  return 0;
+  return ret;
 }
 
 /*******************************************************************************
@@ -110,7 +99,7 @@ static int main_(int argc, char * argv[])
       CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file] %s", ids);
   }
 
-  cmap_fn_name_public.resolve_to_config(argv[1]);
+  cmap_fn_name_public.to_config_when_null(argv[1]);
 
   char * out_name = argv[2], * out_c_name = NULL, * out_h_name = NULL;
   cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
@@ -120,8 +109,8 @@ static int main_(int argc, char * argv[])
   add_include(out_h_name);
   char ok = (1 == 1);
   if(!cmap_do_parse_public.parse(argv[1])) ok = (1 == 0);
-  if(ok && (generate_c(out_c_name) != 0)) ok = (1 == 0);
-  if(ok && !cmap_config_public.is_only_c() && (generate_h(out_h_name) != 0))
+  if(ok && !generate_c(out_c_name)) ok = (1 == 0);
+  if(ok && !cmap_config_public.is_only_c() && !generate_h(out_h_name))
     ok = (1 == 0);
 
   cmap_part_public.clean();
