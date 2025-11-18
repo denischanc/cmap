@@ -1,8 +1,8 @@
 
-include $(top_srcdir)/test/common.mk
+include $(top_srcdir)/src/common.mk
+
+noinst_HEADERS = test-assert.h
 
 noinst_LTLIBRARIES = libtest.la
 
-libtest_la_SOURCES = \
-  test-assert.c test-assert.h
-libtest_la_CFLAGS = $(CMAP_TEST_CFLAGS)
+libtest_la_SOURCES = test-assert.c

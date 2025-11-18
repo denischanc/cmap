@@ -4,7 +4,7 @@ include_cmapdir = $(includedir)/cmap
 CMAP_SRC_PATH = $(top_srcdir)/src
 CMAP_BUILD_PATH = $(top_builddir)/src
 
-CMAP_CFLAGS = \
+AM_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components/cli \
   -I$(CMAP_SRC_PATH)/components/console \
   -I$(CMAP_SRC_PATH)/components/scheduler \
@@ -22,7 +22,7 @@ CMAP_CFLAGS = \
   -Wall
 
 if CONSUMED_TIME
-CMAP_CFLAGS += -DCONSUMED_TIME
+AM_CFLAGS += -DCONSUMED_TIME
 endif
 
 CMAP_TOOL = $(CMAP_BUILD_PATH)/tool/cmap-tool

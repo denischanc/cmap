@@ -40,4 +40,3 @@ libkernel_la_SOURCES = \
   cmap-proc-ctx.c \
   cmap-refsstore.c \
   cmap-refswatcher.c
-libkernel_la_CFLAGS = $(CMAP_CFLAGS)

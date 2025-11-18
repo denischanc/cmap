@@ -8,4 +8,3 @@ noinst_HEADERS = cmap-scheduler.h
 noinst_LTLIBRARIES = libscheduler.la
 
 libscheduler_la_SOURCES = cmap-scheduler.c
-libscheduler_la_CFLAGS = $(CMAP_CFLAGS)

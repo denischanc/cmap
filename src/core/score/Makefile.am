@@ -15,4 +15,3 @@ libscore_la_SOURCES = \
   cmap-slist.c \
   cmap-sset.c \
   cmap-stree.c
-libscore_la_CFLAGS = $(CMAP_CFLAGS)

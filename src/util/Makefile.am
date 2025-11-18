@@ -14,4 +14,3 @@ libutil_la_SOURCES = \
 if CONSUMED_TIME
 libutil_la_SOURCES += cmap-consumedtime.c
 endif
-libutil_la_CFLAGS = $(CMAP_CFLAGS)

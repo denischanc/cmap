@@ -15,4 +15,3 @@ libcmp_la_SOURCES = \
   cmap-cmp-double-handler.c \
   cmap-cmp-int-handler.c \
   cmap-cmp-string-handler.c
-libcmp_la_CFLAGS = $(CMAP_CFLAGS)

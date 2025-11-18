@@ -49,5 +49,4 @@ libcore_la_SOURCES = \
   cmap-double.c \
   cmap-ptr.c \
   cmap-lifecycle.c
-libcore_la_CFLAGS = $(CMAP_CFLAGS)
 libcore_la_LIBADD = cmp/libcmp.la prototype/libprototype.la score/libscore.la
