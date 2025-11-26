@@ -12,7 +12,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static const CMAP_CMP_HANDLER_PUBLIC * handler(const char * nature_l,
+static const CMAP_CMP_PUBLIC * handler(const char * nature_l,
   const char * nature_r)
 {
   if(nature_l == nature_r)
@@ -30,16 +30,12 @@ static const CMAP_CMP_HANDLER_PUBLIC * handler(const char * nature_l,
 /*******************************************************************************
 *******************************************************************************/
 
-static int cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
+static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
-  const CMAP_CMP_HANDLER_PUBLIC * handler_ = NULL;
+  const CMAP_CMP_PUBLIC * handler_ = NULL;
   if((map_l != NULL) && (map_r != NULL))
     handler_ = handler(CMAP_NATURE(map_l), CMAP_NATURE(map_r));
-
-  if(handler_ != NULL) return handler_ -> cmp(map_l, map_r);
-  else if(map_l == map_r) return 0;
-  else if(map_l < map_r) return -1;
-  else return 1;
+  return (handler_ != NULL) ? handler_ -> cmp(map_l, map_r) : map_l - map_r;
 }
 
 /*******************************************************************************

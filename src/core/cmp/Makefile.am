@@ -4,7 +4,6 @@ include $(top_srcdir)/src/common.mk
 noinst_HEADERS = \
   cmap-cmp-double-handler.h \
   cmap-cmp.h \
-  cmap-cmp-handler.h \
   cmap-cmp-int-handler.h \
   cmap-cmp-string-handler.h
 

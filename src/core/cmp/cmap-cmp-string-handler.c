@@ -7,7 +7,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static int cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
+static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
   const char * string_l = CMAP_CALL((CMAP_STRING *)map_l, val),
     * string_r = CMAP_CALL((CMAP_STRING *)map_r, val);
@@ -17,4 +17,4 @@ static int cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CMP_HANDLER_PUBLIC cmap_cmp_string_handler_public = {cmp};
+const CMAP_CMP_PUBLIC cmap_cmp_string_handler_public = {cmp};

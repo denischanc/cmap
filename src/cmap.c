@@ -187,7 +187,7 @@ CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
 /*******************************************************************************
 *******************************************************************************/
 
-int cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
+int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
   return cmap_cmp_public.cmp(map_l, map_r);
 }
