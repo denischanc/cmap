@@ -9,7 +9,10 @@ typedef struct
   char * (*cmp_unique)(char * map);
   char * (*cmp_unique_not)(char * map);
 
+  char * (*init)(char * cmp_call);
+  char * (*or_simple)(char * cmp_call_l, char * cmp_call_r);
   char * (*or)(char * cmp_call_l, char * cmp_call_r);
+  char * (*and_simple)(char * cmp_call_l, char * cmp_call_r);
   char * (*and)(char * cmp_call_l, char * cmp_call_r);
 } CMAP_PARSER_CMP_PUBLIC;
 

@@ -2,6 +2,8 @@
 
 #include "cmap-scanner.h"
 #include "cmap-string.h"
+#include "cmap-do-parse.h"
+#include "cmap-file-util.h"
 
 #define YY_USER_ACTION yycolumn += yyleng;
 
@@ -11,13 +13,16 @@ static void string_end(YYSTYPE * yylval_p, const char * txt);
 
 static void set_name(YYSTYPE * yylval_p, const char * name);
 
+static void set_dir(YYSTYPE * yylval_p);
+static void set_file(YYSTYPE * yylval_p);
+
 %}
 
 %option noyywrap noinput nounput yylineno warn bison-bridge reentrant
 
 %x COMMENT_MULTI_S COMMENT_SIMPLE_S STRING_S C_IMPL_S C_IMPL_ROOT_S INCLUDE_S
 
-NAME_D [[:alpha:]_$][[:alnum:]_$\-]*
+NAME_D [[:alpha:]_$][[:alnum:]_$@\-]*
 INT_D \-?[[:digit:]]+
 SPACE_D [[:space:]]+
 
@@ -72,8 +77,11 @@ SPACE_D [[:space:]]+
 "@STATIC_FUNCTION" { return STATIC_FUNCTION_C; }
 "@PROC" { return PROC; }
 "@IMPORT" { return IMPORT; }
+"@DIR" { set_dir(yylval); return STRING; }
+"@FILE" { set_file(yylval); return STRING; }
 
 "local" { return LOCAL; }
+"var" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
@@ -111,6 +119,17 @@ SPACE_D [[:space:]]+
 "||" { return OR; }
 "&&" { return AND; }
 
+"+" { return '+'; }
+"-" { return '-'; }
+"*" { return '*'; }
+"/" { return '/'; }
+"+=" { return ADD_SELF; }
+"-=" { return SUB_SELF; }
+"*=" { return MUL_SELF; }
+"/=" { return DIV_SELF; }
+"++" { return INC; }
+"--" { return DEC; }
+
 {SPACE_D}
 
 . { return ERROR; }
@@ -138,4 +157,21 @@ static void string_end(YYSTYPE * yylval_p, const char * txt)
 static void set_name(YYSTYPE * yylval_p, const char * name)
 {
   yylval_p -> name = strdup(name);
+}
+
+static void set_dir(YYSTYPE * yylval_p)
+{
+  char * string = NULL,
+    * dir = cmap_file_util_public.dirname(cmap_do_parse_public.path());
+  cmap_string_public.append_args(&string, "\"%s\"", dir);
+  free(dir);
+  yylval_p -> name = string;
+}
+
+static void set_file(YYSTYPE * yylval_p)
+{
+  char * string = NULL;
+  cmap_string_public.append_args(&string,
+    "\"%s\"", cmap_do_parse_public.path());
+  yylval_p -> name = string;
 }

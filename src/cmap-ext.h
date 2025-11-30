@@ -54,6 +54,23 @@ CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
 
 int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r);
 
+CMAP_MAP * cmap_add(CMAP_MAP * map_l, CMAP_MAP * map_r,
+  CMAP_PROC_CTX * proc_ctx);
+CMAP_MAP * cmap_sub(CMAP_MAP * map_l, CMAP_MAP * map_r,
+  CMAP_PROC_CTX * proc_ctx);
+CMAP_MAP * cmap_mul(CMAP_MAP * map_l, CMAP_MAP * map_r,
+  CMAP_PROC_CTX * proc_ctx);
+CMAP_MAP * cmap_div(CMAP_MAP * map_l, CMAP_MAP * map_r,
+  CMAP_PROC_CTX * proc_ctx);
+
+void cmap_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+void cmap_sub_self(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+void cmap_mul_self(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+void cmap_div_self(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+
+void cmap_inc(CMAP_MAP * map);
+void cmap_dec(CMAP_MAP * map);
+
 CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   CMAP_LIST * args);

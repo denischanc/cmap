@@ -45,24 +45,43 @@ UNIQUE_IMPL(cmp_unique_not, ==)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * or_and(char * cmp_call_l, char * cmp_call_r, const char * op)
+static char * init(char * cmp_call)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "(%s %s %s)",
-    cmp_call_l, op, cmp_call_r);
+  cmap_string_public.append_args(&ret, "(%s)", cmp_call);
+  free(cmp_call);
+  return ret;
+}
+
+static char * or_and(char * cmp_call_l, char * cmp_call_r, const char * op,
+  char simple)
+{
+  char * ret = NULL;
+  cmap_string_public.append_args(&ret, "%s %s %s%s%s",
+    cmp_call_l, op, simple ? "" : "(", cmp_call_r, simple ? "" : ")");
   free(cmp_call_l);
   free(cmp_call_r);
   return ret;
 }
 
+static char * or_simple(char * cmp_call_l, char * cmp_call_r)
+{
+  return or_and(cmp_call_l, cmp_call_r, "||", (1 == 1));
+}
+
 static char * or(char * cmp_call_l, char * cmp_call_r)
 {
-  return or_and(cmp_call_l, cmp_call_r, "||");
+  return or_and(cmp_call_l, cmp_call_r, "||", (1 == 0));
+}
+
+static char * and_simple(char * cmp_call_l, char * cmp_call_r)
+{
+  return or_and(cmp_call_l, cmp_call_r, "&&", (1 == 1));
 }
 
 static char * and(char * cmp_call_l, char * cmp_call_r)
 {
-  return or_and(cmp_call_l, cmp_call_r, "&&");
+  return or_and(cmp_call_l, cmp_call_r, "&&", (1 == 0));
 }
 
 /*******************************************************************************
@@ -73,5 +92,5 @@ static char * and(char * cmp_call_l, char * cmp_call_r)
 const CMAP_PARSER_CMP_PUBLIC cmap_parser_cmp_public =
 {
   CMAP_PARSER_CMP_LOOP(SET) cmp_unique, cmp_unique_not,
-  or, and
+  init, or_simple, or, and_simple, and
 };

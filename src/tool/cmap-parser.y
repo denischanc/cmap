@@ -6,6 +6,7 @@
 #include "cmap-parser-block.h"
 #include "cmap-parser-cmp.h"
 #include "cmap-parser-creator.h"
+#include "cmap-parser-op.h"
 #include "cmap-parser-part.h"
 #include "cmap-parser-process.h"
 #include "cmap-parser-var.h"
@@ -35,14 +36,17 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 
 %token FUNCTION_C STATIC_FUNCTION_C PROC IMPORT LOCAL NULL_PTR RETURN FUNCTION
 %token IF ELSE NEW FOR WHILE SB2_O SB2_C LE GE EQUAL DIFF OR AND
+%token ADD_SELF SUB_SELF MUL_SELF DIV_SELF INC DEC
 %token ERROR
 %token<name> STRING C_IMPL C_IMPL_ROOT INCLUDE NAME INT
 
-%type<name> names creator creator_no_bracket cmap cmap_no_bracket
+%type<name> names creator cmap_op cmap_cmp cmap cmap_new
 %type<name> args arg_names_cmap
 %type<name> process_ret import_ret function
-%type<name> comparison comparison_no_params comparison_deep comparison_simple
+%type<name> comparison comparison_no_params comparison_root comparison_or_and
+%type<name> comparison_simple_ctx comparison_simple
 %type<name> for_iter
+%type<name> op_add_sub op_mul_div op_final op_add_sub_cmp op_mul_div_cmp
 
 %%
 
@@ -85,35 +89,47 @@ instructions: { cmap_part_public.push_instructions(); }
 names: NAME
 | names '.' NAME { $$ = cmap_parser_arg_public.names($1, $3); };
 
-instruction: LOCAL NAME '=' cmap { cmap_parser_var_public.set_local($2, $4); }
-| NAME '=' cmap { cmap_parser_var_public.set_global($1, $3); }
-| cmap '.' NAME '=' cmap { cmap_parser_var_public.set_path($1, $3, $5); }
-| cmap SB2_O INT SB2_C '=' cmap
+instruction:
+  LOCAL NAME '=' cmap_op { cmap_parser_var_public.set_local($2, $4); }
+| NAME '=' cmap_op { cmap_parser_var_public.set_global($1, $3); }
+| cmap '.' NAME '=' cmap_op { cmap_parser_var_public.set_path($1, $3, $5); }
+| cmap SB2_O INT SB2_C '=' cmap_op
   { cmap_parser_var_public.set_sb_int($1, $3, $6); }
-| cmap SB2_O STRING SB2_C '=' cmap
+| cmap SB2_O STRING SB2_C '=' cmap_op
   { cmap_parser_var_public.set_sb_string($1, $3, $6); }
-| cmap '[' cmap ']' '=' cmap { cmap_parser_var_public.set_sb_map($1, $3, $6); }
+| cmap '[' cmap ']' '=' cmap_op
+  { cmap_parser_var_public.set_sb_map($1, $3, $6); }
+| instruction_op
 | process_no_ret
-| RETURN cmap { cmap_parser_process_public.return_($2); }
+| RETURN cmap_op { cmap_parser_process_public.return_($2); }
 | RETURN { cmap_parser_process_public.return_(NULL); }
 | PROC '(' names ')' { cmap_parser_process_public.process_c($3, (1 == 0)); }
 | import_no_ret;
 
+instruction_op:
+  cmap ADD_SELF cmap_op { cmap_parser_op_public.add_self($1, $3); }
+| cmap SUB_SELF cmap_op { cmap_parser_op_public.sub_self($1, $3); }
+| cmap MUL_SELF cmap_op { cmap_parser_op_public.mul_self($1, $3); }
+| cmap DIV_SELF cmap_op { cmap_parser_op_public.div_self($1, $3); }
+| cmap INC { cmap_parser_op_public.inc($1); }
+| cmap DEC { cmap_parser_op_public.dec($1); };
+
 /*******************************************************************************
 *******************************************************************************/
 
-creator: creator_no_bracket
-| function
-| NEW cmap_no_bracket '(' args ')'
-  { $$ = cmap_parser_creator_public.new($2, $4); };
-
-creator_no_bracket: STRING { $$ = cmap_parser_creator_public.string($1); }
+creator: STRING { $$ = cmap_parser_creator_public.string($1); }
 | INT { $$ = cmap_parser_creator_public.int_($1); }
 | '[' args ']' { $$ = cmap_parser_creator_public.list_args($2); }
-| '{' arg_names_cmap '}' { $$ = cmap_parser_creator_public.map_args($2); };
+| '{' arg_names_cmap '}' { $$ = cmap_parser_creator_public.map_args($2); }
+| function
+| NEW cmap_new '(' args ')' { $$ = cmap_parser_creator_public.new($2, $4); };
 
 /*******************************************************************************
 *******************************************************************************/
+
+cmap_op: op_add_sub;
+
+cmap_cmp: op_add_sub_cmp;
 
 cmap: creator
 | NULL_PTR { $$ = strdup("NULL"); }
@@ -127,14 +143,12 @@ cmap: creator
   { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); }
 | import_ret;
 
-cmap_no_bracket: creator_no_bracket
-| NAME { $$ = cmap_parser_var_public.name($1); }
-| cmap_no_bracket '.' NAME { $$ = cmap_parser_var_public.path($1, $3); }
-| cmap_no_bracket SB2_O INT SB2_C
-  { $$ = cmap_parser_var_public.sb_int($1, $3); }
-| cmap_no_bracket SB2_O STRING SB2_C
+cmap_new: NAME { $$ = cmap_parser_var_public.name($1); }
+| cmap_new '.' NAME { $$ = cmap_parser_var_public.path($1, $3); }
+| cmap_new SB2_O INT SB2_C { $$ = cmap_parser_var_public.sb_int($1, $3); }
+| cmap_new SB2_O STRING SB2_C
   { $$ = cmap_parser_var_public.sb_string($1, $3); }
-| cmap_no_bracket '[' cmap ']' { $$ = cmap_parser_var_public.sb_map($1, $3); }
+| cmap_new '[' cmap ']' { $$ = cmap_parser_var_public.sb_map($1, $3); }
 | PROC '(' names ')'
   { $$ = cmap_parser_process_public.process_c($3, (1 == 1)); }
 | import_ret;
@@ -201,30 +215,40 @@ else: { cmap_parser_block_public.else_empty(); }
 /*******************************************************************************
 *******************************************************************************/
 
-comparison: comparison_deep;
+comparison: comparison_root;
 
 comparison_no_params:
   { cmap_part_public.ctx.rst_cmp_params(); }
-  comparison_deep
+  comparison_root
   { cmap_part_public.ctx.set_cmp_params(); $$ = $2; };
 
-comparison_deep:
+comparison_root: comparison_simple_ctx
+| comparison_or_and;
+
+comparison_or_and: '(' comparison_simple_ctx ')' { $$ = $2; }
+| '(' comparison_or_and ')' { $$ = cmap_parser_cmp_public.init($2); }
+| comparison_or_and OR '(' comparison_simple_ctx ')'
+  { $$ = cmap_parser_cmp_public.or_simple($1, $4); }
+| comparison_or_and OR '(' comparison_or_and ')'
+  { $$ = cmap_parser_cmp_public.or($1, $4); }
+| comparison_or_and AND '(' comparison_simple_ctx ')'
+  { $$ = cmap_parser_cmp_public.and_simple($1, $4); }
+| comparison_or_and AND '(' comparison_or_and ')'
+  { $$ = cmap_parser_cmp_public.and($1, $4); };
+
+comparison_simple_ctx:
   {
     cmap_part_public.nature_ctx_cmp();
     cmap_part_public.push_instructions();
-  } comparison_simple { $$ = $2; }
-| '(' comparison_deep ')' OR '(' comparison_deep ')'
-  { $$ = cmap_parser_cmp_public.or($2, $6); }
-| '(' comparison_deep ')' AND '(' comparison_deep ')'
-  { $$ = cmap_parser_cmp_public.and($2, $6); };
+  } comparison_simple { $$ = $2; };
 
 comparison_simple: cmap { $$ = cmap_parser_cmp_public.cmp_unique($1); }
-| cmap '<' cmap { $$ = cmap_parser_cmp_public.lt($1, $3); }
-| cmap '>' cmap { $$ = cmap_parser_cmp_public.gt($1, $3); }
-| cmap LE cmap { $$ = cmap_parser_cmp_public.le($1, $3); }
-| cmap GE cmap { $$ = cmap_parser_cmp_public.ge($1, $3); }
-| cmap EQUAL cmap { $$ = cmap_parser_cmp_public.equal($1, $3); }
-| cmap DIFF cmap { $$ = cmap_parser_cmp_public.diff($1, $3); }
+| cmap_cmp '<' cmap_cmp { $$ = cmap_parser_cmp_public.lt($1, $3); }
+| cmap_cmp '>' cmap_cmp { $$ = cmap_parser_cmp_public.gt($1, $3); }
+| cmap_cmp LE cmap_cmp { $$ = cmap_parser_cmp_public.le($1, $3); }
+| cmap_cmp GE cmap_cmp { $$ = cmap_parser_cmp_public.ge($1, $3); }
+| cmap_cmp EQUAL cmap_cmp { $$ = cmap_parser_cmp_public.equal($1, $3); }
+| cmap_cmp DIFF cmap_cmp { $$ = cmap_parser_cmp_public.diff($1, $3); }
 | '!' cmap { $$ = cmap_parser_cmp_public.cmp_unique_not($2); };
 
 /*******************************************************************************
@@ -266,6 +290,27 @@ import_ret: IMPORT '(' STRING ')'
   { if(!cmap_parser_process_public.import(&$$, $3, NULL)) YYABORT; }
 | IMPORT '(' STRING ',' NAME ')'
   { if(!cmap_parser_process_public.import(&$$, $3, $5)) YYABORT; };
+
+/*******************************************************************************
+*******************************************************************************/
+
+op_add_sub: op_mul_div
+| op_add_sub '+' op_mul_div { $$ = cmap_parser_op_public.add($1, $3); }
+| op_add_sub '-' op_mul_div { $$ = cmap_parser_op_public.sub($1, $3); };
+
+op_mul_div: op_final
+| op_mul_div '*' op_final { $$ = cmap_parser_op_public.mul($1, $3); }
+| op_mul_div '/' op_final { $$ = cmap_parser_op_public.div($1, $3); };
+
+op_final: cmap | '(' op_add_sub ')' { $$ = $2; };
+
+op_add_sub_cmp: op_mul_div_cmp
+| op_add_sub_cmp '+' op_mul_div_cmp { $$ = cmap_parser_op_public.add($1, $3); }
+| op_add_sub_cmp '-' op_mul_div_cmp { $$ = cmap_parser_op_public.sub($1, $3); };
+
+op_mul_div_cmp: cmap
+| op_mul_div_cmp '*' cmap { $$ = cmap_parser_op_public.mul($1, $3); }
+| op_mul_div_cmp '/' cmap { $$ = cmap_parser_op_public.div($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/

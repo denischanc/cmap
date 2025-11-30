@@ -137,11 +137,7 @@ static char * import_parse_path(const char * path)
 
   cmap_string_public.append(&parse_path, path);
 
-  tmp = realpath(parse_path, NULL);
-  if(tmp == NULL) fprintf(stderr, "[%s] %s\n", parse_path, strerror(errno));
-  free(parse_path);
-
-  return tmp;
+  return parse_path;
 }
 
 /*******************************************************************************

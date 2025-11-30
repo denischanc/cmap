@@ -34,14 +34,22 @@ static void clean()
 
 static char parse(const char * path)
 {
-  const char * path_bup = path__;
-  path__ = path;
-
-  FILE * in = fopen(path, "r");
-  if(in == NULL)
+  char * path_r = realpath(path, NULL);
+  if(path_r == NULL)
   {
     fprintf(stderr, "[%s] %s\n", path, strerror(errno));
+    return (1 == 0);
+  }
+
+  const char * path_bup = path__;
+  path__ = path_r;
+
+  FILE * in = fopen(path_r, "r");
+  if(in == NULL)
+  {
+    fprintf(stderr, "[%s] %s\n", path_r, strerror(errno));
     path__ = path_bup;
+    free(path_r);
     return (1 == 0);
   }
 
@@ -57,6 +65,7 @@ static char parse(const char * path)
   fclose(in);
 
   path__ = path_bup;
+  free(path_r);
 
   return (ret == 0);
 }

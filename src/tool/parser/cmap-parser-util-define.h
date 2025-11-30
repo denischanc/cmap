@@ -41,6 +41,7 @@
 #define NEXT_NAME_FN() NEXT_NAME("fn")
 #define NEXT_NAME_PROCESS() NEXT_NAME("process")
 #define NEXT_NAME_CMP() NEXT_NAME("cmp")
+#define NEXT_NAME_OP() NEXT_NAME("op")
 #define NEXT_NAME_FOR_ITER() NEXT_NAME("for_iter")
 
 #endif

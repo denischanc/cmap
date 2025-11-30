@@ -7,6 +7,8 @@ noinst_HEADERS = \
   cmap-parser-cmp-define.h \
   cmap-parser-cmp.h \
   cmap-parser-creator.h \
+  cmap-parser-op-define.h \
+  cmap-parser-op.h \
   cmap-parser-params.h \
   cmap-parser-part-define.h \
   cmap-parser-part.h \
@@ -23,6 +25,7 @@ libparser_la_SOURCES = \
   cmap-parser-block.c \
   cmap-parser-cmp.c \
   cmap-parser-creator.c \
+  cmap-parser-op.c \
   cmap-parser-params.c \
   cmap-parser-part.c \
   cmap-parser-process.c \

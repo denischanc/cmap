@@ -10,6 +10,7 @@ AM_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components/scheduler \
   -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/core/cmp \
+  -I$(CMAP_SRC_PATH)/core/op \
   -I$(CMAP_SRC_PATH)/core/prototype \
   -I$(CMAP_SRC_PATH)/core/score \
   -I$(CMAP_SRC_PATH)/core \
