@@ -59,6 +59,7 @@ AC_CONFIG_FILES([
   src/components/scheduler/Makefile
   src/core/Makefile
   src/core/cmp/Makefile
+  src/core/op/Makefile
   src/core/prototype/Makefile
   src/core/score/Makefile
   src/kernel/Makefile
