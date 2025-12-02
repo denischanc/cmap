@@ -157,8 +157,8 @@ cmap_new: NAME { $$ = cmap_parser_var_public.name($1); }
 *******************************************************************************/
 
 args: { $$ = NULL; }
-| cmap { $$ = cmap_parser_arg_public.args($1); }
-| args ',' cmap { $$ = cmap_parser_arg_public.args_push($1, $3); };
+| cmap_op { $$ = cmap_parser_arg_public.args($1); }
+| args ',' cmap_op { $$ = cmap_parser_arg_public.args_push($1, $3); };
 
 /*******************************************************************************
 *******************************************************************************/
@@ -171,8 +171,8 @@ arg_names:
 *******************************************************************************/
 
 arg_names_cmap: { $$ = NULL; }
-| names ':' cmap { $$ = cmap_parser_arg_public.args_map($1, $3); }
-| arg_names_cmap ',' names ':' cmap
+| names ':' cmap_op { $$ = cmap_parser_arg_public.args_map($1, $3); }
+| arg_names_cmap ',' names ':' cmap_op
   { $$ = cmap_parser_arg_public.args_map_push($1, $3, $5); };
 
 /*******************************************************************************

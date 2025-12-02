@@ -30,30 +30,12 @@ static int64_t get(CMAP_INT * this)
 /*******************************************************************************
 *******************************************************************************/
 
-#define OP_STEP_FN_NAME(name) op_step_##name
-
-#define OP_IMPL(name, op) \
-static CMAP_INT * OP_STEP_FN_NAME(name)(CMAP_INT * this, int64_t val) \
-{ \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
-  internal -> val op val; \
-  return this; \
+static CMAP_INT * set(CMAP_INT * this, int64_t val)
+{
+  INTERNAL * internal = this -> internal;
+  internal -> val = val;
+  return this;
 }
-
-CMAP_INT_OP_LOOP(OP_IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define STEP_IMPL(name, op) \
-static CMAP_INT * OP_STEP_FN_NAME(name)(CMAP_INT * this) \
-{ \
-  INTERNAL * internal = (INTERNAL *)this -> internal; \
-  internal -> val op; \
-  return this; \
-}
-
-CMAP_INT_STEP_LOOP(STEP_IMPL)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -64,8 +46,6 @@ static void delete(CMAP_LIFECYCLE * this)
 
   cmap_map_public.delete(this);
 }
-
-#define OP_STEP_INIT(name, op) this -> name = OP_STEP_FN_NAME(name);
 
 static CMAP_INT * init(CMAP_INT * this, CMAP_INITARGS * initargs, int64_t val)
 {
@@ -79,8 +59,7 @@ static CMAP_INT * init(CMAP_INT * this, CMAP_INITARGS * initargs, int64_t val)
 
   this -> internal = internal;
   this -> get = get;
-  CMAP_INT_OP_LOOP(OP_STEP_INIT)
-  CMAP_INT_STEP_LOOP(OP_STEP_INIT)
+  this -> set = set;
 
   return this;
 }
@@ -101,12 +80,8 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-#define OP_STEP_SET(name, op) OP_STEP_FN_NAME(name),
-
 const CMAP_INT_PUBLIC cmap_int_public =
 {
   create, init, delete,
-  get,
-  CMAP_INT_OP_LOOP(OP_STEP_SET)
-  CMAP_INT_STEP_LOOP(OP_STEP_SET)
+  get, set
 };

@@ -49,13 +49,9 @@ static char proc_is_local(const char * name, CMAP_PART_CTX * ctx)
 
 static char is_loc_prev(const char * name)
 {
-  CMAP_PART_CTX * ctx = cmap_part_ctx_public.cmap_prev(NULL);
-  while(ctx != NULL)
-  {
+  CMAP_PART_CTX * ctx = NULL;
+  while((ctx = cmap_part_ctx_public.cmap_prev(ctx)) != NULL)
     if(is_loc_ctx(name, ctx)) return (1 == 1);
-
-    ctx = cmap_part_ctx_public.cmap_prev(ctx);
-  }
 
   return (1 == 0);
 }

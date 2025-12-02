@@ -4,9 +4,9 @@
 
 local j = 0;
 
-for(i = 0; i < 5; i = 0.valueOf(i).inc())
+for(i = 0; i < 5; i = i.clone(), i++)
 {
-  j.add(i);
+  j += i;
 }
 
 if(j != 10) { cmap.fatal("j != 10"); }

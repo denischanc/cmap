@@ -6,7 +6,8 @@ factory = function(inc) {
   local i = 0;
   return function()
   {
-    return i.add(inc);
+    i += inc;
+    return i;
   };
 };
 

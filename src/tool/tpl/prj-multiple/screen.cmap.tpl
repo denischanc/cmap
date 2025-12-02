@@ -1,7 +1,7 @@
 
 screen = function(nbCol, nbLine) {
   this.lines = [];
-  for(local i = 0; i < nbLine; i.inc()) {
+  for(local i = 0; i < nbLine; i++) {
     this.lines.push(new screen.line(nbCol));
   }
 };
@@ -31,7 +31,7 @@ screen.prototype = {
   },
 
   up: function() {
-    this.ctl("".append(this.height()).append(screen.A));
+    this.ctl("" + this.height() + screen.A);
     return this;
   },
 
@@ -55,7 +55,7 @@ screen.prototype = {
 
 screen.line = function(nbCol) {
   this.pts = [];
-  for(local i = 0; i < nbCol; i.inc()) {
+  for(local i = 0; i < nbCol; i++) {
     this.pts.push(new screen.line.pt());
   }
 };
@@ -80,8 +80,8 @@ screen.line.prototype = {
 };
 
 screen.line.pt = function() {
-  this.let = "".append(this.LET_DFT);
-  this.ctl = "".append(this.CTL_DFT);
+  this.let = this.LET_DFT;
+  this.ctl = this.CTL_DFT;
 };
 
 screen.line.pt.prototype = {
@@ -89,7 +89,7 @@ screen.line.pt.prototype = {
   CTL_DFT: "30;47",
 
   set: function(let, ctl) {
-    if(let) { this.let.clean().append(let); }
-    if(ctl) { this.ctl.clean().append(ctl); }
+    if(let) { this.let = let; }
+    if(ctl) { this.ctl = ctl; }
   }
 };

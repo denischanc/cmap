@@ -6,7 +6,7 @@ local i = 0;
 
 function() {
   if(1 == 0) { i = 2; }
-  i.inc();
+  i++;
 }();
 
 if(i != 1) { cmap.fatal("i != 1"); }

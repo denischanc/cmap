@@ -30,10 +30,11 @@ static double get(CMAP_DOUBLE * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set(CMAP_DOUBLE * this, double val)
+static CMAP_DOUBLE * set(CMAP_DOUBLE * this, double val)
 {
   INTERNAL * internal = (INTERNAL *)this -> internal;
   internal -> val = val;
+  return this;
 }
 
 /*******************************************************************************

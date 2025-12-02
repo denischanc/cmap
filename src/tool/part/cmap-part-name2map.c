@@ -39,13 +39,10 @@ static CMAP_PART_NAME2MAP_RET put(const char * map, const char * name,
     cmap_part_affected_public.add(map_name, NULL);
   }
 
-  CMAP_PART_CTX * ctx = cmap_part_ctx_public.c_prev(NULL);
-  while(ctx != NULL)
-  {
+  CMAP_PART_CTX * ctx = NULL;
+  while((ctx = cmap_part_ctx_public.c_prev(ctx)) != NULL)
     cmap_part_kv_public.delete_key(cmap_part_ctx_public.name2map(ctx), map,
       name);
-    ctx = cmap_part_ctx_public.c_prev(ctx);
-  }
 
   return ret;
 }
@@ -109,7 +106,7 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
   }
 
   CMAP_PART_CTX * ctx_c_prev = cmap_part_ctx_public.c_prev(ctx_c);
-  if(ctx_c_prev == NULL) ret = create_ret(
+  if(ctx_c_prev == NULL) return create_ret(
     (map == NULL) ? is_fn_arg_name(name, ctx_c) : NULL, new, (1 == 1));
   else
   {
@@ -121,9 +118,8 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
       cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), ret.map);
       put_n_affected(map, name, ret.map, ctx_c);
     }
+    return ret;
   }
-
-  return ret;
 }
 
 /*******************************************************************************

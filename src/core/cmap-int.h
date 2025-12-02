@@ -16,10 +16,7 @@ struct CMAP_INT
   void * internal;
 
   int64_t (*get)(CMAP_INT * this);
-
-  CMAP_INT_OP_LOOP(CMAP_INT_OP_DECL)
-
-  CMAP_INT_STEP_LOOP(CMAP_INT_STEP_DECL)
+  CMAP_INT * (*set)(CMAP_INT * this, int64_t val);
 };
 
 typedef struct
@@ -29,10 +26,7 @@ typedef struct
   void (*delete)(CMAP_LIFECYCLE * this);
 
   int64_t (*get)(CMAP_INT * this);
-
-  CMAP_INT_OP_LOOP(CMAP_INT_OP_DECL)
-
-  CMAP_INT_STEP_LOOP(CMAP_INT_STEP_DECL)
+  CMAP_INT * (*set)(CMAP_INT * this, int64_t val);
 } CMAP_INT_PUBLIC;
 
 extern const CMAP_INT_PUBLIC cmap_int_public;

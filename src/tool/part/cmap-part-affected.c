@@ -11,12 +11,8 @@ static char add(const char * map, CMAP_PART_CTX * ctx)
 {
   char ret = cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
 
-  ctx = cmap_part_ctx_public.block_next(ctx);
-  while(ctx != NULL)
-  {
+  while((ctx = cmap_part_ctx_public.block_next(ctx)) != NULL)
     cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
-    ctx = cmap_part_ctx_public.block_next(ctx);
-  }
 
   return ret;
 }

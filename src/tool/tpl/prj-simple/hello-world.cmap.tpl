@@ -13,7 +13,7 @@ local helloWorld = function() {
   hello(name);
 
   if(this.nb >= max) { return; }
-  else { this.nb.inc(); }
+  else { this.nb++; }
 
   this.schedule();
 };

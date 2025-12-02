@@ -13,7 +13,7 @@ struct CMAP_DOUBLE
   void * internal;
 
   double (*get)(CMAP_DOUBLE * this);
-  void (*set)(CMAP_DOUBLE * this, double val);
+  CMAP_DOUBLE * (*set)(CMAP_DOUBLE * this, double val);
 };
 
 typedef struct
@@ -24,7 +24,7 @@ typedef struct
   void (*delete)(CMAP_LIFECYCLE * this);
 
   double (*get)(CMAP_DOUBLE * this);
-  void (*set)(CMAP_DOUBLE * this, double val);
+  CMAP_DOUBLE * (*set)(CMAP_DOUBLE * this, double val);
 } CMAP_DOUBLE_PUBLIC;
 
 extern const CMAP_DOUBLE_PUBLIC cmap_double_public;

@@ -9,7 +9,7 @@ local set = function(who, val) {
   if(who == "i") { i = val; }
   else if(who == "j") { j = val; }
 
-  for(local k = 0; k < 1; k.inc()) {
+  for(local k = 0; k < 1; k++) {
     who = "";
   }
 
