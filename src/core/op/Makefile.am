@@ -5,7 +5,8 @@ noinst_HEADERS = \
   cmap-op-define.h \
   cmap-op.h \
   cmap-op-handler-define.h \
-  cmap-op-handler.h
+  cmap-op-handler.h \
+  cmap-op-handler-string.h
 
 noinst_LTLIBRARIES = libop.la
 

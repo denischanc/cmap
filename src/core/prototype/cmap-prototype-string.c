@@ -5,7 +5,7 @@
 #include "cmap-prototype-util.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
-#include "cmap-op-handler.h"
+#include "cmap-op-handler-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -18,7 +18,7 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   {
     CMAP_MAP * cur;
     while((cur = CMAP_LIST_SHIFT(args)) != NULL)
-      cmap_op_handler_string_add_self_public.op(map, cur);
+      cmap_op_handler_string_public.append((CMAP_STRING *)map, cur);
   }
   return map;
 }

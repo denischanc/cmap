@@ -64,8 +64,7 @@ screen.line.prototype = {
   display: function() {
     local line = "";
     this.pts.apply(function(pt) {
-      line.append(screen.ESCAPE).append(pt.ctl).append(screen.M)
-        .append(pt.let).append(screen.RESET);
+      line.append(screen.ESCAPE, pt.ctl, screen.M, pt.let, screen.RESET);
     });
     cmap.console.info(line);
   },

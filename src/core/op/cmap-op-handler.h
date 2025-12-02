@@ -7,24 +7,18 @@
 
 typedef struct
 {
-  char (*match)(const char * nature_l, const char * nature_r);
-
-  CMAP_MAP * (*op)(CMAP_MAP * map_l, CMAP_MAP * map_r,
+  char (*op)(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r,
     CMAP_PROC_CTX * proc_ctx);
 } CMAP_OP_HANDLER;
 
 typedef struct
 {
-  char (*match)(const char * nature_dst, const char * nature_src);
-
-  void (*op)(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+  char (*op)(CMAP_MAP * map_dst, CMAP_MAP * map_src);
 } CMAP_OP_HANDLER_SELF;
 
 typedef struct
 {
-  char (*match)(const char * nature);
-
-  void (*op)(CMAP_MAP * map);
+  char (*op)(CMAP_MAP * map);
 } CMAP_OP_HANDLER_UNIQUE;
 
 CMAP_OP_LOOP(CMAP_OP_HANDLER_DEFINE)

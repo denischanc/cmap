@@ -1,4 +1,5 @@
 
+#include "cmap-op-handler-string.h"
 #include "cmap-op-handler.h"
 
 #include <stdio.h>
@@ -9,50 +10,64 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char match(const char * nature_l, const char * nature_r)
+static void append(CMAP_STRING * dst, CMAP_MAP * src)
 {
-  return (nature_l == CMAP_STRING_NATURE);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void op_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
-{
-  const char * nature = CMAP_NATURE(map_src);
+  const char * nature = CMAP_NATURE(src);
   if(nature == CMAP_STRING_NATURE)
   {
-    char * val = CMAP_CALL((CMAP_STRING *)map_src, val);
-    CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, val);
+    char * val = CMAP_CALL((CMAP_STRING *)src, val);
+    CMAP_CALL_ARGS(dst, append, val);
   }
   else if(nature == CMAP_INT_NATURE)
   {
     char buffer[22]; /* 64 bits => 70 / 10 * 3 + 1 ("\n") = 22 */
-    int64_t i = CMAP_CALL((CMAP_INT *)map_src, get);
+    int64_t i = CMAP_CALL((CMAP_INT *)src, get);
     snprintf(buffer, sizeof(buffer), "%ld", i);
-    CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, buffer);
+    CMAP_CALL_ARGS(dst, append, buffer);
   }
   else
   {
     char buffer[19]; /* 64 bits => 64 / 8 * 2 + 2 ("0x") + 1 ("\n") = 19 */
-    snprintf(buffer, sizeof(buffer), "%p", map_src);
-    CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, buffer);
+    snprintf(buffer, sizeof(buffer), "%p", src);
+    CMAP_CALL_ARGS(dst, append, buffer);
   }
 }
-
-const CMAP_OP_HANDLER_SELF cmap_op_handler_string_add_self_public =
-  {match, op_add_self};
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * op_add(CMAP_MAP * map_l, CMAP_MAP * map_r,
-  CMAP_PROC_CTX * proc_ctx)
+static char op_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 {
-  CMAP_MAP * ret = (CMAP_MAP *)CMAP_STRING("", 0, proc_ctx);
-  op_add_self(ret, map_l);
-  op_add_self(ret, map_r);
-  return ret;
+  if((map_dst == NULL) || (CMAP_NATURE(map_dst) != CMAP_STRING_NATURE))
+    return (1 == 0);
+
+  if(map_src == NULL) CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, "null");
+  else append((CMAP_STRING *)map_dst, map_src);
+  return (1 == 1);
 }
 
-const CMAP_OP_HANDLER cmap_op_handler_string_add_public = {match, op_add};
+/*******************************************************************************
+*******************************************************************************/
+
+static char op_add(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r,
+  CMAP_PROC_CTX * proc_ctx)
+{
+  if((map_l == NULL) || (CMAP_NATURE(map_l) != CMAP_STRING_NATURE))
+    return (1 == 0);
+
+  CMAP_STRING * ret = CMAP_STRING("", 0, proc_ctx);
+  append(ret, map_l);
+  append(ret, map_r);
+  *map_dst = (CMAP_MAP *)ret;
+  return (1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_OP_HANDLER cmap_op_handler_string_add_public = {op_add};
+
+const CMAP_OP_HANDLER_SELF cmap_op_handler_string_add_self_public =
+  {op_add_self};
+
+const CMAP_OP_HANDLER_STRING_PUBLIC cmap_op_handler_string_public = {append};
