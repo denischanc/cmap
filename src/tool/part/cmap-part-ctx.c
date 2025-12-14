@@ -11,12 +11,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define FEATURE_LOOP(macro) \
-  macro(ctx_cmap, (1 << 0)) \
-  macro(ctx_fn_c, (1 << 1)) \
-  macro(ctx_c, (1 << 2)) \
-  macro(params, (1 << 3))
-
 #define NATURE_VAL(NAME, name, val) static const char NATURE_##NAME = val;
 
 CMAP_PART_CTX_NATURE_LOOP(NATURE_VAL)
@@ -33,16 +27,11 @@ typedef struct
 
 typedef struct
 {
-  char definitions, global_env, return_;
-
-  CMAP_STRINGS * params;
-} CTX_FN_C;
-
-typedef struct
-{
-  char * variables;
+  char definitions, global_env, return_, * variables;
 
   CMAP_PART_KV * name2map;
+
+  CMAP_STRINGS * params;
 } CTX_C;
 
 typedef struct
@@ -55,7 +44,6 @@ typedef struct
 struct CMAP_PART_CTX
 {
   CTX_CMAP cmap;
-  CTX_FN_C fn_c;
   CTX_C c;
   CTX_BLOCK block;
 
@@ -73,7 +61,7 @@ static char nature = 0;
 
 static CMAP_STACK_CTX * ctxs = NULL;
 
-static int uid_ctx = 0;
+static int uid_ctx = 1;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -120,16 +108,14 @@ static char is_feature_##name(CMAP_PART_CTX * ctx) \
   return ((ctx -> features & val) == val); \
 }
 
-FEATURE_LOOP(FEATURE_IMPL)
+CMAP_PART_CTX_FEATURE_LOOP(FEATURE_IMPL)
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void ctx_common(CMAP_PART_CTX * ctx)
 {
-  uid_ctx++;
-
-  ctx -> uid = uid_ctx;
+  ctx -> uid = uid_ctx++;
   ctx -> uid_next = 0;
   ctx -> features = 0;
   ctx -> prev = cur_ctx();
@@ -140,13 +126,12 @@ static void ctx_common(CMAP_PART_CTX * ctx)
   ctx -> block.fn_arg_names = NULL;
   ctx -> block.affecteds = NULL;
 
+  ctx -> c.definitions = (1 == 0);
+  ctx -> c.global_env = (1 == 0);
+  ctx -> c.return_ = (1 == 0);
   ctx -> c.variables = strdup("");
   ctx -> c.name2map = NULL;
-
-  ctx -> fn_c.definitions = (1 == 0);
-  ctx -> fn_c.global_env = (1 == 0);
-  ctx -> fn_c.return_ = (1 == 0);
-  ctx -> fn_c.params = NULL;
+  ctx -> c.params = NULL;
 
   ctx -> cmap.return_fn = (1 == 0);
   ctx -> cmap.vars_loc = NULL;
@@ -167,7 +152,7 @@ static void prefix_block(CMAP_PART_CTX * ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_CTX create_ctx_fn_c()
+static CMAP_PART_CTX create_ctx_fn_c(char params)
 {
   CMAP_PART_CTX ctx;
 
@@ -176,14 +161,19 @@ static CMAP_PART_CTX create_ctx_fn_c()
 
   set_feature_ctx_fn_c(&ctx);
   set_feature_ctx_c(&ctx);
+  if(params) set_feature_fwd_name(&ctx);
 
   return ctx;
 }
 
-static CMAP_PART_CTX create_ctx_cmap()
+static CMAP_PART_CTX create_ctx_cmap(char return_fn)
 {
-  CMAP_PART_CTX ctx = create_ctx_fn_c();
+  CMAP_PART_CTX ctx = create_ctx_fn_c(1 == 0);
+
+  ctx.cmap.return_fn = return_fn;
+
   set_feature_ctx_cmap(&ctx);
+
   return ctx;
 }
 
@@ -199,46 +189,6 @@ static CMAP_PART_CTX create_ctx_c()
   return ctx;
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_PART_CTX create_ctx_root()
-{
-  return create_ctx_cmap();
-}
-
-static CMAP_PART_CTX create_ctx_fn()
-{
-  CMAP_PART_CTX ctx = create_ctx_cmap();
-  ctx.cmap.return_fn = (1 == 1);
-  return ctx;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_PART_CTX create_ctx_iter()
-{
-  return create_ctx_fn_c();
-}
-
-static char is_cmp_params();
-
-static CMAP_PART_CTX create_ctx_cmp()
-{
-  CMAP_PART_CTX ctx = create_ctx_fn_c();
-  if(is_cmp_params()) set_feature_params(&ctx);
-  return ctx;
-}
-
-static CMAP_PART_CTX create_ctx_loop()
-{
-  return create_ctx_c();
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static CMAP_PART_CTX create_ctx_block()
 {
   CMAP_PART_CTX ctx;
@@ -246,10 +196,40 @@ static CMAP_PART_CTX create_ctx_block()
   ctx_common(&ctx);
   prefix_block(&ctx);
 
-  cmap_strings_public.add_all(
-    &ctx.block.affecteds, cur_ctx() -> block.affecteds);
-
   return ctx;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_CTX create_ctx_root()
+{
+  return create_ctx_cmap(1 == 0);
+}
+
+static CMAP_PART_CTX create_ctx_fn()
+{
+  return create_ctx_cmap(1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_CTX create_ctx_iter()
+{
+  return create_ctx_fn_c(1 == 0);
+}
+
+static char is_cmp_params();
+
+static CMAP_PART_CTX create_ctx_cmp()
+{
+  return create_ctx_fn_c(is_cmp_params());
+}
+
+static CMAP_PART_CTX create_ctx_loop()
+{
+  return create_ctx_c();
 }
 
 /*******************************************************************************
@@ -285,8 +265,7 @@ static char * pop()
   cmap_strings_public.delete(&ctx.block.affecteds);
 
   cmap_part_kv_public.delete(&ctx.c.name2map);
-
-  cmap_strings_public.delete(&ctx.fn_c.params);
+  cmap_strings_public.delete(&ctx.c.params);
 
   cmap_strings_public.delete(&ctx.cmap.vars_loc);
   cmap_strings_public.delete(&ctx.cmap.vars_def);
@@ -365,6 +344,12 @@ static CMAP_PART_CTX * last_block(CMAP_PART_CTX * ctx)
   return ctx;
 }
 
+static CMAP_PART_CTX * block_prev(CMAP_PART_CTX * ctx)
+{
+  if(ctx == NULL) ctx = cur_ctx();
+  return is_feature_ctx_c(ctx) ? NULL : ctx -> prev;
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -393,7 +378,7 @@ static type * what(CMAP_PART_CTX * ctx) \
 static type * what(CMAP_PART_CTX * ctx) \
 { \
   ctx = fn_c_from_ctx(ctx); \
-  return &ctx -> fn_c.what; \
+  return &ctx -> c.what; \
 }
 
 #define GET_CMAP(what, type) \
@@ -430,9 +415,9 @@ static char is_##what() \
 static char is_##what##_n_set() \
 { \
   CMAP_PART_CTX * ctx = fn_c(); \
-  if(!ctx -> fn_c.what) \
+  if(!ctx -> c.what) \
   { \
-    ctx -> fn_c.what = (1 == 1); \
+    ctx -> c.what = (1 == 1); \
     return (1 == 0); \
   } \
   return (1 == 1); \
@@ -441,12 +426,12 @@ static char is_##what##_n_set() \
 #define ONLY_ONE_SET_FN_C(what, name) \
 static void set_##name() \
 { \
-  fn_c() -> fn_c.what = (1 == 1); \
+  fn_c() -> c.what = (1 == 1); \
 } \
  \
 static char is_##name() \
 { \
-  return fn_c() -> fn_c.what; \
+  return fn_c() -> c.what; \
 }
 
 /*******************************************************************************
@@ -554,13 +539,15 @@ static void clean()
 
 #define NATURE_SET(NAME, name, val) nature_##name,
 
+#define FEATURE_SET(name, val) is_feature_##name,
+
 const CMAP_PART_CTX_PUBLIC cmap_part_ctx_public =
 {
   uid,
   CMAP_PART_CTX_NATURE_LOOP(NATURE_SET)
-  is_feature_params,
+  CMAP_PART_CTX_FEATURE_LOOP(FEATURE_SET)
   push, pop,
-  c, fn_c, cmap, cmap_prev, c_prev, block_next, last_block,
+  c, fn_c, cmap, cmap_prev, c_prev, block_next, last_block, block_prev,
   instructions, prefix, set_cmp_params, rst_cmp_params, fn_arg_names, affecteds,
   variables, name2map,
   is_definitions_n_set, is_global_env_n_set, set_return, is_return, params,

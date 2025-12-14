@@ -128,7 +128,7 @@ static char * function(char * fn_name)
 
     fn_name = NEXT_NAME_PROCESS();
 
-    append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx%s)\n{\n",
+    append_args_main("static CMAP_MAP * %s(CMAP_PROC_CTX * proc_ctx, %s)\n{\n",
       fn_name, cmap_parser_this_args_public.decl());
 
     if(!cmap_part_public.ctx.is_return()) APPEND_INSTRUCTION("return NULL;");

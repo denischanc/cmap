@@ -82,7 +82,7 @@ static char * new(char * map, char * args)
 
   free(map);
 
-  cmap_part_public.var.proc_clean();
+  cmap_part_public.var.clean_after_proc();
 
   return map_name;
 }

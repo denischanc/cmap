@@ -35,14 +35,13 @@ typedef struct
 
 typedef struct
 {
-  CMAP_PART_VAR_RET (*loc)(const char * name, const char * next_name);
-  CMAP_PART_VAR_RET (*no_loc)(const char * map, const char * name,
-    const char * next_name);
+  void (*loc)(const char * name, const char * next_name);
+  char (*no_loc)(const char * map, const char * name, const char * next_name);
 
   CMAP_PART_VAR_RET (*get_map)(const char * map, const char * name,
     char * next_name);
 
-  void (*proc_clean)();
+  void (*clean_after_proc)();
 } CMAP_PART_PUBLIC_VAR;
 
 typedef struct

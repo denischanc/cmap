@@ -118,13 +118,12 @@ static void ctx_clean()
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_VAR_RET loc(const char * name, const char * next_name)
+static void loc(const char * name, const char * next_name)
 {
-  return cmap_part_var_public.put_loc(name, next_name);
+  cmap_part_var_public.put_loc(name, next_name);
 }
 
-static CMAP_PART_VAR_RET no_loc(const char * map, const char * name,
-  const char * next_name)
+static char no_loc(const char * map, const char * name, const char * next_name)
 {
   return cmap_part_var_public.put_no_loc(map, name, next_name);
 }
@@ -141,9 +140,9 @@ static CMAP_PART_VAR_RET get_map(const char * map, const char * name,
 /*******************************************************************************
 *******************************************************************************/
 
-static void proc_clean()
+static void clean_after_proc()
 {
-  cmap_part_name2map_public.proc_clean();
+  cmap_part_name2map_public.clean_after_proc();
 }
 
 /*******************************************************************************
@@ -280,7 +279,7 @@ const CMAP_PART_PUBLIC cmap_part_public =
   {
     loc, no_loc,
     get_map,
-    proc_clean
+    clean_after_proc
   },
   clean,
   CMAP_PART_LOOP(PART_SET)

@@ -1,5 +1,5 @@
 /*******************************************************************************
-@TEST_DESC@ Set function argument to blank
+@TEST_DESC@ Get function argument name after set in loop
 *******************************************************************************/
 
 local i = 0;

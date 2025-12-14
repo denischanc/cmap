@@ -13,7 +13,7 @@ typedef struct
 
   CMAP_PART_CTX_NATURE_LOOP(CMAP_PART_CTX_NATURE_DECL)
 
-  char (*is_feature_params)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX_FEATURE_LOOP(CMAP_PART_CTX_FEATURE_DECL)
 
   void (*push)();
   char * (*pop)();
@@ -25,6 +25,7 @@ typedef struct
   CMAP_PART_CTX * (*c_prev)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*block_next)(CMAP_PART_CTX * ctx);
   CMAP_PART_CTX * (*last_block)(CMAP_PART_CTX * ctx);
+  CMAP_PART_CTX * (*block_prev)(CMAP_PART_CTX * ctx);
 
   char ** (*instructions)(CMAP_PART_CTX * ctx);
   const char * (*prefix)(CMAP_PART_CTX * ctx);

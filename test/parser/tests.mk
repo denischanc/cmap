@@ -5,4 +5,5 @@ TESTS += \
   $(top_builddir)/test/parser/test003 \
   $(top_builddir)/test/parser/test004 \
   $(top_builddir)/test/parser/test005 \
-  $(top_builddir)/test/parser/test006
+  $(top_builddir)/test/parser/test006 \
+  $(top_builddir)/test/parser/test007

@@ -12,10 +12,11 @@ typedef struct
 
 typedef struct
 {
-  char (*proc_is_local)(const char * name, CMAP_PART_CTX * ctx);
+  char (*is_loc)(const char * name, CMAP_PART_CTX * ctx);
+  char (*is_proc_ctx_def)(const char * name, CMAP_PART_CTX * ctx);
 
-  CMAP_PART_VAR_RET (*put_loc)(const char * name, const char * next_name);
-  CMAP_PART_VAR_RET (*put_no_loc)(const char * map, const char * name,
+  void (*put_loc)(const char * name, const char * next_name);
+  char (*put_no_loc)(const char * map, const char * name,
     const char * next_name);
 
   CMAP_PART_VAR_RET (*get)(const char * map, const char * name,

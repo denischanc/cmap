@@ -8,13 +8,12 @@ typedef struct
 
 typedef struct
 {
-  CMAP_PART_NAME2MAP_RET (*put)(const char * map, const char * name,
-    const char * next_name);
+  void (*put)(const char * map, const char * name, const char * next_name);
 
   CMAP_PART_NAME2MAP_RET (*get)(const char * map, const char * name,
     char * next_name);
 
-  void (*proc_clean)();
+  void (*clean_after_proc)();
 } CMAP_PART_NAME2MAP_PUBLIC;
 
 extern const CMAP_PART_NAME2MAP_PUBLIC cmap_part_name2map_public;

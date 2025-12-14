@@ -36,7 +36,7 @@ static char * process_append(char * map_fn, char * map, char * args,
   free(map);
   free(instruction);
 
-  cmap_part_public.var.proc_clean();
+  cmap_part_public.var.clean_after_proc();
 
   return map_name;
 }
@@ -88,7 +88,7 @@ static char * process_c(char * fn_name, char do_return)
   free(fn_name);
   free(proc_ctx_name);
 
-  cmap_part_public.var.proc_clean();
+  cmap_part_public.var.clean_after_proc();
 
   return map_name;
 }

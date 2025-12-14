@@ -21,30 +21,24 @@ static void put_n_affected(const char * map, const char * name,
   cmap_part_affected_public.add(map_name, ctx);
 }
 
-static CMAP_PART_NAME2MAP_RET put(const char * map, const char * name,
-  const char * next_name)
+static void put(const char * map, const char * name, const char * next_name)
 {
-  CMAP_PART_NAME2MAP_RET ret;
-
-  const char * map_name =
-    cmap_part_kv_public.get(*cmap_part_ctx_public.name2map(NULL), map, name);
-  if(map_name == NULL)
-  {
-    ret.map = NULL;
-    put_n_affected(map, name, next_name, NULL);
-  }
-  else
-  {
-    ret.map = strdup(map_name);
-    cmap_part_affected_public.add(map_name, NULL);
-  }
+  put_n_affected(map, name, next_name, NULL);
 
   CMAP_PART_CTX * ctx = NULL;
   while((ctx = cmap_part_ctx_public.c_prev(ctx)) != NULL)
     cmap_part_kv_public.delete_key(cmap_part_ctx_public.name2map(ctx), map,
       name);
+}
 
-  return ret;
+/*******************************************************************************
+*******************************************************************************/
+
+static char is_this_args(const char * map, const char * name,
+  CMAP_PART_CTX * ctx)
+{
+  return cmap_parser_this_args_public.is(map, name) &&
+    !cmap_part_var_public.is_loc(name, ctx);
 }
 
 /*******************************************************************************
@@ -52,7 +46,9 @@ static CMAP_PART_NAME2MAP_RET put(const char * map, const char * name,
 
 static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 {
-  if(cmap_parser_this_args_public.is(NULL, name)) return strdup(name);
+  if(cmap_part_var_public.is_loc(name, ctx_c)) return NULL;
+  if(is_this_args(NULL, name, ctx_c))
+    return strdup(cmap_parser_this_args_public.map(name));
 
   int off = cmap_strings_public.contains(
     cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), name);
@@ -61,9 +57,6 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
   CMAP_PART_CTX * ctx_split = cmap_part_ctx_public.split(ctx_c);
   char * map_name = cmap_parser_var_public.set_fn_arg_name(name, off);
   cmap_part_ctx_public.join(ctx_split);
-
-  cmap_strings_public.set(
-    cmap_part_ctx_public.prev_block_fn_arg_names(ctx_c), off, "");
 
   return map_name;
 }
@@ -84,8 +77,37 @@ static inline CMAP_PART_NAME2MAP_RET create_ret(char * map, char new,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
-  const char * name, char new, CMAP_PART_CTX * ctx_c)
+static char is_new(const char * map, const char * name, CMAP_PART_CTX * ctx_c)
+{
+  return !cmap_part_ctx_public.is_feature_fwd_name(ctx_c) &&
+    !is_this_args(map, name, ctx_c);
+}
+
+static void not_new_path(const char * map, const char * name,
+  CMAP_PART_CTX * ctx_c)
+{
+  CMAP_PART_CTX * ctx_split =
+    cmap_part_ctx_public.split(cmap_part_ctx_public.last_block(ctx_c));
+  free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
+    strdup(name)));
+  cmap_part_ctx_public.join(ctx_split);
+}
+
+static void mng_not_new(const char * map, const char * name,
+  const char * map_name, CMAP_PART_CTX * ctx_c)
+{
+  if(cmap_part_ctx_public.is_feature_ctx_fn_c(ctx_c))
+  {
+    cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), map_name);
+    put_n_affected(map, name, map_name, ctx_c);
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_PART_NAME2MAP_RET get_prev(const char * map, const char * name,
+  char new, CMAP_PART_CTX * ctx_c)
 {
   CMAP_PART_NAME2MAP_RET ret;
 
@@ -93,14 +115,7 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
     *cmap_part_ctx_public.name2map(ctx_c), map, name);
   if(map_name_ok != NULL)
   {
-    if(!new)
-    {
-      CMAP_PART_CTX * ctx_split =
-        cmap_part_ctx_public.split(cmap_part_ctx_public.last_block(ctx_c));
-      free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
-        strdup(name)));
-      cmap_part_ctx_public.join(ctx_split);
-    }
+    if(!new) not_new_path(map, name, ctx_c);
 
     return create_ret(strdup(map_name_ok), new, (1 == 1));
   }
@@ -110,14 +125,8 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
     (map == NULL) ? is_fn_arg_name(name, ctx_c) : NULL, new, (1 == 1));
   else
   {
-    ret = get_map_by_params(map, name, new ||
-      (!cmap_part_ctx_public.is_feature_params(ctx_c) &&
-      !cmap_parser_this_args_public.is(map, name)), ctx_c_prev);
-    if((ret.map != NULL) && !ret.new)
-    {
-      cmap_strings_public.add(cmap_part_ctx_public.params(ctx_c), ret.map);
-      put_n_affected(map, name, ret.map, ctx_c);
-    }
+    ret = get_prev(map, name, new || is_new(map, name, ctx_c), ctx_c_prev);
+    if((ret.map != NULL) && !ret.new) mng_not_new(map, name, ret.map, ctx_c);
     return ret;
   }
 }
@@ -128,40 +137,39 @@ static CMAP_PART_NAME2MAP_RET get_map_by_params(const char * map,
 static CMAP_PART_NAME2MAP_RET get(const char * map, const char * name,
   char * next_name)
 {
-  CMAP_PART_NAME2MAP_RET ret;
-
   const char * map_name_ok = cmap_part_kv_public.get(
     *cmap_part_ctx_public.name2map(NULL), map, name);
-  if(map_name_ok != NULL) ret = create_ret(strdup(map_name_ok), (1 == 0),
+  if(map_name_ok != NULL) return create_ret(strdup(map_name_ok), (1 == 0),
     !cmap_part_affected_public.add(map_name_ok, NULL));
   else
   {
-    ret = get_map_by_params(map, name, (1 == 0), cmap_part_ctx_public.c());
+    CMAP_PART_NAME2MAP_RET ret =
+      get_prev(map, name, (1 == 0), cmap_part_ctx_public.c());
 
     if(ret.map == NULL) put_n_affected(map, name, next_name, NULL);
     else if(ret.new) put_n_affected(map, name, ret.map, NULL);
-  }
 
-  return ret;
+    return ret;
+  }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char proc_clean_apply(const char * map, const char * name,
+static char clean_after_proc_apply(const char * map, const char * name,
   const char * map_name, void * data)
 {
   CMAP_PART_CTX * ctx = data;
-  return ((map != NULL) || !cmap_part_var_public.proc_is_local(name, ctx));
+  return ((map != NULL) || !cmap_part_var_public.is_proc_ctx_def(name, ctx));
 }
 
-static void proc_clean()
+static void clean_after_proc()
 {
   CMAP_PART_CTX * ctx_c = cmap_part_ctx_public.c();
   while(ctx_c != NULL)
   {
     cmap_part_kv_public.apply(cmap_part_ctx_public.name2map(ctx_c),
-      proc_clean_apply, ctx_c);
+      clean_after_proc_apply, ctx_c);
 
     ctx_c = cmap_part_ctx_public.c_prev(ctx_c);
   }
@@ -171,4 +179,4 @@ static void proc_clean()
 *******************************************************************************/
 
 const CMAP_PART_NAME2MAP_PUBLIC cmap_part_name2map_public =
-  {put, get, proc_clean};
+  {put, get, clean_after_proc};

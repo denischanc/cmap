@@ -9,12 +9,15 @@
 
 static char add(const char * map, CMAP_PART_CTX * ctx)
 {
-  char ret = cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
+  CMAP_PART_CTX * prev = ctx;
+  while((prev = cmap_part_ctx_public.block_prev(prev)) != NULL)
+  {
+    int off =
+      cmap_strings_public.contains(*cmap_part_ctx_public.affecteds(prev), map);
+    if(off >= 0) return (1 == 0);
+  }
 
-  while((ctx = cmap_part_ctx_public.block_next(ctx)) != NULL)
-    cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
-
-  return ret;
+  return cmap_strings_public.add(cmap_part_ctx_public.affecteds(ctx), map);
 }
 
 /*******************************************************************************
