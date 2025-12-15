@@ -151,7 +151,7 @@ const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
 {
   append_instruction_args, append_variable_args, prepend_instruction_args,
   append_instruction, append_lf,
-  add_args, append_instruction_args_args,
+  append_instruction_args_args,
   add_definitions, add_global_env,
   prepend_map_var,
   next_name

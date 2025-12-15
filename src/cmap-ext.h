@@ -50,9 +50,13 @@ const char * cmap_string_val(CMAP_STRING * string);
 
 CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx);
 
+void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val);
+CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what);
+
 CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
 
 int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r);
+char cmap_true(CMAP_MAP * map);
 
 CMAP_MAP * cmap_add(CMAP_MAP * map_l, CMAP_MAP * map_r,
   CMAP_PROC_CTX * proc_ctx);

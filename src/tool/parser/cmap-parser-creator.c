@@ -43,7 +43,7 @@ static char * string(char * string)
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS(
-    "%s = (CMAP_MAP *)cmap_string(%s, 0, proc_ctx);", map_name, string);
+    "%s = (CMAP_MAP *)cmap_string(\"%s\", 0, proc_ctx);", map_name, string);
   APPEND_LF();
 
   free(string);

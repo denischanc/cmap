@@ -180,6 +180,40 @@ CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
+void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val)
+{
+  const char * what_nature = CMAP_NATURE(what);
+  if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
+  {
+    int64_t i = CMAP_CALL((CMAP_INT *)what, get);
+    CMAP_LIST_SET((CMAP_LIST *)map, i, val);
+  }
+  else if(what_nature == CMAP_STRING_NATURE)
+  {
+    const char * key = CMAP_CALL((CMAP_STRING *)what, val);
+    CMAP_SET(map, key, val);
+  }
+}
+
+CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
+{
+  const char * what_nature = CMAP_NATURE(what);
+  if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
+  {
+    int64_t i = CMAP_CALL((CMAP_INT *)what, get);
+    return CMAP_LIST_GET((CMAP_LIST *)map, i);
+  }
+  else if(what_nature == CMAP_STRING_NATURE)
+  {
+    const char * key = CMAP_CALL((CMAP_STRING *)what, val);
+    return CMAP_GET(map, key);
+  }
+  return NULL;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
 {
   return cmap_util_public.copy(dst, src);
@@ -191,6 +225,11 @@ CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
 int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
   return cmap_cmp_public.cmp(map_l, map_r);
+}
+
+char cmap_true(CMAP_MAP * map)
+{
+  return cmap_cmp_public.is_true(map);
 }
 
 /*******************************************************************************

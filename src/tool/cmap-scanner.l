@@ -7,9 +7,9 @@
 
 #define YY_USER_ACTION yycolumn += yyleng;
 
-static void string_start(const char * txt);
+static void string_start();
 static void string_append(const char * txt);
-static void string_end(YYSTYPE * yylval_p, const char * txt);
+static void string_end(YYSTYPE * yylval_p);
 
 static void set_name(YYSTYPE * yylval_p, const char * name);
 
@@ -41,34 +41,32 @@ SPACE_D [[:space:]]+
   .
 }
 
-"\"" { BEGIN(STRING_S); string_start("\""); }
+"\"" { BEGIN(STRING_S); string_start(); }
 <STRING_S>{
   "\\\\" { string_append(yytext); }
   "\\\"" { string_append(yytext); }
-  "\"" { BEGIN(INITIAL); string_end(yylval, "\""); return STRING; }
+  "\"" { BEGIN(INITIAL); string_end(yylval); return STRING; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
 
-"@C"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_S); string_start(""); }
+"@C"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_S); string_start(); }
 <C_IMPL_S>{
-  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval, ""); return C_IMPL; }
+  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval); return C_IMPL; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
 
-"@C_ROOT"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_ROOT_S); string_start("");
-  }
+"@C_ROOT"[[:space:]]*"{{"[[:space:]]* { BEGIN(C_IMPL_ROOT_S); string_start(); }
 <C_IMPL_ROOT_S>{
-  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval, "");
-    return C_IMPL_ROOT; }
+  [[:space:]]*"}}" { BEGIN(INITIAL); string_end(yylval); return C_IMPL_ROOT; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
 
-"@INCLUDE"[[:space:]]*"{"[[:space:]]* { BEGIN(INCLUDE_S); string_start(""); }
+"@INCLUDE"[[:space:]]*"{"[[:space:]]* { BEGIN(INCLUDE_S); string_start(); }
 <INCLUDE_S>{
-  [[:space:]]*"}" { BEGIN(INITIAL); string_end(yylval, ""); return INCLUDE; }
+  [[:space:]]*"}" { BEGIN(INITIAL); string_end(yylval); return INCLUDE; }
   . { string_append(yytext); }
   "\n" { string_append(yytext); }
 }
@@ -80,8 +78,7 @@ SPACE_D [[:space:]]+
 "@DIR" { set_dir(yylval); return STRING; }
 "@FILE" { set_file(yylval); return STRING; }
 
-"local" { return LOCAL; }
-"var" { return LOCAL; }
+"local"|"var" { return LOCAL; }
 "null" { return NULL_PTR; }
 "return" { return RETURN; }
 "function" { return FUNCTION; }
@@ -138,9 +135,9 @@ SPACE_D [[:space:]]+
 
 static char * string;
 
-static void string_start(const char * txt)
+static void string_start()
 {
-  string = strdup(txt);
+  string = strdup("");
 }
 
 static void string_append(const char * txt)
@@ -148,9 +145,8 @@ static void string_append(const char * txt)
   cmap_string_public.append(&string, txt);
 }
 
-static void string_end(YYSTYPE * yylval_p, const char * txt)
+static void string_end(YYSTYPE * yylval_p)
 {
-  cmap_string_public.append(&string, txt);
   yylval_p -> name = string;
 }
 
@@ -161,17 +157,10 @@ static void set_name(YYSTYPE * yylval_p, const char * name)
 
 static void set_dir(YYSTYPE * yylval_p)
 {
-  char * string = NULL,
-    * dir = cmap_file_util_public.dirname(cmap_do_parse_public.path());
-  cmap_string_public.append_args(&string, "\"%s\"", dir);
-  free(dir);
-  yylval_p -> name = string;
+  yylval_p -> name = cmap_file_util_public.dirname(cmap_do_parse_public.path());
 }
 
 static void set_file(YYSTYPE * yylval_p)
 {
-  char * string = NULL;
-  cmap_string_public.append_args(&string,
-    "\"%s\"", cmap_do_parse_public.path());
-  yylval_p -> name = string;
+  yylval_p -> name = strdup(cmap_do_parse_public.path());
 }

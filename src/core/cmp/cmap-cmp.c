@@ -2,7 +2,8 @@
 #include "cmap-cmp.h"
 
 #include "cmap-cmp-handler.h"
-#include "cmap-map.h"
+#include "cmap-int.h"
+#include "cmap.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -22,4 +23,16 @@ static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CMP_PUBLIC cmap_cmp_public = {cmp};
+static char is_true(CMAP_MAP * map)
+{
+  if(map == NULL) return (1 == 0);
+
+  if(CMAP_NATURE(map) == CMAP_INT_NATURE)
+    return (CMAP_CALL((CMAP_INT *)map, get) != 0);
+  return (1 == 1);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+const CMAP_CMP_PUBLIC cmap_cmp_public = {cmp, is_true};

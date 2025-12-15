@@ -15,12 +15,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * C_INCLUDES[] = {"stdlib.h", "cmap-int-ext.h",
-  "cmap-string-ext.h", "cmap-list-ext.h", NULL};
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void add_include(const char * out_h_name)
 {
   if(!cmap_config_public.is_only_c())
@@ -31,8 +25,7 @@ static void add_include(const char * out_h_name)
   }
   else cmap_part_public.add_include("cmap-ext.h", (1 == 0));
 
-  for(const char ** include = C_INCLUDES; *include != NULL; include++)
-    cmap_part_public.add_include(*include, (1 == 0));
+  cmap_part_public.add_include("stdlib.h", (1 == 0));
 }
 
 /*******************************************************************************

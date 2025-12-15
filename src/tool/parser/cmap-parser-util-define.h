@@ -15,9 +15,6 @@
 
 #define APPEND_LF() cmap_parser_util_public.append_lf()
 
-#define ADD_ARGS(instruction, args) \
-  cmap_parser_util_public.add_args(instruction, args)
-
 #define APPEND_INSTRUCTION_ARGS_ARGS(args, txt, others...) \
   cmap_parser_util_public.append_instruction_args_args(args, txt, others)
 

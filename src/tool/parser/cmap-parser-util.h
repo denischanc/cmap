@@ -11,7 +11,6 @@ typedef struct
   void (*append_instruction)(const char * txt);
   void (*append_lf)();
 
-  void (*add_args)(char ** instruction, char * args);
   void (*append_instruction_args_args)(char * args, const char * txt, ...);
 
   const char * (*add_definitions)();

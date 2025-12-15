@@ -40,7 +40,7 @@ static void cmap_parser_error(yyscan_t yyscanner, const char * msg);
 %token ERROR
 %token<name> STRING C_IMPL C_IMPL_ROOT INCLUDE NAME INT
 
-%type<name> names creator cmap_op cmap_cmp cmap cmap_new
+%type<name> names name_or_string creator cmap_op cmap_cmp cmap cmap_new
 %type<name> args arg_names_cmap
 %type<name> process_ret import_ret function
 %type<name> comparison comparison_no_params comparison_root comparison_or_and
@@ -89,10 +89,13 @@ instructions: { cmap_part_public.push_instructions(); }
 names: NAME
 | names '.' NAME { $$ = cmap_parser_arg_public.names($1, $3); };
 
+name_or_string: NAME | STRING;
+
 instruction:
   LOCAL NAME '=' cmap_op { cmap_parser_var_public.set_local($2, $4); }
 | NAME '=' cmap_op { cmap_parser_var_public.set_global($1, $3); }
-| cmap '.' NAME '=' cmap_op { cmap_parser_var_public.set_path($1, $3, $5); }
+| cmap '.' name_or_string '=' cmap_op
+  { cmap_parser_var_public.set_path($1, $3, $5); }
 | cmap SB2_O INT SB2_C '=' cmap_op
   { cmap_parser_var_public.set_sb_int($1, $3, $6); }
 | cmap SB2_O STRING SB2_C '=' cmap_op
@@ -135,7 +138,7 @@ cmap: creator
 | NULL_PTR { $$ = strdup("NULL"); }
 | process_ret
 | NAME { $$ = cmap_parser_var_public.name($1); }
-| cmap '.' NAME { $$ = cmap_parser_var_public.path($1, $3); }
+| cmap '.' name_or_string { $$ = cmap_parser_var_public.path($1, $3); }
 | cmap SB2_O INT SB2_C { $$ = cmap_parser_var_public.sb_int($1, $3); }
 | cmap SB2_O STRING SB2_C { $$ = cmap_parser_var_public.sb_string($1, $3); }
 | cmap '[' cmap ']' { $$ = cmap_parser_var_public.sb_map($1, $3); }
@@ -144,7 +147,7 @@ cmap: creator
 | import_ret;
 
 cmap_new: NAME { $$ = cmap_parser_var_public.name($1); }
-| cmap_new '.' NAME { $$ = cmap_parser_var_public.path($1, $3); }
+| cmap_new '.' name_or_string { $$ = cmap_parser_var_public.path($1, $3); }
 | cmap_new SB2_O INT SB2_C { $$ = cmap_parser_var_public.sb_int($1, $3); }
 | cmap_new SB2_O STRING SB2_C
   { $$ = cmap_parser_var_public.sb_string($1, $3); }
@@ -171,8 +174,8 @@ arg_names:
 *******************************************************************************/
 
 arg_names_cmap: { $$ = NULL; }
-| names ':' cmap_op { $$ = cmap_parser_arg_public.args_map($1, $3); }
-| arg_names_cmap ',' names ':' cmap_op
+| name_or_string ':' cmap_op { $$ = cmap_parser_arg_public.args_map($1, $3); }
+| arg_names_cmap ',' name_or_string ':' cmap_op
   { $$ = cmap_parser_arg_public.args_map_push($1, $3, $5); };
 
 /*******************************************************************************
@@ -180,14 +183,14 @@ arg_names_cmap: { $$ = NULL; }
 
 process_no_ret: NAME '(' args ')'
   { cmap_parser_process_public.process(NULL, $1, $3, (1 == 0)); }
-| cmap '.' NAME '(' args ')'
+| cmap '.' name_or_string '(' args ')'
   { cmap_parser_process_public.process($1, $3, $5, (1 == 0)); }
 | function '(' args ')'
   { cmap_parser_process_public.process_fn($1, $3, (1 == 0)); };
 
 process_ret: NAME '(' args ')'
   { $$ = cmap_parser_process_public.process(NULL, $1, $3, (1 == 1)); }
-| cmap '.' NAME '(' args ')'
+| cmap '.' name_or_string '(' args ')'
   { $$ = cmap_parser_process_public.process($1, $3, $5, (1 == 1)); }
 | function '(' args ')'
   { $$ = cmap_parser_process_public.process_fn($1, $3, (1 == 1)); };

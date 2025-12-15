@@ -145,15 +145,11 @@ static char * import_parse_path(const char * path)
 
 static char import(char ** map_name, char * path, char * fn_name)
 {
-  const char * path_ok = path + 1;
-  path[strlen(path) - 1] = 0;
-
-  if(fn_name == NULL) fn_name = cmap_fn_name_public.resolve(path_ok);
-  char * parse_path = import_parse_path(path_ok);
-
-  if(parse_path == NULL) { free(path); free(fn_name); return (1 == 0); }
-
+  if(fn_name == NULL) fn_name = cmap_fn_name_public.resolve(path);
+  char * parse_path = import_parse_path(path);
   free(path);
+
+  if(parse_path == NULL) { free(fn_name); return (1 == 0); }
 
   IMPORT_CTX bup = import_ctx_bup(fn_name);
   char ret = cmap_do_parse_public.parse(parse_path);

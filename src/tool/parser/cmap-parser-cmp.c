@@ -26,21 +26,24 @@ CMAP_PARSER_CMP_LOOP(IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-#define UNIQUE_IMPL(fn, op) \
-static char * fn(char * map) \
-{ \
-  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map); \
-  APPEND_INSTRUCTION_ARGS( \
-    SPACE "return (cmap_int_get((CMAP_INT *)%s) " #op " 0);", map); \
-  APPEND_INSTRUCTION_ARGS("else return (%s " #op " NULL);", map); \
- \
-  free(map); \
- \
-  return cmap_parser_part_public.function_cmp(); \
+static char * cmp_unique_common(char * map, char not)
+{
+  APPEND_INSTRUCTION_ARGS("return %scmap_true(%s);", not ? "!" : "", map);
+
+  free(map);
+
+  return cmap_parser_part_public.function_cmp();
 }
 
-UNIQUE_IMPL(cmp_unique, !=)
-UNIQUE_IMPL(cmp_unique_not, ==)
+static char * cmp_unique(char * map)
+{
+  return cmp_unique_common(map, (1 == 0));
+}
+
+static char * cmp_unique_not(char * map)
+{
+  return cmp_unique_common(map, (1 == 1));
+}
 
 /*******************************************************************************
 *******************************************************************************/

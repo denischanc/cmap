@@ -126,7 +126,7 @@ static void set_sb_int(char * map, char * i, char * map_src)
 
 static void set_sb_string(char * map, char * string, char * map_src)
 {
-  APPEND_INSTRUCTION_ARGS("cmap_set(%s, %s, %s);", map, string, map_src);
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", map, string, map_src);
   APPEND_LF();
 
   free(map);
@@ -136,15 +136,7 @@ static void set_sb_string(char * map, char * string, char * map_src)
 
 static void set_sb_map(char * map, char * map_i, char * map_src)
 {
-  APPEND_INSTRUCTION_ARGS("if(cmap_nature(%s) == CMAP_INT_NATURE)", map_i);
-  APPEND_INSTRUCTION_ARGS(
-    SPACE "cmap_list_set((CMAP_LIST *)%s, cmap_int_get((CMAP_INT *)%s), %s);",
-    map, map_i, map_src);
-  APPEND_INSTRUCTION_ARGS(
-    "else if(cmap_nature(%s) == CMAP_STRING_NATURE)", map_i);
-  APPEND_INSTRUCTION_ARGS(
-    SPACE "cmap_set(%s, cmap_string_val((CMAP_STRING *)%s), %s);",
-    map, map_i, map_src);
+  APPEND_INSTRUCTION_ARGS("cmap_set_w_map(%s, %s, %s);", map, map_i, map_src);
   APPEND_LF();
 
   free(map);
@@ -175,7 +167,7 @@ static char * sb_string(char * map, char * string)
   char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
-  APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, %s);", map_name, map, string);
+  APPEND_INSTRUCTION_ARGS("%s = cmap_get(%s, \"%s\");", map_name, map, string);
   APPEND_LF();
 
   free(map);
@@ -189,14 +181,7 @@ static char * sb_map(char * map, char * map_i)
   char * map_name = NEXT_NAME_VAR();
 
   PREPEND_MAP_VAR(map_name);
-  APPEND_INSTRUCTION_ARGS("if((cmap_nature(%s) == CMAP_LIST_NATURE) && "
-    "(cmap_nature(%s) == CMAP_INT_NATURE))", map, map_i);
-  APPEND_INSTRUCTION_ARGS(SPACE "%s = cmap_list_get((CMAP_LIST *)%s, "
-    "cmap_int_get((CMAP_INT *)%s));", map_name, map, map_i);
-  APPEND_INSTRUCTION_ARGS(
-    "else if(cmap_nature(%s) == CMAP_STRING_NATURE)", map_i);
-  APPEND_INSTRUCTION_ARGS(SPACE "%s = cmap_get(%s, "
-    "cmap_string_val((CMAP_STRING *)%s));", map_name, map, map_i);
+  APPEND_INSTRUCTION_ARGS("%s = cmap_get_w_map(%s, %s);", map_name, map, map_i);
   APPEND_LF();
 
   free(map);
