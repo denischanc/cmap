@@ -13,7 +13,7 @@
 
 static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
-  int64_t ret = map_l - map_r;
+  int64_t ret = (void *)map_l - (void *)map_r;
   if(ret == 0) return 0;
 
   CMAP_CMP_HANDLER_LOOP(IMPL)

@@ -57,17 +57,16 @@ extern const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public;
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static inline int eval_fn(type v_l, type v_r); \
+static inline int64_t eval_fn(type v_l, type v_r); \
  \
-static int name##_stree_eval(void * node, void * data) \
+static int64_t name##_stree_eval(CMAP_STREE_NODE * node, void * data) \
 { \
-  return eval_fn(((CMAP_SSET_##NAME *)node) -> v, \
-    ((CMAP_SSET_##NAME *)data) -> v); \
+  return eval_fn(((CMAP_SSET_##NAME *)node) -> v, *(type *)data); \
 } \
  \
 static inline const char * log_fn(type v); \
  \
-static const char * name##_stree_log(void * node) \
+static const char * name##_stree_log(CMAP_STREE_NODE * node) \
 { \
   return log_fn(((CMAP_SSET_##NAME *)node) -> v); \
 } \
@@ -79,9 +78,7 @@ CMAP_STREE_RUNNER(name, name##_stree_eval, name##_stree_log, CMAP_F, CMAP_F); \
  \
 static CMAP_SSET_##NAME * name##_find(CMAP_SSET_##NAME * this, type v) \
 { \
-  CMAP_SSET_##NAME data; \
-  data.v = v; \
-  return CMAP_STREE_FINDFN(name, this, &data); \
+  return (CMAP_SSET_##NAME *)CMAP_STREE_FINDFN(name, this, &v); \
 } \
  \
 static char name##_is(CMAP_SSET_##NAME * this, type v) \
@@ -102,7 +99,7 @@ static void name##_add_force(CMAP_SSET_##NAME ** this, type v) \
 { \
   CMAP_KERNEL_ALLOC_PTR(node, CMAP_SSET_##NAME); \
   node -> v = v; \
-  CMAP_STREE_ADDFN(name, this, node, node); \
+  CMAP_STREE_ADDFN(name, this, node, &v); \
 } \
  \
 CMAP_UNUSED static char name##_add(CMAP_SSET_##NAME ** this, type v) \
@@ -118,7 +115,7 @@ CMAP_UNUSED static char name##_add(CMAP_SSET_##NAME ** this, type v) \
 CMAP_UNUSED static type name##_rm(CMAP_SSET_##NAME ** this) \
 { \
   CMAP_SSET_##NAME * node_ret = *this; \
-  CMAP_STREE_RMFN(name, this, node_ret); \
+  CMAP_STREE_RMFN(this, node_ret); \
  \
   type ret = node_ret -> v; \
   CMAP_KERNEL_FREE(node_ret); \
@@ -130,7 +127,7 @@ CMAP_UNUSED static char name##_rm_v(CMAP_SSET_##NAME ** this, type v) \
   CMAP_SSET_##NAME * to_rm = name##_find(*this, v); \
   if(to_rm == NULL) return CMAP_F; \
  \
-  CMAP_STREE_RMFN(name, this, to_rm); \
+  CMAP_STREE_RMFN(this, to_rm); \
   CMAP_KERNEL_FREE(to_rm); \
   return CMAP_T; \
 } \
@@ -152,9 +149,9 @@ typedef struct \
   void * data; \
 } NAME##_APPLY_APPLY_DATA; \
  \
-static void name##_apply_apply(void * node, char is_eq, void * data) \
+static void name##_apply_apply(CMAP_STREE_NODE * node, char is_eq, void * data) \
 { \
-  CMAP_SSET_##NAME * node_ = node; \
+  CMAP_SSET_##NAME * node_ = (CMAP_SSET_##NAME *)node; \
   NAME##_APPLY_APPLY_DATA * data_ = data; \
   data_ -> fn(&node_ -> v, data_ -> data); \
 } \
@@ -163,20 +160,20 @@ CMAP_UNUSED static void name##_apply(CMAP_SSET_##NAME * this, \
   CMAP_SSET_APPLY_FN_##NAME fn, void * data) \
 { \
   NAME##_APPLY_APPLY_DATA data_ = {fn, data}; \
-  CMAP_STREE_QUICKAPPLYFN(name, this, name##_apply_apply, &data_); \
+  CMAP_STREE_QUICKAPPLYFN(this, name##_apply_apply, &data_); \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_clean_apply(void * node, char is_eq, void * data) \
+static void name##_clean_apply(CMAP_STREE_NODE * node, char is_eq, void * data) \
 { \
   CMAP_KERNEL_FREE(node); \
 } \
  \
 CMAP_UNUSED static void name##_clean(CMAP_SSET_##NAME ** this) \
 { \
-  CMAP_STREE_QUICKAPPLYFN(name, *this, name##_clean_apply, NULL); \
+  CMAP_STREE_QUICKAPPLYFN(*this, name##_clean_apply, NULL); \
   *this = NULL; \
 } \
  \

@@ -13,18 +13,16 @@
 *******************************************************************************/
 
 #define PTR_EVALFN_IMPL(NAME, name, type) \
-static int name##_eval(type v_l, type v_r) \
+static inline int64_t name##_eval(type v_l, type v_r) \
 { \
-  if(v_l > v_r) return 1; \
-  else if(v_l < v_r) return -1; \
-  else return 0; \
+  return (void *)v_l - (void *)v_r; \
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
 #define PTR_LOGFN_IMPL(NAME, name, type) \
-static const char * name##_log_v(type v) \
+static inline const char * name##_log_v(type v) \
 { \
   static char buffer[20]; \
   snprintf(buffer, sizeof(buffer), "%p", v); \

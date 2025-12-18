@@ -40,6 +40,12 @@ typedef struct
   CMAP_STREE_NODE node;
 } BLOCK_FREE;
 
+#define BLOCK_FROM_NODE(node) (((BLOCK *)node) - 1)
+#define BLOCK_FREE_FROM_NODE(node) ((BLOCK_FREE *)BLOCK_FROM_NODE(node))
+
+#define NODE_FROM_BLOCK(block) ((CMAP_STREE_NODE *)(block + 1))
+#define NODE_FROM_BLOCK_FREE(block_free) NODE_FROM_BLOCK(((BLOCK *)block_free))
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -61,7 +67,7 @@ typedef struct
 
   CHUNK * chunk_list, * chunk_tail_list;
 
-  BLOCK_FREE * block_free_stree;
+  CMAP_STREE_NODE * block_free_stree;
 } INTERNAL;
 
 static INTERNAL internal = {0, NULL, NULL, NULL};
@@ -137,32 +143,23 @@ static void rm_block(BLOCK * block, BLOCK * prev)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STREE_NODE * node(void * node)
+static int64_t block_free_eval(CMAP_STREE_NODE * node, void * data)
 {
-  return &((BLOCK_FREE *)node) -> node;
-}
-
-static int block_free_eval(void * node, void * data)
-{
-  int size = block_size((BLOCK *)node);
+  int size = block_size(BLOCK_FROM_NODE(node));
   return (size - *(int *)data);
 }
 
 static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(block_free) =
-{
-  node,
-  block_free_eval,
-  NULL,
-  CMAP_T, CMAP_F
-};
+  {block_free_eval, NULL, CMAP_T, CMAP_F};
 
 /*******************************************************************************
 *******************************************************************************/
 
 static BLOCK_FREE * find_block_free(int alloc_size)
 {
-  return (BLOCK_FREE *)CMAP_STREE_FINDFN(block_free, internal.block_free_stree,
-    &alloc_size);
+  CMAP_STREE_NODE * node = CMAP_STREE_FINDFN(block_free,
+    internal.block_free_stree, &alloc_size);
+  return (node == NULL) ? NULL : BLOCK_FREE_FROM_NODE(node);
 }
 
 static void free_block(BLOCK * block)
@@ -170,12 +167,13 @@ static void free_block(BLOCK * block)
   block -> free = CMAP_T;
 
   int size = block_size(block);
-  CMAP_STREE_ADDFN(block_free, &internal.block_free_stree, block, &size);
+  CMAP_STREE_ADDFN(block_free, &internal.block_free_stree,
+    NODE_FROM_BLOCK(block), &size);
 }
 
 static void alloc_block(BLOCK_FREE * block)
 {
-  CMAP_STREE_RMFN(block_free, &internal.block_free_stree, block);
+  CMAP_STREE_RMFN(&internal.block_free_stree, NODE_FROM_BLOCK_FREE(block));
 
   ((BLOCK *)block) -> free = CMAP_F;
 }

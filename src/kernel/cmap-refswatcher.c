@@ -25,14 +25,9 @@ typedef struct
   uint64_t time_us;
 } REF;
 
-static int ref_eval(REF v_l, REF v_r)
+static int64_t ref_eval(REF v_l, REF v_r)
 {
-  CMAP_LIFECYCLE * ref_l = v_l.lc;
-  CMAP_LIFECYCLE * ref_r = v_r.lc;
-
-  if(ref_l > ref_r) return 1;
-  else if(ref_l < ref_r) return -1;
-  else return 0;
+  return (void *)v_l.lc - (void *)v_r.lc;
 }
 
 static const char * ref_log_v(REF v)
@@ -74,14 +69,9 @@ static void ref_ext_delete(REF_EXT * ref_ext)
   CMAP_KERNEL_FREE(ref_ext);
 }
 
-static int ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
+static int64_t ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
 {
-  CMAP_LIFECYCLE * ref_l = v_l -> lc;
-  CMAP_LIFECYCLE * ref_r = v_r -> lc;
-
-  if(ref_l > ref_r) return 1;
-  else if(ref_l < ref_r) return -1;
-  else return 0;
+  return (void *)v_l -> lc - (void *)v_r -> lc;
 }
 
 static const char * ref_ext_log_v(REF_EXT * v)

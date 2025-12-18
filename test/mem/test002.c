@@ -27,13 +27,13 @@ typedef struct
   int nb;
 } NB;
 
-static int nb_eval(void * node, void * data)
+static int64_t nb_eval(CMAP_STREE_NODE * node, void * data)
 {
-  NB * node1 = (NB *)node, * node2 = (NB *)data;
+  NB * node1 = (NB *)node, * node2 = data;
   return (node1 -> nb - node2 -> nb);
 }
 
-static const char * nb_log(void * node)
+static const char * nb_log(CMAP_STREE_NODE * node)
 {
   static char buffer[11];
   snprintf(buffer, sizeof(buffer), "%d", ((NB *)node) -> nb);
@@ -51,7 +51,7 @@ typedef struct
   int * list;
 } STREE2LIST_ARGS;
 
-static void nb_stree2list(void * node, char is_eq, void * data)
+static void nb_stree2list(CMAP_STREE_NODE * node, char is_eq, void * data)
 {
   STREE2LIST_ARGS * args = (STREE2LIST_ARGS *)data;
   int nb = ((NB *)node) -> nb;
@@ -62,9 +62,9 @@ static void nb_stree2list(void * node, char is_eq, void * data)
 #endif
 }
 
-static void nb_delete(void * node, char is_eq, void * data)
+static void nb_delete(CMAP_STREE_NODE * node, char is_eq, void * data)
 {
-  CMAP_MEM * mem = (CMAP_MEM *)data;
+  CMAP_MEM * mem = data;
   mem -> free(node);
 }
 
@@ -82,7 +82,7 @@ static char check_sort(char gt_first, STREE2LIST_ARGS * args,
   }
 
   args -> i = 0;
-  CMAP_STREE_APPLYFN(nb, stree, *apply, gt_first, CMAP_T, args);
+  CMAP_STREE_APPLYFN(stree, *apply, gt_first, CMAP_T, args);
 #ifdef DEBUG
   printf("\n");
 #endif
@@ -149,7 +149,7 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  CMAP_STREE_QUICKAPPLYFN(nb, nb_stree, nb_delete, mem);
+  CMAP_STREE_QUICKAPPLYFN(nb_stree, nb_delete, mem);
   nb_stree = NULL;
 
   mem -> free(args.list);
