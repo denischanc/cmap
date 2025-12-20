@@ -67,6 +67,7 @@ AC_CONFIG_FILES([
   src/tool/parser/Makefile
   src/tool/part/Makefile
   src/tool/tpl/Makefile
+  src/tool/tpl/build-main/Makefile
   src/tool/tpl/compile/Makefile
   src/tool/tpl/prj-multiple/Makefile
   src/tool/tpl/prj-simple/Makefile

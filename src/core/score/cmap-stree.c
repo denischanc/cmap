@@ -6,7 +6,7 @@
 #include <string.h>
 #include "cmap.h"
 #include "cmap-slist.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-log.h"
 
 /*******************************************************************************
@@ -499,7 +499,8 @@ static char * log_cat(char * left, const char * right)
 {
   int size = strlen(left) + strlen(right) + 1;
   size *= sizeof(char);
-  char * ret = (char *)CMAP_KERNEL_MEM -> alloc(size);
+  CMAP_MEM_VAR;
+  char * ret = (char *)mem -> alloc(size);
   *ret = 0;
   strcat(ret, left);
   strcat(ret, right);
@@ -517,7 +518,7 @@ static void log_push_cat(char * left, CMAP_SLIST_CHAR_PTR * prefix_before,
 static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
   CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_MEM_FREE(CMAP_CALL(prefix_before, pop), mem);
   CMAP_MEM_FREE(CMAP_CALL(prefix_between, pop), mem);
   CMAP_MEM_FREE(CMAP_CALL(prefix_after, pop), mem);

@@ -7,24 +7,18 @@
 #include "cmap-string.h"
 #include "cmap-fn-name.h"
 #include "cmap-config.h"
+#include "cmap-build-main-main-fn.h"
+#include "cmap-build-main-main.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
 static void impl(char ** txt)
 {
-  cmap_string_public.append(txt,
-    "int main(int argc, char * argv[])\n"
-    "{\n");
-
   const char * fn_name = cmap_config_public.fn();
-  if(fn_name != NULL) cmap_string_public.append_args(txt,
-    SPACE "cmap_env_main(cmap_env(argc, argv), %s);\n", fn_name);
-  else cmap_string_public.append(txt, SPACE "cmap_env(argc, argv);\n");
-
-  cmap_string_public.append(txt,
-    SPACE "return cmap_main();\n"
-    "}\n");
+  if(fn_name != NULL)
+    cmap_string_public.append_args(txt, CMAP_BUILD_MAIN_MAIN_FN, fn_name);
+  else cmap_string_public.append(txt, CMAP_BUILD_MAIN_MAIN);
 }
 
 /*******************************************************************************

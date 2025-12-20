@@ -2,7 +2,7 @@
 #include "cmap-refsstore.h"
 
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-sset.h"
 #include "cmap-slist.h"
 #include "cmap-log.h"
@@ -109,12 +109,12 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
   cmap_consumedtime_public.stop(&consumed_time);
 #endif
 
-  CMAP_KERNEL_FREE(this);
+  CMAP_MEM_VAR_FREE(this);
 }
 
 static CMAP_REFSSTORE * create(CMAP_ENV * env)
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)mem -> alloc(
     sizeof(CMAP_REFSSTORE) + sizeof(INTERNAL));
 

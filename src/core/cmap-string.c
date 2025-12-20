@@ -3,7 +3,7 @@
 
 #include <string.h>
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
@@ -52,7 +52,7 @@ static void append_(INTERNAL * internal, const char * val, int size_append)
 
   if(new_size_max > internal -> size_max)
   {
-    CMAP_MEM * mem = CMAP_KERNEL_MEM;
+    CMAP_MEM_VAR;
 
     char * new_val = (char *)mem -> alloc(new_size_max),
       * old_val = internal -> val;
@@ -106,7 +106,7 @@ static void clean(CMAP_STRING * this)
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_STRING *)this) -> internal;
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_MEM_FREE(internal -> val, mem);
   CMAP_MEM_FREE(internal, mem);
 
@@ -121,12 +121,11 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_MEM * mem = kernel -> mem();
-  CMAP_KERNEL_CFG * cfg = kernel -> cfg();
+  CMAP_MEM_VAR;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
-  if(size_inc < cfg -> core.string_size_inc_min)
-    size_inc = cfg -> core.string_size_inc;
+  CMAP_CONFIG * config = cmap_config_public.instance();
+  if(size_inc < config -> core.string_size_inc_min)
+    size_inc = config -> core.string_size_inc;
   internal -> size_inc = size_inc;
   internal -> size = (strlen(val_) + 1);
   internal -> size_max = adjusted_size_max(internal, 0);
@@ -154,8 +153,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_STRING * this =
-    (CMAP_STRING *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_STRING));
+  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_STRING);
   return init(this, &initargs, val, size_inc);
 }
 

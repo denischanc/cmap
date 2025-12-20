@@ -3,6 +3,8 @@
 
 #include "cmap.h"
 #include "cmap-kernel.h"
+#include "cmap-mem.h"
+#include "cmap-config.h"
 #include "cmap-util.h"
 #include "cmap-sset.h"
 #include "cmap-lifecycle.h"
@@ -53,7 +55,7 @@ typedef struct
 
 static REF_EXT * ref_ext_create(CMAP_LIFECYCLE * lc)
 {
-  CMAP_KERNEL_ALLOC_PTR(ret, REF_EXT);
+  CMAP_MEM_VAR_ALLOC_PTR(ret, REF_EXT);
 
   ret -> lc = lc;
   ret -> wrappers = cmap_slist_lc_public.create(0);
@@ -66,7 +68,7 @@ static void ref_ext_delete(REF_EXT * ref_ext)
 {
   CMAP_DELETE(ref_ext -> wrappers);
   CMAP_DELETE(ref_ext -> nesteds);
-  CMAP_KERNEL_FREE(ref_ext);
+  CMAP_MEM_VAR_FREE(ref_ext);
 }
 
 static int64_t ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
@@ -419,21 +421,21 @@ static void delete(CMAP_REFSWATCHER * this)
   ((INTERNAL *)(this + 1)) -> deletion = CMAP_T;
   watch(this);
 
-  CMAP_KERNEL_FREE(this);
+  CMAP_MEM_VAR_FREE(this);
 
   cmap_log_public.debug("[%p][refswatcher] deleted", this);
 }
 
 static CMAP_REFSWATCHER * create(CMAP_ENV * env)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  CMAP_MEM * mem = kernel -> mem();
+  CMAP_MEM_VAR;
   CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)mem -> alloc(
     sizeof(CMAP_REFSWATCHER) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> env = env;
-  internal -> time_us = kernel -> cfg() -> refs.check_zombie_time_us;
+  internal -> time_us =
+    cmap_config_public.instance() -> refs.check_zombie_time_us;
   internal -> refs = NULL;
   internal -> deletion = CMAP_F;
 
@@ -442,7 +444,8 @@ static CMAP_REFSWATCHER * create(CMAP_ENV * env)
   this -> rm = rm;
   this -> stop = stop;
 
-  if(kernel -> state() == CMAP_KERNEL_S_ALIVE) this_uv_init(this);
+  if(cmap_kernel_public.instance() -> state() == CMAP_KERNEL_S_ALIVE)
+    this_uv_init(this);
 
   cmap_log_public.debug("[%p][refswatcher] created", this);
 

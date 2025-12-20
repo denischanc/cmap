@@ -1,7 +1,6 @@
 
 #include "cmap-prototypestore.h"
 
-#include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
@@ -95,7 +94,7 @@ static void delete(CMAP_LIFECYCLE * lc)
 
 static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_PROTOTYPESTORE * this = (CMAP_PROTOTYPESTORE *)mem -> alloc(
     sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
 

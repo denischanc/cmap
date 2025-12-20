@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "test-assert.h"
 #include "cmap-mem.h"
+#include "cmap-config.h"
 
 #define ASSERT_NB_FREE(nb) \
   CMAP_TEST_ASSERT(cmap_mem_public.state() -> nb_block_free == nb, \
@@ -16,7 +17,8 @@
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.instance(1024);
+  cmap_config_public.instance() -> mem.chunk_size = 1 << 10;
+  CMAP_MEM * mem = cmap_mem_public.instance();
   CMAP_TEST_ASSERT_PTR(mem);
 
   ASSERT_NB_CHUNK(0);

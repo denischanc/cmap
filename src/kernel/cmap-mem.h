@@ -6,11 +6,11 @@
 
 typedef struct
 {
-  CMAP_MEM * (*instance)(int chunk_size);
+  CMAP_MEM * (*instance)();
 
   CMAP_MEM_STATE * (*state)();
 
-  char (*is_this)(CMAP_MEM * mem);
+  char (*is_this)();
 
 #ifdef CONSUMED_TIME
   void (*log_consumed_time)(char lvl);

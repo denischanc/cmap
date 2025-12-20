@@ -1,7 +1,7 @@
 
 #include "cmap-int.h"
 
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 
@@ -42,7 +42,7 @@ static CMAP_INT * set(CMAP_INT * this, int64_t val)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_KERNEL_FREE(((CMAP_INT *)this) -> internal);
+  CMAP_MEM_VAR_FREE(((CMAP_INT *)this) -> internal);
 
   cmap_map_public.delete(this);
 }
@@ -54,7 +54,7 @@ static CMAP_INT * init(CMAP_INT * this, CMAP_INITARGS * initargs, int64_t val)
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
 
   this -> internal = internal;
@@ -73,7 +73,7 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_INT * this = (CMAP_INT *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_INT));
+  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_INT);
   return init(this, &initargs, val);
 }
 

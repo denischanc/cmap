@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-config.h"
 #include "cmap-log.h"
 #include "cmap-stree.h"
 
@@ -75,7 +75,7 @@ static INTERNAL internal = {0, NULL, NULL, NULL};
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MEM mem = {};
+static CMAP_MEM mem;
 static CMAP_MEM * mem_ptr = NULL;
 
 #ifdef CONSUMED_TIME
@@ -328,20 +328,27 @@ static void free_(void * ptr)
 
 static void delete()
 {
+  /* TODO */
 }
 
-static CMAP_MEM * instance(int chunk_size)
+static CMAP_MEM * instance()
 {
   if(mem_ptr == NULL)
   {
-    internal.chunk_size = (chunk_size > CHUNK_SIZE_MIN) ?
-      chunk_size : CMAP_KERNEL_INSTANCE -> cfg() -> mem.chunk_size;
+    CMAP_CONFIG * config = cmap_config_public.instance();
+    mem_ptr = config -> mem.this;
+    if(mem_ptr == NULL)
+    {
+      internal.chunk_size = config -> mem.chunk_size;
+      if(internal.chunk_size < CHUNK_SIZE_MIN)
+        internal.chunk_size = CMAP_MEM_CHUNK_SIZE_DFT;
 
-    mem.delete = delete;
-    mem.alloc = alloc;
-    mem.free = free_;
+      mem.delete = delete;
+      mem.alloc = alloc;
+      mem.free = free_;
 
-    mem_ptr = &mem;
+      mem_ptr = &mem;
+    }
   }
   return mem_ptr;
 }
@@ -397,9 +404,9 @@ static CMAP_MEM_STATE * state()
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_this(CMAP_MEM * mem_)
+static char is_this()
 {
-  return (mem_ == &mem);
+  return (mem_ptr == &mem);
 }
 
 /*******************************************************************************

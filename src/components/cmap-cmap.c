@@ -40,10 +40,10 @@ static CMAP_MAP * fatal_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
+static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * cmap = cmap_cmap_blt_create(proc_ctx);
-  CMAP_SET(cmap, "cli", cmap_cli_public.create(proc_ctx, argc, argv));
+  CMAP_SET(cmap, "cli", cmap_cli_public.create(proc_ctx));
   CMAP_SET(cmap, "fatal", cmap_fn(fatal_fn, proc_ctx));
   return cmap;
 }
@@ -51,4 +51,4 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CMAP_PUBLIC cmap_cmap_public = { prototype, create };
+const CMAP_CMAP_PUBLIC cmap_cmap_public = {prototype, create};

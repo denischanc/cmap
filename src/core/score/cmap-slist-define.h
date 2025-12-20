@@ -5,7 +5,8 @@
 #include "cmap-lifecycle-type.h"
 #include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
+#include "cmap-config.h"
 #include "cmap.h"
 
 /*******************************************************************************
@@ -127,7 +128,7 @@ static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
   type * first; \
   if(internal -> used) \
   { \
-    CMAP_MEM * mem = CMAP_KERNEL_MEM; \
+    CMAP_MEM_VAR; \
     int chunk_size = internal -> chunk_size; \
     chunk = (NAME##_CHUNK *)mem -> alloc( \
       sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
@@ -166,7 +167,7 @@ static void name##_delete_first(NAME##_INTERNAL * internal) \
   internal -> first = chunk -> next; \
   internal -> first -> prev = NULL; \
   if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
-  else CMAP_KERNEL_FREE(chunk); \
+  else { CMAP_MEM_VAR_FREE(chunk); } \
 } \
  \
 /***************************************************************************** \
@@ -186,7 +187,7 @@ static void name##_delete_last(NAME##_INTERNAL * internal) \
   internal -> last = chunk -> prev; \
   internal -> last -> next = NULL; \
   if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
-  else CMAP_KERNEL_FREE(chunk); \
+  else { CMAP_MEM_VAR_FREE(chunk); } \
 } \
  \
 /***************************************************************************** \
@@ -636,14 +637,14 @@ static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
   { \
     NAME##_CHUNK * tmp = chunk; \
     chunk = chunk -> next; \
-    if(tmp != no_free) CMAP_KERNEL_FREE(tmp); \
+    if(tmp != no_free) { CMAP_MEM_VAR_FREE(tmp); } \
   } \
 } \
  \
 static void name##_delete(CMAP_SLIST_##NAME * this) \
 { \
   name##_delete_chunks(this); \
-  CMAP_KERNEL_FREE(this); \
+  CMAP_MEM_VAR_FREE(this); \
 } \
  \
 static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
@@ -683,11 +684,10 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
  \
 static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE; \
-  chunk_size = (chunk_size <= 0) ? \
-    kernel -> cfg() -> core.list_chunk_size : chunk_size; \
+  if(chunk_size <= 0) \
+    chunk_size = cmap_config_public.instance() -> core.list_chunk_size; \
  \
-  CMAP_MEM * mem = kernel -> mem(); \
+  CMAP_MEM_VAR; \
   CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)mem -> alloc( \
     sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
     sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \

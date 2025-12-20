@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-util.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-prototypestore.h"
@@ -105,7 +105,7 @@ static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = ((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
-  CMAP_KERNEL_FREE(internal);
+  CMAP_MEM_VAR_FREE(internal);
 
   cmap_map_public.delete(this);
 }
@@ -119,7 +119,7 @@ static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
   lc -> delete = delete;
   lc -> nested = nested;
 
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
   internal -> process = process_;
   internal -> definitions = NULL;
 
@@ -141,7 +141,7 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_FN * this = (CMAP_FN *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_FN));
+  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_FN);
   return init(this, &initargs, process);
 }
 

@@ -3,8 +3,8 @@
 
 #include "cmap-pool-handler.h"
 #include "cmap-mem.h"
-#include "cmap-kernel.h"
 #include "cmap-list.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -69,10 +69,9 @@ static void name##_delete(CMAP_LIFECYCLE * this) \
  \
 static CMAP_POOL_##NAME * name##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE; \
-  size = (size <= 0) ? kernel -> cfg() -> pool.size : size; \
+  if(size <= 0) size = cmap_config_public.instance() -> pool.size; \
  \
-  CMAP_MEM * mem = kernel -> mem(); \
+  CMAP_MEM_VAR; \
   CMAP_POOL_##NAME * this = (CMAP_POOL_##NAME *)mem -> alloc( \
     sizeof(CMAP_POOL_##NAME) + sizeof(INTERNAL)); \
  \

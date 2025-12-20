@@ -7,12 +7,10 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx, int argc, char ** argv)
+static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * global_env =
-    cmap_map_public.create_root(proc_ctx);
-  CMAP_SET(global_env, "cmap",
-    cmap_cmap_public.create(proc_ctx, argc, argv));
+  CMAP_MAP * global_env = cmap_map_public.create_root(proc_ctx);
+  CMAP_SET(global_env, "cmap", cmap_cmap_public.create(proc_ctx));
   return global_env;
 }
 

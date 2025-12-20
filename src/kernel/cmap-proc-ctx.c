@@ -1,7 +1,7 @@
 
 #include "cmap-proc-ctx.h"
 
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-env.h"
 #include "cmap-refsstore.h"
 #include "cmap-log.h"
@@ -111,7 +111,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
   CMAP_ENV * env = internal -> env;
   CMAP_CALL(env, pop_proc_ctx);
-  CMAP_KERNEL_FREE(this);
+  CMAP_MEM_VAR_FREE(this);
 
   if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, store);
 
@@ -120,7 +120,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
 static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level)
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)mem -> alloc(
     sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL));
 

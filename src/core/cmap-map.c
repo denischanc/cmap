@@ -3,7 +3,7 @@
 
 #include <string.h>
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-stree.h"
 #include "cmap-list.h"
 #include "cmap-string.h"
@@ -83,7 +83,8 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
     (ENTRY *)CMAP_STREE_FINDFN(entry, internal -> entry_stree, key);
   if(entry == NULL)
   {
-    entry = CMAP_KERNEL_ALLOC(ENTRY);
+    CMAP_MEM_VAR;
+    entry = CMAP_MEM_ALLOC(ENTRY, mem);
     entry -> key = cmap_util_public.strdup(key);
     entry -> val = NULL;
 
@@ -124,7 +125,7 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs);
 
 static CMAP_MAP * new(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * map = (CMAP_MAP *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_MAP));
+  CMAP_MEM_VAR_ALLOC_PTR(map, CMAP_MAP);
 
   CMAP_INITARGS initargs;
   initargs.nature = CMAP_MAP_NATURE;
@@ -227,7 +228,7 @@ static void clean_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 static void clean(CMAP_MAP * this)
 {
   INTERNAL * internal = this -> internal;
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
 
   CLEAN_APPLY_DATA data = {mem, internal -> ghost};
   CMAP_STREE_QUICKAPPLYFN(internal -> entry_stree, clean_apply, &data);
@@ -280,7 +281,7 @@ static void delete_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = ((CMAP_MAP *)this) -> internal;
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
 
   DELETE_APPLY_DATA data = {this, mem, internal -> ghost};
   CMAP_STREE_QUICKAPPLYFN(internal -> entry_stree, delete_apply, &data);
@@ -297,7 +298,7 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
   lc -> delete = delete;
   lc -> nested = nested;
 
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
   internal -> entry_stree = NULL;
   internal -> prototype = initargs -> prototype;
   internal -> ghost = CMAP_F;

@@ -1,7 +1,7 @@
 #ifndef __CMAP_EXT_H__
 #define __CMAP_EXT_H__
 
-#include "cmap-kernel-type.h"
+#include "cmap-config-type.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-map-type.h"
 #include "cmap-fn-type.h"
@@ -13,8 +13,8 @@
 #include "cmap-define-ext.h"
 #include <stdint.h>
 
-CMAP_KERNEL_CFG * cmap_dft_cfg();
-void cmap_bootstrap(CMAP_KERNEL_CFG * cfg);
+CMAP_CONFIG * cmap_config();
+void cmap_bootstrap(int argc, char ** argv);
 int cmap_main();
 void cmap_exit(int ret);
 void cmap_fatal();
@@ -94,7 +94,7 @@ CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...);
 
 CMAP_MEM_STATE * cmap_mem_state();
 
-CMAP_ENV * cmap_env(int argc, char ** argv);
+CMAP_ENV * cmap_env();
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *));
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx);

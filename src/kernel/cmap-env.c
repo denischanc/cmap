@@ -2,7 +2,7 @@
 #include "cmap-env.h"
 
 #include <stdlib.h>
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-util.h"
@@ -102,8 +102,7 @@ static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> global == NULL)
   {
-    internal -> global =
-      cmap_global_env_public.create(proc_ctx, this -> argc, this -> argv);
+    internal -> global = cmap_global_env_public.create(proc_ctx);
     CMAP_INC_REFS(internal -> global);
   }
   return internal -> global;
@@ -171,12 +170,12 @@ static void delete(CMAP_ENV * this)
 
   CMAP_DELETE(internal -> proc_ctx);
 
-  CMAP_KERNEL_FREE(this);
+  CMAP_MEM_VAR_FREE(this);
 }
 
-static CMAP_ENV * create(int argc, char ** argv)
+static CMAP_ENV * create()
 {
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_ENV * this = (CMAP_ENV *)mem -> alloc(
     sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
@@ -189,8 +188,6 @@ static CMAP_ENV * create(int argc, char ** argv)
   internal -> prev = NULL;
   internal -> next = envs;
 
-  this -> argc = argc;
-  this -> argv = argv;
   this -> delete = delete;
   this -> push_proc_ctx = push_proc_ctx;
   this -> proc_ctx = proc_ctx;

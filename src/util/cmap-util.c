@@ -6,7 +6,7 @@
 #include <sys/time.h>
 #include <uv.h>
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-log.h"
@@ -111,7 +111,8 @@ static CMAP_LIST * dup_string(CMAP_LIST * dst, CMAP_LIST * src,
 static char * strdup_(const char * src)
 {
   int size = (strlen(src) + 1) * sizeof(char);
-  char * dst = (char *)CMAP_KERNEL_MEM -> alloc(size);
+  CMAP_MEM_VAR;
+  char * dst = (char *)mem -> alloc(size);
   memcpy(dst, src, size);
   return dst;
 }

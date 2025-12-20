@@ -43,8 +43,8 @@
 
 int main(int argc, char * argv[])
 {
-  cmap_dft_cfg() -> log.lvl = CMAP_LOG_DEBUG;
-  cmap_env_main(cmap_env(argc, argv), test006);
+  cmap_config() -> log.lvl = CMAP_LOG_DEBUG;
+  cmap_env_main(cmap_env(), test006);
   return cmap_main();
 }
 

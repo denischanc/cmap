@@ -16,33 +16,34 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-cmp.h"
 #include "cmap-op.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_KERNEL_CFG * cmap_dft_cfg()
+CMAP_CONFIG * cmap_config()
 {
-  return cmap_kernel_public.dft_cfg();
+  return cmap_config_public.instance();
 }
 
-void cmap_bootstrap(CMAP_KERNEL_CFG * cfg)
+void cmap_bootstrap(int argc, char ** argv)
 {
-  cmap_kernel_public.bootstrap(cfg);
+  cmap_kernel_public.bootstrap(argc, argv);
 }
 
 int cmap_main()
 {
-  return CMAP_KERNEL_INSTANCE -> main();
+  return cmap_kernel_public.instance() -> main();
 }
 
 void cmap_exit(int ret)
 {
-  CMAP_KERNEL_INSTANCE -> exit(ret);
+  cmap_kernel_public.instance() -> exit(ret);
 }
 
 void cmap_fatal()
 {
-  CMAP_KERNEL_INSTANCE -> fatal();
+  cmap_kernel_public.instance() -> fatal();
 }
 
 /*******************************************************************************
@@ -438,9 +439,9 @@ CMAP_MEM_STATE * cmap_mem_state()
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_ENV * cmap_env(int argc, char ** argv)
+CMAP_ENV * cmap_env()
 {
-  return cmap_env_public.create(argc, argv);
+  return cmap_env_public.create();
 }
 
 void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))

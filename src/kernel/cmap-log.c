@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include "cmap-kernel.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -39,53 +40,6 @@ static const char * lvl_val(char lvl)
 /*******************************************************************************
 *******************************************************************************/
 
-static void log_(char lvl, const char * msg, ...)
-{
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(lvl >= kernel -> cfg() -> log.lvl)
-  {
-    va_list args;
-    va_start(args, msg);
-    kernel -> log() -> vlog(lvl_val(lvl), msg, args);
-    va_end(args);
-
-    if(lvl == CMAP_LOG_FATAL) kernel -> fatal();
-  }
-}
-
-static void vlog_(char lvl, const char * msg, va_list args)
-{
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(lvl >= kernel -> cfg() -> log.lvl)
-  {
-    kernel -> log() -> vlog(lvl_val(lvl), msg, args);
-
-    if(lvl == CMAP_LOG_FATAL) kernel -> fatal();
-  }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define IMPL(LVL, lvl, i) \
-static void v##lvl(const char * msg, va_list args) \
-{ \
-  vlog_(i, msg, args); \
-} \
- \
-static void lvl(const char * msg, ...) \
-{ \
-  va_list args; \
-  va_start(args, msg); \
-  vlog_(i, msg, args); \
-  va_end(args); \
-}
-
-CMAP_LOG_LOOP(IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void vlog(const char * level, const char * msg, va_list args)
 {
   time_t t = time(NULL);
@@ -100,8 +54,7 @@ static void vlog(const char * level, const char * msg, va_list args)
 
 static void error_(const char * msg, ...)
 {
-  CMAP_KERNEL * kernel = CMAP_KERNEL_INSTANCE;
-  if(kernel -> cfg() -> log.lvl <= CMAP_LOG_ERROR)
+  if(cmap_config_public.instance() -> log.lvl <= CMAP_LOG_ERROR)
   {
     va_list args;
     va_start(args, msg);
@@ -117,7 +70,7 @@ static void log_file_open()
 {
   log_file = stderr;
 
-  const char * path = CMAP_KERNEL_INSTANCE -> cfg() -> log.path;
+  const char * path = cmap_config_public.instance() -> log.path;
   if(path == NULL) return;
 
   log_file = fopen(path, "a");
@@ -145,15 +98,64 @@ static CMAP_LOG * instance()
 {
   if(log_ptr == NULL)
   {
-    log_file_open();
+    log_ptr = cmap_config_public.instance() -> log.this;
+    if(log_ptr == NULL)
+    {
+      log_file_open();
 
-    log.delete = delete;
-    log.vlog = vlog;
+      log.delete = delete;
+      log.vlog = vlog;
 
-    log_ptr = &log;
+      log_ptr = &log;
+    }
   }
   return log_ptr;
 }
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void log_(char lvl, const char * msg, ...)
+{
+  if(lvl >= cmap_config_public.instance() -> log.lvl)
+  {
+    va_list args;
+    va_start(args, msg);
+    instance() -> vlog(lvl_val(lvl), msg, args);
+    va_end(args);
+
+    if(lvl == CMAP_LOG_FATAL) cmap_kernel_public.instance() -> fatal();
+  }
+}
+
+static void vlog_(char lvl, const char * msg, va_list args)
+{
+  if(lvl >= cmap_config_public.instance() -> log.lvl)
+  {
+    instance() -> vlog(lvl_val(lvl), msg, args);
+
+    if(lvl == CMAP_LOG_FATAL) cmap_kernel_public.instance() -> fatal();
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define IMPL(LVL, lvl, i) \
+static void v##lvl(const char * msg, va_list args) \
+{ \
+  vlog_(i, msg, args); \
+} \
+ \
+static void lvl(const char * msg, ...) \
+{ \
+  va_list args; \
+  va_start(args, msg); \
+  vlog_(i, msg, args); \
+  va_end(args); \
+}
+
+CMAP_LOG_LOOP(IMPL)
 
 /*******************************************************************************
 *******************************************************************************/

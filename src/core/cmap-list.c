@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-log.h"
 
 /*******************************************************************************
@@ -232,7 +232,7 @@ static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_LIST * this = (CMAP_LIST *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_LIST));
+  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_LIST);
   return init(this, &initargs, chunk_size);
 }
 

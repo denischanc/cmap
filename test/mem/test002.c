@@ -9,7 +9,7 @@
 #include "cmap-mem.h"
 #include "cmap-stree.h"
 #include "cmap-log.h"
-#include "cmap-kernel.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -113,7 +113,7 @@ CMAP_STREE_APPLY(stree2list_apply, NULL, nb_stree2list, NULL);
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.instance(0);
+  CMAP_MEM * mem = cmap_mem_public.instance();
   NB * nb_stree = NULL, * tmp;
 
   /********** Fill stree */
@@ -125,7 +125,7 @@ int main(int argc, char * argv[])
 
     CMAP_STREE_ADDFN(nb, &nb_stree, tmp, tmp);
   }
-  cmap_kernel_public.dft_cfg() -> log.lvl = CMAP_LOG_INFO;
+  cmap_config_public.instance() -> log.lvl = CMAP_LOG_INFO;
   CMAP_STREE_LOGFN(nb, CMAP_LOG_INFO, nb_stree);
 
   /********** Check stree */

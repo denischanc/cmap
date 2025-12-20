@@ -26,6 +26,6 @@ static void test(CMAP_PROC_CTX * proc_ctx)
 
 int main(int argc, char * argv[])
 {
-  cmap_env_main(cmap_env(argc, argv), test);
+  cmap_env_main(cmap_env(), test);
   return cmap_main();
 }

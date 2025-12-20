@@ -13,9 +13,6 @@
 
 struct CMAP_ENV
 {
-  int argc;
-  char ** argv;
-
   void (*delete)(CMAP_ENV * this);
 
   void (*push_proc_ctx)(CMAP_ENV * this, CMAP_PROC_CTX * cur_proc_ctx);
@@ -36,7 +33,7 @@ struct CMAP_ENV
 
 typedef struct
 {
-  CMAP_ENV * (*create)(int argc, char ** argv);
+  CMAP_ENV * (*create)();
   void (*delete_all)();
 } CMAP_ENV_PUBLIC;
 

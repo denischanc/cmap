@@ -2,7 +2,7 @@
 #include "cmap-ptr.h"
 
 #include "cmap.h"
-#include "cmap-kernel.h"
+#include "cmap-mem.h"
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 
@@ -12,6 +12,7 @@
 typedef struct
 {
   void * ptr;
+  char allocated_by_this;
 
   CMAP_PTR_DELETE delete_ptr;
 } INTERNAL;
@@ -45,15 +46,16 @@ static void ** ref(CMAP_PTR * this)
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = ((CMAP_PTR *)this) -> internal;
+  CMAP_MEM_VAR;
 
   void * ptr = internal -> ptr;
   if(ptr != NULL)
   {
     if(internal -> delete_ptr != NULL) internal -> delete_ptr(ptr);
-    CMAP_KERNEL_FREE(ptr);
+    if(internal -> allocated_by_this) CMAP_MEM_FREE(ptr, mem);
   }
 
-  CMAP_KERNEL_FREE(internal);
+  CMAP_MEM_FREE(internal, mem);
 
   cmap_map_public.delete(this);
 }
@@ -66,8 +68,18 @@ static CMAP_PTR * init(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
-  internal -> ptr = (size == 0) ? NULL : CMAP_KERNEL_MEM -> alloc(size);
+  CMAP_MEM_VAR;
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
+  if(size == 0)
+  {
+    internal -> allocated_by_this = CMAP_F;
+    internal -> ptr = NULL;
+  }
+  else
+  {
+    internal -> allocated_by_this = CMAP_T;
+    internal -> ptr = mem -> alloc(size);
+  }
   internal -> delete_ptr = delete_ptr;
 
   this -> internal = internal;
@@ -87,7 +99,7 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_PTR * this = (CMAP_PTR *)CMAP_KERNEL_MEM -> alloc(sizeof(CMAP_PTR));
+  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_PTR);
   return init(this, &initargs, size, delete_ptr);
 }
 

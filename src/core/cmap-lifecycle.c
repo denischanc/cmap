@@ -2,7 +2,6 @@
 #include "cmap-lifecycle.h"
 
 #include "cmap.h"
-#include "cmap-kernel.h"
 #include "cmap-mem.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-env.h"
@@ -192,7 +191,7 @@ static void delete(CMAP_LIFECYCLE * this)
   INTERNAL * internal = (INTERNAL *)this -> internal;
   CMAP_LIFECYCLE * allocator = internal -> allocator;
 
-  CMAP_MEM * mem = CMAP_KERNEL_MEM;
+  CMAP_MEM_VAR;
   CMAP_MEM_FREE(internal, mem);
   if(allocator == NULL) CMAP_MEM_FREE(this, mem);
   else CMAP_CALL_ARGS(allocator, allocated_deleted, this);
@@ -203,7 +202,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   CMAP_PROC_CTX * proc_ctx = initargs -> proc_ctx;
   CMAP_LIFECYCLE * allocator = initargs -> allocator;
 
-  CMAP_KERNEL_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
   internal -> nature = initargs -> nature;
   internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);
