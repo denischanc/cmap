@@ -58,11 +58,10 @@ static char ** argv_ = NULL;
 *******************************************************************************/
 
 #define TO_NB(type) \
-static void to_##type##_(type * cfg, const char * v, type dft, char use_dft) \
+static void to_##type##_(type * cfg, const char * v) \
 { \
   long i = (v != NULL) ? atol(v) : 0; \
   if(i > 0) *cfg = i; \
-  else if(use_dft) *cfg = dft; \
 }
 
 TO_NB(int)
@@ -71,24 +70,21 @@ TO_NB(uint64_t)
 /*******************************************************************************
 *******************************************************************************/
 
-static void to_string(const char ** cfg, const char * v, const char * dft,
-  char use_dft)
+static void to_string(const char ** cfg, const char * v)
 {
   if(v != NULL) *cfg = v;
-  else if(use_dft) *cfg = dft;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void to_char(char * cfg, const char * v, char dft, char use_dft)
+static void to_char(char * cfg, const char * v)
 {
   if(v != NULL)
   {
     if(!strcmp(v, "0") || !strcasecmp(v, "false")) { *cfg = CMAP_F; return; }
-    if(!strcmp(v, "1") || !strcasecmp(v, "true")) { *cfg = CMAP_T; return; }
+    if(!strcmp(v, "1") || !strcasecmp(v, "true")) *cfg = CMAP_T;
   }
-  if(use_dft) *cfg = dft;
 }
 
 /*******************************************************************************
@@ -96,13 +92,12 @@ static void to_char(char * cfg, const char * v, char dft, char use_dft)
 
 #define LOG_IMPL(LVL, lvl, i) if(!strcasecmp(v, #lvl)) { *cfg = i; return; }
 
-static void to_log_lvl(char * cfg, const char * v, char dft, char use_dft)
+static void to_log_lvl(char * cfg, const char * v)
 {
   if(v != NULL)
   {
     CMAP_LOG_LOOP(LOG_IMPL)
   }
-  if(use_dft) *cfg = dft;
 }
 
 /*******************************************************************************
@@ -110,8 +105,7 @@ static void to_log_lvl(char * cfg, const char * v, char dft, char use_dft)
 
 #define INSTANCE_IMPL_PTR(var) config.var = NULL;
 
-#define INSTANCE_IMPL(var, ENV, dft, fn) \
-  fn(&config.var, getenv("CMAP_" #ENV), dft, (1 == 1));
+#define INSTANCE_IMPL(var, ENV, dft, fn) config.var = dft;
 
 static CMAP_CONFIG * instance()
 {
@@ -137,19 +131,17 @@ static void shift_args(int * i, int * argc, char ** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-#define INIT_IMPL_PTR(var)
+#define INIT_ARG_IMPL_PTR(var)
 
-#define INIT_IMPL(var, ENV, dft, fn) \
+#define INIT_ARG_IMPL(var, ENV, dft, fn) \
   if(!strcmp(#var, buffer)) \
   { \
-    fn(&config -> var, off + 1, dft, (1 == 0)); \
+    fn(&config -> var, off + 1); \
     shift_args(&i, &argc, argv); \
   }
 
-static void init(int argc, char ** argv)
+static void init_arg(CMAP_CONFIG * config, int argc, char ** argv)
 {
-  CMAP_CONFIG * config = instance();
-
   for(int i = 0; i < argc; i++)
   {
     const char * arg = argv[i];
@@ -165,7 +157,7 @@ static void init(int argc, char ** argv)
           memcpy(buffer, arg + ARG_PREFIX_SIZE, var_size * sizeof(char));
           buffer[var_size] = 0;
 
-          LOOP(INIT_IMPL_PTR, INIT_IMPL)
+          LOOP(INIT_ARG_IMPL_PTR, INIT_ARG_IMPL)
         }
       }
     }
@@ -173,6 +165,29 @@ static void init(int argc, char ** argv)
 
   argc_ = argc;
   argv_ = argv;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+#define INIT_ENV_IMPL_PTR(var)
+
+#define INIT_ENV_IMPL(var, ENV, dft, fn) \
+  fn(&config -> var, getenv("CMAP_" #ENV));
+
+static void init_env(CMAP_CONFIG * config)
+{
+  LOOP(INIT_ENV_IMPL_PTR, INIT_ENV_IMPL)
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void init(int argc, char ** argv)
+{
+  CMAP_CONFIG * config = instance();
+  init_env(config);
+  init_arg(config, argc, argv);
 }
 
 /*******************************************************************************
