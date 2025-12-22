@@ -4,6 +4,7 @@ screen = function(nbCol, nbLine) {
   for(local i = 0; i < nbLine; i++) {
     this.lines.push(new screen.line(nbCol));
   }
+  this.nbLoop = 0;
 };
 
 /* https://en.wikipedia.org/wiki/ANSI_escape_code */
@@ -37,6 +38,7 @@ screen.prototype = {
 
   display: function() {
     this.lines.apply(function(line){ line.display(); });
+    this.nbLoop++;
     return this;
   },
 

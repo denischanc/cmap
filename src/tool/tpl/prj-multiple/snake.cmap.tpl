@@ -7,6 +7,8 @@ snake = function(screen, start, stop, ctl) {
   this.stop = 10.valueOf(stop);
 
   this.initLine();
+
+  this.nbLoop = 0;
 };
 
 snake.prototype = {
@@ -78,5 +80,6 @@ snake.prototype = {
     local height = this.screen.height();
     for(local i = 1; i < height; i++) { this.copyLine(i); }
     this.nextLine(height - 2);
+    this.nbLoop++;
   }
 };
