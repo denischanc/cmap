@@ -499,8 +499,7 @@ static char * log_cat(char * left, const char * right)
 {
   int size = strlen(left) + strlen(right) + 1;
   size *= sizeof(char);
-  CMAP_MEM_VAR;
-  char * ret = (char *)mem -> alloc(size);
+  char * ret = (char *)CMAP_MEM_INSTANCE -> alloc(size);
   *ret = 0;
   strcat(ret, left);
   strcat(ret, right);

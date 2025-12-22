@@ -153,7 +153,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_STRING);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_STRING);
   return init(this, &initargs, val, size_inc);
 }
 

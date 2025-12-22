@@ -109,13 +109,12 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
   cmap_consumedtime_public.stop(&consumed_time);
 #endif
 
-  CMAP_MEM_VAR_FREE(this);
+  CMAP_MEM_INSTANCE_FREE(this);
 }
 
 static CMAP_REFSSTORE * create(CMAP_ENV * env)
 {
-  CMAP_MEM_VAR;
-  CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)mem -> alloc(
+  CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_REFSSTORE) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);

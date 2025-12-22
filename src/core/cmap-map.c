@@ -83,8 +83,7 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
     (ENTRY *)CMAP_STREE_FINDFN(entry, internal -> entry_stree, key);
   if(entry == NULL)
   {
-    CMAP_MEM_VAR;
-    entry = CMAP_MEM_ALLOC(ENTRY, mem);
+    entry = CMAP_MEM_INSTANCE_ALLOC(ENTRY);
     entry -> key = cmap_util_public.strdup(key);
     entry -> val = NULL;
 
@@ -125,7 +124,7 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs);
 
 static CMAP_MAP * new(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MEM_VAR_ALLOC_PTR(map, CMAP_MAP);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(map, CMAP_MAP);
 
   CMAP_INITARGS initargs;
   initargs.nature = CMAP_MAP_NATURE;
@@ -298,7 +297,7 @@ static CMAP_MAP * init(CMAP_MAP * this, CMAP_INITARGS * initargs)
   lc -> delete = delete;
   lc -> nested = nested;
 
-  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
   internal -> entry_stree = NULL;
   internal -> prototype = initargs -> prototype;
   internal -> ghost = CMAP_F;

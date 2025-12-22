@@ -170,13 +170,12 @@ static void delete(CMAP_ENV * this)
 
   CMAP_DELETE(internal -> proc_ctx);
 
-  CMAP_MEM_VAR_FREE(this);
+  CMAP_MEM_INSTANCE_FREE(this);
 }
 
 static CMAP_ENV * create()
 {
-  CMAP_MEM_VAR;
-  CMAP_ENV * this = (CMAP_ENV *)mem -> alloc(
+  CMAP_ENV * this = (CMAP_ENV *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);

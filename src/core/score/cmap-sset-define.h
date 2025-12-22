@@ -97,7 +97,7 @@ CMAP_UNUSED static type * name##_get(CMAP_SSET_##NAME * this, type v) \
  \
 static void name##_add_force(CMAP_SSET_##NAME ** this, type v) \
 { \
-  CMAP_MEM_VAR_ALLOC_PTR(node, CMAP_SSET_##NAME); \
+  CMAP_MEM_INSTANCE_ALLOC_PTR(node, CMAP_SSET_##NAME); \
   node -> v = v; \
   CMAP_STREE_ADDFN(name, this, node, &v); \
 } \
@@ -118,7 +118,7 @@ CMAP_UNUSED static type name##_rm(CMAP_SSET_##NAME ** this) \
   CMAP_STREE_RMFN(this, node_ret); \
  \
   type ret = node_ret -> v; \
-  CMAP_MEM_VAR_FREE(node_ret); \
+  CMAP_MEM_INSTANCE_FREE(node_ret); \
   return ret; \
 } \
  \
@@ -128,7 +128,7 @@ CMAP_UNUSED static char name##_rm_v(CMAP_SSET_##NAME ** this, type v) \
   if(to_rm == NULL) return CMAP_F; \
  \
   CMAP_STREE_RMFN(this, to_rm); \
-  CMAP_MEM_VAR_FREE(to_rm); \
+  CMAP_MEM_INSTANCE_FREE(to_rm); \
   return CMAP_T; \
 } \
  \
@@ -169,7 +169,7 @@ CMAP_UNUSED static void name##_apply(CMAP_SSET_##NAME * this, \
 static void name##_clean_apply(CMAP_STREE_NODE * node, char is_eq, \
   void * data) \
 { \
-  CMAP_MEM_VAR_FREE(node); \
+  CMAP_MEM_INSTANCE_FREE(node); \
 } \
  \
 CMAP_UNUSED static void name##_clean(CMAP_SSET_##NAME ** this) \

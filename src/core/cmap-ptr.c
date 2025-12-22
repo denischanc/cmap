@@ -99,7 +99,7 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_VAR_ALLOC_PTR(this, CMAP_PTR);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_PTR);
   return init(this, &initargs, size, delete_ptr);
 }
 

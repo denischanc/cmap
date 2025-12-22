@@ -202,7 +202,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   CMAP_PROC_CTX * proc_ctx = initargs -> proc_ctx;
   CMAP_LIFECYCLE * allocator = initargs -> allocator;
 
-  CMAP_MEM_VAR_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
   internal -> nature = initargs -> nature;
   internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);

@@ -55,7 +55,7 @@ typedef struct
 
 static REF_EXT * ref_ext_create(CMAP_LIFECYCLE * lc)
 {
-  CMAP_MEM_VAR_ALLOC_PTR(ret, REF_EXT);
+  CMAP_MEM_INSTANCE_ALLOC_PTR(ret, REF_EXT);
 
   ret -> lc = lc;
   ret -> wrappers = cmap_slist_lc_public.create(0);
@@ -68,7 +68,7 @@ static void ref_ext_delete(REF_EXT * ref_ext)
 {
   CMAP_DELETE(ref_ext -> wrappers);
   CMAP_DELETE(ref_ext -> nesteds);
-  CMAP_MEM_VAR_FREE(ref_ext);
+  CMAP_MEM_INSTANCE_FREE(ref_ext);
 }
 
 static int64_t ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
@@ -421,15 +421,14 @@ static void delete(CMAP_REFSWATCHER * this)
   ((INTERNAL *)(this + 1)) -> deletion = CMAP_T;
   watch(this);
 
-  CMAP_MEM_VAR_FREE(this);
+  CMAP_MEM_INSTANCE_FREE(this);
 
   cmap_log_public.debug("[%p][refswatcher] deleted", this);
 }
 
 static CMAP_REFSWATCHER * create(CMAP_ENV * env)
 {
-  CMAP_MEM_VAR;
-  CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)mem -> alloc(
+  CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_REFSWATCHER) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
