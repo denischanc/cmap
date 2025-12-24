@@ -18,6 +18,7 @@ typedef struct
   CMAP_MAP * definitions;
 
   int level;
+  CMAP_PROC_CTX * prev;
 } INTERNAL;
 
 /*******************************************************************************
@@ -31,14 +32,14 @@ static CMAP_ENV * env(CMAP_PROC_CTX * this)
 static CMAP_PROTOTYPESTORE * prototypestore(CMAP_PROC_CTX * this)
 {
   CMAP_ENV * env_ = env(this);
-  return CMAP_CALL_ARGS(env_, prototypestore, this);
+  return CMAP_CALL(env_, prototypestore);
 }
 
 #define POOL_IMPL(NAME, name, type) \
 static CMAP_POOL_##NAME * pool_##name(CMAP_PROC_CTX * this) \
 { \
   CMAP_ENV * env_ = env(this); \
-  return CMAP_CALL_ARGS(env_, pool_##name, this); \
+  return CMAP_CALL(env_, pool_##name); \
 }
 
 CMAP_POOL_LOOP(POOL_IMPL)
@@ -46,7 +47,7 @@ CMAP_POOL_LOOP(POOL_IMPL)
 static CMAP_MAP * global_env(CMAP_PROC_CTX * this)
 {
   CMAP_ENV * env_ = env(this);
-  return CMAP_CALL_ARGS(env_, global, this);
+  return CMAP_CALL(env_, global);
 }
 
 /*******************************************************************************
@@ -82,12 +83,11 @@ static void local_refs_rm(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level);
+static CMAP_PROC_CTX * create(CMAP_ENV * env_);
 
-static CMAP_PROC_CTX * new_level(CMAP_PROC_CTX * this)
+static CMAP_PROC_CTX * this_create(CMAP_PROC_CTX * this)
 {
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  return create_level(internal -> env, internal -> level + 1);
+  return create(env(this));
 }
 
 /*******************************************************************************
@@ -109,8 +109,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
   CMAP_CALL_ARGS(internal -> refs, delete, ret);
 
-  CMAP_ENV * env = internal -> env;
-  CMAP_CALL(env, pop_proc_ctx);
+  CMAP_CALL_ARGS(internal -> env, set_proc_ctx, internal -> prev);
   CMAP_MEM_INSTANCE_FREE(this);
 
   if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, store);
@@ -118,16 +117,19 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   return ret;
 }
 
-static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level)
+static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 {
   CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)CMAP_MEM_INSTANCE -> alloc(
-    sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL));
+    sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL)),
+    * prev = CMAP_CALL(env_, proc_ctx);
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> env = env_;
   internal -> refs = cmap_refsstore_public.create(env_);
   internal -> definitions = NULL;
-  internal -> level = level;
+  internal -> level =
+    (prev == NULL) ? 1 : 1 + ((INTERNAL *)(prev + 1)) -> level;
+  internal -> prev = prev;
 
   this -> delete = delete;
   this -> env = env;
@@ -137,21 +139,16 @@ static CMAP_PROC_CTX * create_level(CMAP_ENV * env_, int level)
   this -> local_definitions = local_definitions;
   this -> local_refs_add = local_refs_add;
   this -> local_refs_rm = local_refs_rm;
-  this -> new_level = new_level;
+  this -> create = this_create;
 
-  CMAP_CALL_ARGS(env_, push_proc_ctx, this);
+  CMAP_CALL_ARGS(env_, set_proc_ctx, this);
 
   cmap_log_public.debug("[%p][proc-ctx][%d] created", this, internal -> level);
 
   return this;
 }
 
-static CMAP_PROC_CTX * create(CMAP_ENV * env_)
-{
-  return create_level(env_, 1);
-}
-
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_PROC_CTX_PUBLIC cmap_proc_ctx_public = { create };
+const CMAP_PROC_CTX_PUBLIC cmap_proc_ctx_public = {create};

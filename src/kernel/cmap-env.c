@@ -16,7 +16,7 @@
 
 typedef struct
 {
-  CMAP_SLIST_PROC_CTX * proc_ctx;
+  CMAP_PROC_CTX * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
 
@@ -36,10 +36,9 @@ static CMAP_ENV * envs = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
+static void set_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_CALL_ARGS(internal -> proc_ctx, push, proc_ctx);
+  ((INTERNAL *)(this + 1)) -> proc_ctx = proc_ctx;
 }
 
 /*******************************************************************************
@@ -47,30 +46,19 @@ static void push_proc_ctx(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_PROC_CTX * proc_ctx(CMAP_ENV * this)
 {
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_PROC_CTX ** proc_ctx = CMAP_CALL(internal -> proc_ctx, last);
-  return (proc_ctx == NULL) ? NULL : *proc_ctx;
+  return ((INTERNAL *)(this + 1)) -> proc_ctx;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void pop_proc_ctx(CMAP_ENV * this)
-{
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_CALL(internal -> proc_ctx, pop);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
-  CMAP_PROC_CTX * proc_ctx)
+static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> prototypestore == NULL)
   {
-    internal -> prototypestore = cmap_prototypestore_public.create(proc_ctx);
+    internal -> prototypestore =
+      cmap_prototypestore_public.create(internal -> proc_ctx);
     CMAP_INC_REFS(internal -> prototypestore);
   }
   return internal -> prototypestore;
@@ -80,13 +68,13 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this,
 *******************************************************************************/
 
 #define POOL_IMPL(NAME, name, type) \
-static CMAP_POOL_##NAME * pool_##name(CMAP_ENV * this, \
-  CMAP_PROC_CTX * proc_ctx) \
+static CMAP_POOL_##NAME * pool_##name(CMAP_ENV * this) \
 { \
   INTERNAL * internal = (INTERNAL *)(this + 1); \
   if(internal -> pool_##name == NULL) \
   { \
-    internal -> pool_##name = cmap_pool_##name##_public.create(0, proc_ctx); \
+    internal -> pool_##name = \
+      cmap_pool_##name##_public.create(0, internal -> proc_ctx); \
     CMAP_INC_REFS(internal -> pool_##name); \
   } \
   return internal -> pool_##name; \
@@ -97,12 +85,12 @@ CMAP_POOL_LOOP(POOL_IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * global(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx)
+static CMAP_MAP * global(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> global == NULL)
   {
-    internal -> global = cmap_global_env_public.create(proc_ctx);
+    internal -> global = cmap_global_env_public.create(internal -> proc_ctx);
     CMAP_INC_REFS(internal -> global);
   }
   return internal -> global;
@@ -168,8 +156,6 @@ static void delete(CMAP_ENV * this)
 
   if(internal -> refswatcher != NULL) CMAP_DELETE(internal -> refswatcher);
 
-  CMAP_DELETE(internal -> proc_ctx);
-
   CMAP_MEM_INSTANCE_FREE(this);
 }
 
@@ -179,7 +165,7 @@ static CMAP_ENV * create()
     sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  internal -> proc_ctx = cmap_slist_proc_ctx_public.create(0);
+  internal -> proc_ctx = NULL;
   internal -> prototypestore = NULL;
   CMAP_POOL_LOOP(POOL_SET)
   internal -> global = NULL;
@@ -188,9 +174,8 @@ static CMAP_ENV * create()
   internal -> next = envs;
 
   this -> delete = delete;
-  this -> push_proc_ctx = push_proc_ctx;
+  this -> set_proc_ctx = set_proc_ctx;
   this -> proc_ctx = proc_ctx;
-  this -> pop_proc_ctx = pop_proc_ctx;
   this -> prototypestore = prototypestore;
   CMAP_POOL_LOOP(POOL_FN_SET)
   this -> global = global;

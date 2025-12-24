@@ -44,7 +44,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 
 static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = this -> internal;
   if(internal -> definitions == NULL)
   {
     internal -> definitions = cmap_map_public.create_root(proc_ctx);
@@ -59,7 +59,7 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_PROC_CTX * new_proc_ctx = CMAP_CALL(proc_ctx, new_level);
+  CMAP_PROC_CTX * new_proc_ctx = CMAP_CALL(proc_ctx, create);
 
   INTERNAL * internal = this -> internal;
 
@@ -77,7 +77,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 static CMAP_MAP * do_process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
+  INTERNAL * internal = this -> internal;
   return internal -> process(proc_ctx, map, args);
 }
 

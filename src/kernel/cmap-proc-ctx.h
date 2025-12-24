@@ -25,7 +25,7 @@ struct CMAP_PROC_CTX
     char created);
   void (*local_refs_rm)(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc);
 
-  CMAP_PROC_CTX * (*new_level)(CMAP_PROC_CTX * this);
+  CMAP_PROC_CTX * (*create)(CMAP_PROC_CTX * this);
 };
 
 typedef struct

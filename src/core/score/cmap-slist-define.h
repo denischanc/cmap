@@ -16,7 +16,6 @@
   macro(LC, lc, CMAP_LIFECYCLE *, NULL) \
   macro(LC_PTR, lc_ptr, CMAP_LIFECYCLE **, NULL) \
   macro(MAP, map, CMAP_MAP *, NULL) \
-  macro(PROC_CTX, proc_ctx, CMAP_PROC_CTX *, NULL) \
   macro(CHAR_PTR, char_ptr, char *, NULL)
 
 /*******************************************************************************
