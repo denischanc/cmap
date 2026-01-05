@@ -3,6 +3,7 @@
 
 #include "cmap-lifecycle-type.h"
 #include "cmap-lifecycle-define.h"
+#include <stdint.h>
 #include "cmap-proc-ctx-type.h"
 #include "cmap-slist.h"
 #include "cmap-initargs.h"
@@ -24,8 +25,9 @@ struct CMAP_LIFECYCLE
 
   void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 
-  void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
+  void (*watched)(CMAP_LIFECYCLE * this, char val);
   char (*is_watched)(CMAP_LIFECYCLE * this);
+  uint64_t (*watch_time_us)(CMAP_LIFECYCLE * this);
 
   void (*store)(CMAP_LIFECYCLE * this);
 
@@ -45,8 +47,9 @@ typedef struct
 
   void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 
-  void (*watched)(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher);
+  void (*watched)(CMAP_LIFECYCLE * this, char val);
   char (*is_watched)(CMAP_LIFECYCLE * this);
+  uint64_t (*watch_time_us)(CMAP_LIFECYCLE * this);
 
   void (*store)(CMAP_LIFECYCLE * this);
 

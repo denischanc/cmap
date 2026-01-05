@@ -12,30 +12,46 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define DEPTH_SIZES_MAX 31
-
-static int depth_sizes[DEPTH_SIZES_MAX];
-static char depth_sizes_ok = CMAP_F;
+static int depth_sizes[] =
+{
+  0b1,
+  0b11,
+  0b111,
+  0b1111,
+  0b11111,
+  0b111111,
+  0b1111111,
+  0b11111111,
+  0b111111111,
+  0b1111111111,
+  0b11111111111,
+  0b111111111111,
+  0b1111111111111,
+  0b11111111111111,
+  0b111111111111111,
+  0b1111111111111111,
+  0b11111111111111111,
+  0b111111111111111111,
+  0b1111111111111111111,
+  0b11111111111111111111,
+  0b111111111111111111111,
+  0b1111111111111111111111,
+  0b11111111111111111111111,
+  0b111111111111111111111111,
+  0b1111111111111111111111111,
+  0b11111111111111111111111111,
+  0b111111111111111111111111111,
+  0b1111111111111111111111111111,
+  0b11111111111111111111111111111,
+  0b111111111111111111111111111111,
+  0b1111111111111111111111111111111
+};
 
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void init_depth_sizes()
-{
-  int size = 0;
-  for(int i = 0; i < DEPTH_SIZES_MAX; i++)
-  {
-    size <<= 1;
-    size++;
-    depth_sizes[i] = size;
-  }
-
-  depth_sizes_ok = CMAP_T;
-}
-
 static inline int size_max(char depth)
 {
-  if(!depth_sizes_ok) init_depth_sizes();
   return depth_sizes[(int)depth];
 }
 
@@ -44,7 +60,7 @@ static inline int size_max(char depth)
 
 static inline char depth_ok(int size)
 {
-  if((size == 0) || (size == 1)) return 0;
+  if(size <= 1) return 0;
 
   size >>= 1;
   char depth = 0;
@@ -488,6 +504,39 @@ static void quick_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY_FN apply,
 /*******************************************************************************
 *******************************************************************************/
 
+static CMAP_STREE_NODE * first(CMAP_STREE_NODE * stree)
+{
+  return (stree == NULL) ? NULL : get_last_gt(stree);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_STREE_NODE * next(CMAP_STREE_NODE * node)
+{
+  CMAP_STREE_NODE * eq = node -> eq;
+  if(eq != NULL) return eq;
+  else
+  {
+    CMAP_STREE_NODE * lt = node -> lt;
+    if(lt != NULL) return get_last_gt(lt);
+    else
+    {
+      CMAP_STREE_NODE * parent = node -> parent;
+      while((parent != NULL) &&
+        ((parent -> eq == node) || (parent -> lt == node)))
+      {
+        node = parent;
+        parent = parent -> parent;
+      }
+      return parent;
+    }
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 typedef struct
 {
   CMAP_SLIST_CHAR_PTR * prefix_before, * prefix_between, * prefix_after;
@@ -590,5 +639,6 @@ const CMAP_STREE_PUBLIC cmap_stree_public =
   find,
   add, rm,
   apply, quick_apply,
+  first, next,
   log_
 };

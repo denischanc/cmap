@@ -43,6 +43,9 @@ typedef struct
   void (*quick_apply)(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY_FN apply,
     void * data);
 
+  CMAP_STREE_NODE * (*first)(CMAP_STREE_NODE * stree);
+  CMAP_STREE_NODE * (*next)(CMAP_STREE_NODE * node);
+
   void (*log)(char lvl, CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE * stree);
 } CMAP_STREE_PUBLIC;
 

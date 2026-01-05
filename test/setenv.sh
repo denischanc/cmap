@@ -1,0 +1,2 @@
+unset CMAP_LOG_PATH
+unset CMAP_LOG_LVL

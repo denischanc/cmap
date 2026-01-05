@@ -6,6 +6,7 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-env.h"
 #include "cmap-log.h"
+#include "cmap-util.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -27,7 +28,7 @@ typedef struct
 
   CMAP_LIFECYCLE * allocator;
 
-  CMAP_REFSWATCHER * refswatcher;
+  uint64_t watch_time_us;
   const char * ref_state;
 } INTERNAL;
 
@@ -37,6 +38,15 @@ typedef struct
 static const char * nature(CMAP_LIFECYCLE * this)
 {
   return ((INTERNAL *)(this -> internal)) -> nature;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static inline uint64_t next_watch_time_us()
+{
+  return cmap_util_public.time_us() +
+    cmap_config_public.instance() -> refs.check_zombie_time_us;
 }
 
 /*******************************************************************************
@@ -70,13 +80,8 @@ static void inc_refs(CMAP_LIFECYCLE * this)
 
   internal -> nb_refs++;
 
-  if(internal -> refswatcher != NULL)
-  {
-    CMAP_CALL_ARGS(internal -> refswatcher, rm, this);
-    internal -> refswatcher = NULL;
-
-    cmap_log_public.debug("[%p][%s] not watched", this, internal -> nature);
-  }
+  if(internal -> watch_time_us > 0)
+    internal -> watch_time_us = next_watch_time_us();
 
   if(internal -> ref_state == REF_STATE_STORED)
     set_ref_state(this, internal, REF_STATE_HOOKED);
@@ -122,18 +127,33 @@ static void allocated_deleted(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static void watched(CMAP_LIFECYCLE * this, CMAP_REFSWATCHER * refswatcher)
+static void watched(CMAP_LIFECYCLE * this, char val)
 {
   INTERNAL * internal = this -> internal;
-  internal -> refswatcher = refswatcher;
 
-  cmap_log_public.debug("[%p][%s] %s watched", this, internal -> nature,
-    (refswatcher != NULL) ? "is" : "not");
+  if(val)
+  {
+    if(internal -> watch_time_us <= 0)
+      cmap_log_public.debug("[%p][%s] is watched", this, internal -> nature);
+
+    internal -> watch_time_us = next_watch_time_us();
+  }
+  else
+  {
+    cmap_log_public.debug("[%p][%s] not watched", this, internal -> nature);
+
+    internal -> watch_time_us = 0;
+  }
 }
 
 static char is_watched(CMAP_LIFECYCLE * this)
 {
-  return (((INTERNAL *)this -> internal) -> refswatcher != NULL);
+  return (((INTERNAL *)this -> internal) -> watch_time_us > 0);
+}
+
+static uint64_t watch_time_us(CMAP_LIFECYCLE * this)
+{
+  return ((INTERNAL *)this -> internal) -> watch_time_us;
 }
 
 /*******************************************************************************
@@ -164,8 +184,11 @@ static char in_refs(CMAP_LIFECYCLE * this)
 static inline void rm_from_refswatcher(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = this -> internal;
-  if(internal -> refswatcher != NULL)
-    CMAP_CALL_ARGS(internal -> refswatcher, rm, this);
+  if(internal -> watch_time_us > 0)
+  {
+    CMAP_REFSWATCHER * refswatcher = CMAP_CALL(internal -> env, refswatcher);
+    CMAP_CALL_ARGS(refswatcher, rm, this);
+  }
 }
 
 static inline void rm_from_local_refs(CMAP_LIFECYCLE * this)
@@ -207,7 +230,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   internal -> nb_refs = 0;
   internal -> env = CMAP_CALL(proc_ctx, env);
   internal -> allocator = allocator;
-  internal -> refswatcher = NULL;
+  internal -> watch_time_us = 0;
   internal -> ref_state = REF_STATE_STORED;
 
   CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
@@ -222,6 +245,7 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> allocated_deleted = allocated_deleted;
   this -> watched = watched;
   this -> is_watched = is_watched;
+  this -> watch_time_us = watch_time_us;
   this -> store = store;
   this -> in_refs = in_refs;
 
@@ -239,7 +263,7 @@ const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
   inc_refs, nb_refs, dec_refs,
   nested,
   allocated_deleted,
-  watched, is_watched,
+  watched, is_watched, watch_time_us,
   store,
   in_refs
 };

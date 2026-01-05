@@ -7,8 +7,6 @@
 #include "cmap-slist.h"
 #include "cmap-log.h"
 #include "cmap-lifecycle.h"
-#include "cmap-env.h"
-#include "cmap-refswatcher.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-consumedtime.h"
@@ -23,7 +21,7 @@ typedef struct
 
   int nb_created;
 
-  CMAP_ENV * env;
+  CMAP_REFSWATCHER * refswatcher;
 } INTERNAL;
 
 #ifdef CONSUMED_TIME
@@ -65,8 +63,7 @@ static char delete_ref(INTERNAL * internal, CMAP_LIFECYCLE * lc)
   }
   else
   {
-    CMAP_REFSWATCHER * refswatcher = CMAP_CALL(internal -> env, refswatcher);
-    CMAP_CALL_ARGS(refswatcher, add, lc);
+    CMAP_CALL_ARGS(internal -> refswatcher, add, lc);
     return CMAP_F;
   }
 }
@@ -112,7 +109,7 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
   CMAP_MEM_INSTANCE_FREE(this);
 }
 
-static CMAP_REFSSTORE * create(CMAP_ENV * env)
+static CMAP_REFSSTORE * create(CMAP_REFSWATCHER * refswatcher)
 {
   CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_REFSSTORE) + sizeof(INTERNAL));
@@ -120,7 +117,7 @@ static CMAP_REFSSTORE * create(CMAP_ENV * env)
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> refs = NULL;
   internal -> nb_created = 0;
-  internal -> env = env;
+  internal -> refswatcher = refswatcher;
 
   this -> delete = delete;
   this -> add = add;

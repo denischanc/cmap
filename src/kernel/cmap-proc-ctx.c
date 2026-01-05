@@ -125,7 +125,8 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> env = env_;
-  internal -> refs = cmap_refsstore_public.create(env_);
+  internal -> refs =
+    cmap_refsstore_public.create(CMAP_CALL(env_, refswatcher));
   internal -> definitions = NULL;
   internal -> level =
     (prev == NULL) ? 1 : 1 + ((INTERNAL *)(prev + 1)) -> level;

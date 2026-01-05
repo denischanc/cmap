@@ -3,7 +3,7 @@
 
 #include "cmap-lifecycle-type.h"
 #include "cmap-map-type.h"
-#include "cmap-env-type.h"
+#include "cmap-refswatcher.h"
 
 typedef struct CMAP_REFSSTORE CMAP_REFSSTORE;
 
@@ -17,7 +17,7 @@ struct CMAP_REFSSTORE
 
 typedef struct
 {
-  CMAP_REFSSTORE * (*create)(CMAP_ENV * env);
+  CMAP_REFSSTORE * (*create)(CMAP_REFSWATCHER * refswatcher);
 
 #ifdef CONSUMED_TIME
   void (*log_consumed_time)(char lvl);

@@ -6,6 +6,8 @@
 #include "cmap-mem.h"
 #include "cmap-map-type.h"
 #include "cmap-lifecycle-type.h"
+#include "cmap-iterator-define.h"
+#include "cmap-stree-iterator.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -24,7 +26,9 @@ typedef struct \
   type v; \
 } CMAP_SSET_##NAME; \
  \
-typedef void (*CMAP_SSET_APPLY_FN_##NAME)(type * v, void * data);
+typedef void (*CMAP_SSET_APPLY_FN_##NAME)(type * v, void * data); \
+ \
+CMAP_ITERATOR_DECL(SSET_##NAME, type *)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -44,6 +48,7 @@ typedef struct \
   void (*apply)(CMAP_SSET_##NAME * this, CMAP_SSET_APPLY_FN_##NAME fn, \
     void * data); \
   void (*clean)(CMAP_SSET_##NAME ** this); \
+  CMAP_ITERATOR_SSET_##NAME * (*iterator)(CMAP_SSET_##NAME ** this); \
   void (*log)(CMAP_SSET_##NAME * this, char lvl); \
 } CMAP_SSET_##NAME##_PUBLIC; \
  \
@@ -181,6 +186,42 @@ CMAP_UNUSED static void name##_clean(CMAP_SSET_##NAME ** this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
+static type * name##_it_next(CMAP_ITERATOR_SSET_##NAME * this) \
+{ \
+  CMAP_STREE_NODE * node = cmap_stree_iterator_public.next( \
+    (CMAP_ITERATOR_STREE *)this); \
+  return (node == NULL) ? NULL : &((CMAP_SSET_##NAME *)node) -> v; \
+} \
+ \
+static type * name##_it_get(CMAP_ITERATOR_SSET_##NAME * this) \
+{ \
+  CMAP_STREE_NODE * node = cmap_stree_iterator_public.get( \
+    (CMAP_ITERATOR_STREE *)this); \
+  return (node == NULL) ? NULL : &((CMAP_SSET_##NAME *)node) -> v; \
+} \
+ \
+static void name##_it_rm(CMAP_ITERATOR_SSET_##NAME * this) \
+{ \
+  CMAP_STREE_NODE * node = cmap_stree_iterator_public.get( \
+    (CMAP_ITERATOR_STREE *)this); \
+  cmap_stree_iterator_public.rm((CMAP_ITERATOR_STREE *)this); \
+  CMAP_MEM_INSTANCE_FREE(node); \
+} \
+ \
+CMAP_UNUSED static CMAP_ITERATOR_SSET_##NAME * name##_iterator( \
+  CMAP_SSET_##NAME ** this) \
+{ \
+  CMAP_ITERATOR_SSET_##NAME * it = (CMAP_ITERATOR_SSET_##NAME *) \
+    cmap_stree_iterator_public.create((CMAP_STREE_NODE **)this); \
+  it -> next = name##_it_next; \
+  it -> get = name##_it_get; \
+  it -> rm = name##_it_rm; \
+  return it; \
+} \
+ \
+/***************************************************************************** \
+*****************************************************************************/ \
+ \
 CMAP_UNUSED static void name##_log(CMAP_SSET_##NAME * this, char lvl) \
 { \
   CMAP_STREE_LOGFN(name, lvl, this); \
@@ -201,6 +242,7 @@ const CMAP_SSET_##NAME##_PUBLIC cmap_sset_##name##_public = \
   name##_size, \
   name##_apply, \
   name##_clean, \
+  name##_iterator, \
   name##_log \
 };
 
