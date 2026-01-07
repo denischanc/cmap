@@ -2,6 +2,7 @@
 #include "cmap-stree-iterator.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-mem.h"
 
 /*******************************************************************************
@@ -9,7 +10,7 @@
 
 typedef struct
 {
-  CMAP_STREE_NODE ** stree, * cur, * prev;
+  CMAP_STREE_NODE ** stree, * cur, * next;
 } INTERNAL;
 
 /*******************************************************************************
@@ -17,7 +18,29 @@ typedef struct
 
 static char has_next(CMAP_ITERATOR_STREE * this)
 {
-  return (((INTERNAL *)(this + 1)) -> cur != NULL);
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  if(internal -> stree == NULL) return CMAP_F;
+  if(internal -> next != NULL) return CMAP_T;
+
+  if(internal -> cur == NULL)
+  {
+    CMAP_STREE_NODE * stree = *internal -> stree;
+    if(stree == NULL)
+    {
+      internal -> stree = NULL;
+      return CMAP_F;
+    }
+    internal -> next = cmap_stree_public.first(stree);
+    return CMAP_T;
+  }
+
+  internal -> next = cmap_stree_public.next(internal -> cur);
+  if(internal -> next == NULL)
+  {
+    internal -> stree = NULL;
+    return CMAP_F;
+  }
+  return CMAP_T;
 }
 
 /*******************************************************************************
@@ -25,11 +48,12 @@ static char has_next(CMAP_ITERATOR_STREE * this)
 
 static CMAP_STREE_NODE * next(CMAP_ITERATOR_STREE * this)
 {
+  if(!has_next(this)) return NULL;
+
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_STREE_NODE * cur = internal -> cur;
-  internal -> prev = cur;
-  if(cur != NULL) internal -> cur = cmap_stree_public.next(cur);
-  return cur;
+  internal -> cur = internal -> next;
+  internal -> next = NULL;
+  return internal -> cur;
 }
 
 /*******************************************************************************
@@ -37,7 +61,8 @@ static CMAP_STREE_NODE * next(CMAP_ITERATOR_STREE * this)
 
 static CMAP_STREE_NODE * get(CMAP_ITERATOR_STREE * this)
 {
-  return ((INTERNAL *)(this + 1)) -> prev;
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+  return (internal -> stree == NULL) ? NULL : internal -> cur;
 }
 
 /*******************************************************************************
@@ -46,11 +71,12 @@ static CMAP_STREE_NODE * get(CMAP_ITERATOR_STREE * this)
 static void rm(CMAP_ITERATOR_STREE * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_STREE_NODE * prev = internal -> prev;
-  if(prev != NULL)
+  CMAP_STREE_NODE ** stree = internal -> stree, * cur = internal -> cur;
+  if((stree != NULL) && (cur != NULL))
   {
-    internal -> prev = NULL;
-    cmap_stree_public.rm(internal -> stree, prev);
+    has_next(this);
+    cmap_stree_public.rm(stree, cur);
+    internal -> cur = NULL;
   }
 }
 
@@ -70,8 +96,8 @@ static CMAP_ITERATOR_STREE * create(CMAP_STREE_NODE ** stree)
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> stree = stree;
-  internal -> cur = cmap_stree_public.first(*stree);
-  internal -> prev = NULL;
+  internal -> cur = NULL;
+  internal -> next = NULL;
 
   this -> delete = delete;
   this -> has_next = has_next;
