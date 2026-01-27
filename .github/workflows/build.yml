@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - run: sudo "apt update && apt install -y libuv1-dev"
+    - run: sudo apt update
+    - run: sudo apt install -y libuv1-dev
     - run: ./bin/reconf.sh
     - run: mkdir -p $BUILD_DIR
     - run: ../configure
