@@ -1,6 +1,8 @@
 CMAP
 ====
 
+![Build](https://github.com/denischanc/cmap/actions/workflows/build.yml/badge.svg)
+
 This project introduce natively map, list into c. It defines
 **cmap** language related to javascript, nodejs. It uses
 [uv](https://github.com/libuv/libuv) library.
