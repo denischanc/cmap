@@ -12,6 +12,6 @@ jobs:
     - run: ./bin/reconf.sh
     - run: mkdir -p $BUILD_DIR
     - run: ../configure
-      working-directory: $BUILD_DIR
+      working-directory: ${{ env.BUILD_DIR }}
     - run: make check
-      working-directory: $BUILD_DIR
+      working-directory: ${{ env.BUILD_DIR }}
