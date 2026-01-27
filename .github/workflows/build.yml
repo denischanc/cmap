@@ -1,14 +1,16 @@
 name: Build
 on: push
+env:
+  BUILD_DIR: ./_build
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
-    - run: |
-        sudo apt update
-        sudo apt install -y libuv1-dev
-        ./bin/reconf.sh
-        mkdir _build && cd _build
-        ../configure
-        make check
+    - run: sudo "apt update && apt install -y libuv1-dev"
+    - run: ./bin/reconf.sh
+    - run: mkdir -p $BUILD_DIR
+    - run: ../configure
+      working-directory: $BUILD_DIR
+    - run: make check
+      working-directory: $BUILD_DIR
