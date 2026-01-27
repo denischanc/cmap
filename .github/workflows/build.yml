@@ -6,6 +6,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: |
+        apt update && apt install libuv1-dev
         ./bin/reconf.sh
         mkdir _build && cd _build
         ../configure
