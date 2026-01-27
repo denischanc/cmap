@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ([2.72])
+AC_PREREQ([2.71])
 AC_INIT([cmap], [0.1.0-dev], [denis.chancogne@free.fr])
 LT_INIT([win32-dll])
 AC_CONFIG_SRCDIR([src/cmap.c])
