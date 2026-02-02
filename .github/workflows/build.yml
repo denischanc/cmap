@@ -1,5 +1,8 @@
 name: Build
-on: push
+on:
+  push:
+    branches:
+    - "*"
 env:
   BUILD_DIR: ./_build
 jobs:
@@ -11,7 +14,5 @@ jobs:
     - run: sudo apt install -y libuv1-dev
     - run: ./bin/reconf.sh
     - run: mkdir -p $BUILD_DIR
-    - run: ../configure
-      working-directory: ${{ env.BUILD_DIR }}
-    - run: make check
+    - run: ../configure && make check
       working-directory: ${{ env.BUILD_DIR }}

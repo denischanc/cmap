@@ -1,0 +1,24 @@
+name: Nightly release
+on:
+  push:
+    tags:
+    - nightly
+env:
+  GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  BUILD_DIR: ./_build
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - run: sudo apt update
+    - run: sudo apt install -y libuv1-dev
+    - run: ./bin/reconf.sh
+    - run: mkdir -p $BUILD_DIR
+    - run: ../configure && make && make distcheck && make dist-zstd
+      working-directory: ${{ env.BUILD_DIR }}
+    - run: ./bin/github.sh create_release nightly Nightly
+    - run: echo "RELEASE_ID=$(./bin/github.sh release_id nightly)" >> $GITHUB_ENV
+    - run: echo "RELEASE_DATE=$(date '+%Y%m%d-%H%M%z')" >> $GITHUB_ENV
+    - run: echo "RELEASE_VERSION=$(./bin/version.sh)" >> $GITHUB_ENV
+    - run: ./bin/github.sh upload_release_asset $RELEASE_ID cmap-$RELEASE_VERSION-$RELEASE_DATE.tar.zst $BUILD_DIR/cmap-$RELEASE_VERSION.tar.zst application/zstd
