@@ -30,11 +30,11 @@ jobs:
     - if: env.RELEASE_ID != ''
       run: ./bin/github.sh delete_release $RELEASE_ID
   after-delete-release:
-    needs: [delete-release]
+    needs: [check-tag, delete-release]
     if: always()
     runs-on: ubuntu-slim
     steps:
-    - run: true
+    - run: echo "update-tag=${{ needs.check-tag.outputs.update-tag }}"
   update-tag:
     needs: [check-tag, after-delete-release]
     if: needs.check-tag.outputs.update-tag == 'OK'
