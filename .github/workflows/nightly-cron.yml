@@ -1,7 +1,7 @@
 name: Nightly cron
 on:
   schedule:
-  - cron: '58 1 * * *'
+  - cron: '0 1 * * *'
 jobs:
   check:
     runs-on: ubuntu-slim
