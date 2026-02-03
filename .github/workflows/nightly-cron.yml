@@ -4,23 +4,23 @@ on:
   - cron: "0 1 * * *"
   workflow_dispatch:
 jobs:
-  check:
+  check-tag:
     runs-on: ubuntu-slim
     outputs:
-      delete: ${{ steps.delete.outputs.delete }}
-      create: ${{ steps.create.outputs.create }}
+      delete-release: ${{ steps.delete-release.outputs.delete-release }}
+      update-tag: ${{ steps.update-tag.outputs.update-tag }}
     steps:
     - uses: actions/checkout@v6
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
-    - id: delete
+    - id: delete-release
       if: (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '')
-      run: echo "delete=OK" >> $GITHUB_OUTPUT
-    - id: create
+      run: echo "delete-release=OK" >> $GITHUB_OUTPUT
+    - id: update-tag
       if: github.sha != env.NIGHTLY_TAG_SHA
-      run: echo "create=OK" >> $GITHUB_OUTPUT
-  delete:
-    needs: [check]
-    if: needs.check.outputs.delete == 'OK'
+      run: echo "update-tag=OK" >> $GITHUB_OUTPUT
+  delete-release:
+    needs: [check-tag]
+    if: needs.check-tag.outputs.delete-release == 'OK'
     runs-on: ubuntu-slim
     env:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -29,9 +29,12 @@ jobs:
     - run: echo "RELEASE_ID=$(./bin/github.sh release_id nightly)" >> $GITHUB_ENV
     - if: env.RELEASE_ID != ''
       run: ./bin/github.sh delete_release $RELEASE_ID
-  create:
-    needs: [check, delete]
-    if: needs.check.outputs.create == 'OK'
+  after-delete-release:
+    needs: [delete-release]
+    if: always()
+  update-tag:
+    needs: [check-tag, after-delete-release]
+    if: needs.check-tag.outputs.update-tag == 'OK'
     runs-on: ubuntu-slim
     steps:
     - uses: actions/checkout@v6
