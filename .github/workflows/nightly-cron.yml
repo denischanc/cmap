@@ -12,6 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
+    - run: git tag
+    - run: git show-ref nightly
+    - run: git remote -v
+    - run: git status
     - run: for v in NIGHTLY_TAG_SHA GITHUB_SHA; do eval echo \"$v=[\$$v]\"; done
     - id: delete-release
       if: (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '')
