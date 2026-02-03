@@ -32,6 +32,9 @@ jobs:
   after-delete-release:
     needs: [delete-release]
     if: always()
+    runs-on: ubuntu-slim
+    steps:
+    - run: true
   update-tag:
     needs: [check-tag, after-delete-release]
     if: needs.check-tag.outputs.update-tag == 'OK'
