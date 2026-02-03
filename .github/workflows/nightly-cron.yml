@@ -1,7 +1,7 @@
 name: Nightly cron
 on:
   schedule:
-  - cron: "10 1 * * *"
+  - cron: "31 1 * * *"
 jobs:
   check:
     if: ${{ github.ref_name == 'master' }}
@@ -20,18 +20,18 @@ jobs:
       run: echo "create=OK" >> $GITHUB_OUTPUT
   delete:
     needs: [check]
-    if: ${{ jobs.check.outputs.delete == 'OK' }}
+    if: ${{ needs.check.outputs.delete == 'OK' }}
     runs-on: ubuntu-slim
     env:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v6
     - run: echo "RELEASE_ID=$(./bin/github.sh release_id nightly)" >> $GITHUB_ENV
-    - if: ${{ env.RELEASE_ID != "" }}
+    - if: ${{ env.RELEASE_ID != '' }}
       run: ./bin/github.sh delete_release $RELEASE_ID
   create:
-    needs: [delete]
-    if: ${{ jobs.check.outputs.create == 'OK' }}
+    needs: [check, delete]
+    if: ${{ needs.check.outputs.create == 'OK' }}
     runs-on: ubuntu-slim
     steps:
     - uses: actions/checkout@v6
