@@ -155,6 +155,26 @@ delete_release() {
 ################################################################################
 ################################################################################
 
+OPTIONS+=(run_wkf)
+
+run_wkf_usage() {
+	cat << _EOF_
+usage: $0 run_wkf [workflow name] [branch]
+_EOF_
+}
+
+run_wkf_ARGS_MIN_NB=2
+
+run_wkf() {
+	local NAME=$1
+	local BRANCH=$2
+	local DATA="{\"ref\":\"$BRANCH\"}"
+	api_call "" POST /actions/workflows/$NAME/dispatches -d "$DATA"
+}
+
+################################################################################
+################################################################################
+
 if [ -z "$GITHUB_AUTH_TOKEN" ]
 then
 	echo "No token in GITHUB_AUTH_TOKEN env var !!!"
