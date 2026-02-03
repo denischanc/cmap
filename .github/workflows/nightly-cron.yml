@@ -1,7 +1,7 @@
 name: Nightly cron
 on:
   schedule:
-  - cron: "40 1 * * *"
+  - cron: '58 1 * * *'
 jobs:
   check:
     runs-on: ubuntu-slim
@@ -12,25 +12,25 @@ jobs:
     - uses: actions/checkout@v6
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
     - id: delete
-      if: ${{ (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '') }}
+      if: (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '')
       run: echo "delete=OK" >> $GITHUB_OUTPUT
     - id: create
-      if: ${{ github.sha != env.NIGHTLY_TAG_SHA }}
+      if: github.sha != env.NIGHTLY_TAG_SHA
       run: echo "create=OK" >> $GITHUB_OUTPUT
   delete:
     needs: [check]
-    if: ${{ needs.check.outputs.delete == 'OK' }}
+    if: needs.check.outputs.delete == 'OK'
     runs-on: ubuntu-slim
     env:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v6
     - run: echo "RELEASE_ID=$(./bin/github.sh release_id nightly)" >> $GITHUB_ENV
-    - if: ${{ env.RELEASE_ID != '' }}
+    - if: env.RELEASE_ID != ''
       run: ./bin/github.sh delete_release $RELEASE_ID
   create:
     needs: [check, delete]
-    if: ${{ needs.check.outputs.create == 'OK' }}
+    if: needs.check.outputs.create == 'OK'
     runs-on: ubuntu-slim
     steps:
     - uses: actions/checkout@v6
