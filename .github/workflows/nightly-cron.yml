@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
-    - run: git pull
+    - run: git pull -t
     - run: git tag
     - run: git show-ref nightly || true
     - run: git remote -v
