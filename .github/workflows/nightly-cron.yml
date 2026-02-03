@@ -1,7 +1,7 @@
 name: Nightly cron
 on:
   schedule:
-  - cron: "58 0 * * *"
+  - cron: "1 1 * * *"
 jobs:
   check:
     if: ${{ github.ref_name == "master" }}
