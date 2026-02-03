@@ -7,22 +7,22 @@ jobs:
   check-tag:
     runs-on: ubuntu-slim
     outputs:
-      delete-release: ${{ steps.delete-release.outputs.delete-release }}
-      update-tag: ${{ steps.update-tag.outputs.update-tag }}
+      delete-tag: ${{ steps.delete-tag.outputs.delete-tag }}
+      create-tag: ${{ steps.create-tag.outputs.create-tag }}
     steps:
     - uses: actions/checkout@v6
     - run: git pull -t
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
     - run: for v in NIGHTLY_TAG_SHA GITHUB_SHA; do eval echo \"$v=[\$$v]\"; done
-    - id: delete-release
+    - id: delete-tag
       if: (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '')
-      run: echo "delete-release=OK" >> $GITHUB_OUTPUT
-    - id: update-tag
+      run: echo "delete-tag=OK" >> $GITHUB_OUTPUT
+    - id: create-tag
       if: github.sha != env.NIGHTLY_TAG_SHA
-      run: echo "update-tag=OK" >> $GITHUB_OUTPUT
-  delete-release:
+      run: echo "create-tag=OK" >> $GITHUB_OUTPUT
+  delete-tag:
     needs: [check-tag]
-    if: needs.check-tag.outputs.delete-release == 'OK'
+    if: needs.check-tag.outputs.delete-tag == 'OK'
     runs-on: ubuntu-slim
     env:
       GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -31,11 +31,12 @@ jobs:
     - run: echo "RELEASE_ID=$(./bin/github.sh release_id nightly)" >> $GITHUB_ENV
     - if: env.RELEASE_ID != ''
       run: ./bin/github.sh delete_release $RELEASE_ID
-  update-tag:
-    needs: [check-tag, delete-release]
-    if: always() && (needs.check-tag.outputs.update-tag == 'OK')
+    - run: git push -d origin nightly
+  create-tag:
+    needs: [check-tag, delete-tag]
+    if: always() && (needs.check-tag.outputs.create-tag == 'OK')
     runs-on: ubuntu-slim
     steps:
     - uses: actions/checkout@v6
-    - run: git tag -f nightly
-    - run: git push -f origin nightly
+    - run: git tag nightly
+    - run: git push origin nightly
