@@ -11,12 +11,8 @@ jobs:
       update-tag: ${{ steps.update-tag.outputs.update-tag }}
     steps:
     - uses: actions/checkout@v6
-    - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
     - run: git pull -t
-    - run: git tag
-    - run: git show-ref nightly || true
-    - run: git remote -v
-    - run: git status
+    - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
     - run: for v in NIGHTLY_TAG_SHA GITHUB_SHA; do eval echo \"$v=[\$$v]\"; done
     - id: delete-release
       if: (github.sha != env.NIGHTLY_TAG_SHA) && (env.NIGHTLY_TAG_SHA != '')
@@ -42,4 +38,4 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: git tag -f nightly
-    - run: git push origin nightly
+    - run: git push -f origin nightly
