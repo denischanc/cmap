@@ -12,8 +12,9 @@ jobs:
     steps:
     - uses: actions/checkout@v6
     - run: echo "NIGHTLY_TAG_SHA=$(git show-ref -s nightly)" >> $GITHUB_ENV
+    - run: git pull
     - run: git tag
-    - run: git show-ref nightly
+    - run: git show-ref nightly || true
     - run: git remote -v
     - run: git status
     - run: for v in NIGHTLY_TAG_SHA GITHUB_SHA; do eval echo \"$v=[\$$v]\"; done
