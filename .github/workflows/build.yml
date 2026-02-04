@@ -2,20 +2,10 @@ name: Build
 on:
   push:
     branches:
-    - "*"
+    - "**"
     paths:
     - src/**
     - test/**
-env:
-  BUILD_DIR: ./_build
 jobs:
   build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v6
-    - run: sudo apt update
-    - run: sudo apt install -y libuv1-dev
-    - run: ./bin/reconf.sh
-    - run: mkdir -p $BUILD_DIR
-    - run: ../configure && make check
-      working-directory: ${{ env.BUILD_DIR }}
+    uses: denischanc/gh-workflows/.github/workflows/build-autotools.yml@master
