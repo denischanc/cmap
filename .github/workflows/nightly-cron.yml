@@ -2,9 +2,8 @@ name: Nightly cron
 on:
   schedule:
   - cron: "28 5 * * *"
-  workflow_dispatch:
 jobs:
   nightly:
-    uses: denischanc/gh-workflows/.github/workflows/nightly-autotools.yml@master
+    uses: denischanc/gh-workflows/.github/workflows/nightly-autotools.yml@v1
     with:
       packages-to-install: libuv1-dev

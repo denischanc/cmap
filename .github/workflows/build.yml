@@ -6,9 +6,8 @@ on:
     paths:
     - src/**
     - test/**
-  workflow_dispatch:
 jobs:
   build:
-    uses: denischanc/gh-workflows/.github/workflows/build-autotools.yml@master
+    uses: denischanc/gh-workflows/.github/workflows/build-autotools.yml@v1
     with:
       packages-to-install: libuv1-dev
