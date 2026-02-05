@@ -4,16 +4,7 @@ on:
   - cron: "0 1 * * *"
   workflow_dispatch:
 jobs:
-  nightly-prepare:
-    runs-on: ubuntu-slim
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-    steps:
-    - uses: actions/checkout@v6
-    - id: version
-      run: echo "version=$(./bin/version.sh)" >> $GITHUB_OUTPUT
   nightly:
-    needs: [nightly-prepare]
     uses: denischanc/gh-workflows/.github/workflows/nightly-autotools.yml@master
     with:
-      version: ${{ needs.nightly-prepare.outputs.version }}
+      packages-to-install: libuv1-dev

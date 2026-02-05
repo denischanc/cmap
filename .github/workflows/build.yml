@@ -9,3 +9,5 @@ on:
 jobs:
   build:
     uses: denischanc/gh-workflows/.github/workflows/build-autotools.yml@master
+    with:
+      packages-to-install: libuv1-dev
