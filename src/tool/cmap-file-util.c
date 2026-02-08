@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
+#include "cmap-console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -15,7 +16,7 @@ static char to_file(const char * path, const char * txt, ...)
   FILE * f = fopen(path, "w");
   if(f == NULL)
   {
-    fprintf(stderr, "[%s] %s\n", path, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", path, strerror(errno));
     return (1 == 0);
   }
 

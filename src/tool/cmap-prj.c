@@ -2,7 +2,6 @@
 #include "cmap-prj.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
@@ -19,6 +18,8 @@
 #include "cmap-prj-multiple-screen.cmap.h"
 #include "cmap-prj-multiple-snake.cmap.h"
 #include "cmap-config.h"
+#include "cmap-usage.h"
+#include "cmap-console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -80,17 +81,17 @@ static char build_files_multiple(const char * dir)
 
 static int main_(int argc, char * argv[])
 {
-  if(argc < 2)
+  if((argc < 2) || cmap_config_public.is_help())
   {
     int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
-    return cmap_config_public.usage(
+    return cmap_usage_public.usage(
       CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
   }
 
   char * dir = argv[1];
   if(mkdir(dir, 0755) < 0)
   {
-    fprintf(stderr, "[%s] %s\n", dir, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", dir, strerror(errno));
     return EXIT_FAILURE;
   }
 

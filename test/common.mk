@@ -13,6 +13,6 @@ LDADD = \
   $(CMAP_BUILD_PATH)/libcmap.la
 
 %.c: $(srcdir)/%.cmap $(CMAP_TOOL)
-	$(CMAP_TOOL) build $< $(@:.c=) -ic $(CMAP_TOOL_FLAGS)
+	$(CMAP_TOOL) build $< $(@:.c=) --relative-inc --only-c $(CMAP_TOOL_FLAGS)
 
 CLEANFILES = $(CMAP_TEST_FILES:.cmap=.c)

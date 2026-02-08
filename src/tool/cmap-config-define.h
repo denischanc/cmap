@@ -13,9 +13,13 @@
 #define CMAP_CONFIG_ID_MULTIPLE 8
 #define CMAP_CONFIG_ID_WORK_DIR 9
 #define CMAP_CONFIG_ID_DEPENDANCE 10
+#define CMAP_CONFIG_ID_HELP 11
+#define CMAP_CONFIG_ID_VERSION 12
+#define CMAP_CONFIG_ID_LIB_DIR 13
+#define CMAP_CONFIG_ID_LIB 14
 
 #define CMAP_CONFIG_LOOP(macro_bool, macro_string, macro_strings) \
-  macro_bool(CMAP_CONFIG_ID_RELATIVE_INC, relative_inc, relative-inc, 'i', \
+  macro_bool(CMAP_CONFIG_ID_RELATIVE_INC, relative_inc, relative-inc, 'r', \
     CMAP_RELATIVE_INC, "Relative include") \
   macro_string(CMAP_CONFIG_ID_FN, fn, fn, 'f', CMAP_FN, "Function name", \
     NULL) \
@@ -26,14 +30,21 @@
   macro_bool(CMAP_CONFIG_ID_ADD_MAIN, add_main, add-main, 'm', CMAP_ADD_MAIN, \
     "Add main") \
   macro_bool(CMAP_CONFIG_ID_QUIET, quiet, quiet, 'q', CMAP_QUIET, "Be quiet") \
-  macro_string(CMAP_CONFIG_ID_INCLUDE, include, include, 'l', CMAP_INCLUDE, \
+  macro_string(CMAP_CONFIG_ID_INCLUDE, include, include, 'n', CMAP_INCLUDE, \
     "Include to add", NULL) \
   macro_bool(CMAP_CONFIG_ID_MULTIPLE, multiple, multiple, 'p', CMAP_MULTIPLE, \
     "Multiple") \
   macro_string(CMAP_CONFIG_ID_WORK_DIR, work_dir, work-dir, 'W', \
     CMAP_WORK_DIR, "Working directory", ".cmap") \
   macro_strings(CMAP_CONFIG_ID_DEPENDANCE, dependance, dependance, 'd', \
-    CMAP_DEPENDANCE, "Add dependance")
+    CMAP_DEPENDANCE, "Add dependance") \
+  macro_bool(CMAP_CONFIG_ID_HELP, help, help, 'h', CMAP_HELP, \
+    "Display usage") \
+  macro_bool(CMAP_CONFIG_ID_VERSION, version, version, 'V', CMAP_VERSION, \
+    "Display version") \
+  macro_strings(CMAP_CONFIG_ID_LIB_DIR, lib_dir, lib-dir, 'L', CMAP_LIB_DIR, \
+    "Add searched lib dir") \
+  macro_strings(CMAP_CONFIG_ID_LIB, lib, lib, 'l', CMAP_LIB, "Add lib")
 
 #define CMAP_CONFIG_BOOL_DECL(ID, name, long_opt, opt, env_var, desc) \
   void (*set_##name)(char v); \

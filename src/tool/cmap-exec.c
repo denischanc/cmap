@@ -2,7 +2,6 @@
 #include "cmap-exec.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
@@ -10,6 +9,8 @@
 #include "cmap-compile.h"
 #include "cmap-file-util.h"
 #include "cmap-string.h"
+#include "cmap-usage.h"
+#include "cmap-console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -20,8 +21,15 @@ static int compile(int argc, char ** argv)
   argv_compile[0] = CMAP_COMPILE_MODULE_NAME;
   for(int i = 0; i < argc; i++) argv_compile[i + 1] = argv[i];
 
+  char quiet_bup = cmap_config_public.is_quiet();
+  cmap_config_public.set_quiet(1 == 1);
+
   int ret = cmap_compile_public.main(argc + 1, argv_compile);
+
+  cmap_config_public.set_quiet(quiet_bup);
+
   free(argv_compile);
+
   return ret;
 }
 
@@ -52,7 +60,7 @@ static int do_exec(const char * cmap_path, int argc, char ** argv)
   argv_exec[argc + 1] = NULL;
   execv(exec_path, argv_exec);
 
-  fprintf(stderr, "[%s] %s\n", exec_path, strerror(errno));
+  cmap_console_public.error("[%s] %s\n", exec_path, strerror(errno));
   free(exec_path);
   free(argv_exec);
   return EXIT_FAILURE;
@@ -63,11 +71,11 @@ static int do_exec(const char * cmap_path, int argc, char ** argv)
 
 static int main_(int argc, char * argv[])
 {
-  if(argc < 2)
+  if((argc < 2) || cmap_config_public.is_help())
   {
     int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
       CMAP_CONFIG_ID_WORK_DIR, 0};
-    return cmap_config_public.usage(CMAP_EXEC_MODULE_NAME
+    return cmap_usage_public.usage(CMAP_EXEC_MODULE_NAME
       " [main cmap file] ([cmap file]...) %s (-- [exec args]...)", ids);
   }
 

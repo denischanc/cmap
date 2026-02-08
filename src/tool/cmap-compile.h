@@ -2,6 +2,7 @@
 #define __CMAP_COMPILE_H__
 
 #define CMAP_COMPILE_MODULE_NAME "compile"
+#define CMAP_COMPILE_MODULE_MODULE_NAME "compile-module"
 
 typedef struct
 {

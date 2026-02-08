@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/test/common.mk
 
-CMAP_TOOL_FLAGS = -m
+CMAP_TOOL_FLAGS = --add-main
 
 CMAP_TEST_FILES = \
   test001.cmap \

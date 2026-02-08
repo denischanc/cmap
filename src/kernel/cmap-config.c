@@ -121,11 +121,16 @@ static CMAP_CONFIG * instance()
 /*******************************************************************************
 *******************************************************************************/
 
-static void shift_args(int * i, int * argc, char ** argv)
+static void switch_args(int * i, int * argc, char *** argv)
 {
-  for(int j = *i; j < *argc - 1; j++) argv[j] = argv[j + 1];
-  (*argc)--;
+  char ** argv__ = *argv;
+  char * cur = argv__[*i];
+  for(int j = *i; j > 0; j--) argv__[j] = argv__[j - 1];
+  argv__[0] = cur;
+
   (*i)--;
+  (*argc)--;
+  (*argv)++;
 }
 
 /*******************************************************************************
@@ -137,7 +142,7 @@ static void shift_args(int * i, int * argc, char ** argv)
   if(!strcmp(#var, buffer)) \
   { \
     fn(&config -> var, off + 1); \
-    shift_args(&i, &argc, argv); \
+    switch_args(&i, &argc, &argv); \
   }
 
 static void init_arg(CMAP_CONFIG * config, int argc, char ** argv)

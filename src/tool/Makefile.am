@@ -16,6 +16,8 @@ noinst_HEADERS = \
   cmap-compile.h \
   cmap-config-define.h \
   cmap-config.h \
+  cmap-console-define.h \
+  cmap-console.h \
   cmap-do-parse.h \
   cmap-exec.h \
   cmap-file-util.h \
@@ -38,6 +40,7 @@ cmap_tool_SOURCES = \
   cmap-build-main.c \
   cmap-compile.c \
   cmap-config.c \
+  cmap-console.c \
   cmap-do-parse.c \
   cmap-exec.c \
   cmap-file-util.c \

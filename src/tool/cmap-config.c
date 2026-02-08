@@ -2,12 +2,9 @@
 #include "cmap-config.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <getopt.h>
 #include "cmap-string.h"
-#include "cmap-usage.h"
-#include "cmap-tool.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -159,6 +156,7 @@ static void mng_opts(int * argc, char *** argv)
     switch(o)
     {
       CMAP_CONFIG_LOOP(BOOL_CASE, STRING_CASE, STRINGS_CASE)
+      default: set_help(1 == 1);
     }
   }
 
@@ -167,54 +165,6 @@ static void mng_opts(int * argc, char *** argv)
 
   *argc = argc_bup - optind;
   *argv += optind;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static void usage_opt(const char * long_opt, char opt, char is_arg,
-  const char * desc)
-{
-  char * val = NULL;
-  cmap_string_public.append_args(&val,
-    "-%c,--%s%s", opt, long_opt, is_arg ? " [value]" : "");
-
-  cmap_usage_public.print_val_desc(val, desc);
-
-  free(val);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define BOOL_USAGE(ID, name, long_opt, opt, env_var, desc) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 0), desc);
-
-#define STRING_USAGE(ID, name, long_opt, opt, env_var, desc, dft) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
-
-#define STRINGS_USAGE(ID, name, long_opt, opt, env_var, desc) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
-
-static int usage(const char * desc, int * config_ids)
-{
-  printf("usage: %s ", cmap_tool_name);
-
-  if(strstr(desc, "%s") == NULL) printf("%s\n", desc);
-  else
-  {
-    printf(desc, "(options)");
-    printf("\noptions:\n");
-
-    int id;
-    while((id = *config_ids) != 0)
-    {
-      CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
-      config_ids++;
-    }
-  }
-
-  return EXIT_FAILURE;
 }
 
 /*******************************************************************************
@@ -250,5 +200,5 @@ static void clean()
 const CMAP_CONFIG_PUBLIC cmap_config_public =
 {
   CMAP_CONFIG_LOOP(BOOL_SET, STRING_SET, STRINGS_SET)
-  mng_opts, usage, clean
+  mng_opts, clean
 };

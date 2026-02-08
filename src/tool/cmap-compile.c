@@ -2,7 +2,6 @@
 #include "cmap-compile.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -13,8 +12,11 @@
 #include "cmap-file-util.h"
 #include "cmap-string.h"
 #include "cmap-config.h"
-#include "cmap-compile-mk.h"
 #include "cmap-fn-name.h"
+#include "cmap-usage.h"
+#include "cmap-console.h"
+#include "cmap-compile-bin.mk.h"
+#include "cmap-compile-module.mk.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -66,23 +68,23 @@ static void build_add_dep_cflag(const char * cmap_path)
 
 typedef struct
 {
-  char add_main, only_c, quiet, * fn_name;
+  char add_main, only_c, * fn_name;
 } BUILD_BUP;
 
-static BUILD_BUP build_bup(const char * cmap_path, char add_main)
+static BUILD_BUP build_bup(const char * cmap_path, char is_main,
+  char is_binary)
 {
   BUILD_BUP ret;
   ret.add_main = cmap_config_public.is_add_main();
   ret.only_c = cmap_config_public.is_only_c();
-  ret.quiet = cmap_config_public.is_quiet();
   const char * fn_name_cur = cmap_config_public.fn();
   ret.fn_name = (fn_name_cur == NULL) ? NULL : strdup(fn_name_cur);
 
-  cmap_config_public.set_add_main(add_main);
-  cmap_config_public.set_only_c(add_main);
-  cmap_config_public.set_quiet(1 == 1);
+  cmap_config_public.set_add_main(is_main && is_binary);
+  cmap_config_public.set_only_c(is_main && is_binary);
 
-  if(add_main) cmap_config_public.set_fn("cmap_tool_main");
+  if(is_main)
+    cmap_config_public.set_fn(is_binary ? "cmap_tool_main" : "cmap_module");
   else cmap_fn_name_public.to_config(cmap_path);
 
   return ret;
@@ -92,7 +94,6 @@ static void build_restore(BUILD_BUP bup)
 {
   cmap_config_public.set_add_main(bup.add_main);
   cmap_config_public.set_only_c(bup.only_c);
-  cmap_config_public.set_quiet(bup.quiet);
   cmap_config_public.set_fn(bup.fn_name);
   free(bup.fn_name);
 }
@@ -100,9 +101,10 @@ static void build_restore(BUILD_BUP bup)
 /*******************************************************************************
 *******************************************************************************/
 
-static char build(char * cmap_path, char * root_path, char add_main)
+static char build(char * cmap_path, char * root_path, char is_main,
+  char is_binary)
 {
-  BUILD_BUP bup = build_bup(cmap_path, add_main);
+  BUILD_BUP bup = build_bup(cmap_path, is_main, is_binary);
 
   char * argv[] = {CMAP_BUILD_MODULE_NAME, cmap_path, root_path};
   char ret = (cmap_build_public.main(3, argv) == EXIT_SUCCESS);
@@ -112,7 +114,8 @@ static char build(char * cmap_path, char * root_path, char add_main)
   return ret;
 }
 
-static char build_all(int argc, char ** argv, const char * work_dir)
+static char build_all(int argc, char ** argv, const char * work_dir,
+  char is_binary)
 {
   char ret = (1 == 1);
 
@@ -126,7 +129,7 @@ static char build_all(int argc, char ** argv, const char * work_dir)
     cmap_config_public.add_dependance(c_path);
     build_add_dep_cflag(cmap_path);
 
-    ret = build(cmap_path, root_path, j == 0);
+    ret = build(cmap_path, root_path, j == 0, is_binary);
 
     free(root_path);
     free(c_path);
@@ -153,22 +156,40 @@ static void cflags_apply(const char * cflag, void * cflags)
   free(tmp);
 }
 
-static char create_mk(const char * tgt, const char * work_dir)
+static void ldflags_dir_apply(const char * dir, void * ldflags)
 {
-  char * deps = NULL, * cflags = strdup("");
+  char * tmp = realpath(dir, NULL);
+  cmap_string_public.append_args(ldflags, " -L%s", tmp);
+  free(tmp);
+}
+
+static void ldflags_lib_apply(const char * lib, void * ldflags)
+{
+  cmap_string_public.append_args(ldflags, " -l%s", lib);
+}
+
+static char create_mk(const char * tgt, const char * work_dir, char is_binary)
+{
+  char * deps = NULL, * cflags = strdup(""), * ldflags = strdup("");
   cmap_strings_public.apply(cmap_config_public.dependance(), deps_apply,
     &deps);
   cmap_strings_public.apply(cmap_config_public.header_dir(), cflags_apply,
     &cflags);
+  cmap_strings_public.apply(cmap_config_public.lib_dir(), ldflags_dir_apply,
+    &ldflags);
+  cmap_strings_public.apply(cmap_config_public.lib(), ldflags_lib_apply,
+    &ldflags);
 
   char * path_mk = NULL;
   cmap_string_public.append_args(&path_mk, "%s/%s.mk", work_dir, tgt);
 
+  const char * txt = is_binary ? CMAP_COMPILE_BIN_MK : CMAP_COMPILE_MODULE_MK;
   char ret = cmap_file_util_public.to_file(
-    path_mk, CMAP_COMPILE_MK, cflags, tgt, deps);
+    path_mk, txt, cflags, ldflags, tgt, deps);
 
   free(deps);
   free(cflags);
+  free(ldflags);
   free(path_mk);
 
   return ret;
@@ -180,13 +201,13 @@ static char create_mk(const char * tgt, const char * work_dir)
 static char system_make(const char * tgt, const char * work_dir)
 {
   char * command = NULL;
-  cmap_string_public.append_args(
-    &command, "make -C %s -f %s.mk", work_dir, tgt);
+  cmap_string_public.append_args(&command, "make%s -C %s -f %s.mk",
+    cmap_config_public.is_quiet() ? " -s" : "", work_dir, tgt);
 
   int ret = system(command);
   if(ret < 0)
   {
-    fprintf(stderr, "[%s] %s\n", command, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", command, strerror(errno));
     ret = EXIT_FAILURE;
   }
 
@@ -198,29 +219,35 @@ static char system_make(const char * tgt, const char * work_dir)
 /*******************************************************************************
 *******************************************************************************/
 
+#define DESC " [main cmap file] ([cmap file]...) %s"
+
 static int main_(int argc, char * argv[])
 {
-  if(argc < 2)
+  char is_binary = !strcmp(argv[0], CMAP_COMPILE_MODULE_NAME);
+
+  if((argc < 2) || cmap_config_public.is_help())
   {
     int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
-      CMAP_CONFIG_ID_WORK_DIR, 0};
-    return cmap_config_public.usage(
-      CMAP_COMPILE_MODULE_NAME " [main cmap file] ([cmap file]...) %s", ids);
+      CMAP_CONFIG_ID_LIB_DIR, CMAP_CONFIG_ID_LIB, CMAP_CONFIG_ID_WORK_DIR, 0};
+    const char * desc = is_binary ? CMAP_COMPILE_MODULE_NAME DESC :
+      CMAP_COMPILE_MODULE_MODULE_NAME DESC;
+    return cmap_usage_public.usage(desc, ids);
   }
 
   const char * work_dir = cmap_config_public.work_dir();
   if((access(work_dir, F_OK) < 0) && (mkdir(work_dir, 0755) < 0))
   {
-    fprintf(stderr, "[%s] %s\n", work_dir, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", work_dir, strerror(errno));
     return EXIT_FAILURE;
   }
 
-  if(!build_all(argc - 1, argv + 1, work_dir)) return EXIT_FAILURE;
+  if(!build_all(argc - 1, argv + 1, work_dir, is_binary)) return EXIT_FAILURE;
 
   char ret = (1 == 1);
 
   char * tgt = cmap_file_util_public.basename_no_ext(argv[1]);
-  if(!create_mk(tgt, work_dir)) ret = (1 == 0);
+  if(!is_binary) cmap_string_public.append(&tgt, ".so");
+  if(!create_mk(tgt, work_dir, is_binary)) ret = (1 == 0);
   if(ret && !system_make(tgt, work_dir)) ret = (1 == 0);
   free(tgt);
 

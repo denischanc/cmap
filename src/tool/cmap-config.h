@@ -10,8 +10,6 @@ typedef struct
 
   void (*mng_opts)(int * argc, char *** argv);
 
-  int (*usage)(const char * desc, int * config_ids);
-
   void (*clean)();
 } CMAP_CONFIG_PUBLIC;
 

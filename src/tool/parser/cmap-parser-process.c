@@ -2,9 +2,7 @@
 #include "cmap-parser-process.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include <errno.h>
 #include "cmap-parser-var.h"
 #include "cmap-string.h"
 #include "cmap-parser-util.h"

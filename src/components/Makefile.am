@@ -21,7 +21,7 @@ libcomponents_la_LIBADD = \
 CLEANFILES = $(BUILT_SOURCES) $(BUILT_SOURCES:.h=.c)
 
 cmap-cmap-blt.h: $(srcdir)/cmap-cmap.cmap $(CMAP_TOOL)
-	$(CMAP_TOOL) build $< $(@:.h=) -i
+	$(CMAP_TOOL) build $< $(@:.h=) --relative-inc
 
 cmap-cmap-blt.h: \
   $(srcdir)/console/cmap-console.cmap \

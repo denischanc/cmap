@@ -2,7 +2,6 @@
 #include "cmap-build.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "cmap-part.h"
 #include "cmap-string.h"
@@ -11,6 +10,8 @@
 #include "cmap-config.h"
 #include "cmap-do-parse.h"
 #include "cmap-file-util.h"
+#include "cmap-usage.h"
+#include "cmap-console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -33,7 +34,9 @@ static void add_include(const char * out_h_name)
 
 static char generate_c(const char * out_name)
 {
-  if(!cmap_config_public.is_quiet()) printf("==[[ Generate : _%s_\n", out_name);
+  if(!cmap_config_public.is_quiet()) cmap_console_public.info(
+    "==[[ %sGenerate%s : %s_%s_%s\n", CMAP_ESC_BBLUE, CMAP_ESC_RST,
+    CMAP_ESC_YELLOW, out_name, CMAP_ESC_RST);
 
   if(cmap_config_public.is_add_main())
     cmap_build_main_public.impl(cmap_part_public.main());
@@ -61,7 +64,9 @@ static char * create_upper(const char * name)
 
 static char generate_h(const char * out_name)
 {
-  if(!cmap_config_public.is_quiet()) printf("==[[ Generate : _%s_\n", out_name);
+  if(!cmap_config_public.is_quiet()) cmap_console_public.info(
+    "==[[ %sGenerate%s : %s_%s_%s\n", CMAP_ESC_BBLUE, CMAP_ESC_RST,
+    CMAP_ESC_YELLOW, out_name, CMAP_ESC_RST);
 
   char * upper_out_name = create_upper(out_name);
 
@@ -84,11 +89,11 @@ static char generate_h(const char * out_name)
 
 static int main_(int argc, char * argv[])
 {
-  if(argc < 3)
+  if((argc < 3) || cmap_config_public.is_help())
   {
     int ids[] = {CMAP_CONFIG_ID_RELATIVE_INC, CMAP_CONFIG_ID_ONLY_C,
       CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_ADD_MAIN, CMAP_CONFIG_ID_QUIET, 0};
-    return cmap_config_public.usage(
+    return cmap_usage_public.usage(
       CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file] %s", ids);
   }
 

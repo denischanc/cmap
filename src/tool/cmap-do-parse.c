@@ -2,13 +2,13 @@
 #include "cmap-do-parse.h"
 
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include "cmap-part.h"
 #include "cmap-parser-block.h"
 #include "cmap-scanner.h"
 #include "cmap-parser.h"
+#include "cmap-console.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -37,7 +37,7 @@ static char parse(const char * path)
   char * path_r = realpath(path, NULL);
   if(path_r == NULL)
   {
-    fprintf(stderr, "[%s] %s\n", path, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", path, strerror(errno));
     return (1 == 0);
   }
 
@@ -47,7 +47,7 @@ static char parse(const char * path)
   FILE * in = fopen(path_r, "r");
   if(in == NULL)
   {
-    fprintf(stderr, "[%s] %s\n", path_r, strerror(errno));
+    cmap_console_public.error("[%s] %s\n", path_r, strerror(errno));
     path__ = path_bup;
     free(path_r);
     return (1 == 0);
