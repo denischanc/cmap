@@ -3,7 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-console.h"
 #include "cmap-tool.h"
 #include "cmap-string.h"
@@ -89,13 +89,10 @@ static void usage_opt(const char * long_opt, char opt, char is_arg,
 /*******************************************************************************
 *******************************************************************************/
 
-#define BOOL_USAGE(ID, name, long_opt, opt, env_var, desc) \
+#define NO_ARG_USAGE(ID, name, long_opt, opt, desc) \
   if(id == ID) usage_opt(#long_opt, opt, (1 == 0), desc);
 
-#define STRING_USAGE(ID, name, long_opt, opt, env_var, desc, dft) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
-
-#define STRINGS_USAGE(ID, name, long_opt, opt, env_var, desc) \
+#define ARG_USAGE(ID, name, long_opt, opt, desc) \
   if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
 
 static int usage(const char * desc, int * config_ids)
@@ -106,11 +103,11 @@ static int usage(const char * desc, int * config_ids)
   cmap_console_public.error(desc, "(options)");
   cmap_console_public.error("\n%soptions%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
 
-  int id = CMAP_CONFIG_ID_HELP;
-  CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
+  int id = CMAP_CLI_ID_HELP;
+  CMAP_CLI_LOOP(NO_ARG_USAGE, ARG_USAGE, ARG_USAGE)
   while((id = *config_ids) != 0)
   {
-    CMAP_CONFIG_LOOP(BOOL_USAGE, STRING_USAGE, STRINGS_USAGE)
+    CMAP_CLI_LOOP(NO_ARG_USAGE, ARG_USAGE, ARG_USAGE)
     config_ids++;
   }
 

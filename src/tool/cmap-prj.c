@@ -18,6 +18,7 @@
 #include "cmap-prj-multiple-screen.cmap.h"
 #include "cmap-prj-multiple-snake.cmap.h"
 #include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-usage.h"
 #include "cmap-console.h"
 
@@ -83,7 +84,7 @@ static int main_(int argc, char * argv[])
 {
   if((argc < 2) || cmap_config_public.is_help())
   {
-    int ids[] = {CMAP_CONFIG_ID_MULTIPLE, 0};
+    int ids[] = {CMAP_CLI_ID_MULTIPLE, 0};
     return cmap_usage_public.usage(
       CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
   }

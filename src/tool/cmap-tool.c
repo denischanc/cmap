@@ -10,6 +10,7 @@
 #include "cmap-exec.h"
 #include "cmap-usage.h"
 #include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-console.h"
 #include "config.h"
 
@@ -41,7 +42,7 @@ static void usage()
   cmap_console_public.error("%s%s-%s%s\n",
     CMAP_ESC_GREEN, PACKAGE, VERSION, CMAP_ESC_RST);
 
-  int ids[] = {CMAP_CONFIG_ID_VERSION, 0};
+  int ids[] = {CMAP_CLI_ID_VERSION, 0};
   cmap_usage_public.usage("%s [module] ...", ids);
 
   cmap_console_public.error("%smodules%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
@@ -62,7 +63,7 @@ int main(int argc, char * argv[])
 {
   cmap_tool_name = argv[0];
 
-  cmap_config_public.mng_opts(&argc, &argv);
+  cmap_cli_public.mng_opts(&argc, &argv);
 
   int ret = EXIT_FAILURE;
   if(cmap_config_public.is_version())
@@ -79,6 +80,7 @@ int main(int argc, char * argv[])
   }
 
   cmap_config_public.clean();
+  cmap_cli_public.clean();
 
   return ret;
 }

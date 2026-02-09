@@ -6,6 +6,7 @@
 #include <string.h>
 #include <errno.h>
 #include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-compile.h"
 #include "cmap-file-util.h"
 #include "cmap-string.h"
@@ -73,8 +74,8 @@ static int main_(int argc, char * argv[])
 {
   if((argc < 2) || cmap_config_public.is_help())
   {
-    int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
-      CMAP_CONFIG_ID_WORK_DIR, 0};
+    int ids[] = {CMAP_CLI_ID_DEPENDANCE, CMAP_CLI_ID_HEADER_DIR,
+      CMAP_CLI_ID_WORK_DIR, 0};
     return cmap_usage_public.usage(CMAP_EXEC_MODULE_NAME
       " [main cmap file] ([cmap file]...) %s (-- [exec args]...)", ids);
   }

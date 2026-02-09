@@ -8,6 +8,7 @@
 #include "cmap-build-main.h"
 #include "cmap-fn-name.h"
 #include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-do-parse.h"
 #include "cmap-file-util.h"
 #include "cmap-usage.h"
@@ -91,8 +92,8 @@ static int main_(int argc, char * argv[])
 {
   if((argc < 3) || cmap_config_public.is_help())
   {
-    int ids[] = {CMAP_CONFIG_ID_RELATIVE_INC, CMAP_CONFIG_ID_ONLY_C,
-      CMAP_CONFIG_ID_FN, CMAP_CONFIG_ID_ADD_MAIN, CMAP_CONFIG_ID_QUIET, 0};
+    int ids[] = {CMAP_CLI_ID_RELATIVE_INC, CMAP_CLI_ID_ONLY_C, CMAP_CLI_ID_FN,
+      CMAP_CLI_ID_ADD_MAIN, CMAP_CLI_ID_QUIET, 0};
     return cmap_usage_public.usage(
       CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file] %s", ids);
   }

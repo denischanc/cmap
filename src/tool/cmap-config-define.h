@@ -3,58 +3,31 @@
 
 #include "cmap-strings.h"
 
-#define CMAP_CONFIG_ID_RELATIVE_INC 1
-#define CMAP_CONFIG_ID_FN 2
-#define CMAP_CONFIG_ID_HEADER_DIR 3
-#define CMAP_CONFIG_ID_ONLY_C 4
-#define CMAP_CONFIG_ID_ADD_MAIN 5
-#define CMAP_CONFIG_ID_QUIET 6
-#define CMAP_CONFIG_ID_INCLUDE 7
-#define CMAP_CONFIG_ID_MULTIPLE 8
-#define CMAP_CONFIG_ID_WORK_DIR 9
-#define CMAP_CONFIG_ID_DEPENDANCE 10
-#define CMAP_CONFIG_ID_HELP 11
-#define CMAP_CONFIG_ID_VERSION 12
-#define CMAP_CONFIG_ID_LIB_DIR 13
-#define CMAP_CONFIG_ID_LIB 14
-
 #define CMAP_CONFIG_LOOP(macro_bool, macro_string, macro_strings) \
-  macro_bool(CMAP_CONFIG_ID_RELATIVE_INC, relative_inc, relative-inc, 'r', \
-    CMAP_RELATIVE_INC, "Relative include") \
-  macro_string(CMAP_CONFIG_ID_FN, fn, fn, 'f', CMAP_FN, "Function name", \
-    NULL) \
-  macro_strings(CMAP_CONFIG_ID_HEADER_DIR, header_dir, header-dir, 'I', \
-    CMAP_HEADER_DIR, "Add searched header dir") \
-  macro_bool(CMAP_CONFIG_ID_ONLY_C, only_c, only-c, 'c', CMAP_ONLY_C, \
-    "Only c generation") \
-  macro_bool(CMAP_CONFIG_ID_ADD_MAIN, add_main, add-main, 'm', CMAP_ADD_MAIN, \
-    "Add main") \
-  macro_bool(CMAP_CONFIG_ID_QUIET, quiet, quiet, 'q', CMAP_QUIET, "Be quiet") \
-  macro_string(CMAP_CONFIG_ID_INCLUDE, include, include, 'n', CMAP_INCLUDE, \
-    "Include to add", NULL) \
-  macro_bool(CMAP_CONFIG_ID_MULTIPLE, multiple, multiple, 'p', CMAP_MULTIPLE, \
-    "Multiple") \
-  macro_string(CMAP_CONFIG_ID_WORK_DIR, work_dir, work-dir, 'W', \
-    CMAP_WORK_DIR, "Working directory", ".cmap") \
-  macro_strings(CMAP_CONFIG_ID_DEPENDANCE, dependance, dependance, 'd', \
-    CMAP_DEPENDANCE, "Add dependance") \
-  macro_bool(CMAP_CONFIG_ID_HELP, help, help, 'h', CMAP_HELP, \
-    "Display usage") \
-  macro_bool(CMAP_CONFIG_ID_VERSION, version, version, 'V', CMAP_VERSION, \
-    "Display version") \
-  macro_strings(CMAP_CONFIG_ID_LIB_DIR, lib_dir, lib-dir, 'L', CMAP_LIB_DIR, \
-    "Add searched lib dir") \
-  macro_strings(CMAP_CONFIG_ID_LIB, lib, lib, 'l', CMAP_LIB, "Add lib")
+  macro_bool(relative_inc, CMAP_RELATIVE_INC) \
+  macro_string(fn, CMAP_FN, NULL) \
+  macro_strings(header_dir, CMAP_HEADER_DIR) \
+  macro_bool(only_c, CMAP_ONLY_C) \
+  macro_bool(add_main, CMAP_ADD_MAIN) \
+  macro_bool(quiet, CMAP_QUIET) \
+  macro_string(include, CMAP_INCLUDE, NULL) \
+  macro_bool(multiple, CMAP_MULTIPLE) \
+  macro_string(work_dir, CMAP_WORK_DIR, ".cmap") \
+  macro_strings(dependance, CMAP_DEPENDANCE) \
+  macro_bool(help, CMAP_HELP) \
+  macro_bool(version, CMAP_VERSION) \
+  macro_strings(lib_dir, CMAP_LIB_DIR) \
+  macro_strings(lib, CMAP_LIB)
 
-#define CMAP_CONFIG_BOOL_DECL(ID, name, long_opt, opt, env_var, desc) \
+#define CMAP_CONFIG_BOOL_DECL(name, env_var) \
   void (*set_##name)(char v); \
   char (*is_##name)();
 
-#define CMAP_CONFIG_STRING_DECL(ID, name, long_opt, opt, env_var, desc, dft) \
+#define CMAP_CONFIG_STRING_DECL(name, env_var, dft) \
   void (*set_##name)(const char * v); \
   const char * (*name)();
 
-#define CMAP_CONFIG_STRINGS_DECL(ID, name, long_opt, opt, env_var, desc) \
+#define CMAP_CONFIG_STRINGS_DECL(name, env_var) \
   void (*add_##name)(const char * v); \
   CMAP_STRINGS * (*name)();
 

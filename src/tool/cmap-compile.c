@@ -12,6 +12,7 @@
 #include "cmap-file-util.h"
 #include "cmap-string.h"
 #include "cmap-config.h"
+#include "cmap-cli.h"
 #include "cmap-fn-name.h"
 #include "cmap-usage.h"
 #include "cmap-console.h"
@@ -145,21 +146,21 @@ static char build_all(int argc, char ** argv, const char * work_dir,
 static void deps_apply(const char * dep, void * deps)
 {
   char * tmp = realpath(dep, NULL);
-  cmap_string_public.append_args(deps, " %s", tmp);
+  cmap_string_public.append_args(deps, " %s", tmp != NULL ? tmp : dep);
   free(tmp);
 }
 
 static void cflags_apply(const char * cflag, void * cflags)
 {
   char * tmp = realpath(cflag, NULL);
-  cmap_string_public.append_args(cflags, " -I%s", tmp);
+  cmap_string_public.append_args(cflags, " -I%s", tmp != NULL ? tmp : cflag);
   free(tmp);
 }
 
 static void ldflags_dir_apply(const char * dir, void * ldflags)
 {
   char * tmp = realpath(dir, NULL);
-  cmap_string_public.append_args(ldflags, " -L%s", tmp);
+  cmap_string_public.append_args(ldflags, " -L%s", tmp != NULL ? tmp : dir);
   free(tmp);
 }
 
@@ -227,8 +228,8 @@ static int main_(int argc, char * argv[])
 
   if((argc < 2) || cmap_config_public.is_help())
   {
-    int ids[] = {CMAP_CONFIG_ID_DEPENDANCE, CMAP_CONFIG_ID_HEADER_DIR,
-      CMAP_CONFIG_ID_LIB_DIR, CMAP_CONFIG_ID_LIB, CMAP_CONFIG_ID_WORK_DIR, 0};
+    int ids[] = {CMAP_CLI_ID_DEPENDANCE, CMAP_CLI_ID_HEADER_DIR,
+      CMAP_CLI_ID_LIB_DIR, CMAP_CLI_ID_LIB, CMAP_CLI_ID_WORK_DIR, 0};
     const char * desc = is_binary ? CMAP_COMPILE_MODULE_NAME DESC :
       CMAP_COMPILE_MODULE_MODULE_NAME DESC;
     return cmap_usage_public.usage(desc, ids);
