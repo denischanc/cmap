@@ -335,11 +335,10 @@ static CMAP_MEM * instance()
 {
   if(mem_ptr == NULL)
   {
-    CMAP_CONFIG * config = cmap_config_public.instance();
-    mem_ptr = config -> mem.this;
+    mem_ptr = cmap_config_mem();
     if(mem_ptr == NULL)
     {
-      internal.chunk_size = config -> mem.chunk_size;
+      internal.chunk_size = cmap_config_mem_chunk_size();
       if(internal.chunk_size < CHUNK_SIZE_MIN)
         internal.chunk_size = CMAP_MEM_CHUNK_SIZE_DFT;
 

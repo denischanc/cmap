@@ -7,6 +7,7 @@
 #include "cmap-env.h"
 #include "cmap-uv.h"
 #include "cmap-config.h"
+#include "cmap-kcli.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-refsstore.h"
@@ -32,8 +33,7 @@ static void check_mem(int * ret)
   {
     int s = cmap_mem_public.state() -> size_alloc;
     cmap_log_public.info("Allocated memory size : [%d].", s);
-    if((s != 0) && cmap_config_public.instance() -> mem.failure_on_alloc)
-      *ret = EXIT_FAILURE;
+    if((s != 0) && cmap_config_mem_failure_on_alloc()) *ret = EXIT_FAILURE;
 
 #ifdef CONSUMED_TIME
     cmap_mem_public.log_consumed_time(CMAP_LOG_INFO);
@@ -124,7 +124,7 @@ static CMAP_KERNEL * instance()
 
 static void bootstrap(int argc, char ** argv)
 {
-  cmap_config_public.init(argc, argv);
+  cmap_kcli_public.parse(argc, argv);
 }
 
 /*******************************************************************************

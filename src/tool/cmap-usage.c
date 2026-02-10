@@ -90,10 +90,10 @@ static void usage_opt(const char * long_opt, char opt, char is_arg,
 *******************************************************************************/
 
 #define NO_ARG_USAGE(ID, name, long_opt, opt, desc) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 0), desc);
+  if(id == CMAP_CLI_ID_##ID) usage_opt(#long_opt, opt, (1 == 0), desc);
 
 #define ARG_USAGE(ID, name, long_opt, opt, desc) \
-  if(id == ID) usage_opt(#long_opt, opt, (1 == 1), desc);
+  if(id == CMAP_CLI_ID_##ID) usage_opt(#long_opt, opt, (1 == 1), desc);
 
 static int usage(const char * desc, int * config_ids)
 {

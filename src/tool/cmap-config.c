@@ -9,14 +9,13 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define BOOL_VAR(name, env_var) \
+#define BOOL_VAR(name, ENV_VAR) \
   static char name##_val_ok = (1 == 0), name##_val = (1 == 0);
 
-#define STRING_VAR(name, env_var, dft) \
-  static char name##_val_ok = (1 == 0), * name##_val = NULL; \
-  static const char * name##_dft = dft;
+#define STRING_VAR(name, ENV_VAR, dft) \
+  static char name##_val_ok = (1 == 0), * name##_val = NULL;
 
-#define STRINGS_VAR(name, env_var) \
+#define STRINGS_VAR(name, ENV_VAR) \
   static char name##_val_ok = (1 == 0); \
   static CMAP_STRINGS * name##_val = NULL;
 
@@ -33,7 +32,7 @@ static char config_is_true(const char * v)
 /*******************************************************************************
 *******************************************************************************/
 
-#define BOOL_IMPL(name, env_var) \
+#define BOOL_IMPL(name, ENV_VAR) \
 static void set_##name(char v) \
 { \
   name##_val = v; \
@@ -43,11 +42,11 @@ static void set_##name(char v) \
 static char is_##name() \
 { \
   if(!name##_val_ok) set_##name(cmap_cli_public.is_##name() || \
-    config_is_true(getenv(#env_var))); \
+    config_is_true(getenv("CMAP_" #ENV_VAR))); \
   return name##_val; \
 }
 
-#define STRING_IMPL(name, env_var, dft) \
+#define STRING_IMPL(name, ENV_VAR, dft) \
 static void set_##name(const char * v) \
 { \
   free(name##_val); \
@@ -61,13 +60,13 @@ static const char * name() \
   { \
     const char * tmp = cmap_cli_public.name(); \
     if(tmp != NULL) set_##name(tmp); \
-    else if((tmp = getenv(#env_var)) != NULL) set_##name(tmp); \
-    else set_##name(name##_dft); \
+    else if((tmp = getenv("CMAP_" #ENV_VAR)) != NULL) set_##name(tmp); \
+    else set_##name(dft); \
   } \
   return name##_val; \
 }
 
-#define STRINGS_IMPL(name, env_var) \
+#define STRINGS_IMPL(name, ENV_VAR) \
 static void add_##name(const char * v) \
 { \
   cmap_strings_public.add(&name##_val, v); \
@@ -78,7 +77,7 @@ static CMAP_STRINGS * name() \
   if(!name##_val_ok) \
   { \
     cmap_strings_public.add_all(&name##_val, cmap_cli_public.name()); \
-    const char * name##_env = getenv(#env_var); \
+    const char * name##_env = getenv("CMAP_" #ENV_VAR); \
     if(name##_env != NULL) \
     { \
       CMAP_STRINGS * tmp = cmap_strings_public.split(name##_env); \
@@ -95,11 +94,11 @@ CMAP_CONFIG_LOOP(BOOL_IMPL, STRING_IMPL, STRINGS_IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-#define BOOL_CLEAN(name, env_var) name##_val = (1 == 0);
+#define BOOL_CLEAN(name, ENV_VAR) name##_val = (1 == 0);
 
-#define STRING_CLEAN(name, env_var, dft) free(name##_val); name##_val = NULL;
+#define STRING_CLEAN(name, ENV_VAR, dft) free(name##_val); name##_val = NULL;
 
-#define STRINGS_CLEAN(name, env_var) cmap_strings_public.delete(&name##_val);
+#define STRINGS_CLEAN(name, ENV_VAR) cmap_strings_public.delete(&name##_val);
 
 static void clean()
 {
@@ -109,11 +108,11 @@ static void clean()
 /*******************************************************************************
 *******************************************************************************/
 
-#define BOOL_SET(name, env_var) set_##name, is_##name,
+#define BOOL_SET(name, ENV_VAR) set_##name, is_##name,
 
-#define STRING_SET(name, env_var, dft) set_##name, name,
+#define STRING_SET(name, ENV_VAR, dft) set_##name, name,
 
-#define STRINGS_SET(name, env_var) add_##name, name,
+#define STRINGS_SET(name, ENV_VAR) add_##name, name,
 
 const CMAP_CONFIG_PUBLIC cmap_config_public =
 {

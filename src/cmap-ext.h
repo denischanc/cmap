@@ -1,7 +1,7 @@
 #ifndef __CMAP_EXT_H__
 #define __CMAP_EXT_H__
 
-#include "cmap-config-type.h"
+#include <stdint.h>
 #include "cmap-proc-ctx-type.h"
 #include "cmap-map-type.h"
 #include "cmap-fn-type.h"
@@ -11,9 +11,8 @@
 #include "cmap-ptr-type.h"
 #include "cmap-env-type.h"
 #include "cmap-define-ext.h"
-#include <stdint.h>
+#include "cmap-mem-type.h"
 
-CMAP_CONFIG * cmap_config();
 void cmap_bootstrap(int argc, char ** argv);
 int cmap_main();
 void cmap_exit(int ret);

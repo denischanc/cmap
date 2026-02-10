@@ -69,7 +69,7 @@ static void name##_delete(CMAP_LIFECYCLE * this) \
  \
 static CMAP_POOL_##NAME * name##_create(int size, CMAP_PROC_CTX * proc_ctx) \
 { \
-  if(size <= 0) size = cmap_config_public.instance() -> pool.size; \
+  if(size <= 0) size = cmap_config_pool_size(); \
  \
   CMAP_POOL_##NAME * this = (CMAP_POOL_##NAME *)CMAP_MEM_INSTANCE -> alloc( \
     sizeof(CMAP_POOL_##NAME) + sizeof(INTERNAL)); \

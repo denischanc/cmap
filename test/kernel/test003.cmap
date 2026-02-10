@@ -6,6 +6,7 @@
 {
 
 #include "cmap-log-ext.h"
+#include "cmap-config-ext.h"
 
 }
 
@@ -27,7 +28,7 @@
 
 int main(int argc, char * argv[])
 {
-  cmap_config() -> log.lvl = CMAP_LOG_DEBUG;
+  cmap_config_set_log_lvl(CMAP_LOG_DEBUG);
   cmap_env_main(cmap_env(), test003);
   return cmap_main();
 }

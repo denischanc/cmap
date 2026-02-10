@@ -17,7 +17,7 @@
 
 int main(int argc, char * argv[])
 {
-  cmap_config_public.instance() -> mem.chunk_size = 1 << 10;
+  cmap_config_set_mem_chunk_size(1 << 10);
   CMAP_MEM * mem = cmap_mem_public.instance();
   CMAP_TEST_ASSERT_PTR(mem);
 

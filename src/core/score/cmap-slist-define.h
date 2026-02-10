@@ -682,8 +682,7 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
  \
 static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
-  if(chunk_size <= 0) \
-    chunk_size = cmap_config_public.instance() -> core.list_chunk_size; \
+  if(chunk_size <= 0) chunk_size = cmap_config_core_list_chunk_size(); \
  \
   CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)CMAP_MEM_INSTANCE -> alloc( \
     sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \

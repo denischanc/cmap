@@ -7,6 +7,7 @@
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
+#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -123,9 +124,8 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
 
   CMAP_MEM_VAR;
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
-  CMAP_CONFIG * config = cmap_config_public.instance();
-  if(size_inc < config -> core.string_size_inc_min)
-    size_inc = config -> core.string_size_inc;
+  if(size_inc < cmap_config_core_string_size_inc_min())
+    size_inc = cmap_config_core_string_size_inc();
   internal -> size_inc = size_inc;
   internal -> size = (strlen(val_) + 1);
   internal -> size_max = adjusted_size_max(internal, 0);

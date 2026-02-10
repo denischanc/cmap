@@ -16,15 +16,9 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-cmp.h"
 #include "cmap-op.h"
-#include "cmap-config.h"
 
 /*******************************************************************************
 *******************************************************************************/
-
-CMAP_CONFIG * cmap_config()
-{
-  return cmap_config_public.instance();
-}
 
 void cmap_bootstrap(int argc, char ** argv)
 {

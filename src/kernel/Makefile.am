@@ -2,7 +2,8 @@
 include $(top_srcdir)/src/common.mk
 
 include_cmap_HEADERS = \
-  cmap-config-type.h \
+  cmap-config-define-ext.h \
+  cmap-config-ext.h \
   cmap-env-type.h \
   cmap-log-define-ext.h \
   cmap-log-ext.h \
@@ -14,6 +15,8 @@ noinst_HEADERS = \
   cmap-config.h \
   cmap-env.h \
   cmap-global-env.h \
+  cmap-kcli-define.h \
+  cmap-kcli.h \
   cmap-kernel.h \
   cmap-log-define.h \
   cmap-log.h \
@@ -33,6 +36,7 @@ libkernel_la_SOURCES = \
   cmap-config.c \
   cmap-env.c \
   cmap-global-env.c \
+  cmap-kcli.c \
   cmap-kernel.c \
   cmap-log.c \
   cmap-mem.c \

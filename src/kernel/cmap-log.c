@@ -54,7 +54,7 @@ static void vlog(const char * level, const char * msg, va_list args)
 
 static void error_(const char * msg, ...)
 {
-  if(cmap_config_public.instance() -> log.lvl <= CMAP_LOG_ERROR)
+  if(cmap_config_log_lvl() <= CMAP_LOG_ERROR)
   {
     va_list args;
     va_start(args, msg);
@@ -70,7 +70,7 @@ static void log_file_open()
 {
   log_file = stderr;
 
-  const char * path = cmap_config_public.instance() -> log.path;
+  const char * path = cmap_config_log_path();
   if(path == NULL) return;
 
   log_file = fopen(path, "a");
@@ -98,7 +98,7 @@ static CMAP_LOG * instance()
 {
   if(log_ptr == NULL)
   {
-    log_ptr = cmap_config_public.instance() -> log.this;
+    log_ptr = cmap_config_log();
     if(log_ptr == NULL)
     {
       log_file_open();
@@ -115,27 +115,22 @@ static CMAP_LOG * instance()
 /*******************************************************************************
 *******************************************************************************/
 
-static void log_(char lvl, const char * msg, ...)
+static void vlog_(char lvl, const char * msg, va_list args)
 {
-  if(lvl >= cmap_config_public.instance() -> log.lvl)
+  if(lvl >= cmap_config_log_lvl())
   {
-    va_list args;
-    va_start(args, msg);
     instance() -> vlog(lvl_val(lvl), msg, args);
-    va_end(args);
 
     if(lvl == CMAP_LOG_FATAL) cmap_kernel_public.instance() -> fatal();
   }
 }
 
-static void vlog_(char lvl, const char * msg, va_list args)
+static void log_(char lvl, const char * msg, ...)
 {
-  if(lvl >= cmap_config_public.instance() -> log.lvl)
-  {
-    instance() -> vlog(lvl_val(lvl), msg, args);
-
-    if(lvl == CMAP_LOG_FATAL) cmap_kernel_public.instance() -> fatal();
-  }
+  va_list args;
+  va_start(args, msg);
+  vlog_(lvl, msg, args);
+  va_end(args);
 }
 
 /*******************************************************************************

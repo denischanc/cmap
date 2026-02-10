@@ -344,8 +344,7 @@ static void watch_uv(uv_timer_t * timer)
 static inline void this_uv_init(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  uint64_t time_ms =
-    cmap_config_public.instance() -> refs.check_zombie_time_us / 1000;
+  uint64_t time_ms = cmap_config_refs_check_zombie_time_us() / 1000;
 
   internal -> timer.data = this;
   cmap_uv_public.timer_start(&internal -> timer, watch_uv, 0, time_ms);
