@@ -353,7 +353,7 @@ static inline void this_uv_init(CMAP_REFSWATCHER * this)
 static void stop(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  cmap_uv_public.timer_stop(&internal -> timer);
+  cmap_uv_public.timer_stop(&internal -> timer, CMAP_F);
 }
 
 /*******************************************************************************
@@ -384,7 +384,7 @@ static CMAP_REFSWATCHER * create(CMAP_ENV * env)
   this -> rm = rm;
   this -> stop = stop;
 
-  if(cmap_kernel_public.instance() -> state() == CMAP_KERNEL_S_ALIVE)
+  if(cmap_kernel_public.instance() -> state() != CMAP_KERNEL_S_EXITING)
     this_uv_init(this);
 
   cmap_log_public.debug("[%p][refswatcher] created", this);

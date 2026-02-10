@@ -438,11 +438,9 @@ CMAP_ENV * cmap_env()
   return cmap_env_public.create();
 }
 
-void cmap_env_main(CMAP_ENV * env, void (*init)(CMAP_PROC_CTX *))
+void cmap_env_main(CMAP_ENV * env, CMAP_ENV_MAIN main_)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
-  init(proc_ctx);
-  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
+  CMAP_CALL_ARGS(env, set_main, main_);
 }
 
 /*******************************************************************************

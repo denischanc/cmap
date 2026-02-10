@@ -58,20 +58,13 @@ static void check_all(int * ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_all()
-{
-  cmap_env_public.delete_all();
-
-  cmap_uv_public.loop_close();
-}
-
 static void exit_(int ret)
 {
   if(internal.state != CMAP_KERNEL_S_EXITING)
   {
     internal.state = CMAP_KERNEL_S_EXITING;
 
-    delete_all();
+    cmap_env_public.delete_all();
 
     check_all(&ret);
     cmap_log_public.info("Exit kernel (%d).", ret);

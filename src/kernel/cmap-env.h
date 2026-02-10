@@ -15,6 +15,8 @@ struct CMAP_ENV
 {
   void (*delete)(CMAP_ENV * this);
 
+  void (*set_main)(CMAP_ENV * this, CMAP_ENV_MAIN main_);
+
   void (*set_proc_ctx)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
   CMAP_PROC_CTX * (*proc_ctx)(CMAP_ENV * this);
 
