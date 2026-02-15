@@ -39,7 +39,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   MAP_ENTRY_DATA data = {};
-  if(cmap_prototype_util_public.args_to_map_fn(args, &data.map_fn))
+  if(cmap_prototype_util_args_to_map_fn(args, &data.map_fn))
   {
     CMAP_STRING * key = CMAP_STRING("", 0, proc_ctx);
     CMAP_LIST * args_map_kv = CMAP_LIST(0, proc_ctx);
@@ -55,7 +55,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static void require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_map_require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 {
   *proto = cmap_map_public.create_root(proc_ctx);
 }
@@ -63,16 +63,7 @@ static void require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_map_init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROTOTYPE_MAP_PUBLIC cmap_prototype_map_public =
-{
-  require,
-  init
-};

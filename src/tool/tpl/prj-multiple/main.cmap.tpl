@@ -7,61 +7,43 @@ snake1TimeMs = 100.valueOf(cmap.cli.args[[1]]);
 snake2TimeMs = 300.valueOf(cmap.cli.args[[2]]);
 screenTimeMs = 40.valueOf(cmap.cli.args[[3]]);
 
-timeEnd = 0.time() + 30;
-
-report = "";
-reportNb = 0;
-
-local display = function() {
-  if(0.time() > timeEnd) {
-    if(reportNb < 2) { this.schedule(); }
-    else {
-      this.screen.showCursor();
-      report += "[screen] " + this.screen.nbLoop + " loop(s)\n";
-      cmap.console.print(report);
-    }
-  }
-  else {
-    this.schedule();
-
-    local timeCurMs = 0.timeUs() / 1000;
-    if((!this.timeOkMs) || (timeCurMs > this.timeOkMs)) {
-      this.screen.up().display();
-      if(!this.timeOkMs) { this.timeOkMs = timeCurMs + screenTimeMs; }
-      else { this.timeOkMs += screenTimeMs; }
-    }
-  }
+local infos = function(title, o) {
+  cmap.console.info("[", title, ":", o, "] ", o.nbLoop, " loop(s); max ",
+    o.timeMaxUs / 1000, "ms");
 };
 
-local shift = function(job, snake, periodMs) {
-  local timeCur = 0.time();
-  local timeCurMs = 0.timeUs() / 1000;
-
-  if(timeCur > timeEnd) {
-    report += "[snake:" + snake + "] " + snake.nbLoop + " loop(s)\n";
-    reportNb++;
-    return;
-  }
-  else if((!job.timeOkMs) || (timeCurMs > job.timeOkMs)) {
-    snake.shiftLines();
-    if(!job.timeOkMs) { job.timeOkMs = timeCurMs + periodMs; }
-    else { job.timeOkMs += periodMs; }
-  }
-  job.schedule();
+local end = function() {
+  this.screen.showCursor();
+  this.jobs.apply(function(job) {
+    job.stop();
+    job.infos();
+  });
 };
 
 local init = function() {
+  local jobs = [];
+
   local screen = new screen(100, 30).hideCursor().display();
+  job = new cmap.job(function(){ screen.up().display(); })
+    .scheduleMs(0, screenTimeMs);
+  job.infos = function(){ infos("screen", screen); };
+  jobs.push(job);
 
   local snake_ = new snake(screen, 0, 50, "32;40");
-  new cmap.scheduler.job(function(){
-    shift(this, snake_, snake1TimeMs); }).schedule();
+  local job = new cmap.job(function(){ snake_.shiftLines(); })
+    .scheduleMs(0, snake1TimeMs);
+  job.infos = function(){ infos("snake1", snake_); };
+  jobs.push(job);
 
   snake_ = new snake(screen, 50, 100, "31;40");
-  new cmap.scheduler.job(function(){
-    shift(this, snake_, snake2TimeMs); }).schedule();
+  job = new cmap.job(function(){ snake_.shiftLines(); })
+    .scheduleMs(0, snake2TimeMs);
+  job.infos = function(){ infos("snake2", snake_); };
+  jobs.push(job);
 
-  new cmap.scheduler.job(display).schedule().screen = screen;
+  job = new cmap.job(end).scheduleMs(30000);
+  job.jobs = jobs;
+  job.screen = screen;
 };
 
-new cmap.scheduler.job(init).schedule();
+new cmap.job(init).scheduleMs();

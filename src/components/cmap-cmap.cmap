@@ -13,7 +13,7 @@
 {
   return {
     console: @IMPORT("console/cmap-console.cmap"),
-    scheduler: @IMPORT("scheduler/cmap-scheduler.cmap", create_scheduler),
+    job: @IMPORT("scheduler/cmap-job.cmap"),
     prototype: @PROC(cmap_cmap_public.prototype)
   };
 }

@@ -19,8 +19,8 @@
     cmap.console.error("[ERROR]");
   };
 
-  local job = new cmap.scheduler.job(test);
-  job.schedule();
+  local job = new cmap.job(test);
+  job.scheduleMs();
 }
 
 @C_ROOT

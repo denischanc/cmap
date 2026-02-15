@@ -83,11 +83,9 @@ static void local_refs_rm(CMAP_PROC_CTX * this, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_PROC_CTX * create(CMAP_ENV * env_);
-
 static CMAP_PROC_CTX * this_create(CMAP_PROC_CTX * this)
 {
-  return create(env(this));
+  return cmap_proc_ctx_create(env(this));
 }
 
 /*******************************************************************************
@@ -117,7 +115,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   return ret;
 }
 
-static CMAP_PROC_CTX * create(CMAP_ENV * env_)
+CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env_)
 {
   CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL)),
@@ -148,8 +146,3 @@ static CMAP_PROC_CTX * create(CMAP_ENV * env_)
 
   return this;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROC_CTX_PUBLIC cmap_proc_ctx_public = {create};

@@ -316,7 +316,7 @@ static void watch(CMAP_REFSWATCHER * this)
   cmap_consumedtime_public.start(&consumed_time_watch);
 #endif
 
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(internal -> env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env);
 
   CMAP_ITERATOR_SSET_LC * it = cmap_sset_lc_public.iterator(&internal -> refs);
   while(CMAP_CALL(it, has_next))
@@ -347,13 +347,13 @@ static inline void this_uv_init(CMAP_REFSWATCHER * this)
   uint64_t time_ms = cmap_config_refs_check_zombie_time_us() / 1000;
 
   internal -> timer.data = this;
-  cmap_uv_public.timer_start(&internal -> timer, watch_uv, 0, time_ms);
+  cmap_uv_timer_start(&internal -> timer, watch_uv, time_ms, time_ms);
 }
 
 static void stop(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  cmap_uv_public.timer_stop(&internal -> timer, CMAP_F);
+  cmap_uv_timer_stop(&internal -> timer, CMAP_F);
 }
 
 /*******************************************************************************
@@ -369,7 +369,7 @@ static void delete(CMAP_REFSWATCHER * this)
   cmap_log_public.debug("[%p][refswatcher] deleted", this);
 }
 
-static CMAP_REFSWATCHER * create(CMAP_ENV * env)
+CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
 {
   CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_REFSWATCHER) + sizeof(INTERNAL));
@@ -384,7 +384,7 @@ static CMAP_REFSWATCHER * create(CMAP_ENV * env)
   this -> rm = rm;
   this -> stop = stop;
 
-  if(cmap_kernel_public.instance() -> state() != CMAP_KERNEL_S_EXITING)
+  if(cmap_kernel_instance() -> state() != CMAP_KERNEL_S_EXITING)
     this_uv_init(this);
 
   cmap_log_public.debug("[%p][refswatcher] created", this);
@@ -396,21 +396,10 @@ static CMAP_REFSWATCHER * create(CMAP_ENV * env)
 *******************************************************************************/
 
 #ifdef CONSUMED_TIME
-static void log_consumed_time(char lvl)
+void cmap_refswatcher_log_consumed_time(char lvl)
 {
   cmap_consumedtime_public.log(lvl, &consumed_time_delete,
     "refswatcher/delete");
   cmap_consumedtime_public.log(lvl, &consumed_time_watch, "refswatcher/watch");
 }
 #endif
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_REFSWATCHER_PUBLIC cmap_refswatcher_public =
-{
-  create,
-#ifdef CONSUMED_TIME
-  log_consumed_time
-#endif
-};

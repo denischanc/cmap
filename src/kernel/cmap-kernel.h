@@ -14,13 +14,8 @@ typedef struct
   char (*state)();
 } CMAP_KERNEL;
 
-typedef struct
-{
-  CMAP_KERNEL * (*instance)();
+CMAP_KERNEL * cmap_kernel_instance();
 
-  void (*bootstrap)(int argc, char ** argv);
-} CMAP_KERNEL_PUBLIC;
-
-extern const CMAP_KERNEL_PUBLIC cmap_kernel_public;
+void cmap_kernel_bootstrap(int argc, char ** argv);
 
 #endif

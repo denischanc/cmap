@@ -28,11 +28,6 @@ struct CMAP_PROC_CTX
   CMAP_PROC_CTX * (*create)(CMAP_PROC_CTX * this);
 };
 
-typedef struct
-{
-  CMAP_PROC_CTX * (*create)(CMAP_ENV * env);
-} CMAP_PROC_CTX_PUBLIC;
-
-extern const CMAP_PROC_CTX_PUBLIC cmap_proc_ctx_public;
+CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env);
 
 #endif

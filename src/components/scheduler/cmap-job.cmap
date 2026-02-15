@@ -1,13 +1,18 @@
 
+@INCLUDE
+{
+
+#include "cmap-scheduler.h"
+
+}
+
 local job = function(process) {
   this.process = process;
 };
 
 job.prototype = {
-  schedule: function() {
-    cmap.scheduler.addJob(this);
-    return this;
-  }
+  scheduleMs: function()(cmap_scheduler_schedule_ms_fn),
+  stop: function()(cmap_scheduler_stop_fn)
 };
 
 return job;

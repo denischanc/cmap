@@ -12,7 +12,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char args_to_map_fn(CMAP_LIST * args,
+char cmap_prototype_util_args_to_map_fn(CMAP_LIST * args,
   CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn)
 {
   if(CMAP_CALL(args, size) < 1) return CMAP_F;
@@ -41,18 +41,10 @@ static char args_to_map_fn(CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static void require_map(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_util_require_map(CMAP_MAP ** proto,
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
   CMAP_MAP * proto_map = CMAP_CALL_ARGS(ps, require_map, proc_ctx);
   *proto = CMAP_PROTOTYPE_NEW(proto_map, proc_ctx);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public =
-{
-  args_to_map_fn,
-  require_map
-};

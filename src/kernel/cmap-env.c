@@ -18,6 +18,8 @@ typedef struct
 {
   CMAP_ENV_MAIN main;
 
+  int nb_jobs;
+
   CMAP_PROC_CTX * proc_ctx;
 
   CMAP_PROTOTYPESTORE * prototypestore;
@@ -27,8 +29,6 @@ typedef struct
   CMAP_MAP * global;
 
   CMAP_REFSWATCHER * refswatcher;
-
-  uv_idle_t idle;
 
   CMAP_ENV * prev, * next;
 } INTERNAL;
@@ -41,6 +41,23 @@ static CMAP_ENV * envs = NULL;
 static void set_main(CMAP_ENV * this, CMAP_ENV_MAIN main_)
 {
   ((INTERNAL *)(this + 1)) -> main = main_;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static void nb_jobs_add(CMAP_ENV * this, int nb)
+{
+  INTERNAL * internal = (INTERNAL *)(this + 1);
+
+  int * nb_jobs = &internal -> nb_jobs;
+  *nb_jobs += nb;
+
+  if(*nb_jobs <= 0)
+  {
+    CMAP_REFSWATCHER * refswatcher = internal -> refswatcher;
+    if(refswatcher != NULL) CMAP_CALL(refswatcher, stop);
+  }
 }
 
 /*******************************************************************************
@@ -68,7 +85,7 @@ static CMAP_PROTOTYPESTORE * prototypestore(CMAP_ENV * this)
   if(internal -> prototypestore == NULL)
   {
     internal -> prototypestore =
-      cmap_prototypestore_public.create(internal -> proc_ctx);
+      cmap_prototypestore_create(internal -> proc_ctx);
     CMAP_INC_REFS(internal -> prototypestore);
   }
   return internal -> prototypestore;
@@ -113,7 +130,7 @@ static CMAP_REFSWATCHER * refswatcher(CMAP_ENV * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> refswatcher == NULL)
-    internal -> refswatcher = cmap_refswatcher_public.create(this);
+    internal -> refswatcher = cmap_refswatcher_create(this);
   return internal -> refswatcher;
 }
 
@@ -127,32 +144,21 @@ static void bootstrap(uv_timer_t * timer)
   CMAP_ENV_MAIN main_ = internal -> main;
   if(main_ != NULL)
   {
-    CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(env);
+    CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
     main_(proc_ctx);
     CMAP_CALL_ARGS(proc_ctx, delete, NULL);
   }
 
-  internal -> idle.data = env;
-  cmap_uv_public.idle_start(&internal -> idle, cmap_scheduler_public.schedule);
+  cmap_uv_timer_stop(timer, CMAP_T);
 
-  cmap_uv_public.timer_stop(timer, CMAP_T);
+  nb_jobs_add(env, 0);
 }
 
 static inline void this_uv_init(CMAP_ENV * this)
 {
   CMAP_MEM_INSTANCE_ALLOC_PTR(timer, uv_timer_t);
   timer -> data = this;
-  cmap_uv_public.timer_start(timer, bootstrap, 0, 0);
-}
-
-static void scheduler_empty(CMAP_ENV * this)
-{
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-
-  cmap_uv_public.idle_stop(&internal -> idle, CMAP_F);
-
-  CMAP_REFSWATCHER * refswatcher = internal -> refswatcher;
-  if(refswatcher != NULL) CMAP_CALL(refswatcher, stop);
+  cmap_uv_timer_start(timer, bootstrap, 0, 0);
 }
 
 /*******************************************************************************
@@ -173,7 +179,7 @@ static void delete(CMAP_ENV * this)
   if(prev != NULL) ((INTERNAL *)(prev + 1)) -> next = next;
   else envs = next;
 
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_public.create(this);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(this);
 
   if(internal -> prototypestore != NULL)
     CMAP_DEC_REFS(internal -> prototypestore);
@@ -187,13 +193,14 @@ static void delete(CMAP_ENV * this)
   CMAP_MEM_INSTANCE_FREE(this);
 }
 
-static CMAP_ENV * create()
+CMAP_ENV * cmap_env_create()
 {
   CMAP_ENV * this = (CMAP_ENV *)CMAP_MEM_INSTANCE -> alloc(
     sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> main = NULL;
+  internal -> nb_jobs = 0;
   internal -> proc_ctx = NULL;
   internal -> prototypestore = NULL;
   CMAP_POOL_LOOP(POOL_SET)
@@ -204,13 +211,13 @@ static CMAP_ENV * create()
 
   this -> delete = delete;
   this -> set_main = set_main;
+  this -> nb_jobs_add = nb_jobs_add;
   this -> set_proc_ctx = set_proc_ctx;
   this -> proc_ctx = proc_ctx;
   this -> prototypestore = prototypestore;
   CMAP_POOL_LOOP(POOL_FN_SET)
   this -> global = global;
   this -> refswatcher = refswatcher;
-  this -> scheduler_empty = scheduler_empty;
 
   this_uv_init(this);
 
@@ -223,12 +230,7 @@ static CMAP_ENV * create()
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_all()
+void cmap_env_delete_all()
 {
   while(envs != NULL) delete(envs);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_ENV_PUBLIC cmap_env_public = {create, delete_all};

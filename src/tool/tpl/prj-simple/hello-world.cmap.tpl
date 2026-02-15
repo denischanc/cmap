@@ -15,8 +15,8 @@ local helloWorld = function() {
   if(this.nb >= max) { return; }
   else { this.nb++; }
 
-  this.schedule();
+  this.scheduleMs();
 };
 
-local job = new cmap.scheduler.job(helloWorld);
-job.schedule();
+local job = new cmap.job(helloWorld);
+job.scheduleMs();

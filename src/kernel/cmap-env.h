@@ -17,6 +17,8 @@ struct CMAP_ENV
 
   void (*set_main)(CMAP_ENV * this, CMAP_ENV_MAIN main_);
 
+  void (*nb_jobs_add)(CMAP_ENV * this, int nb);
+
   void (*set_proc_ctx)(CMAP_ENV * this, CMAP_PROC_CTX * proc_ctx);
   CMAP_PROC_CTX * (*proc_ctx)(CMAP_ENV * this);
 
@@ -27,16 +29,9 @@ struct CMAP_ENV
   CMAP_MAP * (*global)(CMAP_ENV * this);
 
   CMAP_REFSWATCHER * (*refswatcher)(CMAP_ENV * this);
-
-  void (*scheduler_empty)(CMAP_ENV * this);
 };
 
-typedef struct
-{
-  CMAP_ENV * (*create)();
-  void (*delete_all)();
-} CMAP_ENV_PUBLIC;
-
-extern const CMAP_ENV_PUBLIC cmap_env_public;
+CMAP_ENV * cmap_env_create();
+void cmap_env_delete_all();
 
 #endif

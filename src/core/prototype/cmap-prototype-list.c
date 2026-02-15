@@ -19,7 +19,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     CMAP_LIST * list = (CMAP_LIST *)map;
 
     CMAP_PROTOTYPE_UTIL_MAP_FN map_fn = {};
-    if(cmap_prototype_util_public.args_to_map_fn(args, &map_fn))
+    if(cmap_prototype_util_args_to_map_fn(args, &map_fn))
     {
       CMAP_LIST * args_list_i = CMAP_LIST(0, proc_ctx);
 
@@ -160,23 +160,23 @@ static CMAP_MAP * rm_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args);
-    CMAP_LIST_RM((CMAP_LIST *)map, CMAP_CALL(i, get));
+    return CMAP_LIST_RM((CMAP_LIST *)map, CMAP_CALL(i, get));
   }
-  return map;
+  return NULL;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_list_require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_prototype_util_public.require_map(proto, proc_ctx);
+  cmap_prototype_util_require_map(proto, proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_list_init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "apply", apply_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "addAll", add_all_fn, proc_ctx);
@@ -188,12 +188,3 @@ static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
   CMAP_PROTO_SET_FN(proto, "add", add_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "rm", rm_fn, proc_ctx);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROTOTYPE_LIST_PUBLIC cmap_prototype_list_public =
-{
-  require,
-  init
-};

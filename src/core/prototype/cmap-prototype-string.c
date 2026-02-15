@@ -47,26 +47,17 @@ static CMAP_MAP * clone_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static void require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_string_require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_prototype_util_public.require_map(proto, proc_ctx);
+  cmap_prototype_util_require_map(proto, proc_ctx);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
+void cmap_prototype_string_init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTO_SET_FN(proto, "append", append_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "clean", clean_fn, proc_ctx);
   CMAP_PROTO_SET_FN(proto, "clone", clone_fn, proc_ctx);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROTOTYPE_STRING_PUBLIC cmap_prototype_string_public =
-{
-  require,
-  init
-};

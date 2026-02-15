@@ -25,5 +25,4 @@ cmap-cmap-blt.h: $(srcdir)/cmap-cmap.cmap $(CMAP_TOOL)
 
 cmap-cmap-blt.h: \
   $(srcdir)/console/cmap-console.cmap \
-  $(srcdir)/scheduler/cmap-job.cmap \
-  $(srcdir)/scheduler/cmap-scheduler.cmap
+  $(srcdir)/scheduler/cmap-job.cmap

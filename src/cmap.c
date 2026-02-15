@@ -22,22 +22,22 @@
 
 void cmap_bootstrap(int argc, char ** argv)
 {
-  cmap_kernel_public.bootstrap(argc, argv);
+  cmap_kernel_bootstrap(argc, argv);
 }
 
 int cmap_main()
 {
-  return cmap_kernel_public.instance() -> main();
+  return cmap_kernel_instance() -> main();
 }
 
 void cmap_exit(int ret)
 {
-  cmap_kernel_public.instance() -> exit(ret);
+  cmap_kernel_instance() -> exit(ret);
 }
 
 void cmap_fatal()
 {
-  cmap_kernel_public.instance() -> fatal();
+  cmap_kernel_instance() -> fatal();
 }
 
 /*******************************************************************************
@@ -435,7 +435,7 @@ CMAP_MEM_STATE * cmap_mem_state()
 
 CMAP_ENV * cmap_env()
 {
-  return cmap_env_public.create();
+  return cmap_env_create();
 }
 
 void cmap_env_main(CMAP_ENV * env, CMAP_ENV_MAIN main_)

@@ -3,18 +3,15 @@
 
 #include <uv.h>
 
-typedef struct
-{
-  void (*loop_run)();
+void cmap_uv_loop_run();
 
-  void (*idle_start)(uv_idle_t * idle, uv_idle_cb cb);
-  void (*idle_stop)(uv_idle_t * idle, char free);
+void cmap_uv_idle_start(uv_idle_t * idle, uv_idle_cb cb);
+void cmap_uv_idle_stop(uv_idle_t * idle, char free);
 
-  void (*timer_start)(uv_timer_t * timer, uv_timer_cb cb, uint64_t timeout,
-    uint64_t repeat);
-  void (*timer_stop)(uv_timer_t * timer, char free);
-} CMAP_UV_PUBLIC;
+void cmap_uv_timer_start(uv_timer_t * timer, uv_timer_cb cb, uint64_t timeout,
+  uint64_t repeat);
+void cmap_uv_timer_stop(uv_timer_t * timer, char free);
 
-extern const CMAP_UV_PUBLIC cmap_uv_public;
+uint64_t cmap_uv_now_ms();
 
 #endif

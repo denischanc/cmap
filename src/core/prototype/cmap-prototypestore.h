@@ -13,11 +13,6 @@ struct CMAP_PROTOTYPESTORE
   CMAP_PROTOTYPESTORE_LOOP(CMAP_PROTOTYPESTORE_DECL)
 };
 
-typedef struct
-{
-  CMAP_PROTOTYPESTORE * (*create)(CMAP_PROC_CTX * proc_ctx);
-} CMAP_PROTOTYPESTORE_PUBLIC;
-
-extern const CMAP_PROTOTYPESTORE_PUBLIC cmap_prototypestore_public;
+CMAP_PROTOTYPESTORE * cmap_prototypestore_create(CMAP_PROC_CTX * proc_ctx);
 
 #endif

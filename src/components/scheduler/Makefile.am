@@ -1,7 +1,7 @@
 
 include $(top_srcdir)/src/common.mk
 
-EXTRA_DIST = cmap-job.cmap cmap-scheduler.cmap
+EXTRA_DIST = cmap-job.cmap
 
 noinst_HEADERS = cmap-scheduler.h
 

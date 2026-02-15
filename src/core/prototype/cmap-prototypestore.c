@@ -48,7 +48,7 @@ static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
   INTERNAL * internal = (INTERNAL *)(this + 1); \
   if(internal -> type##_ == NULL) \
   { \
-    cmap_prototype_##type##_public.require(&internal -> type##_, proc_ctx); \
+    cmap_prototype_##type##_require(&internal -> type##_, proc_ctx); \
     CMAP_INC_REFS(internal -> type##_); \
   } \
   return internal -> type##_; \
@@ -63,7 +63,7 @@ static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, \
     require_##type(this, proc_ctx); \
  \
     internal -> type##_ok = CMAP_T; \
-    cmap_prototype_##type##_public.init(internal -> type##_, proc_ctx); \
+    cmap_prototype_##type##_init(internal -> type##_, proc_ctx); \
   } \
   return internal -> type##_; \
 }
@@ -92,7 +92,7 @@ static void delete(CMAP_LIFECYCLE * lc)
   this -> require_##type = require_##type; \
   this -> type##_ = type##_;
 
-static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
+CMAP_PROTOTYPESTORE * cmap_prototypestore_create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MEM_VAR;
   CMAP_PROTOTYPESTORE * this = (CMAP_PROTOTYPESTORE *)mem -> alloc(
@@ -114,11 +114,3 @@ static CMAP_PROTOTYPESTORE * create(CMAP_PROC_CTX * proc_ctx)
 
   return this;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PROTOTYPESTORE_PUBLIC cmap_prototypestore_public =
-{
-  create
-};

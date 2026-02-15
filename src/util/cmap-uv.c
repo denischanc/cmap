@@ -36,7 +36,7 @@ static uv_loop_t * loop()
 /*******************************************************************************
 *******************************************************************************/
 
-static void loop_run()
+void cmap_uv_loop_run()
 {
   uv_loop_t * loop_ = loop();
   error(uv_run(loop_, UV_RUN_DEFAULT));
@@ -55,14 +55,14 @@ static void free_handle(uv_handle_t * handle)
 /*******************************************************************************
 *******************************************************************************/
 
-static void idle_start(uv_idle_t * idle, uv_idle_cb cb)
+void cmap_uv_idle_start(uv_idle_t * idle, uv_idle_cb cb)
 {
   if(loop_closed) return;
   error(uv_idle_init(loop(), idle));
   error(uv_idle_start(idle, cb));
 }
 
-static void idle_stop(uv_idle_t * idle, char free)
+void cmap_uv_idle_stop(uv_idle_t * idle, char free)
 {
   if(loop_closed) return;
   error(uv_idle_stop(idle));
@@ -72,7 +72,7 @@ static void idle_stop(uv_idle_t * idle, char free)
 /*******************************************************************************
 *******************************************************************************/
 
-static void timer_start(uv_timer_t * timer, uv_timer_cb cb, uint64_t timeout,
+void cmap_uv_timer_start(uv_timer_t * timer, uv_timer_cb cb, uint64_t timeout,
   uint64_t repeat)
 {
   if(loop_closed) return;
@@ -80,7 +80,7 @@ static void timer_start(uv_timer_t * timer, uv_timer_cb cb, uint64_t timeout,
   error(uv_timer_start(timer, cb, timeout, repeat));
 }
 
-static void timer_stop(uv_timer_t * timer, char free)
+void cmap_uv_timer_stop(uv_timer_t * timer, char free)
 {
   if(loop_closed) return;
   error(uv_timer_stop(timer));
@@ -90,9 +90,8 @@ static void timer_stop(uv_timer_t * timer, char free)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_UV_PUBLIC cmap_uv_public =
+uint64_t cmap_uv_now_ms()
 {
-  loop_run,
-  idle_start, idle_stop,
-  timer_start, timer_stop
-};
+  if(loop_closed) return 0;
+  return uv_now(loop());
+}

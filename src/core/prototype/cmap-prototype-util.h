@@ -12,12 +12,9 @@ typedef struct
   CMAP_FN * fn;
 } CMAP_PROTOTYPE_UTIL_MAP_FN;
 
-typedef struct
-{
-  char (*args_to_map_fn)(CMAP_LIST * args, CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn);
-  void (*require_map)(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx);
-} CMAP_PROTOTYPE_UTIL_PUBLIC;
-
-extern const CMAP_PROTOTYPE_UTIL_PUBLIC cmap_prototype_util_public;
+char cmap_prototype_util_args_to_map_fn(CMAP_LIST * args,
+  CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn);
+void cmap_prototype_util_require_map(CMAP_MAP ** proto,
+  CMAP_PROC_CTX * proc_ctx);
 
 #endif

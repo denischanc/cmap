@@ -45,7 +45,7 @@ static void check_refs()
 {
 #ifdef CONSUMED_TIME
   cmap_refsstore_public.log_consumed_time(CMAP_LOG_INFO);
-  cmap_refswatcher_public.log_consumed_time(CMAP_LOG_INFO);
+  cmap_refswatcher_log_consumed_time(CMAP_LOG_INFO);
 #endif
 }
 
@@ -64,7 +64,7 @@ static void exit_(int ret)
   {
     internal.state = CMAP_KERNEL_S_EXITING;
 
-    cmap_env_public.delete_all();
+    cmap_env_delete_all();
 
     check_all(&ret);
     cmap_log_public.info("Exit kernel (%d).", ret);
@@ -87,7 +87,7 @@ static void fatal()
 static int main_()
 {
   cmap_log_public.info("Kernel start uv loop ...");
-  cmap_uv_public.loop_run();
+  cmap_uv_loop_run();
   cmap_log_public.info("Uv loop terminated.");
 
   exit_(EXIT_SUCCESS);
@@ -107,7 +107,7 @@ static char state()
 
 static CMAP_KERNEL kernel = {main_, exit_, fatal, state};
 
-static CMAP_KERNEL * instance()
+CMAP_KERNEL * cmap_kernel_instance()
 {
   return &kernel;
 }
@@ -115,12 +115,7 @@ static CMAP_KERNEL * instance()
 /*******************************************************************************
 *******************************************************************************/
 
-static void bootstrap(int argc, char ** argv)
+void cmap_kernel_bootstrap(int argc, char ** argv)
 {
   cmap_kcli_public.parse(argc, argv);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_KERNEL_PUBLIC cmap_kernel_public = {instance, bootstrap};

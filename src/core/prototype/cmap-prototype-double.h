@@ -4,12 +4,7 @@
 #include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
 
-typedef struct
-{
-  void (*require)(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx);
-  void (*init)(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx);
-} CMAP_PROTOTYPE_DOUBLE_PUBLIC;
-
-extern const CMAP_PROTOTYPE_DOUBLE_PUBLIC cmap_prototype_double_public;
+void cmap_prototype_double_require(CMAP_MAP ** proto, CMAP_PROC_CTX * proc_ctx);
+void cmap_prototype_double_init(CMAP_MAP * proto, CMAP_PROC_CTX * proc_ctx);
 
 #endif
