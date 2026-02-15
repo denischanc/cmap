@@ -9,6 +9,7 @@ snake = function(screen, start, stop, ctl) {
   this.initLine();
 
   this.nbLoop = 0;
+  this.timeMaxUs = 0;
 };
 
 snake.prototype = {
@@ -77,9 +78,14 @@ snake.prototype = {
   },
 
   shiftLines: function() {
+    local time = 0.timeUs();
+
     local height = this.screen.height();
     for(local i = 1; i < height; i++) { this.copyLine(i); }
     this.nextLine(height - 2);
+
     this.nbLoop++;
+    time = 0.timeUs() - time;
+    if(time > this.timeMaxUs) { this.timeMaxUs = time; }
   }
 };

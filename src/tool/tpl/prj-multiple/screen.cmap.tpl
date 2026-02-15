@@ -5,6 +5,7 @@ screen = function(nbCol, nbLine) {
     this.lines.push(new screen.line(nbCol));
   }
   this.nbLoop = 0;
+  this.timeMaxUs = 0;
 };
 
 /* https://en.wikipedia.org/wiki/ANSI_escape_code */
@@ -37,8 +38,14 @@ screen.prototype = {
   },
 
   display: function() {
+    local time = 0.timeUs();
+
     this.lines.apply(function(line){ line.display(); });
+
     this.nbLoop++;
+    time = 0.timeUs() - time;
+    if(time > this.timeMaxUs) { this.timeMaxUs = time; }
+
     return this;
   },
 
