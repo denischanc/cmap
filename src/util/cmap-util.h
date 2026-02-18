@@ -7,29 +7,19 @@
 #include "cmap-proc-ctx-type.h"
 #include "cmap-map-type.h"
 
-typedef struct
-{
-  CMAP_LIST * (*fill_list)(CMAP_LIST * list, ...);
-  CMAP_LIST * (*vfill_list)(CMAP_LIST * list, va_list maps);
+CMAP_LIST * cmap_util_fill_list(CMAP_LIST * list, ...);
+CMAP_LIST * cmap_util_vfill_list(CMAP_LIST * list, va_list maps);
 
-  CMAP_LIST * (*to_list)(CMAP_PROC_CTX * proc_ctx, ...);
-  CMAP_LIST * (*vto_list)(CMAP_PROC_CTX * proc_ctx, va_list maps);
+CMAP_LIST * cmap_util_to_list(CMAP_PROC_CTX * proc_ctx, ...);
+CMAP_LIST * cmap_util_vto_list(CMAP_PROC_CTX * proc_ctx, va_list maps);
 
-  CMAP_MAP * (*to_map)(CMAP_PROC_CTX * proc_ctx, ...);
-  CMAP_MAP * (*vto_map)(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
+CMAP_MAP * cmap_util_to_map(CMAP_PROC_CTX * proc_ctx, ...);
+CMAP_MAP * cmap_util_vto_map(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
 
-  CMAP_MAP * (*copy)(CMAP_MAP * dst, CMAP_MAP * src);
+CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src);
 
-  CMAP_LIST * (*dup_string)(CMAP_LIST * dst, CMAP_LIST * src,
-    CMAP_PROC_CTX * proc_ctx);
+char * cmap_util_strdup(const char * src);
 
-  char * (*strdup)(const char * src);
-
-  int (*is_val)(CMAP_LIST * list, CMAP_MAP * val);
-
-  uint64_t (*time_us)();
-} CMAP_UTIL_PUBLIC;
-
-extern const CMAP_UTIL_PUBLIC cmap_util_public;
+uint64_t cmap_util_time_us();
 
 #endif

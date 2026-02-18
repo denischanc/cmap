@@ -84,7 +84,7 @@ static CMAP_MAP * set(CMAP_MAP * this, const char * key, CMAP_MAP * val)
   if(entry == NULL)
   {
     entry = CMAP_MEM_INSTANCE_ALLOC(ENTRY);
-    entry -> key = cmap_util_public.strdup(key);
+    entry -> key = cmap_util_strdup(key);
     entry -> val = NULL;
 
     CMAP_STREE_ADDFN(entry, &internal -> entry_stree, entry, key);

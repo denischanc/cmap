@@ -211,7 +211,7 @@ CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
 
 CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
 {
-  return cmap_util_public.copy(dst, src);
+  return cmap_util_copy(dst, src);
 }
 
 /*******************************************************************************
@@ -304,7 +304,7 @@ static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 {
   CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
   CMAP_LIST * args_list = CMAP_CALL_ARGS(pool, take, proc_ctx);
-  cmap_util_public.vfill_list(args_list, args);
+  cmap_util_vfill_list(args_list, args);
 
   CMAP_MAP * ret = cmap_lnew(prototype, proc_ctx, args_list);
 
@@ -337,7 +337,7 @@ static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 {
   CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
   CMAP_LIST * args_list = CMAP_CALL_ARGS(pool, take, proc_ctx);
-  cmap_util_public.vfill_list(args_list, args);
+  cmap_util_vfill_list(args_list, args);
 
   CMAP_MAP * ret = cmap_lfn_proc(fn, proc_ctx, map, args_list);
 
@@ -379,7 +379,7 @@ static CMAP_MAP * vproc(CMAP_MAP * map, const char * key,
 {
   CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
   CMAP_LIST * args_list = CMAP_CALL_ARGS(pool, take, proc_ctx);
-  cmap_util_public.vfill_list(args_list, args);
+  cmap_util_vfill_list(args_list, args);
 
   CMAP_MAP * ret = cmap_lproc(map, key, proc_ctx, args_list);
 
@@ -405,7 +405,7 @@ CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list maps;
   va_start(maps, proc_ctx);
-  CMAP_LIST * list = cmap_util_public.vto_list(proc_ctx, maps);
+  CMAP_LIST * list = cmap_util_vto_list(proc_ctx, maps);
   va_end(maps);
   return list;
 }
@@ -417,7 +417,7 @@ CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...)
 {
   va_list key_maps;
   va_start(key_maps, proc_ctx);
-  CMAP_MAP * map = cmap_util_public.vto_map(proc_ctx, key_maps);
+  CMAP_MAP * map = cmap_util_vto_map(proc_ctx, key_maps);
   va_end(key_maps);
   return map;
 }

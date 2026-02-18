@@ -21,7 +21,6 @@ AC_PROG_MAKE_SET
 AC_PROG_SED
 
 # Checks for libraries.
-AC_CHECK_LIB([uv], [uv_run])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdint.h sys/param.h sys/time.h unistd.h])
@@ -63,6 +62,7 @@ AC_CONFIG_FILES([
   src/core/prototype/Makefile
   src/core/score/Makefile
   src/kernel/Makefile
+  src/loop/Makefile
   src/tool/Makefile
   src/tool/parser/Makefile
   src/tool/part/Makefile

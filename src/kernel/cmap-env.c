@@ -2,12 +2,13 @@
 #include "cmap-env.h"
 
 #include <stdlib.h>
+#include "cmap.h"
 #include "cmap-mem.h"
 #include "cmap-global-env.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-util.h"
 #include "cmap-scheduler.h"
-#include "cmap-uv.h"
+#include "cmap-loop-timer.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -30,6 +31,8 @@ typedef struct
 
   CMAP_REFSWATCHER * refswatcher;
 
+  CMAP_LOOP_TIMER timer;
+
   CMAP_ENV * prev, * next;
 } INTERNAL;
 
@@ -46,6 +49,12 @@ static void set_main(CMAP_ENV * this, CMAP_ENV_MAIN main_)
 /*******************************************************************************
 *******************************************************************************/
 
+static void delete_cb(CMAP_LOOP_TIMER * timer)
+{
+  CMAP_ENV * env = timer -> data;
+  CMAP_DELETE(env);
+}
+
 static void nb_jobs_add(CMAP_ENV * this, int nb)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
@@ -57,6 +66,10 @@ static void nb_jobs_add(CMAP_ENV * this, int nb)
   {
     CMAP_REFSWATCHER * refswatcher = internal -> refswatcher;
     if(refswatcher != NULL) CMAP_CALL(refswatcher, stop);
+
+    CMAP_LOOP_TIMER * timer = &internal -> timer;
+    timer -> data = this;
+    cmap_loop_timer_start(timer, delete_cb, 0, 0);
   }
 }
 
@@ -137,7 +150,7 @@ static CMAP_REFSWATCHER * refswatcher(CMAP_ENV * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void bootstrap(uv_timer_t * timer)
+static void bootstrap(CMAP_LOOP_TIMER * timer)
 {
   CMAP_ENV * env = timer -> data;
   INTERNAL * internal = (INTERNAL *)(env + 1);
@@ -149,16 +162,14 @@ static void bootstrap(uv_timer_t * timer)
     CMAP_CALL_ARGS(proc_ctx, delete, NULL);
   }
 
-  cmap_uv_timer_stop(timer, CMAP_T);
-
   nb_jobs_add(env, 0);
 }
 
-static inline void this_uv_init(CMAP_ENV * this)
+static inline void loop_init(CMAP_ENV * this)
 {
-  CMAP_MEM_INSTANCE_ALLOC_PTR(timer, uv_timer_t);
+  CMAP_LOOP_TIMER * timer = &((INTERNAL *)(this + 1)) -> timer;
   timer -> data = this;
-  cmap_uv_timer_start(timer, bootstrap, 0, 0);
+  cmap_loop_timer_start(timer, bootstrap, 0, 0);
 }
 
 /*******************************************************************************
@@ -219,7 +230,7 @@ CMAP_ENV * cmap_env_create()
   this -> global = global;
   this -> refswatcher = refswatcher;
 
-  this_uv_init(this);
+  loop_init(this);
 
   if(envs != NULL) ((INTERNAL *)(envs + 1)) -> prev = this;
   envs = this;

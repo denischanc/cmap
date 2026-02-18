@@ -46,7 +46,7 @@ static const char * nature(CMAP_LIFECYCLE * this)
 
 static inline uint64_t next_watch_time_us()
 {
-  return cmap_util_public.time_us() + cmap_config_refs_check_zombie_time_us();
+  return cmap_util_time_us() + cmap_config_refs_check_zombie_time_us();
 }
 
 /*******************************************************************************

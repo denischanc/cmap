@@ -11,10 +11,10 @@ TODO
 * map: (key, val) in pool
 * is_log_lvl_enabled()
 * util, util_map, util_list, util_mem
-* realloc, calloc for uv
+* realloc
 * add add_if_not_eq in stree and modify sset add
 * add define for references debug as CONSUMED_TIME
-* rm scheduler : uv_timer_t pool, jobs_nb in env
+* CMAP_POOL_TIMER pool
 * AM_CFLAGS
 
 ## Parser

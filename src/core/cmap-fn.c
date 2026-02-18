@@ -65,7 +65,7 @@ static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * definitions = CMAP_CALL(new_proc_ctx, local_definitions);
 
-  cmap_util_public.copy(definitions, internal -> definitions);
+  cmap_util_copy(definitions, internal -> definitions);
 
   return CMAP_CALL_ARGS(new_proc_ctx, delete,
     CMAP_CALL_ARGS(this, do_process, new_proc_ctx, map, args));

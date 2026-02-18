@@ -47,7 +47,7 @@ static CMAP_MAP * time_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_CALL_ARGS((CMAP_INT *)map, set, cmap_util_public.time_us());
+  CMAP_CALL_ARGS((CMAP_INT *)map, set, cmap_util_time_us());
 
   return map;
 }

@@ -7,7 +7,7 @@
 #include "cmap-mem.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-lifecycle.h"
-#include "cmap-uv.h"
+#include "cmap-loop-timer.h"
 #include "cmap-env.h"
 #include "cmap-list.h"
 #include "cmap-ptr.h"
@@ -19,23 +19,21 @@
 
 typedef struct
 {
-  uv_timer_t timer;
+  CMAP_LOOP_TIMER timer;
 
   CMAP_ENV * env;
   CMAP_MAP * job;
+} INTERNAL;
 
-  uint64_t repeat_ms;
-  uint64_t next_ts_ms;
-} SCHEDULE_DATA;
-
-static const char * DATA_NAME = "cmap_data";
+static const char * INTERNAL_NAME = ".cmap_internal";
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void stop(uv_timer_t * timer, CMAP_ENV * env, CMAP_MAP * job)
+static void stop(CMAP_LOOP_TIMER * timer, CMAP_ENV * env, CMAP_MAP * job)
 {
-  cmap_uv_timer_stop(timer, CMAP_T);
+  cmap_loop_timer_stop(timer);
+  CMAP_MEM_INSTANCE_FREE(timer);
   CMAP_DEC_REFS(job);
   CMAP_CALL_ARGS(env, nb_jobs_add, -1);
 }
@@ -43,27 +41,19 @@ static void stop(uv_timer_t * timer, CMAP_ENV * env, CMAP_MAP * job)
 /*******************************************************************************
 *******************************************************************************/
 
-static void schedule(uv_timer_t * timer)
+static void schedule(CMAP_LOOP_TIMER * timer)
 {
-  SCHEDULE_DATA * data = (SCHEDULE_DATA *)timer;
-  CMAP_ENV * env = data -> env;
-  CMAP_MAP * job = data -> job;
+  INTERNAL * internal = (INTERNAL *)timer;
+  CMAP_ENV * env = internal -> env;
+  CMAP_MAP * job = internal -> job;
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
 
-  cmap_proc(job, "process", proc_ctx, NULL);
+  cmap_proc(job, "run", proc_ctx, NULL);
 
-  if(data -> repeat_ms == 0) stop(timer, env, job);
+  if(cmap_loop_timer_is_stopped(timer)) stop(timer, env, job);
 
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
-
-  if(data -> repeat_ms > 0)
-  {
-    while(data -> next_ts_ms <= cmap_uv_now_ms())
-      data -> next_ts_ms += data -> repeat_ms;
-    uv_timer_set_repeat(timer, data -> next_ts_ms - cmap_uv_now_ms());
-    uv_timer_again(timer);
-  }
 }
 
 /*******************************************************************************
@@ -87,19 +77,17 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
 
   CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(data, SCHEDULE_DATA);
-  data -> env = env;
-  data -> job = map;
+  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
+  internal -> env = env;
+  internal -> job = map;
   CMAP_INC_REFS(map);
-  data -> repeat_ms = repeat_ms;
-  if(repeat_ms > 0) data -> next_ts_ms = cmap_uv_now_ms() + timeout_ms;
-  cmap_uv_timer_start(&data -> timer, schedule, timeout_ms, repeat_ms);
+  cmap_loop_timer_start(&internal -> timer, schedule, timeout_ms, repeat_ms);
 
   if(repeat_ms > 0)
   {
-    CMAP_PTR * data_ = cmap_ptr_public.create(0, NULL, proc_ctx);
-    *(CMAP_CALL(data_, ref)) = data;
-    CMAP_SET(map, DATA_NAME, data_);
+    CMAP_PTR * internal_ = cmap_ptr_public.create(0, NULL, proc_ctx);
+    *(CMAP_CALL(internal_, ref)) = internal;
+    CMAP_SET(map, INTERNAL_NAME, internal_);
   }
 
   CMAP_CALL_ARGS(env, nb_jobs_add, 1);
@@ -113,12 +101,12 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_PTR * data_ = (CMAP_PTR *)CMAP_GET(map, DATA_NAME);
-  if(data_ != NULL)
+  CMAP_PTR * internal_ = (CMAP_PTR *)CMAP_GET(map, INTERNAL_NAME);
+  if(internal_ != NULL)
   {
-    SCHEDULE_DATA * data = CMAP_CALL(data_, get);
-    CMAP_SET(map, DATA_NAME, NULL);
-    stop((uv_timer_t *)data, data -> env, data -> job);
+    INTERNAL * internal = CMAP_CALL(internal_, get);
+    CMAP_SET(map, INTERNAL_NAME, NULL);
+    stop((CMAP_LOOP_TIMER *)internal, internal -> env, internal -> job);
   }
 
   return map;

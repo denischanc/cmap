@@ -1,6 +1,7 @@
 
 #include "cmap-refswatcher.h"
 
+#include <stdio.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
@@ -11,7 +12,7 @@
 #include "cmap-slist.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
-#include "cmap-uv.h"
+#include "cmap-loop-timer.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-consumedtime.h"
@@ -70,7 +71,7 @@ typedef struct
 
   CMAP_SSET_LC * refs;
 
-  uv_timer_t timer;
+  CMAP_LOOP_TIMER timer;
 
   char deletion;
 } INTERNAL;
@@ -295,7 +296,7 @@ static char watch_ref(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE ** ref,
 {
   CMAP_LIFECYCLE * ref_ = *ref;
 
-  uint64_t now = cmap_util_public.time_us();
+  uint64_t now = cmap_util_time_us();
   if((CMAP_CALL(ref_, watch_time_us) < now) || deletion)
   {
     CMAP_CALL_ARGS(ref_, watched, CMAP_F);
@@ -336,24 +337,24 @@ static void watch(CMAP_REFSWATCHER * this)
 /*******************************************************************************
 *******************************************************************************/
 
-static void watch_uv(uv_timer_t * timer)
+static void watch_loop(CMAP_LOOP_TIMER * timer)
 {
   watch(timer -> data);
 }
 
-static inline void this_uv_init(CMAP_REFSWATCHER * this)
+static inline void loop_init(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
   uint64_t time_ms = cmap_config_refs_check_zombie_time_us() / 1000;
 
   internal -> timer.data = this;
-  cmap_uv_timer_start(&internal -> timer, watch_uv, time_ms, time_ms);
+  cmap_loop_timer_start(&internal -> timer, watch_loop, time_ms, time_ms);
 }
 
 static void stop(CMAP_REFSWATCHER * this)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
-  cmap_uv_timer_stop(&internal -> timer, CMAP_F);
+  cmap_loop_timer_stop(&internal -> timer);
 }
 
 /*******************************************************************************
@@ -385,7 +386,7 @@ CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
   this -> stop = stop;
 
   if(cmap_kernel_instance() -> state() != CMAP_KERNEL_S_EXITING)
-    this_uv_init(this);
+    loop_init(this);
 
   cmap_log_public.debug("[%p][refswatcher] created", this);
 

@@ -5,5 +5,3 @@ on:
 jobs:
   nightly:
     uses: denischanc/gh-workflows/.github/workflows/nightly-autotools.yml@v1
-    with:
-      packages-to-install: libuv1-dev

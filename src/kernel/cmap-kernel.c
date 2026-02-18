@@ -5,7 +5,7 @@
 #include "cmap-log.h"
 #include "cmap-mem.h"
 #include "cmap-env.h"
-#include "cmap-uv.h"
+#include "cmap-loop.h"
 #include "cmap-config.h"
 #include "cmap-kcli.h"
 
@@ -86,9 +86,9 @@ static void fatal()
 
 static int main_()
 {
-  cmap_log_public.info("Kernel start uv loop ...");
-  cmap_uv_loop_run();
-  cmap_log_public.info("Uv loop terminated.");
+  cmap_log_public.info("Kernel start loop ...");
+  cmap_loop_run();
+  cmap_log_public.info("Loop terminated.");
 
   exit_(EXIT_SUCCESS);
   return EXIT_SUCCESS;

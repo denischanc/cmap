@@ -6,8 +6,8 @@
 
 }
 
-local job = function(process) {
-  this.process = process;
+local job = function(run) {
+  this.run = run;
 };
 
 job.prototype = {

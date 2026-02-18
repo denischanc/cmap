@@ -15,6 +15,7 @@ AM_CFLAGS = \
   -I$(CMAP_SRC_PATH)/core/score \
   -I$(CMAP_SRC_PATH)/core \
   -I$(CMAP_SRC_PATH)/kernel \
+  -I$(CMAP_SRC_PATH)/loop \
   -I$(CMAP_SRC_PATH)/util \
   -I$(CMAP_SRC_PATH) \
   -I$(CMAP_BUILD_PATH)/components/console \
