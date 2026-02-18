@@ -11,13 +11,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define CONST_VAR(LVL, lvl, i) const char CMAP_LOG_##LVL = i;
-
-CMAP_LOG_LOOP(CONST_VAR)
-
-/*******************************************************************************
-*******************************************************************************/
-
 static CMAP_LOG log;
 static CMAP_LOG * log_ptr = NULL;
 
@@ -26,7 +19,7 @@ static FILE * log_file = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-#define CASE(LVL, lvl, i) case i: return #LVL;
+#define CASE(LVL, lvl) case CMAP_LOG_##LVL: return #LVL;
 
 static const char * lvl_val(char lvl)
 {
@@ -115,7 +108,15 @@ static CMAP_LOG * instance()
 /*******************************************************************************
 *******************************************************************************/
 
-static void vlog_(char lvl, const char * msg, va_list args)
+void cmap_log_delete()
+{
+  instance() -> delete();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_vlog(char lvl, const char * msg, va_list args)
 {
   if(lvl >= cmap_config_log_lvl())
   {
@@ -125,41 +126,29 @@ static void vlog_(char lvl, const char * msg, va_list args)
   }
 }
 
-static void log_(char lvl, const char * msg, ...)
+void cmap_log(char lvl, const char * msg, ...)
 {
   va_list args;
   va_start(args, msg);
-  vlog_(lvl, msg, args);
+  cmap_vlog(lvl, msg, args);
   va_end(args);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define IMPL(LVL, lvl, i) \
-static void v##lvl(const char * msg, va_list args) \
+#define IMPL(LVL, lvl) \
+void cmap_log_v##lvl(const char * msg, va_list args) \
 { \
-  vlog_(i, msg, args); \
+  cmap_vlog(CMAP_LOG_##LVL, msg, args); \
 } \
  \
-static void lvl(const char * msg, ...) \
+void cmap_log_##lvl(const char * msg, ...) \
 { \
   va_list args; \
   va_start(args, msg); \
-  vlog_(i, msg, args); \
+  cmap_vlog(CMAP_LOG_##LVL, msg, args); \
   va_end(args); \
 }
 
 CMAP_LOG_LOOP(IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define SET(LVL, lvl, i) lvl, v##lvl,
-
-const CMAP_LOG_PUBLIC cmap_log_public =
-{
-  instance,
-  log_, vlog_,
-  CMAP_LOG_LOOP(SET)
-};

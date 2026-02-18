@@ -548,7 +548,7 @@ static char * log_cat(char * left, const char * right)
 {
   int size = strlen(left) + strlen(right) + 1;
   size *= sizeof(char);
-  char * ret = (char *)CMAP_MEM_INSTANCE -> alloc(size);
+  char * ret = cmap_mem_alloc(size);
   *ret = 0;
   strcat(ret, left);
   strcat(ret, right);
@@ -566,10 +566,9 @@ static void log_push_cat(char * left, CMAP_SLIST_CHAR_PTR * prefix_before,
 static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
   CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
-  CMAP_MEM_VAR;
-  CMAP_MEM_FREE(CMAP_CALL(prefix_before, pop), mem);
-  CMAP_MEM_FREE(CMAP_CALL(prefix_between, pop), mem);
-  CMAP_MEM_FREE(CMAP_CALL(prefix_after, pop), mem);
+  cmap_mem_free(CMAP_CALL(prefix_before, pop));
+  cmap_mem_free(CMAP_CALL(prefix_between, pop));
+  cmap_mem_free(CMAP_CALL(prefix_after, pop));
 }
 
 static void log_before_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
@@ -593,7 +592,7 @@ static void log_between_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 
   char * left = *CMAP_CALL(prefix_between, last);
   const char * right = data_ -> runner -> log(node);
-  cmap_log_public.log(data_ -> log_lvl, "%s%s", left, right);
+  cmap_log(data_ -> log_lvl, "%s%s", left, right);
 
   left = *CMAP_CALL(prefix_after, last);
   log_push_cat(left, prefix_after, prefix_between, prefix_before);

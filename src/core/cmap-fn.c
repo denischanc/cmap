@@ -105,7 +105,7 @@ static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = ((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
-  CMAP_MEM_INSTANCE_FREE(internal);
+  cmap_mem_free(internal);
 
   cmap_map_public.delete(this);
 }
@@ -119,7 +119,7 @@ static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
   lc -> delete = delete;
   lc -> nested = nested;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> process = process_;
   internal -> definitions = NULL;
 
@@ -141,7 +141,7 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_FN);
+  CMAP_MEM_ALLOC_PTR(this, CMAP_FN);
   return init(this, &initargs, process);
 }
 

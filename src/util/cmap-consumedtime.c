@@ -7,7 +7,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void start(CMAP_CONSUMEDTIME_US * ct)
+void cmap_consumedtime_start(CMAP_CONSUMEDTIME_US * ct)
 {
   gettimeofday(&ct -> tv, NULL);
 }
@@ -15,7 +15,7 @@ static void start(CMAP_CONSUMEDTIME_US * ct)
 /*******************************************************************************
 *******************************************************************************/
 
-static int64_t stop(CMAP_CONSUMEDTIME_US * ct)
+int64_t cmap_consumedtime_stop(CMAP_CONSUMEDTIME_US * ct)
 {
   struct timeval cur_tv;
   gettimeofday(&cur_tv, NULL);
@@ -36,17 +36,9 @@ static int64_t stop(CMAP_CONSUMEDTIME_US * ct)
 /*******************************************************************************
 *******************************************************************************/
 
-static void log_(char lvl, CMAP_CONSUMEDTIME_US * ct, const char * what)
+void cmap_consumedtime_log(char lvl, CMAP_CONSUMEDTIME_US * ct,
+  const char * what)
 {
-  cmap_log_public.log(lvl, "Consumed time (us) in %s : %ld x %ld/%ld ~= %ld.",
+  cmap_log(lvl, "Consumed time (us) in %s : %ld x %ld/%ld ~= %ld.",
     what, ct -> nb, ct -> min, ct -> max, ct -> total);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_CONSUMEDTIME_PUBLIC cmap_consumedtime_public =
-{
-  start, stop,
-  log_
-};

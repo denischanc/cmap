@@ -97,7 +97,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
-  cmap_log_public.debug("[%p][proc-ctx][%d] deletion", this, internal -> level);
+  cmap_log_debug("[%p][proc-ctx][%d] deletion", this, internal -> level);
 
   if(internal -> definitions != NULL)
   {
@@ -108,7 +108,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
   CMAP_CALL_ARGS(internal -> refs, delete, ret);
 
   CMAP_CALL_ARGS(internal -> env, set_proc_ctx, internal -> prev);
-  CMAP_MEM_INSTANCE_FREE(this);
+  cmap_mem_free(this);
 
   if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, store);
 
@@ -117,7 +117,7 @@ static CMAP_MAP * delete(CMAP_PROC_CTX * this, CMAP_MAP * ret)
 
 CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env_)
 {
-  CMAP_PROC_CTX * this = (CMAP_PROC_CTX *)CMAP_MEM_INSTANCE -> alloc(
+  CMAP_PROC_CTX * this = cmap_mem_alloc(
     sizeof(CMAP_PROC_CTX) + sizeof(INTERNAL)),
     * prev = CMAP_CALL(env_, proc_ctx);
 
@@ -142,7 +142,7 @@ CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env_)
 
   CMAP_CALL_ARGS(env_, set_proc_ctx, this);
 
-  cmap_log_public.debug("[%p][proc-ctx][%d] created", this, internal -> level);
+  cmap_log_debug("[%p][proc-ctx][%d] created", this, internal -> level);
 
   return this;
 }

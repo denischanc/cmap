@@ -216,7 +216,7 @@ static CHUNK * create_chunk(int alloc_size)
   CHUNK * chunk = (CHUNK *)malloc(sizeof(CHUNK) + chunk_size);
   if(chunk == NULL)
   {
-    cmap_log_public.fatal("Unable to allocate new memory.");
+    cmap_log_fatal("Unable to allocate new memory.");
     return NULL;
   }
   else
@@ -255,7 +255,7 @@ static BLOCK_FREE * create_block_free(int alloc_size)
 static void * alloc(int size)
 {
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.start(&consumed_time);
+  cmap_consumedtime_start(&consumed_time);
 #endif
 
   BLOCK_FREE * block = find_block_free(size);
@@ -278,7 +278,7 @@ static void * alloc(int size)
   }
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop(&consumed_time);
+  cmap_consumedtime_stop(&consumed_time);
 #endif
 
   return ret;
@@ -292,12 +292,12 @@ static void free_(void * ptr)
   if(ptr == NULL) return;
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.start(&consumed_time);
+  cmap_consumedtime_start(&consumed_time);
 #endif
 
   BLOCK * block = (BLOCK *)(ptr - sizeof(BLOCK));
-  if(!is_block(block)) cmap_log_public.fatal("Invalid block ???");
-  if(block -> free) cmap_log_public.fatal("Memory address already free !!!");
+  if(!is_block(block)) cmap_log_fatal("Invalid block ???");
+  if(block -> free) cmap_log_fatal("Memory address already free !!!");
 
   BLOCK * next = block -> next, * prev = block -> prev;
 
@@ -319,7 +319,7 @@ static void free_(void * ptr)
   }
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop(&consumed_time);
+  cmap_consumedtime_stop(&consumed_time);
 #endif
 }
 
@@ -393,7 +393,7 @@ static void upd_state(CMAP_MEM_STATE * state)
   }
 }
 
-static CMAP_MEM_STATE * state()
+CMAP_MEM_STATE * cmap_mem_state()
 {
   static CMAP_MEM_STATE state;
   upd_state(&state);
@@ -403,30 +403,38 @@ static CMAP_MEM_STATE * state()
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_this()
+void cmap_mem_delete()
 {
-  return (mem_ptr == &mem);
+  instance() -> delete();
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void * cmap_mem_alloc(int size)
+{
+  return instance() -> alloc(size);
+}
+
+void cmap_mem_free(void * ptr)
+{
+  instance() -> free(ptr);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+char cmap_mem_is_this()
+{
+  return (instance() == &mem);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
 #ifdef CONSUMED_TIME
-static void log_consumed_time(char lvl)
+void cmap_mem_log_consumed_time(char lvl)
 {
-  cmap_consumedtime_public.log(lvl, &consumed_time, "memory");
+  cmap_consumedtime_log(lvl, &consumed_time, "memory");
 }
 #endif
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_MEM_PUBLIC cmap_mem_public =
-{
-  instance,
-  state,
-  is_this,
-#ifdef CONSUMED_TIME
-  log_consumed_time
-#endif
-};

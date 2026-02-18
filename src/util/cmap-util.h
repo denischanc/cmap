@@ -6,15 +6,18 @@
 #include "cmap-list-type.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-map-type.h"
+#include "cmap-string-type.h"
 
-CMAP_LIST * cmap_util_fill_list(CMAP_LIST * list, ...);
 CMAP_LIST * cmap_util_vfill_list(CMAP_LIST * list, va_list maps);
+CMAP_LIST * cmap_util_fill_list(CMAP_LIST * list, ...);
 
-CMAP_LIST * cmap_util_to_list(CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_LIST * cmap_util_vto_list(CMAP_PROC_CTX * proc_ctx, va_list maps);
+CMAP_LIST * cmap_util_to_list(CMAP_PROC_CTX * proc_ctx, ...);
 
-CMAP_MAP * cmap_util_to_map(CMAP_PROC_CTX * proc_ctx, ...);
+CMAP_LIST * cmap_util_split(CMAP_PROC_CTX * proc_ctx, char * string, char sep);
+
 CMAP_MAP * cmap_util_vto_map(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
+CMAP_MAP * cmap_util_to_map(CMAP_PROC_CTX * proc_ctx, ...);
 
 CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src);
 

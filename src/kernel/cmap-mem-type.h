@@ -1,8 +1,6 @@
 #ifndef __CMAP_MEM_TYPE_H__
 #define __CMAP_MEM_TYPE_H__
 
-#include <stdint.h>
-
 typedef struct
 {
   void (*delete)();

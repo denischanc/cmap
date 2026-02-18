@@ -33,7 +33,7 @@ static const char * INTERNAL_NAME = ".cmap_internal";
 static void stop(CMAP_LOOP_TIMER * timer, CMAP_ENV * env, CMAP_MAP * job)
 {
   cmap_loop_timer_stop(timer);
-  CMAP_MEM_INSTANCE_FREE(timer);
+  cmap_mem_free(timer);
   CMAP_DEC_REFS(job);
   CMAP_CALL_ARGS(env, nb_jobs_add, -1);
 }
@@ -77,7 +77,7 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
 
   CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> env = env;
   internal -> job = map;
   CMAP_INC_REFS(map);

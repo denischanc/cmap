@@ -8,6 +8,7 @@
 #include "cmap-mem.h"
 #include "cmap-map.h"
 #include "cmap-list.h"
+#include "cmap-string.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -43,6 +44,32 @@ CMAP_LIST * cmap_util_to_list(CMAP_PROC_CTX * proc_ctx, ...)
   CMAP_LIST * list = cmap_util_vto_list(proc_ctx, maps);
   va_end(maps);
   return list;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_LIST * cmap_util_split(CMAP_PROC_CTX * proc_ctx, char * string, char sep)
+{
+  CMAP_LIST * ret = CMAP_LIST(0, proc_ctx);
+
+  char * cur = string;
+  while(CMAP_T)
+  {
+    char c = *cur;
+    if((c == sep) || (c == 0))
+    {
+      *cur = 0;
+      CMAP_LIST_PUSH(ret, CMAP_STRING(string, 0, proc_ctx));
+
+      if(c == 0) return ret;
+      *cur = sep;
+
+      cur++;
+      string = cur;
+    }
+    else cur++;
+  }
 }
 
 /*******************************************************************************
@@ -92,7 +119,7 @@ CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src)
 char * cmap_util_strdup(const char * src)
 {
   int size = (strlen(src) + 1) * sizeof(char);
-  char * dst = (char *)CMAP_MEM_INSTANCE -> alloc(size);
+  char * dst = cmap_mem_alloc(size);
   memcpy(dst, src, size);
   return dst;
 }

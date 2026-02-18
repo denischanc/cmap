@@ -13,14 +13,10 @@ typedef struct
   char ok;
 } CMAP_CONSUMEDTIME_US;
 
-typedef struct
-{
-  void (*start)(CMAP_CONSUMEDTIME_US * ct);
-  int64_t (*stop)(CMAP_CONSUMEDTIME_US * ct);
+void cmap_consumedtime_start(CMAP_CONSUMEDTIME_US * ct);
+int64_t cmap_consumedtime_stop(CMAP_CONSUMEDTIME_US * ct);
 
-  void (*log)(char lvl, CMAP_CONSUMEDTIME_US * ct, const char * what);
-} CMAP_CONSUMEDTIME_PUBLIC;
-
-extern const CMAP_CONSUMEDTIME_PUBLIC cmap_consumedtime_public;
+void cmap_consumedtime_log(char lvl, CMAP_CONSUMEDTIME_US * ct,
+  const char * what);
 
 #endif

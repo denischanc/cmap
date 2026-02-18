@@ -53,12 +53,9 @@ static void append_(INTERNAL * internal, const char * val, int size_append)
 
   if(new_size_max > internal -> size_max)
   {
-    CMAP_MEM_VAR;
-
-    char * new_val = (char *)mem -> alloc(new_size_max),
-      * old_val = internal -> val;
+    char * new_val = cmap_mem_alloc(new_size_max), * old_val = internal -> val;
     memcpy(new_val, old_val, off);
-    mem -> free(old_val);
+    cmap_mem_free(old_val);
 
     internal -> val = new_val;
     internal -> size_max = new_size_max;
@@ -107,9 +104,8 @@ static void clean(CMAP_STRING * this)
 static void delete(CMAP_LIFECYCLE * this)
 {
   INTERNAL * internal = (INTERNAL *)((CMAP_STRING *)this) -> internal;
-  CMAP_MEM_VAR;
-  CMAP_MEM_FREE(internal -> val, mem);
-  CMAP_MEM_FREE(internal, mem);
+  cmap_mem_free(internal -> val);
+  cmap_mem_free(internal);
 
   cmap_map_public.delete(this);
 }
@@ -122,14 +118,13 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_MEM_VAR;
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL, mem);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   if(size_inc < cmap_config_core_string_size_inc_min())
     size_inc = cmap_config_core_string_size_inc();
   internal -> size_inc = size_inc;
   internal -> size = (strlen(val_) + 1);
   internal -> size_max = adjusted_size_max(internal, 0);
-  internal -> val = (char *)mem -> alloc(internal -> size_max);
+  internal -> val = cmap_mem_alloc(internal -> size_max);
   memcpy(internal -> val, val_, internal -> size);
 
   this -> internal = internal;
@@ -138,7 +133,7 @@ static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   this -> append_sub = append_sub;
   this -> clean = clean;
 
-  cmap_log_public.debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val_);
+  cmap_log_debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val_);
 
   return this;
 }
@@ -153,7 +148,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_STRING);
+  CMAP_MEM_ALLOC_PTR(this, CMAP_STRING);
   return init(this, &initargs, val, size_inc);
 }
 

@@ -23,7 +23,7 @@ AC_PROG_SED
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS([stdint.h sys/param.h sys/time.h unistd.h])
+AC_CHECK_HEADERS([stdint.h strings.h sys/param.h sys/time.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
@@ -34,8 +34,7 @@ AC_TYPE_UINT64_T
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([gettimeofday mkdir realpath setenv strdup strerror strrchr
-  strstr])
+AC_CHECK_FUNCS([gettimeofday mkdir realpath setenv strcasecmp strchr strdup strerror strrchr])
 
 # Checks for platform.
 AC_MSG_NOTICE([Host cpu : --$host_cpu--])
@@ -55,6 +54,7 @@ AC_CONFIG_FILES([
   src/components/Makefile
   src/components/cli/Makefile
   src/components/console/Makefile
+  src/components/module/Makefile
   src/components/scheduler/Makefile
   src/core/Makefile
   src/core/cmp/Makefile

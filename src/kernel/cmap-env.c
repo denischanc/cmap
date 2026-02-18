@@ -9,6 +9,7 @@
 #include "cmap-util.h"
 #include "cmap-scheduler.h"
 #include "cmap-loop-timer.h"
+#include "cmap-module.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -153,14 +154,16 @@ static CMAP_REFSWATCHER * refswatcher(CMAP_ENV * this)
 static void bootstrap(CMAP_LOOP_TIMER * timer)
 {
   CMAP_ENV * env = timer -> data;
+
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
+
+  cmap_module_load_from_config(proc_ctx);
+
   INTERNAL * internal = (INTERNAL *)(env + 1);
   CMAP_ENV_MAIN main_ = internal -> main;
-  if(main_ != NULL)
-  {
-    CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
-    main_(proc_ctx);
-    CMAP_CALL_ARGS(proc_ctx, delete, NULL);
-  }
+  if(main_ != NULL) main_(proc_ctx);
+
+  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 
   nb_jobs_add(env, 0);
 }
@@ -201,13 +204,12 @@ static void delete(CMAP_ENV * this)
 
   if(internal -> refswatcher != NULL) CMAP_DELETE(internal -> refswatcher);
 
-  CMAP_MEM_INSTANCE_FREE(this);
+  cmap_mem_free(this);
 }
 
 CMAP_ENV * cmap_env_create()
 {
-  CMAP_ENV * this = (CMAP_ENV *)CMAP_MEM_INSTANCE -> alloc(
-    sizeof(CMAP_ENV) + sizeof(INTERNAL));
+  CMAP_ENV * this = cmap_mem_alloc(sizeof(CMAP_ENV) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
   internal -> main = NULL;

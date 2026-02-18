@@ -1,13 +1,10 @@
 #ifndef __CMAP_LOG_DEFINE_EXT_H__
 #define __CMAP_LOG_DEFINE_EXT_H__
 
-#define CMAP_LOG_LOOP(macro) \
-  macro(DEBUG, debug, 0) \
-  macro(INFO, info, 1) \
-  macro(WARN, warn, 2) \
-  macro(ERROR, error, 3) \
-  macro(FATAL, fatal, 4)
-
-#define CMAP_LOG_CONST_DECL(LVL, lvl, i) extern const char CMAP_LOG_##LVL;
+#define CMAP_LOG_DEBUG 0
+#define CMAP_LOG_INFO 1
+#define CMAP_LOG_WARN 2
+#define CMAP_LOG_ERROR 3
+#define CMAP_LOG_FATAL 4
 
 #endif

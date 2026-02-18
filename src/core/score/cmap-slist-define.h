@@ -128,8 +128,7 @@ static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
   if(internal -> used) \
   { \
     int chunk_size = internal -> chunk_size; \
-    chunk = (NAME##_CHUNK *)CMAP_MEM_INSTANCE -> alloc( \
-      sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
+    chunk = cmap_mem_alloc(sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
     first = (type *)(chunk + 1); \
     chunk -> first = first; \
     chunk -> last = first + (chunk_size - 1); \
@@ -165,7 +164,7 @@ static void name##_delete_first(NAME##_INTERNAL * internal) \
   internal -> first = chunk -> next; \
   internal -> first -> prev = NULL; \
   if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
-  else CMAP_MEM_INSTANCE_FREE(chunk); \
+  else cmap_mem_free(chunk); \
 } \
  \
 /***************************************************************************** \
@@ -185,7 +184,7 @@ static void name##_delete_last(NAME##_INTERNAL * internal) \
   internal -> last = chunk -> prev; \
   internal -> last -> next = NULL; \
   if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
-  else CMAP_MEM_INSTANCE_FREE(chunk); \
+  else cmap_mem_free(chunk); \
 } \
  \
 /***************************************************************************** \
@@ -635,14 +634,14 @@ static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
   { \
     NAME##_CHUNK * tmp = chunk; \
     chunk = chunk -> next; \
-    if(tmp != no_free) CMAP_MEM_INSTANCE_FREE(tmp); \
+    if(tmp != no_free) cmap_mem_free(tmp); \
   } \
 } \
  \
 static void name##_delete(CMAP_SLIST_##NAME * this) \
 { \
   name##_delete_chunks(this); \
-  CMAP_MEM_INSTANCE_FREE(this); \
+  cmap_mem_free(this); \
 } \
  \
 static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
@@ -684,7 +683,7 @@ static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
 { \
   if(chunk_size <= 0) chunk_size = cmap_config_core_list_chunk_size(); \
  \
-  CMAP_SLIST_##NAME * this = (CMAP_SLIST_##NAME *)CMAP_MEM_INSTANCE -> alloc( \
+  CMAP_SLIST_##NAME * this = cmap_mem_alloc( \
     sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
     sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
   name##_init(this, chunk_size); \

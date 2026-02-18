@@ -42,7 +42,7 @@ static CMAP_DOUBLE * set(CMAP_DOUBLE * this, double val)
 
 static void delete(CMAP_LIFECYCLE * this)
 {
-  CMAP_MEM_INSTANCE_FREE(((CMAP_DOUBLE *)this) -> internal);
+  cmap_mem_free(((CMAP_DOUBLE *)this) -> internal);
 
   cmap_map_public.delete(this);
 }
@@ -55,7 +55,7 @@ static CMAP_DOUBLE * init(CMAP_DOUBLE * this, CMAP_INITARGS * initargs,
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(internal, INTERNAL);
+  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> val = val;
 
   this -> internal = internal;
@@ -74,7 +74,7 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_DOUBLE);
+  CMAP_MEM_ALLOC_PTR(this, CMAP_DOUBLE);
   return init(this, &initargs, val);
 }
 

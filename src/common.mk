@@ -7,6 +7,7 @@ CMAP_BUILD_PATH = $(top_builddir)/src
 AM_CFLAGS = \
   -I$(CMAP_SRC_PATH)/components/cli \
   -I$(CMAP_SRC_PATH)/components/console \
+  -I$(CMAP_SRC_PATH)/components/module \
   -I$(CMAP_SRC_PATH)/components/scheduler \
   -I$(CMAP_SRC_PATH)/components \
   -I$(CMAP_SRC_PATH)/core/cmp \

@@ -85,13 +85,12 @@ static void rm(CMAP_ITERATOR_STREE * this)
 
 static void delete(CMAP_ITERATOR_STREE * this)
 {
-  CMAP_MEM_INSTANCE_FREE(this);
+  cmap_mem_free(this);
 }
 
 static CMAP_ITERATOR_STREE * create(CMAP_STREE_NODE ** stree)
 {
-  CMAP_MEM_VAR;
-  CMAP_ITERATOR_STREE * this = mem -> alloc(sizeof(CMAP_ITERATOR_STREE) +
+  CMAP_ITERATOR_STREE * this = cmap_mem_alloc(sizeof(CMAP_ITERATOR_STREE) +
     sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);

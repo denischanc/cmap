@@ -37,7 +37,7 @@ static void add(CMAP_REFSSTORE * this, CMAP_LIFECYCLE * lc, char created)
 
   if(cmap_sset_lc_public.add(&internal -> refs, lc))
   {
-    cmap_log_public.debug("[%p][refsstore] new ref : [%p]", this, lc);
+    cmap_log_debug("[%p][refsstore] new ref : [%p]", this, lc);
     if(created) internal -> nb_created++;
   }
 }
@@ -84,7 +84,7 @@ static void delete_refs(INTERNAL * internal, CMAP_LIFECYCLE * ret)
     if(in_refs && (lc != ret) && delete_ref(internal, lc)) nb_deleted++;
   }
 
-  cmap_log_public.debug("[%p][refsstore] deleted %d",
+  cmap_log_debug("[%p][refsstore] deleted %d",
     ((CMAP_REFSSTORE *)internal) - 1, nb_deleted);
 }
 
@@ -95,23 +95,22 @@ static void delete(CMAP_REFSSTORE * this, CMAP_MAP * ret)
 {
   INTERNAL * internal = (INTERNAL *)(this + 1);
 
-  cmap_log_public.debug("[%p][refsstore] created %d", this,
-    internal -> nb_created);
+  cmap_log_debug("[%p][refsstore] created %d", this, internal -> nb_created);
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.start(&consumed_time);
+  cmap_consumedtime_start(&consumed_time);
 #endif
   delete_refs(internal, (CMAP_LIFECYCLE *)ret);
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop(&consumed_time);
+  cmap_consumedtime_stop(&consumed_time);
 #endif
 
-  CMAP_MEM_INSTANCE_FREE(this);
+  cmap_mem_free(this);
 }
 
 static CMAP_REFSSTORE * create(CMAP_REFSWATCHER * refswatcher)
 {
-  CMAP_REFSSTORE * this = (CMAP_REFSSTORE *)CMAP_MEM_INSTANCE -> alloc(
+  CMAP_REFSSTORE * this = cmap_mem_alloc(
     sizeof(CMAP_REFSSTORE) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
@@ -132,7 +131,7 @@ static CMAP_REFSSTORE * create(CMAP_REFSWATCHER * refswatcher)
 #ifdef CONSUMED_TIME
 static void log_consumed_time(char lvl)
 {
-  cmap_consumedtime_public.log(lvl, &consumed_time, "refsstore");
+  cmap_consumedtime_log(lvl, &consumed_time, "refsstore");
 }
 #endif
 

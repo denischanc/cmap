@@ -4,19 +4,15 @@
 #include "cmap-mem-type.h"
 #include "cmap-mem-define.h"
 
-typedef struct
-{
-  CMAP_MEM * (*instance)();
+void cmap_mem_delete();
 
-  CMAP_MEM_STATE * (*state)();
+void * cmap_mem_alloc(int size);
+void cmap_mem_free(void * ptr);
 
-  char (*is_this)();
+char cmap_mem_is_this();
 
 #ifdef CONSUMED_TIME
-  void (*log_consumed_time)(char lvl);
+void cmap_mem_log_consumed_time(char lvl);
 #endif
-} CMAP_MEM_PUBLIC;
-
-extern const CMAP_MEM_PUBLIC cmap_mem_public;
 
 #endif

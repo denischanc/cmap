@@ -94,8 +94,7 @@ static void delete(CMAP_LIFECYCLE * lc)
 
 CMAP_PROTOTYPESTORE * cmap_prototypestore_create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MEM_VAR;
-  CMAP_PROTOTYPESTORE * this = (CMAP_PROTOTYPESTORE *)mem -> alloc(
+  CMAP_PROTOTYPESTORE * this = cmap_mem_alloc(
     sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
 
   CMAP_INITARGS initargs;

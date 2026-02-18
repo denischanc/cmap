@@ -15,7 +15,7 @@
 *******************************************************************************/
 
 #define VAR(prop, name) \
-  static const char * name##_val = NULL;
+  static char * name##_val = NULL;
 
 CMAP_KCLI_LOOP(VAR)
 
@@ -26,7 +26,7 @@ static char ** argv_ = NULL;
 *******************************************************************************/
 
 #define IMPL_GET(prop, name) \
-static const char * name() \
+char * cmap_kcli_##name() \
 { \
   return name##_val; \
 }
@@ -58,11 +58,11 @@ static void switch_args(int * i, int * argc, char *** argv)
     switch_args(&i, &argc, &argv); \
   }
 
-static void parse(int argc, char ** argv)
+void cmap_kcli_parse(int argc, char ** argv)
 {
   for(int i = 0; i < argc; i++)
   {
-    const char * arg = argv[i];
+    char * arg = argv[i];
     if(!strncmp(arg, ARG_PREFIX, ARG_PREFIX_SIZE))
     {
       char * off = strchr(arg, '=');
@@ -88,23 +88,12 @@ static void parse(int argc, char ** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-static int get_argc()
+int cmap_kcli_argc()
 {
   return argc_;
 }
 
-static char ** get_argv()
+char ** cmap_kcli_argv()
 {
   return argv_;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define SET(prop, name) name,
-
-const CMAP_KCLI_PUBLIC cmap_kcli_public =
-{
-  CMAP_KCLI_LOOP(SET)
-  parse, get_argc, get_argv
-};

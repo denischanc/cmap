@@ -183,7 +183,7 @@ static void delete_apply(CMAP_MAP ** val, void * data)
 {
   if(*val != NULL)
   {
-    cmap_log_public.debug("[%p][%s]-nested->[[%p]==>refs--]",
+    cmap_log_debug("[%p][%s]-nested->[[%p]==>refs--]",
       data, CMAP_NATURE(data), *val);
     CMAP_DEC_REFS(*val);
   }
@@ -232,7 +232,7 @@ static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_INSTANCE_ALLOC_PTR(this, CMAP_LIST);
+  CMAP_MEM_ALLOC_PTR(this, CMAP_LIST);
   return init(this, &initargs, chunk_size);
 }
 

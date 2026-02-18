@@ -32,7 +32,7 @@ typedef struct
 
 static REF_EXT * ref_ext_create(CMAP_LIFECYCLE * lc)
 {
-  CMAP_MEM_INSTANCE_ALLOC_PTR(ret, REF_EXT);
+  CMAP_MEM_ALLOC_PTR(ret, REF_EXT);
 
   ret -> lc = lc;
   ret -> wrappers = cmap_slist_lc_public.create(0);
@@ -45,7 +45,7 @@ static void ref_ext_delete(REF_EXT * ref_ext)
 {
   CMAP_DELETE(ref_ext -> wrappers);
   CMAP_DELETE(ref_ext -> nesteds);
-  CMAP_MEM_INSTANCE_FREE(ref_ext);
+  cmap_mem_free(ref_ext);
 }
 
 static int64_t ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
@@ -264,7 +264,7 @@ static void delete_all_ref_exts(CMAP_SSET_REF_EXT ** all_ref_exts)
 static void delete_if_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
 {
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.start(&consumed_time_delete);
+  cmap_consumedtime_start(&consumed_time_delete);
 #endif
 
   CMAP_SSET_REF_EXT * all_ref_exts = NULL, * way_ref_exts = NULL;
@@ -272,11 +272,11 @@ static void delete_if_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
   ZOMBIE_DATA data = {this, lc, lc, NULL, &all_ref_exts, &way_ref_exts, 0};
   if(is_zombie_w_ref_exts(&data))
   {
-    cmap_log_public.debug("[%p][%s] zombie deletion", lc, CMAP_NATURE(lc));
+    cmap_log_debug("[%p][%s] zombie deletion", lc, CMAP_NATURE(lc));
 
     delete_zombie(way_ref_exts);
 
-    cmap_log_public.debug("[%p][refswatcher] %d zombie(s) deleted", this,
+    cmap_log_debug("[%p][refswatcher] %d zombie(s) deleted", this,
       ref_ext_size(way_ref_exts));
   }
 
@@ -284,7 +284,7 @@ static void delete_if_zombie(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc)
   delete_all_ref_exts(&all_ref_exts);
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop(&consumed_time_delete);
+  cmap_consumedtime_stop(&consumed_time_delete);
 #endif
 }
 
@@ -311,10 +311,10 @@ static void watch(CMAP_REFSWATCHER * this)
   INTERNAL * internal = (INTERNAL *)(this + 1);
   if(internal -> refs == NULL) return;
 
-  cmap_log_public.debug("[%p][refswatcher] start watching", this);
+  cmap_log_debug("[%p][refswatcher] start watching", this);
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.start(&consumed_time_watch);
+  cmap_consumedtime_start(&consumed_time_watch);
 #endif
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env);
@@ -328,10 +328,10 @@ static void watch(CMAP_REFSWATCHER * this)
   CMAP_CALL_ARGS(proc_ctx, delete, NULL);
 
 #ifdef CONSUMED_TIME
-  cmap_consumedtime_public.stop(&consumed_time_watch);
+  cmap_consumedtime_stop(&consumed_time_watch);
 #endif
 
-  cmap_log_public.debug("[%p][refswatcher] stop watching", this);
+  cmap_log_debug("[%p][refswatcher] stop watching", this);
 }
 
 /*******************************************************************************
@@ -365,14 +365,14 @@ static void delete(CMAP_REFSWATCHER * this)
   ((INTERNAL *)(this + 1)) -> deletion = CMAP_T;
   watch(this);
 
-  CMAP_MEM_INSTANCE_FREE(this);
+  cmap_mem_free(this);
 
-  cmap_log_public.debug("[%p][refswatcher] deleted", this);
+  cmap_log_debug("[%p][refswatcher] deleted", this);
 }
 
 CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
 {
-  CMAP_REFSWATCHER * this = (CMAP_REFSWATCHER *)CMAP_MEM_INSTANCE -> alloc(
+  CMAP_REFSWATCHER * this = cmap_mem_alloc(
     sizeof(CMAP_REFSWATCHER) + sizeof(INTERNAL));
 
   INTERNAL * internal = (INTERNAL *)(this + 1);
@@ -388,7 +388,7 @@ CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
   if(cmap_kernel_instance() -> state() != CMAP_KERNEL_S_EXITING)
     loop_init(this);
 
-  cmap_log_public.debug("[%p][refswatcher] created", this);
+  cmap_log_debug("[%p][refswatcher] created", this);
 
   return this;
 }
@@ -399,8 +399,7 @@ CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
 #ifdef CONSUMED_TIME
 void cmap_refswatcher_log_consumed_time(char lvl)
 {
-  cmap_consumedtime_public.log(lvl, &consumed_time_delete,
-    "refswatcher/delete");
-  cmap_consumedtime_public.log(lvl, &consumed_time_watch, "refswatcher/watch");
+  cmap_consumedtime_log(lvl, &consumed_time_delete, "refswatcher/delete");
+  cmap_consumedtime_log(lvl, &consumed_time_watch, "refswatcher/watch");
 }
 #endif

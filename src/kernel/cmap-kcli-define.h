@@ -10,9 +10,10 @@
   macro(core.list_chunk_size, core_list_chunk_size) \
   macro(core.string_size_inc_min, core_string_size_inc_min) \
   macro(core.string_size_inc, core_string_size_inc) \
-  macro(pool.size, pool_size)
+  macro(pool.size, pool_size) \
+  macro(modules, modules)
 
 #define CMAP_KCLI_DECL(prop, name) \
-  const char * (*name)();
+  char * cmap_kcli_##name();
 
 #endif

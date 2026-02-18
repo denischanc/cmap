@@ -46,10 +46,10 @@ static void test_push_pop_unshift_shift()
   for(int i = 0; i < 5; i++) CMAP_CALL(list, shift);
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
 
-  printf("Allocated memory = [%d]\n", cmap_mem_public.state() -> size_alloc);
-  CMAP_TEST_ASSERT_NOMSG(cmap_mem_public.state() -> size_alloc != 0);
+  printf("Allocated memory = [%d]\n", cmap_mem_state() -> size_alloc);
+  CMAP_TEST_ASSERT_NOMSG(cmap_mem_state() -> size_alloc != 0);
   CMAP_CALL(list, delete);
-  CMAP_TEST_ASSERT_NOMSG(cmap_mem_public.state() -> size_alloc == 0);
+  CMAP_TEST_ASSERT_NOMSG(cmap_mem_state() -> size_alloc == 0);
 }
 
 static void test_add_rm()
@@ -84,7 +84,7 @@ static void test_add_rm()
   CMAP_TEST_ASSERT_NOMSG(CMAP_CALL(list, size) == 0);
 
   CMAP_CALL(list, delete);
-  CMAP_TEST_ASSERT_NOMSG(cmap_mem_public.state() -> size_alloc == 0);
+  CMAP_TEST_ASSERT_NOMSG(cmap_mem_state() -> size_alloc == 0);
 }
 
 int main(int argc, char * argv[])

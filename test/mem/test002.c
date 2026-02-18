@@ -64,8 +64,7 @@ static void nb_stree2list(CMAP_STREE_NODE * node, char is_eq, void * data)
 
 static void nb_delete(CMAP_STREE_NODE * node, char is_eq, void * data)
 {
-  CMAP_MEM * mem = data;
-  mem -> free(node);
+  cmap_mem_free(node);
 }
 
 /*******************************************************************************
@@ -113,14 +112,13 @@ CMAP_STREE_APPLY(stree2list_apply, NULL, nb_stree2list, NULL);
 
 int main(int argc, char * argv[])
 {
-  CMAP_MEM * mem = cmap_mem_public.instance();
   NB * nb_stree = NULL, * tmp;
 
   /********** Fill stree */
   int i;
   for(i = 0; i < SIZE; i++)
   {
-    tmp = (NB *)mem -> alloc(sizeof(NB));
+    tmp = CMAP_MEM_ALLOC(NB);
     tmp -> nb = (random() % NB_MAX);
 
     CMAP_STREE_ADDFN(nb, &nb_stree, tmp, tmp);
@@ -130,7 +128,7 @@ int main(int argc, char * argv[])
 
   /********** Check stree */
   STREE2LIST_ARGS args;
-  args.list = (int *)mem -> alloc(SIZE * sizeof(int));
+  args.list = cmap_mem_alloc(SIZE * sizeof(int));
 
   CMAP_TEST_ASSERT(check_sort(CMAP_T, &args, &stree2list_apply, nb_stree),
     "Check gt_first sort");
@@ -138,7 +136,7 @@ int main(int argc, char * argv[])
     "Check not gt_first sort");
 
   /********** Check mem */
-  CMAP_MEM_STATE * mem_state = cmap_mem_public.state();
+  CMAP_MEM_STATE * mem_state = cmap_mem_state();
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == SIZE + 3);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);
@@ -149,14 +147,14 @@ int main(int argc, char * argv[])
     SIZE * (sizeof(NB) + sizeof(int)));
 
   /********** Free mem */
-  CMAP_STREE_QUICKAPPLYFN(nb_stree, nb_delete, mem);
+  CMAP_STREE_QUICKAPPLYFN(nb_stree, nb_delete, NULL);
   nb_stree = NULL;
 
-  mem -> free(args.list);
+  cmap_mem_free(args.list);
   args.list = NULL;
 
   /********** Check mem */
-  mem_state = cmap_mem_public.state();
+  mem_state = cmap_mem_state();
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_chunk == 1);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block == 2);
   CMAP_TEST_ASSERT_NOMSG(mem_state -> nb_block_free == 1);
