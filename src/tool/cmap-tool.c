@@ -35,17 +35,17 @@ const char * cmap_tool_name;
 *******************************************************************************/
 
 #define MODULE_VAL_DESC(NAME, name, desc) \
-  cmap_usage_public.display_val_desc(CMAP_##NAME##_MODULE_NAME, desc);
+  cmap_usage_display_val_desc(CMAP_##NAME##_MODULE_NAME, desc);
 
 static void usage()
 {
-  cmap_console_public.error("%s%s-%s%s\n",
+  cmap_console_error("%s%s-%s%s\n",
     CMAP_ESC_GREEN, PACKAGE, VERSION, CMAP_ESC_RST);
 
   int ids[] = {CMAP_CLI_ID_VERSION, 0};
-  cmap_usage_public.usage("%s [module] ...", ids);
+  cmap_usage("%s [module] ...", ids);
 
-  cmap_console_public.error("%smodules%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
+  cmap_console_error("%smodules%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
   MODULE_LOOP(MODULE_VAL_DESC)
 }
 
@@ -56,19 +56,19 @@ static void usage()
   if(!strcmp(argv[0], CMAP_##NAME##_MODULE_NAME)) \
   { \
     module_fnd = (1 == 1); \
-    ret = cmap_##name##_public.main(argc, argv); \
+    ret = cmap_##name##_main(argc, argv); \
   }
 
 int main(int argc, char * argv[])
 {
   cmap_tool_name = argv[0];
 
-  cmap_cli_public.mng_opts(&argc, &argv);
+  cmap_cli_mng_opts(&argc, &argv);
 
   int ret = EXIT_FAILURE;
-  if(cmap_config_public.is_version())
+  if(cmap_config_is_version())
   {
-    cmap_console_public.info("%s\n", VERSION);
+    cmap_console_info("%s\n", VERSION);
     ret = EXIT_SUCCESS;
   }
   else if(argc < 1) usage();
@@ -79,8 +79,8 @@ int main(int argc, char * argv[])
     if(!module_fnd) usage();
   }
 
-  cmap_config_public.clean();
-  cmap_cli_public.clean();
+  cmap_config_clean();
+  cmap_cli_clean();
 
   return ret;
 }

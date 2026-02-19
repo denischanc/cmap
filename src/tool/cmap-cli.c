@@ -24,19 +24,19 @@ CMAP_CLI_LOOP(BOOL_VAR, STRING_VAR, STRINGS_VAR)
 *******************************************************************************/
 
 #define BOOL_IMPL(ID, name, long_opt, opt, desc) \
-static char is_##name() \
+char cmap_cli_is_##name() \
 { \
   return name##_val; \
 }
 
 #define STRING_IMPL(ID, name, long_opt, opt, desc) \
-static const char * name() \
+const char * cmap_cli_##name() \
 { \
   return name##_val; \
 }
 
 #define STRINGS_IMPL(ID, name, long_opt, opt, desc) \
-static CMAP_STRINGS * name() \
+CMAP_STRINGS * cmap_cli_##name() \
 { \
   return name##_val; \
 }
@@ -61,12 +61,12 @@ static inline int nb_opts()
 #define NO_ARG_OPTS(ID, name, long_opt, opt, desc) \
   struct option opt_##name = {#long_opt, no_argument, NULL, opt}; \
   long_opts[i++] = opt_##name; \
-  cmap_string_public.append_args(&short_opts, "%c", opt);
+  cmap_string_append_args(&short_opts, "%c", opt);
 
 #define ARG_OPTS(ID, name, long_opt, opt, desc) \
   struct option opt_##name = {#long_opt, required_argument, NULL, opt}; \
   long_opts[i++] = opt_##name; \
-  cmap_string_public.append_args(&short_opts, "%c:", opt);
+  cmap_string_append_args(&short_opts, "%c:", opt);
 
 #define BOOL_CASE(ID, name, long_opt, opt, desc) \
   case opt: name##_val = (1 == 1); break;
@@ -75,9 +75,9 @@ static inline int nb_opts()
   case opt: free(name##_val); name##_val = strdup(optarg); break;
 
 #define STRINGS_CASE(ID, name, long_opt, opt, desc) \
-  case opt: cmap_strings_public.add(&name##_val, optarg); break;
+  case opt: cmap_strings_add(&name##_val, optarg); break;
 
-static void mng_opts(int * argc, char *** argv)
+void cmap_cli_mng_opts(int * argc, char *** argv)
 {
   int argc_bup = *argc;
   for(int i = 0; (i < *argc) && (*argc == argc_bup); i++)
@@ -119,24 +119,9 @@ static void mng_opts(int * argc, char *** argv)
   free(name##_val); name##_val = NULL;
 
 #define STRINGS_CLEAN(ID, name, long_opt, opt, desc) \
-  cmap_strings_public.delete(&name##_val);
+  cmap_strings_delete(&name##_val);
 
-static void clean()
+void cmap_cli_clean()
 {
   CMAP_CLI_LOOP(BOOL_CLEAN, STRING_CLEAN, STRINGS_CLEAN)
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define BOOL_SET(ID, name, long_opt, opt, desc) is_##name,
-
-#define STRING_SET(ID, name, long_opt, opt, desc) name,
-
-#define STRINGS_SET(ID, name, long_opt, opt, desc) name,
-
-const CMAP_CLI_PUBLIC cmap_cli_public =
-{
-  CMAP_CLI_LOOP(BOOL_SET, STRING_SET, STRINGS_SET)
-  mng_opts, clean
-};

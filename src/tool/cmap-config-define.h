@@ -20,15 +20,15 @@
   macro_strings(lib, LIB)
 
 #define CMAP_CONFIG_BOOL_DECL(name, ENV_VAR) \
-  void (*set_##name)(char v); \
-  char (*is_##name)();
+  void cmap_config_set_##name(char v); \
+  char cmap_config_is_##name();
 
 #define CMAP_CONFIG_STRING_DECL(name, ENV_VAR, dft) \
-  void (*set_##name)(const char * v); \
-  const char * (*name)();
+  void cmap_config_set_##name(const char * v); \
+  const char * cmap_config_##name();
 
 #define CMAP_CONFIG_STRINGS_DECL(name, ENV_VAR) \
-  void (*add_##name)(const char * v); \
-  CMAP_STRINGS * (*name)();
+  void cmap_config_add_##name(const char * v); \
+  CMAP_STRINGS * cmap_config_##name();
 
 #endif

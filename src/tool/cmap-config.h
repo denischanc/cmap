@@ -3,14 +3,9 @@
 
 #include "cmap-config-define.h"
 
-typedef struct
-{
-  CMAP_CONFIG_LOOP(CMAP_CONFIG_BOOL_DECL, CMAP_CONFIG_STRING_DECL,
-    CMAP_CONFIG_STRINGS_DECL)
+CMAP_CONFIG_LOOP(CMAP_CONFIG_BOOL_DECL, CMAP_CONFIG_STRING_DECL,
+  CMAP_CONFIG_STRINGS_DECL)
 
-  void (*clean)();
-} CMAP_CONFIG_PUBLIC;
-
-extern const CMAP_CONFIG_PUBLIC cmap_config_public;
+void cmap_config_clean();
 
 #endif

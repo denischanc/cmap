@@ -6,16 +6,12 @@ typedef struct
   char * map, new, affected;
 } CMAP_PART_NAME2MAP_RET;
 
-typedef struct
-{
-  void (*put)(const char * map, const char * name, const char * next_name);
+void cmap_part_name2map_put(const char * map, const char * name,
+  const char * next_name);
 
-  CMAP_PART_NAME2MAP_RET (*get)(const char * map, const char * name,
-    char * next_name);
+CMAP_PART_NAME2MAP_RET cmap_part_name2map_get(const char * map,
+  const char * name, char * next_name);
 
-  void (*clean_after_proc)();
-} CMAP_PART_NAME2MAP_PUBLIC;
-
-extern const CMAP_PART_NAME2MAP_PUBLIC cmap_part_name2map_public;
+void cmap_part_name2map_clean_after_proc();
 
 #endif

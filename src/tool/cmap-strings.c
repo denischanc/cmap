@@ -23,7 +23,7 @@ static int contains_helper(CMAP_STRINGS * strings, const char * string,
   return i + 1;
 }
 
-static int contains(CMAP_STRINGS * strings, const char * string)
+int cmap_strings_contains(CMAP_STRINGS * strings, const char * string)
 {
   int ret = -1;
   if(strings != NULL) contains_helper(strings, string, &ret);
@@ -33,9 +33,9 @@ static int contains(CMAP_STRINGS * strings, const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
-static char add(CMAP_STRINGS ** strings_ptr, const char * string)
+char cmap_strings_add(CMAP_STRINGS ** strings_ptr, const char * string)
 {
-  if(contains(*strings_ptr, string) < 0)
+  if(cmap_strings_contains(*strings_ptr, string) < 0)
   {
     cmap_stack_strings_push(strings_ptr, strdup(string));
     return (1 == 1);
@@ -60,7 +60,7 @@ static int set_helper(CMAP_STRINGS * strings, int off, const char * string)
   return cur;
 }
 
-static void set(CMAP_STRINGS * strings, int off, const char * string)
+void cmap_strings_set(CMAP_STRINGS * strings, int off, const char * string)
 {
   set_helper(strings, off, string);
 }
@@ -68,11 +68,11 @@ static void set(CMAP_STRINGS * strings, int off, const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
-static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
+void cmap_strings_apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
   void * data)
 {
   if(strings == NULL) return;
-  apply(strings -> next, fn, data);
+  cmap_strings_apply(strings -> next, fn, data);
 
   fn(strings -> v, data);
 }
@@ -82,18 +82,18 @@ static void apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
 
 static void add_all_apply(const char * string, void * data)
 {
-  add(data, string);
+  cmap_strings_add(data, string);
 }
 
-static void add_all(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others)
+void cmap_strings_add_all(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others)
 {
-  apply(others, add_all_apply, strings_ptr);
+  cmap_strings_apply(others, add_all_apply, strings_ptr);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STRINGS * split(const char * string)
+CMAP_STRINGS * cmap_strings_split(const char * string)
 {
   CMAP_STRINGS * ret = NULL;
 
@@ -104,7 +104,7 @@ static CMAP_STRINGS * split(const char * string)
     {
       char c = *end;
 
-      if(begin < end) { *end = 0; add(&ret, begin); }
+      if(begin < end) { *end = 0; cmap_strings_add(&ret, begin); }
 
       if(c == 0) { free(work); return ret; }
 
@@ -118,13 +118,7 @@ static CMAP_STRINGS * split(const char * string)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_STRINGS ** strings_ptr)
+void cmap_strings_delete(CMAP_STRINGS ** strings_ptr)
 {
   while(*strings_ptr != NULL) free(cmap_stack_strings_pop(strings_ptr));
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_STRINGS_PUBLIC cmap_strings_public =
-  {contains, add, set, apply, add_all, split, delete};

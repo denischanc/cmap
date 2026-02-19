@@ -322,6 +322,6 @@ op_mul_div_cmp: cmap
 
 static void cmap_parser_error(yyscan_t yyscanner, const char * msg)
 {
-  cmap_console_public.error("[%s:%d:%d] %s\n", cmap_do_parse_public.path(),
+  cmap_console_error("[%s:%d:%d] %s\n", cmap_do_parse_public.path(),
     cmap_parser_get_lineno(yyscanner), cmap_parser_get_column(yyscanner), msg);
 }

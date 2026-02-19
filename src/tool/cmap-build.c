@@ -19,11 +19,10 @@
 
 static void add_include(const char * out_h_name)
 {
-  if(!cmap_config_public.is_only_c())
+  if(!cmap_config_is_only_c())
   {
-    cmap_part_public.add_include(
-      cmap_file_util_public.basename(out_h_name), (1 == 1));
-    cmap_string_public.append(cmap_part_public.includes(), "\n");
+    cmap_part_public.add_include(cmap_file_util_basename(out_h_name), (1 == 1));
+    cmap_string_append(cmap_part_public.includes(), "\n");
   }
   else cmap_part_public.add_include("cmap-ext.h", (1 == 0));
 
@@ -35,14 +34,13 @@ static void add_include(const char * out_h_name)
 
 static char generate_c(const char * out_name)
 {
-  if(!cmap_config_public.is_quiet()) cmap_console_public.info(
+  if(!cmap_config_is_quiet()) cmap_console_info(
     "==[[ %sGenerate%s : %s_%s_%s\n", CMAP_ESC_BBLUE, CMAP_ESC_RST,
     CMAP_ESC_YELLOW, out_name, CMAP_ESC_RST);
 
-  if(cmap_config_public.is_add_main())
-    cmap_build_main_public.impl(cmap_part_public.main());
+  if(cmap_config_is_add_main()) cmap_build_main_impl(cmap_part_public.main());
 
-  return cmap_file_util_public.to_file(out_name, "\n%s\n%s",
+  return cmap_file_util_to_file(out_name, "\n%s\n%s",
     *cmap_part_public.includes(), *cmap_part_public.main());
 }
 
@@ -65,19 +63,19 @@ static char * create_upper(const char * name)
 
 static char generate_h(const char * out_name)
 {
-  if(!cmap_config_public.is_quiet()) cmap_console_public.info(
+  if(!cmap_config_is_quiet()) cmap_console_info(
     "==[[ %sGenerate%s : %s_%s_%s\n", CMAP_ESC_BBLUE, CMAP_ESC_RST,
     CMAP_ESC_YELLOW, out_name, CMAP_ESC_RST);
 
   char * upper_out_name = create_upper(out_name);
 
-  char ret = cmap_file_util_public.to_file(out_name,
+  char ret = cmap_file_util_to_file(out_name,
     "#ifndef __%s__\n"
     "#define __%s__\n\n"
     "#include %s\n\n"
     "%s\n"
     "#endif\n",
-    upper_out_name, upper_out_name, (cmap_config_public.is_relative_inc()) ?
+    upper_out_name, upper_out_name, (cmap_config_is_relative_inc()) ?
     "\"cmap-ext.h\"" : "<cmap/cmap-ext.h>", *cmap_part_public.headers());
 
   free(upper_out_name);
@@ -88,29 +86,28 @@ static char generate_h(const char * out_name)
 /*******************************************************************************
 *******************************************************************************/
 
-static int main_(int argc, char * argv[])
+int cmap_build_main(int argc, char * argv[])
 {
-  if((argc < 3) || cmap_config_public.is_help())
+  if((argc < 3) || cmap_config_is_help())
   {
     int ids[] = {CMAP_CLI_ID_RELATIVE_INC, CMAP_CLI_ID_ONLY_C, CMAP_CLI_ID_FN,
       CMAP_CLI_ID_ADD_MAIN, CMAP_CLI_ID_QUIET, 0};
-    return cmap_usage_public.usage(
+    return cmap_usage(
       CMAP_BUILD_MODULE_NAME " [cmap file] [c/h root file] %s", ids);
   }
 
-  cmap_fn_name_public.to_config_when_null(argv[1]);
+  cmap_fn_name_to_config_when_null(argv[1]);
 
   char * out_name = argv[2], * out_c_name = NULL, * out_h_name = NULL;
-  cmap_string_public.append_args(&out_c_name, "%s.c", out_name);
-  if(!cmap_config_public.is_only_c())
-    cmap_string_public.append_args(&out_h_name, "%s.h", out_name);
+  cmap_string_append_args(&out_c_name, "%s.c", out_name);
+  if(!cmap_config_is_only_c())
+    cmap_string_append_args(&out_h_name, "%s.h", out_name);
 
   add_include(out_h_name);
   char ok = (1 == 1);
   if(!cmap_do_parse_public.parse(argv[1])) ok = (1 == 0);
   if(ok && !generate_c(out_c_name)) ok = (1 == 0);
-  if(ok && !cmap_config_public.is_only_c() && !generate_h(out_h_name))
-    ok = (1 == 0);
+  if(ok && !cmap_config_is_only_c() && !generate_h(out_h_name)) ok = (1 == 0);
 
   cmap_part_public.clean();
   free(out_c_name);
@@ -118,8 +115,3 @@ static int main_(int argc, char * argv[])
 
   return ok ? EXIT_SUCCESS : EXIT_FAILURE;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_BUILD_PUBLIC cmap_build_public = {main_};

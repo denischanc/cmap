@@ -10,19 +10,14 @@ typedef struct
   char is_def;
 } CMAP_PART_VAR_RET;
 
-typedef struct
-{
-  char (*is_loc)(const char * name, CMAP_PART_CTX * ctx);
-  char (*is_proc_ctx_def)(const char * name, CMAP_PART_CTX * ctx);
+char cmap_part_var_is_loc(const char * name, CMAP_PART_CTX * ctx);
+char cmap_part_var_is_proc_ctx_def(const char * name, CMAP_PART_CTX * ctx);
 
-  void (*put_loc)(const char * name, const char * next_name);
-  char (*put_no_loc)(const char * map, const char * name,
+void cmap_part_var_put_loc(const char * name, const char * next_name);
+char cmap_part_var_put_no_loc(const char * map, const char * name,
     const char * next_name);
 
-  CMAP_PART_VAR_RET (*get)(const char * map, const char * name,
+CMAP_PART_VAR_RET cmap_part_var_get(const char * map, const char * name,
     char * next_name);
-} CMAP_PART_VAR_PUBLIC;
-
-extern const CMAP_PART_VAR_PUBLIC cmap_part_var_public;
 
 #endif

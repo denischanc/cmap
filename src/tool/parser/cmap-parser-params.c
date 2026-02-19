@@ -18,7 +18,7 @@ static CMAP_STRINGS * params = NULL;
 
 static void clone()
 {
-  cmap_strings_public.add_all(&params, cmap_part_public.ctx.get_params());
+  cmap_strings_add_all(&params, cmap_part_public.ctx.get_params());
 }
 
 /*******************************************************************************
@@ -30,15 +30,15 @@ static void get_apply(const char * map, void * data)
   if(type == NULL) type = "CMAP_MAP *";
 
   CMAP_PARSER_PARAMS_RET * ret = data;
-  cmap_string_public.append_args(&ret -> decl, ", %s %s", type, map);
-  cmap_string_public.append_args(&ret -> impl, ", %s", map);
+  cmap_string_append_args(&ret -> decl, ", %s %s", type, map);
+  cmap_string_append_args(&ret -> impl, ", %s", map);
 }
 
 static CMAP_PARSER_PARAMS_RET get()
 {
   CMAP_PARSER_PARAMS_RET ret = {strdup(""), strdup("")};
-  cmap_strings_public.apply(params, get_apply, &ret);
-  cmap_strings_public.delete(&params);
+  cmap_strings_apply(params, get_apply, &ret);
+  cmap_strings_delete(&params);
   return ret;
 }
 

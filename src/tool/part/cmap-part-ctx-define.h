@@ -8,7 +8,8 @@
   macro(BLOCK, block, 3) \
   macro(LOOP, loop, 4)
 
-#define CMAP_PART_CTX_NATURE_DECL(NAME, name, val) void (*nature_##name)();
+#define CMAP_PART_CTX_NATURE_DECL(NAME, name, val) \
+  void cmap_part_ctx_nature_##name();
 
 #define CMAP_PART_CTX_FEATURE_LOOP(macro) \
   macro(ctx_cmap, (1 << 0)) \
@@ -17,6 +18,6 @@
   macro(fwd_name, (1 << 3))
 
 #define CMAP_PART_CTX_FEATURE_DECL(name, val) \
-  char (*is_feature_##name)(CMAP_PART_CTX * ctx);
+  char cmap_part_ctx_is_feature_##name(CMAP_PART_CTX * ctx);
 
 #endif

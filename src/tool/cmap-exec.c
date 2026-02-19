@@ -22,12 +22,12 @@ static int compile(int argc, char ** argv)
   argv_compile[0] = CMAP_COMPILE_MODULE_NAME;
   for(int i = 0; i < argc; i++) argv_compile[i + 1] = argv[i];
 
-  char quiet_bup = cmap_config_public.is_quiet();
-  cmap_config_public.set_quiet(1 == 1);
+  char quiet_bup = cmap_config_is_quiet();
+  cmap_config_set_quiet(1 == 1);
 
-  int ret = cmap_compile_public.main(argc + 1, argv_compile);
+  int ret = cmap_compile_main(argc + 1, argv_compile);
 
-  cmap_config_public.set_quiet(quiet_bup);
+  cmap_config_set_quiet(quiet_bup);
 
   free(argv_compile);
 
@@ -42,9 +42,9 @@ static void do_exec_upd_env()
   char * val = NULL;
 
   const char * cur = getenv("LD_LIBRARY_PATH");
-  if(cur != NULL) cmap_string_public.append_args(&val, "%s:", cur);
+  if(cur != NULL) cmap_string_append_args(&val, "%s:", cur);
 
-  cmap_string_public.append(&val, CMAP_LIBDIR);
+  cmap_string_append(&val, CMAP_LIBDIR);
 
   setenv("LD_LIBRARY_PATH", val, 1);
   free(val);
@@ -52,7 +52,7 @@ static void do_exec_upd_env()
 
 static int do_exec(const char * cmap_path, int argc, char ** argv)
 {
-  char * exec_path = cmap_compile_public.exec_path(cmap_path);
+  char * exec_path = cmap_compile_exec_path(cmap_path);
 
   do_exec_upd_env();
   char ** argv_exec = malloc((argc + 2) * sizeof(char *));
@@ -61,7 +61,7 @@ static int do_exec(const char * cmap_path, int argc, char ** argv)
   argv_exec[argc + 1] = NULL;
   execv(exec_path, argv_exec);
 
-  cmap_console_public.error("[%s] %s\n", exec_path, strerror(errno));
+  cmap_console_error("[%s] %s\n", exec_path, strerror(errno));
   free(exec_path);
   free(argv_exec);
   return EXIT_FAILURE;
@@ -70,13 +70,13 @@ static int do_exec(const char * cmap_path, int argc, char ** argv)
 /*******************************************************************************
 *******************************************************************************/
 
-static int main_(int argc, char * argv[])
+int cmap_exec_main(int argc, char * argv[])
 {
-  if((argc < 2) || cmap_config_public.is_help())
+  if((argc < 2) || cmap_config_is_help())
   {
     int ids[] = {CMAP_CLI_ID_DEPENDANCE, CMAP_CLI_ID_HEADER_DIR,
       CMAP_CLI_ID_WORK_DIR, 0};
-    return cmap_usage_public.usage(CMAP_EXEC_MODULE_NAME
+    return cmap_usage(CMAP_EXEC_MODULE_NAME
       " [main cmap file] ([cmap file]...) %s (-- [exec args]...)", ids);
   }
 
@@ -94,8 +94,3 @@ static int main_(int argc, char * argv[])
 
   return do_exec(argv[1], argc - exec_args_off, argv + exec_args_off);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_EXEC_PUBLIC cmap_exec_public = {main_};

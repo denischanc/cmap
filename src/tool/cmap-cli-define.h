@@ -37,12 +37,12 @@
   macro_strings(LIB, lib, lib, 'l', "Add lib")
 
 #define CMAP_CLI_BOOL_DECL(ID, name, long_opt, opt, desc) \
-  char (*is_##name)();
+  char cmap_cli_is_##name();
 
 #define CMAP_CLI_STRING_DECL(ID, name, long_opt, opt, desc) \
-  const char * (*name)();
+  const char * cmap_cli_##name();
 
 #define CMAP_CLI_STRINGS_DECL(ID, name, long_opt, opt, desc) \
-  CMAP_STRINGS * (*name)();
+  CMAP_STRINGS * cmap_cli_##name();
 
 #endif

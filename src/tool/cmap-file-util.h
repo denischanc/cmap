@@ -1,16 +1,11 @@
 #ifndef __CMAP_FILE_UTIL_H__
 #define __CMAP_FILE_UTIL_H__
 
-typedef struct
-{
-  char (*to_file)(const char * path, const char * txt, ...);
+char cmap_file_util_to_file(const char * path, const char * txt, ...);
 
-  char * (*dirname)(const char * path);
-  const char * (*basename)(const char * path);
-  char * (*basename_no_ext)(const char * path);
-  const char * (*extension)(const char * path);
-} CMAP_FILE_UTIL_PUBLIC;
-
-extern const CMAP_FILE_UTIL_PUBLIC cmap_file_util_public;
+char * cmap_file_util_dirname(const char * path);
+const char * cmap_file_util_basename(const char * path);
+char * cmap_file_util_basename_no_ext(const char * path);
+const char * cmap_file_util_extension(const char * path);
 
 #endif

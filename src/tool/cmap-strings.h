@@ -8,23 +8,19 @@ typedef CMAP_STACK_STRINGS CMAP_STRINGS;
 
 typedef void (*CMAP_STRINGS_STRING_FN)(const char * string, void * data);
 
-typedef struct
-{
-  int (*contains)(CMAP_STRINGS * strings, const char * string);
+int cmap_strings_contains(CMAP_STRINGS * strings, const char * string);
 
-  char (*add)(CMAP_STRINGS ** strings_ptr, const char * string);
+char cmap_strings_add(CMAP_STRINGS ** strings_ptr, const char * string);
 
-  void (*set)(CMAP_STRINGS * strings, int off, const char * string);
+void cmap_strings_set(CMAP_STRINGS * strings, int off, const char * string);
 
-  void (*apply)(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn, void * data);
+void cmap_strings_apply(CMAP_STRINGS * strings, CMAP_STRINGS_STRING_FN fn,
+  void * data);
 
-  void (*add_all)(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others);
+void cmap_strings_add_all(CMAP_STRINGS ** strings_ptr, CMAP_STRINGS * others);
 
-  CMAP_STRINGS * (*split)(const char * string);
+CMAP_STRINGS * cmap_strings_split(const char * string);
 
-  void (*delete)(CMAP_STRINGS ** strings_ptr);
-} CMAP_STRINGS_PUBLIC;
-
-extern const CMAP_STRINGS_PUBLIC cmap_strings_public;
+void cmap_strings_delete(CMAP_STRINGS ** strings_ptr);
 
 #endif

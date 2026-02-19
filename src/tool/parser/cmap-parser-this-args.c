@@ -19,7 +19,7 @@ static const char * this_args[] = {"this", "arguments", NULL},
 static char is(const char * map, const char * name)
 {
   if(map != NULL) return (1 == 0);
-  else return (cmap_util_public.static_contains(name, this_args) >= 0);
+  else return (cmap_util_static_contains(name, this_args) >= 0);
 }
 
 /*******************************************************************************
@@ -27,7 +27,7 @@ static char is(const char * map, const char * name)
 
 static const char * map(const char * name)
 {
-  int off = cmap_util_public.static_contains(name, this_args);
+  int off = cmap_util_static_contains(name, this_args);
   return (off >= 0) ? maps[off] : NULL;
 }
 

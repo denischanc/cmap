@@ -8,9 +8,9 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * resolve(const char * path)
+char * cmap_fn_name_resolve(const char * path)
 {
-  char * fn_name = cmap_file_util_public.basename_no_ext(path);
+  char * fn_name = cmap_file_util_basename_no_ext(path);
 
   for(char * tmp = fn_name; *tmp != 0; tmp++)
   {
@@ -25,22 +25,16 @@ static char * resolve(const char * path)
 /*******************************************************************************
 *******************************************************************************/
 
-static void to_config(const char * path)
+void cmap_fn_name_to_config(const char * path)
 {
   if(path == NULL) return;
 
-  char * fn_name = resolve(path);
-  cmap_config_public.set_fn(fn_name);
+  char * fn_name = cmap_fn_name_resolve(path);
+  cmap_config_set_fn(fn_name);
   free(fn_name);
 }
 
-static void to_config_when_null(const char * path)
+void cmap_fn_name_to_config_when_null(const char * path)
 {
-  if(cmap_config_public.fn() == NULL) to_config(path);
+  if(cmap_config_fn() == NULL) cmap_fn_name_to_config(path);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_FN_NAME_PUBLIC cmap_fn_name_public =
-  {resolve, to_config, to_config_when_null};

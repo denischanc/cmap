@@ -28,8 +28,8 @@
 static char to_file(const char * dir, const char * file_name, const char * txt)
 {
   char * path = NULL;
-  cmap_string_public.append_args(&path, "%s/%s", dir, file_name);
-  char ret = cmap_file_util_public.to_file(path, txt);
+  cmap_string_append_args(&path, "%s/%s", dir, file_name);
+  char ret = cmap_file_util_to_file(path, txt);
   free(path);
   return ret;
 }
@@ -80,23 +80,22 @@ static char build_files_multiple(const char * dir)
 /*******************************************************************************
 *******************************************************************************/
 
-static int main_(int argc, char * argv[])
+int cmap_prj_main(int argc, char * argv[])
 {
-  if((argc < 2) || cmap_config_public.is_help())
+  if((argc < 2) || cmap_config_is_help())
   {
     int ids[] = {CMAP_CLI_ID_MULTIPLE, 0};
-    return cmap_usage_public.usage(
-      CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
+    return cmap_usage(CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
   }
 
   char * dir = argv[1];
   if(mkdir(dir, 0755) < 0)
   {
-    cmap_console_public.error("[%s] %s\n", dir, strerror(errno));
+    cmap_console_error("[%s] %s\n", dir, strerror(errno));
     return EXIT_FAILURE;
   }
 
-  if(cmap_config_public.is_multiple())
+  if(cmap_config_is_multiple())
   {
     if(!build_files_multiple(dir)) return EXIT_FAILURE;
   }
@@ -106,8 +105,3 @@ static int main_(int argc, char * argv[])
   }
   return EXIT_SUCCESS;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PRJ_PUBLIC cmap_prj_public = {main_};

@@ -7,7 +7,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void info(const char * txt, ...)
+void cmap_console_info(const char * txt, ...)
 {
   va_list args;
   va_start(args, txt);
@@ -18,15 +18,10 @@ static void info(const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static void error(const char * txt, ...)
+void cmap_console_error(const char * txt, ...)
 {
   va_list args;
   va_start(args, txt);
   vfprintf(stderr, txt, args);
   va_end(args);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_CONSOLE_PUBLIC cmap_console_public = {info, error};

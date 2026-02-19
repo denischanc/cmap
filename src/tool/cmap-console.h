@@ -3,12 +3,7 @@
 
 #include "cmap-console-define.h"
 
-typedef struct
-{
-  void (*info)(const char * txt, ...);
-  void (*error)(const char * txt, ...);
-} CMAP_CONSOLE_PUBLIC;
-
-extern const CMAP_CONSOLE_PUBLIC cmap_console_public;
+void cmap_console_info(const char * txt, ...);
+void cmap_console_error(const char * txt, ...);
 
 #endif

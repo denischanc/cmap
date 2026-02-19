@@ -37,7 +37,7 @@ static char parse(const char * path)
   char * path_r = realpath(path, NULL);
   if(path_r == NULL)
   {
-    cmap_console_public.error("[%s] %s\n", path, strerror(errno));
+    cmap_console_error("[%s] %s\n", path, strerror(errno));
     return (1 == 0);
   }
 
@@ -47,7 +47,7 @@ static char parse(const char * path)
   FILE * in = fopen(path_r, "r");
   if(in == NULL)
   {
-    cmap_console_public.error("[%s] %s\n", path_r, strerror(errno));
+    cmap_console_error("[%s] %s\n", path_r, strerror(errno));
     path__ = path_bup;
     free(path_r);
     return (1 == 0);

@@ -6,7 +6,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static int static_contains(const char * name, const char ** names)
+int cmap_util_static_contains(const char * name, const char ** names)
 {
   if(name == NULL) return -1;
 
@@ -19,8 +19,3 @@ static int static_contains(const char * name, const char ** names)
 
   return -1;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_UTIL_PUBLIC cmap_util_public = {static_contains};

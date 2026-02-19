@@ -23,7 +23,7 @@ static char * process_append(char * map_fn, char * map, char * args,
   if(map_name != NULL)
   {
     PREPEND_MAP_VAR(map_name);
-    cmap_string_public.append_args(&instruction, "%s = ", map_name);
+    cmap_string_append_args(&instruction, "%s = ", map_name);
   }
 
   APPEND_INSTRUCTION_ARGS_ARGS(args,
@@ -103,21 +103,21 @@ typedef struct
 static IMPORT_CTX import_ctx_bup(const char * fn_name)
 {
   IMPORT_CTX ctx;
-  ctx.fn_name = strdup(cmap_config_public.fn());
-  ctx.only_c = cmap_config_public.is_only_c();
+  ctx.fn_name = strdup(cmap_config_fn());
+  ctx.only_c = cmap_config_is_only_c();
   ctx.ctx = cmap_part_public.ctx.bup();
 
-  cmap_config_public.set_fn(fn_name);
-  cmap_config_public.set_only_c(1 == 1);
+  cmap_config_set_fn(fn_name);
+  cmap_config_set_only_c(1 == 1);
 
   return ctx;
 }
 
 static void import_ctx_restore(IMPORT_CTX ctx)
 {
-  cmap_config_public.set_fn(ctx.fn_name);
+  cmap_config_set_fn(ctx.fn_name);
   free(ctx.fn_name);
-  cmap_config_public.set_only_c(ctx.only_c);
+  cmap_config_set_only_c(ctx.only_c);
   cmap_part_public.ctx.restore(ctx.ctx);
 }
 
@@ -133,7 +133,7 @@ static char * import_parse_path(const char * path)
   if(tmp != NULL) *(tmp + 1) = 0;
   else { free(parse_path); parse_path = NULL; }
 
-  cmap_string_public.append(&parse_path, path);
+  cmap_string_append(&parse_path, path);
 
   return parse_path;
 }
@@ -143,7 +143,7 @@ static char * import_parse_path(const char * path)
 
 static char import(char ** map_name, char * path, char * fn_name)
 {
-  if(fn_name == NULL) fn_name = cmap_fn_name_public.resolve(path);
+  if(fn_name == NULL) fn_name = cmap_fn_name_resolve(path);
   char * parse_path = import_parse_path(path);
   free(path);
 

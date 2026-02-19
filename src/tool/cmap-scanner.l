@@ -142,7 +142,7 @@ static void string_start()
 
 static void string_append(const char * txt)
 {
-  cmap_string_public.append(&string, txt);
+  cmap_string_append(&string, txt);
 }
 
 static void string_end(YYSTYPE * yylval_p)
@@ -157,7 +157,7 @@ static void set_name(YYSTYPE * yylval_p, const char * name)
 
 static void set_dir(YYSTYPE * yylval_p)
 {
-  yylval_p -> name = cmap_file_util_public.dirname(cmap_do_parse_public.path());
+  yylval_p -> name = cmap_file_util_dirname(cmap_do_parse_public.path());
 }
 
 static void set_file(YYSTYPE * yylval_p)

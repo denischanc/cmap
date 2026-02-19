@@ -11,12 +11,12 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char to_file(const char * path, const char * txt, ...)
+char cmap_file_util_to_file(const char * path, const char * txt, ...)
 {
   FILE * f = fopen(path, "w");
   if(f == NULL)
   {
-    cmap_console_public.error("[%s] %s\n", path, strerror(errno));
+    cmap_console_error("[%s] %s\n", path, strerror(errno));
     return (1 == 0);
   }
 
@@ -34,7 +34,7 @@ static char to_file(const char * path, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * dirname(const char * path)
+char * cmap_file_util_dirname(const char * path)
 {
   if(path == NULL) return strdup(".");
   if(!strcmp(path, "/")) return strdup("/");
@@ -52,15 +52,15 @@ static char * dirname(const char * path)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * basename(const char * path)
+const char * cmap_file_util_basename(const char * path)
 {
   const char * tmp = strrchr(path, '/');
   return (tmp == NULL) ? path : tmp + 1;
 }
 
-static char * basename_no_ext(const char * path)
+char * cmap_file_util_basename_no_ext(const char * path)
 {
-  char * bn = strdup(basename(path));
+  char * bn = strdup(cmap_file_util_basename(path));
 
   char * tmp = strrchr(bn, '.');
   if(tmp != NULL) *tmp = 0;
@@ -71,17 +71,8 @@ static char * basename_no_ext(const char * path)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * extension(const char * path)
+const char * cmap_file_util_extension(const char * path)
 {
   char * tmp = strrchr(path, '.');
   return (tmp != NULL) ? tmp + 1 : path + strlen(path);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_FILE_UTIL_PUBLIC cmap_file_util_public =
-{
-  to_file,
-  dirname, basename, basename_no_ext, extension
-};

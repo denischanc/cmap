@@ -61,8 +61,8 @@ static char is_eq(KEY * key, const char * map, const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
-  const char * map_name)
+void cmap_part_kv_put(CMAP_PART_KV ** kv_ptr, const char * map,
+  const char * name, const char * map_name)
 {
   CMAP_PART_KV * kv = *kv_ptr;
   if(kv == NULL)
@@ -75,26 +75,28 @@ static void put(CMAP_PART_KV ** kv_ptr, const char * map, const char * name,
       free(kv_elt -> map);
       kv_elt -> map = strdup(map_name);
     }
-    else put(&kv -> next, map, name, map_name);
+    else cmap_part_kv_put(&kv -> next, map, name, map_name);
   }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * get(CMAP_PART_KV * kv, const char * map, const char * name)
+const char * cmap_part_kv_get(CMAP_PART_KV * kv, const char * map,
+  const char * name)
 {
   if(kv == NULL) return NULL;
 
   if(is_eq(&kv -> v.key, map, name)) return kv -> v.map;
 
-  return get(kv -> next, map, name);
+  return cmap_part_kv_get(kv -> next, map, name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void apply(CMAP_PART_KV ** kv_ptr, CMAP_PART_KV_APPLY fn, void * data)
+void cmap_part_kv_apply(CMAP_PART_KV ** kv_ptr, CMAP_PART_KV_APPLY fn,
+  void * data)
 {
   CMAP_PART_KV * kv = *kv_ptr;
   if(kv == NULL) return;
@@ -104,40 +106,30 @@ static void apply(CMAP_PART_KV ** kv_ptr, CMAP_PART_KV_APPLY fn, void * data)
     rm_kv(kv_ptr);
   else kv_ptr = &kv -> next;
 
-  apply(kv_ptr, fn, data);
+  cmap_part_kv_apply(kv_ptr, fn, data);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_key(CMAP_PART_KV ** kv_ptr, const char * map,
+void cmap_part_kv_delete_key(CMAP_PART_KV ** kv_ptr, const char * map,
   const char * name)
 {
   CMAP_PART_KV * kv = *kv_ptr;
   if(kv == NULL) return;
 
   if(is_eq(&kv -> v.key, map, name)) rm_kv(kv_ptr);
-  else delete_key(&kv -> next, map, name);
+  else cmap_part_kv_delete_key(&kv -> next, map, name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_PART_KV ** kv_ptr)
+void cmap_part_kv_delete(CMAP_PART_KV ** kv_ptr)
 {
   if(*kv_ptr == NULL) return;
 
   rm_kv(kv_ptr);
 
-  delete(kv_ptr);
+  cmap_part_kv_delete(kv_ptr);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PART_KV_PUBLIC cmap_part_kv_public =
-{
-  put, get,
-  apply,
-  delete_key, delete
-};

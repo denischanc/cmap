@@ -28,8 +28,7 @@ static char * path(char * map, char * name)
     char * instruction = strdup("");
 
     if(ret.ret.new) PREPEND_MAP_VAR(map_name);
-    else cmap_string_public.append_args(&instruction, "if(%s == NULL) ",
-      map_name);
+    else cmap_string_append_args(&instruction, "if(%s == NULL) ", map_name);
 
     const char * dst = map;
     if(dst == NULL) dst = ret.is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();

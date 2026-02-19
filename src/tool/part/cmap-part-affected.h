@@ -3,11 +3,6 @@
 
 #include "cmap-part-ctx.h"
 
-typedef struct
-{
-  char (*add)(const char * map, CMAP_PART_CTX * ctx);
-} CMAP_PART_AFFECTED_PUBLIC;
-
-extern const CMAP_PART_AFFECTED_PUBLIC cmap_part_affected_public;
+char cmap_part_affected_add(const char * map, CMAP_PART_CTX * ctx);
 
 #endif

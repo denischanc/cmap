@@ -11,7 +11,7 @@
 static char * args(char * map)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, ", %s", map);
+  cmap_string_append_args(&ret, ", %s", map);
 
   free(map);
 
@@ -21,7 +21,7 @@ static char * args(char * map)
 static char * args_push(char * list, char * map)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "%s, %s", list, map);
+  cmap_string_append_args(&ret, "%s, %s", list, map);
 
   free(list);
   free(map);
@@ -44,7 +44,7 @@ static void arg_name(char * name)
 static char * args_map(char * name, char * map)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, ", \"%s\", %s", name, map);
+  cmap_string_append_args(&ret, ", \"%s\", %s", name, map);
 
   free(name);
   free(map);
@@ -55,7 +55,7 @@ static char * args_map(char * name, char * map)
 static char * args_map_push(char * list, char * name, char * map)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "%s, \"%s\", %s", list, name, map);
+  cmap_string_append_args(&ret, "%s, \"%s\", %s", list, name, map);
 
   free(list);
   free(name);
@@ -70,7 +70,7 @@ static char * args_map_push(char * list, char * name, char * map)
 static char * names(char * names, char * name)
 {
   char * ret = NULL;
-  cmap_string_public.append_args(&ret, "%s.%s", names, name);
+  cmap_string_append_args(&ret, "%s.%s", names, name);
   free(names);
   free(name);
   return ret;

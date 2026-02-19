@@ -3,13 +3,8 @@
 
 #define CMAP_BUILD_MAIN_MODULE_NAME "build-main"
 
-typedef struct
-{
-  void (*impl)(char ** txt);
+void cmap_build_main_impl(char ** txt);
 
-  int (*main)(int argc, char * argv[]);
-} CMAP_BUILD_MAIN_PUBLIC;
-
-extern const CMAP_BUILD_MAIN_PUBLIC cmap_build_main_public;
+int cmap_build_main_main(int argc, char * argv[]);
 
 #endif
