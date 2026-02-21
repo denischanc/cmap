@@ -8,7 +8,7 @@
 *******************************************************************************/
 
 #define IMPL(name) \
-static char * op_##name(char * map_l, char * map_r) \
+char * cmap_parser_op_##name(char * map_l, char * map_r) \
 { \
   char * map_name = NEXT_NAME_OP(); \
  \
@@ -29,7 +29,7 @@ CMAP_PARSER_OP_LOOP(IMPL)
 *******************************************************************************/
 
 #define SELF_IMPL(name) \
-static void op_##name(char * map_dst, char * map_src) \
+void cmap_parser_op_##name(char * map_dst, char * map_src) \
 { \
   APPEND_INSTRUCTION_ARGS("cmap_" #name "(%s, %s);", map_dst, map_src); \
   APPEND_LF(); \
@@ -44,7 +44,7 @@ CMAP_PARSER_OP_SELF_LOOP(SELF_IMPL)
 *******************************************************************************/
 
 #define UNIQUE_IMPL(name) \
-static void op_##name(char * map) \
+void cmap_parser_op_##name(char * map) \
 { \
   APPEND_INSTRUCTION_ARGS("cmap_" #name "(%s);", map); \
   APPEND_LF(); \
@@ -53,15 +53,3 @@ static void op_##name(char * map) \
 }
 
 CMAP_PARSER_OP_UNIQUE_LOOP(UNIQUE_IMPL)
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define SET(name) op_##name,
-
-const CMAP_PARSER_OP_PUBLIC cmap_parser_op_public =
-{
-  CMAP_PARSER_OP_LOOP(SET)
-  CMAP_PARSER_OP_SELF_LOOP(SET)
-  CMAP_PARSER_OP_UNIQUE_LOOP(SET)
-};

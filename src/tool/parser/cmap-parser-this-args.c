@@ -16,7 +16,7 @@ static const char * this_args[] = {"this", "arguments", NULL},
 /*******************************************************************************
 *******************************************************************************/
 
-static char is(const char * map, const char * name)
+char cmap_parser_this_args_is(const char * map, const char * name)
 {
   if(map != NULL) return (1 == 0);
   else return (cmap_util_static_contains(name, this_args) >= 0);
@@ -25,7 +25,7 @@ static char is(const char * map, const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * map(const char * name)
+const char * cmap_parser_this_args_map(const char * name)
 {
   int off = cmap_util_static_contains(name, this_args);
   return (off >= 0) ? maps[off] : NULL;
@@ -34,7 +34,7 @@ static const char * map(const char * name)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * decl()
+const char * cmap_parser_this_args_decl()
 {
   return decl_;
 }
@@ -42,7 +42,7 @@ static const char * decl()
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * args_map()
+const char * cmap_parser_this_args_args_map()
 {
   return maps[1];
 }
@@ -50,13 +50,7 @@ static const char * args_map()
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * type(const char * map)
+const char * cmap_parser_this_args_type(const char * map)
 {
-  return strcmp(map, args_map()) ? NULL : args_type;
+  return strcmp(map, cmap_parser_this_args_args_map()) ? NULL : args_type;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_THIS_ARGS_PUBLIC cmap_parser_this_args_public =
-  {is, map, decl, args_map, type};

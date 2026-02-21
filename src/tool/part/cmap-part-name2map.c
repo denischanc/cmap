@@ -36,7 +36,7 @@ void cmap_part_name2map_put(const char * map, const char * name,
 static char is_this_args(const char * map, const char * name,
   CMAP_PART_CTX * ctx)
 {
-  return cmap_parser_this_args_public.is(map, name) &&
+  return cmap_parser_this_args_is(map, name) &&
     !cmap_part_var_is_loc(name, ctx);
 }
 
@@ -47,14 +47,14 @@ static char * is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx_c)
 {
   if(cmap_part_var_is_loc(name, ctx_c)) return NULL;
   if(is_this_args(NULL, name, ctx_c))
-    return strdup(cmap_parser_this_args_public.map(name));
+    return strdup(cmap_parser_this_args_map(name));
 
   int off = cmap_strings_contains(
     cmap_part_ctx_prev_block_fn_arg_names(ctx_c), name);
   if(off < 0) return NULL;
 
   CMAP_PART_CTX * ctx_split = cmap_part_ctx_split(ctx_c);
-  char * map_name = cmap_parser_var_public.set_fn_arg_name(name, off);
+  char * map_name = cmap_parser_var_set_fn_arg_name(name, off);
   cmap_part_ctx_join(ctx_split);
 
   return map_name;
@@ -87,8 +87,7 @@ static void not_new_path(const char * map, const char * name,
 {
   CMAP_PART_CTX * ctx_split =
     cmap_part_ctx_split(cmap_part_ctx_last_block(ctx_c));
-  free(cmap_parser_var_public.path((map == NULL) ? NULL : strdup(map),
-    strdup(name)));
+  free(cmap_parser_var_path((map == NULL) ? NULL : strdup(map), strdup(name)));
   cmap_part_ctx_join(ctx_split);
 }
 

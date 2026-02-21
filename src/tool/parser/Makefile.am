@@ -10,7 +10,6 @@ noinst_HEADERS = \
   cmap-parser-op-define.h \
   cmap-parser-op.h \
   cmap-parser-params.h \
-  cmap-parser-part-define.h \
   cmap-parser-part.h \
   cmap-parser-process.h \
   cmap-parser-this-args.h \

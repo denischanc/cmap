@@ -19,41 +19,41 @@ CMAP_STACK_ELSE * elses = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static void init_if()
+void cmap_parser_block_init_if()
 {
   cmap_stack_else_push(&elses, (1 == 0));
 }
 
-static void if_(char * cmp_call)
+void cmap_parser_block_if(char * cmp_call)
 {
-  char * instructions = cmap_part_public.pop_instructions();
+  char * instructions = cmap_part_pop_instructions();
 
   char * else_ = cmap_stack_else_pop(&elses) ? "else " : "";
   APPEND_INSTRUCTION_ARGS("%sif(%s)", else_, cmp_call);
   free(cmp_call);
   APPEND_INSTRUCTION("{");
-  cmap_parser_part_public.append_instructions(instructions);
+  cmap_parser_part_append_instructions(instructions);
   free(instructions);
   APPEND_INSTRUCTION("}");
 }
 
-static void else_empty()
+void cmap_parser_block_else_empty()
 {
   APPEND_LF();
 }
 
-static void else_if()
+void cmap_parser_block_else_if()
 {
   cmap_stack_else_push(&elses, (1 == 1));
 }
 
-static void else_()
+void cmap_parser_block_else()
 {
-  char * instructions = cmap_part_public.pop_instructions();
+  char * instructions = cmap_part_pop_instructions();
 
   APPEND_INSTRUCTION("else");
   APPEND_INSTRUCTION("{");
-  cmap_parser_part_public.append_instructions(instructions);
+  cmap_parser_part_append_instructions(instructions);
   free(instructions);
   APPEND_INSTRUCTION("}");
   APPEND_LF();
@@ -62,14 +62,14 @@ static void else_()
 /*******************************************************************************
 *******************************************************************************/
 
-static void for_(char * cmp_call, char * iter_call)
+void cmap_parser_block_for(char * cmp_call, char * iter_call)
 {
-  char * instructions = cmap_part_public.pop_instructions();
+  char * instructions = cmap_part_pop_instructions();
 
   APPEND_INSTRUCTION_ARGS("for(; %s; %s)", cmp_call, iter_call);
   free(cmp_call); free(iter_call);
   APPEND_INSTRUCTION("{");
-  cmap_parser_part_public.append_instructions(instructions);
+  cmap_parser_part_append_instructions(instructions);
   free(instructions);
   APPEND_INSTRUCTION("}");
   APPEND_LF();
@@ -78,14 +78,14 @@ static void for_(char * cmp_call, char * iter_call)
 /*******************************************************************************
 *******************************************************************************/
 
-static void while_(char * cmp_call)
+void cmap_parser_block_while(char * cmp_call)
 {
-  char * instructions = cmap_part_public.pop_instructions();
+  char * instructions = cmap_part_pop_instructions();
 
   APPEND_INSTRUCTION_ARGS("while(%s)", cmp_call);
   free(cmp_call);
   APPEND_INSTRUCTION("{");
-  cmap_parser_part_public.append_instructions(instructions);
+  cmap_parser_part_append_instructions(instructions);
   free(instructions);
   APPEND_INSTRUCTION("}");
   APPEND_LF();
@@ -94,17 +94,7 @@ static void while_(char * cmp_call)
 /*******************************************************************************
 *******************************************************************************/
 
-static void clean()
+void cmap_parser_block_clean()
 {
   while(elses != NULL) cmap_stack_else_pop(&elses);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_BLOCK_PUBLIC cmap_parser_block_public =
-{
-  init_if, if_, else_empty, else_if, else_,
-  for_, while_,
-  clean
-};

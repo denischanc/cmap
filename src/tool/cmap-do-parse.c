@@ -18,7 +18,7 @@ static const char * path__ = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * path_()
+const char * cmap_do_parse_path()
 {
   return path__;
 }
@@ -28,11 +28,11 @@ static const char * path_()
 
 static void clean()
 {
-  cmap_part_public.ctx.clean();
-  cmap_parser_block_public.clean();
+  cmap_part_clean_ctx();
+  cmap_parser_block_clean();
 }
 
-static char parse(const char * path)
+char cmap_do_parse(const char * path)
 {
   char * path_r = realpath(path, NULL);
   if(path_r == NULL)
@@ -69,8 +69,3 @@ static char parse(const char * path)
 
   return (ret == 0);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_DO_PARSE_PUBLIC cmap_do_parse_public = {path_, parse};

@@ -11,10 +11,10 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * path(char * map, char * name)
+char * cmap_parser_var_path(char * map, char * name)
 {
   char * map_name = NEXT_NAME_VAR();
-  CMAP_PART_VAR_RET ret = cmap_part_public.var.get_map(map, name, map_name);
+  CMAP_PART_VAR_RET ret = cmap_part_get_map(map, name, map_name);
 
   if(ret.ret.map == NULL) ret.ret.new = (1 == 1);
   else
@@ -45,18 +45,18 @@ static char * path(char * map, char * name)
   return map_name;
 }
 
-static char * name(char * name)
+char * cmap_parser_var_name(char * name)
 {
-  return path(NULL, name);
+  return cmap_parser_var_path(NULL, name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void set_local(char * name, char * map)
+void cmap_parser_var_set_local(char * name, char * map)
 {
   char * map_name = NEXT_NAME_VAR();
-  cmap_part_public.var.loc(name, map_name);
+  cmap_part_loc(name, map_name);
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
@@ -69,13 +69,13 @@ static void set_local(char * name, char * map)
   free(map_name);
 }
 
-static char * set_fn_arg_name(const char * name, int off)
+char * cmap_parser_var_set_fn_arg_name(const char * name, int off)
 {
   char * map_name = NEXT_NAME_VAR();
-  cmap_part_public.var.loc(name, map_name);
+  cmap_part_loc(name, map_name);
 
   APPEND_VARIABLE_ARGS("CMAP_MAP * %s = cmap_list_get(%s, %d);",
-    map_name, cmap_parser_this_args_public.args_map(), off);
+    map_name, cmap_parser_this_args_args_map(), off);
   PREPEND_INSTRUCTION_ARGS(
     "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
 
@@ -85,10 +85,10 @@ static char * set_fn_arg_name(const char * name, int off)
 /*******************************************************************************
 *******************************************************************************/
 
-static void set_path(char * src, char * name, char * map)
+void cmap_parser_var_set_path(char * src, char * name, char * map)
 {
   char * map_name = NEXT_NAME_VAR(),
-    is_def = cmap_part_public.var.no_loc(src, name, map_name);
+    is_def = cmap_part_no_loc(src, name, map_name);
 
   const char * dst = src;
   if(dst == NULL) dst = is_def ? ADD_DEFINITIONS() : ADD_GLOBAL_ENV();
@@ -104,15 +104,15 @@ static void set_path(char * src, char * name, char * map)
   free(map_name);
 }
 
-static void set_global(char * name, char * map)
+void cmap_parser_var_set_global(char * name, char * map)
 {
-  set_path(NULL, name, map);
+  cmap_parser_var_set_path(NULL, name, map);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void set_sb_int(char * map, char * i, char * map_src)
+void cmap_parser_var_set_sb_int(char * map, char * i, char * map_src)
 {
   APPEND_INSTRUCTION_ARGS(
     "cmap_list_set((CMAP_LIST *)%s, %s, %s);", map, i, map_src);
@@ -123,7 +123,7 @@ static void set_sb_int(char * map, char * i, char * map_src)
   free(map_src);
 }
 
-static void set_sb_string(char * map, char * string, char * map_src)
+void cmap_parser_var_set_sb_string(char * map, char * string, char * map_src)
 {
   APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", map, string, map_src);
   APPEND_LF();
@@ -133,7 +133,7 @@ static void set_sb_string(char * map, char * string, char * map_src)
   free(map_src);
 }
 
-static void set_sb_map(char * map, char * map_i, char * map_src)
+void cmap_parser_var_set_sb_map(char * map, char * map_i, char * map_src)
 {
   APPEND_INSTRUCTION_ARGS("cmap_set_w_map(%s, %s, %s);", map, map_i, map_src);
   APPEND_LF();
@@ -146,7 +146,7 @@ static void set_sb_map(char * map, char * map_i, char * map_src)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * sb_int(char * map, char * i)
+char * cmap_parser_var_sb_int(char * map, char * i)
 {
   char * map_name = NEXT_NAME_VAR();
 
@@ -161,7 +161,7 @@ static char * sb_int(char * map, char * i)
   return map_name;
 }
 
-static char * sb_string(char * map, char * string)
+char * cmap_parser_var_sb_string(char * map, char * string)
 {
   char * map_name = NEXT_NAME_VAR();
 
@@ -175,7 +175,7 @@ static char * sb_string(char * map, char * string)
   return map_name;
 }
 
-static char * sb_map(char * map, char * map_i)
+char * cmap_parser_var_sb_map(char * map, char * map_i)
 {
   char * map_name = NEXT_NAME_VAR();
 
@@ -188,13 +188,3 @@ static char * sb_map(char * map, char * map_i)
 
   return map_name;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_VAR_PUBLIC cmap_parser_var_public =
-{
-  path, name,
-  set_local, set_fn_arg_name, set_path, set_global,
-  set_sb_int, set_sb_string, set_sb_map, sb_int, sb_string, sb_map
-};

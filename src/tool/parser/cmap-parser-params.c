@@ -16,9 +16,9 @@ static CMAP_STRINGS * params = NULL;
 /*******************************************************************************
 *******************************************************************************/
 
-static void clone()
+void cmap_parser_params_clone()
 {
-  cmap_strings_add_all(&params, cmap_part_public.ctx.get_params());
+  cmap_strings_add_all(&params, cmap_part_get_params());
 }
 
 /*******************************************************************************
@@ -26,7 +26,7 @@ static void clone()
 
 static void get_apply(const char * map, void * data)
 {
-  const char * type = cmap_parser_this_args_public.type(map);
+  const char * type = cmap_parser_this_args_type(map);
   if(type == NULL) type = "CMAP_MAP *";
 
   CMAP_PARSER_PARAMS_RET * ret = data;
@@ -34,7 +34,7 @@ static void get_apply(const char * map, void * data)
   cmap_string_append_args(&ret -> impl, ", %s", map);
 }
 
-static CMAP_PARSER_PARAMS_RET get()
+CMAP_PARSER_PARAMS_RET cmap_parser_params_get()
 {
   CMAP_PARSER_PARAMS_RET ret = {strdup(""), strdup("")};
   cmap_strings_apply(params, get_apply, &ret);
@@ -45,14 +45,8 @@ static CMAP_PARSER_PARAMS_RET get()
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_PARSER_PARAMS_RET ret)
+void cmap_parser_params_delete(CMAP_PARSER_PARAMS_RET ret)
 {
   free(ret.decl);
   free(ret.impl);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_PARAMS_PUBLIC cmap_parser_params_public =
-  {clone, get, delete};

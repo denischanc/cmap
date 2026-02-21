@@ -8,7 +8,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * map_args(char * args)
+char * cmap_parser_creator_map_args(char * args)
 {
   char * map_name = NEXT_NAME_MAP();
 
@@ -22,7 +22,7 @@ static char * map_args(char * args)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * list_args(char * args)
+char * cmap_parser_creator_list_args(char * args)
 {
   char * map_name = NEXT_NAME_LIST();
 
@@ -37,7 +37,7 @@ static char * list_args(char * args)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * string(char * string)
+char * cmap_parser_creator_string(char * string)
 {
   char * map_name = NEXT_NAME_STRING();
 
@@ -54,7 +54,7 @@ static char * string(char * string)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * int_(char * i)
+char * cmap_parser_creator_int(char * i)
 {
   char * map_name = NEXT_NAME_INT();
 
@@ -71,7 +71,7 @@ static char * int_(char * i)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * new(char * map, char * args)
+char * cmap_parser_creator_new(char * map, char * args)
 {
   char * map_name = NEXT_NAME_VAR();
 
@@ -82,13 +82,7 @@ static char * new(char * map, char * args)
 
   free(map);
 
-  cmap_part_public.var.clean_after_proc();
+  cmap_part_clean_after_proc();
 
   return map_name;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_CREATOR_PUBLIC cmap_parser_creator_public =
-  {map_args, list_args, string, int_, new};

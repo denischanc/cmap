@@ -7,13 +7,8 @@ typedef struct
   char * impl;
 } CMAP_PARSER_PARAMS_RET;
 
-typedef struct
-{
-  void (*clone)();
-  CMAP_PARSER_PARAMS_RET (*get)();
-  void (*delete)(CMAP_PARSER_PARAMS_RET ret);
-} CMAP_PARSER_PARAMS_PUBLIC;
-
-extern const CMAP_PARSER_PARAMS_PUBLIC cmap_parser_params_public;
+void cmap_parser_params_clone();
+CMAP_PARSER_PARAMS_RET cmap_parser_params_get();
+void cmap_parser_params_delete(CMAP_PARSER_PARAMS_RET ret);
 
 #endif

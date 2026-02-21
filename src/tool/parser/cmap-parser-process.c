@@ -34,7 +34,7 @@ static char * process_append(char * map_fn, char * map, char * args,
   free(map);
   free(instruction);
 
-  cmap_part_public.var.clean_after_proc();
+  cmap_part_clean_after_proc();
 
   return map_name;
 }
@@ -42,18 +42,19 @@ static char * process_append(char * map_fn, char * map, char * args,
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process(char * map, char * fn_name, char * args, char do_return)
+char * cmap_parser_process(char * map, char * fn_name, char * args,
+  char do_return)
 {
   char * map_keep = (map == NULL) ? strdup("NULL") : strdup(map),
-    * map_fn = (map == NULL) ? cmap_parser_var_public.name(fn_name) :
-      cmap_parser_var_public.path(map, fn_name);
+    * map_fn = (map == NULL) ? cmap_parser_var_name(fn_name) :
+      cmap_parser_var_path(map, fn_name);
   return process_append(map_fn, map_keep, args, do_return);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_fn(char * fn, char * args, char do_return)
+char * cmap_parser_process_fn(char * fn, char * args, char do_return)
 {
   return process_append(fn, strdup("NULL"), args, do_return);
 }
@@ -61,7 +62,7 @@ static char * process_fn(char * fn, char * args, char do_return)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * process_c(char * fn_name, char do_return)
+char * cmap_parser_process_c(char * fn_name, char do_return)
 {
   char * map_name = NULL;
 
@@ -86,7 +87,7 @@ static char * process_c(char * fn_name, char do_return)
   free(fn_name);
   free(proc_ctx_name);
 
-  cmap_part_public.var.clean_after_proc();
+  cmap_part_clean_after_proc();
 
   return map_name;
 }
@@ -105,7 +106,7 @@ static IMPORT_CTX import_ctx_bup(const char * fn_name)
   IMPORT_CTX ctx;
   ctx.fn_name = strdup(cmap_config_fn());
   ctx.only_c = cmap_config_is_only_c();
-  ctx.ctx = cmap_part_public.ctx.bup();
+  ctx.ctx = cmap_part_bup_ctx();
 
   cmap_config_set_fn(fn_name);
   cmap_config_set_only_c(1 == 1);
@@ -118,7 +119,7 @@ static void import_ctx_restore(IMPORT_CTX ctx)
   cmap_config_set_fn(ctx.fn_name);
   free(ctx.fn_name);
   cmap_config_set_only_c(ctx.only_c);
-  cmap_part_public.ctx.restore(ctx.ctx);
+  cmap_part_restore_ctx(ctx.ctx);
 }
 
 /*******************************************************************************
@@ -128,7 +129,7 @@ static char * import_parse_path(const char * path)
 {
   if(path[0] == '/') return strdup(path);
 
-  char * parse_path = strdup(cmap_do_parse_public.path());
+  char * parse_path = strdup(cmap_do_parse_path());
   char * tmp = strrchr(parse_path, '/');
   if(tmp != NULL) *(tmp + 1) = 0;
   else { free(parse_path); parse_path = NULL; }
@@ -141,7 +142,7 @@ static char * import_parse_path(const char * path)
 /*******************************************************************************
 *******************************************************************************/
 
-static char import(char ** map_name, char * path, char * fn_name)
+char cmap_parser_process_import(char ** map_name, char * path, char * fn_name)
 {
   if(fn_name == NULL) fn_name = cmap_fn_name_resolve(path);
   char * parse_path = import_parse_path(path);
@@ -150,39 +151,29 @@ static char import(char ** map_name, char * path, char * fn_name)
   if(parse_path == NULL) { free(fn_name); return (1 == 0); }
 
   IMPORT_CTX bup = import_ctx_bup(fn_name);
-  char ret = cmap_do_parse_public.parse(parse_path);
+  char ret = cmap_do_parse(parse_path);
   free(parse_path);
   import_ctx_restore(bup);
 
   if(!ret) { free(fn_name); return (1 == 0); }
 
-  if(map_name == NULL) process_c(fn_name, (1 == 0));
-  else *map_name = process_c(fn_name, (1 == 1));
+  if(map_name == NULL) cmap_parser_process_c(fn_name, (1 == 0));
+  else *map_name = cmap_parser_process_c(fn_name, (1 == 1));
   return (1 == 1);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void return_(char * map)
+void cmap_parser_process_return(char * map)
 {
   if(map == NULL) APPEND_INSTRUCTION(
-    cmap_part_public.ctx.return_fn() ? "return NULL;" : "return;");
+    cmap_part_return_fn() ? "return NULL;" : "return;");
   else
   {
     APPEND_INSTRUCTION_ARGS("return %s;", map);
     free(map);
 
-    cmap_part_public.ctx.set_return();
+    cmap_part_set_return();
   }
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_PROCESS_PUBLIC cmap_parser_process_public =
-{
-  process, process_fn,
-  process_c, import,
-  return_
-};

@@ -12,7 +12,7 @@ static char is_fn_arg_name(const char * name, CMAP_PART_CTX * ctx)
 {
   return ((cmap_strings_contains(
     cmap_part_ctx_prev_block_fn_arg_names(ctx), name) >= 0) ||
-    cmap_parser_this_args_public.is(NULL, name));
+    cmap_parser_this_args_is(NULL, name));
 }
 
 char cmap_part_var_is_loc(const char * name, CMAP_PART_CTX * ctx)

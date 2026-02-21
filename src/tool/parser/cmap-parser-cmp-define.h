@@ -10,6 +10,6 @@
   macro(diff, !=)
 
 #define CMAP_PARSER_CMP_DECL(name, op) \
-  char * (*name)(char * map_l, char * map_r);
+  char * cmap_parser_cmp_##name(char * map_l, char * map_r);
 
 #endif

@@ -8,7 +8,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static char * args(char * map)
+char * cmap_parser_arg_args(char * map)
 {
   char * ret = NULL;
   cmap_string_append_args(&ret, ", %s", map);
@@ -18,7 +18,7 @@ static char * args(char * map)
   return ret;
 }
 
-static char * args_push(char * list, char * map)
+char * cmap_parser_arg_args_push(char * list, char * map)
 {
   char * ret = NULL;
   cmap_string_append_args(&ret, "%s, %s", list, map);
@@ -32,16 +32,16 @@ static char * args_push(char * list, char * map)
 /*******************************************************************************
 *******************************************************************************/
 
-static void arg_name(char * name)
+void cmap_parser_arg_arg_name(char * name)
 {
-  cmap_part_public.ctx.fn_arg_name(name);
+  cmap_part_fn_arg_name(name);
   free(name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * args_map(char * name, char * map)
+char * cmap_parser_arg_args_map(char * name, char * map)
 {
   char * ret = NULL;
   cmap_string_append_args(&ret, ", \"%s\", %s", name, map);
@@ -52,7 +52,7 @@ static char * args_map(char * name, char * map)
   return ret;
 }
 
-static char * args_map_push(char * list, char * name, char * map)
+char * cmap_parser_arg_args_map_push(char * list, char * name, char * map)
 {
   char * ret = NULL;
   cmap_string_append_args(&ret, "%s, \"%s\", %s", list, name, map);
@@ -67,7 +67,7 @@ static char * args_map_push(char * list, char * name, char * map)
 /*******************************************************************************
 *******************************************************************************/
 
-static char * names(char * names, char * name)
+char * cmap_parser_arg_names(char * names, char * name)
 {
   char * ret = NULL;
   cmap_string_append_args(&ret, "%s.%s", names, name);
@@ -75,14 +75,3 @@ static char * names(char * names, char * name)
   free(name);
   return ret;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_ARG_PUBLIC cmap_parser_arg_public =
-{
-  args, args_push,
-  arg_name,
-  args_map, args_map_push,
-  names
-};

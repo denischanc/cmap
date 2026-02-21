@@ -157,10 +157,10 @@ static void set_name(YYSTYPE * yylval_p, const char * name)
 
 static void set_dir(YYSTYPE * yylval_p)
 {
-  yylval_p -> name = cmap_file_util_dirname(cmap_do_parse_public.path());
+  yylval_p -> name = cmap_file_util_dirname(cmap_do_parse_path());
 }
 
 static void set_file(YYSTYPE * yylval_p)
 {
-  yylval_p -> name = strdup(cmap_do_parse_public.path());
+  yylval_p -> name = strdup(cmap_do_parse_path());
 }

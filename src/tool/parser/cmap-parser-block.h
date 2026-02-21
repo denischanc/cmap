@@ -1,20 +1,15 @@
 #ifndef __CMAP_PARSER_BLOCK_H__
 #define __CMAP_PARSER_BLOCK_H__
 
-typedef struct
-{
-  void (*init_if)();
-  void (*if_)(char * cmp_call);
-  void (*else_empty)();
-  void (*else_if)();
-  void (*else_)();
+void cmap_parser_block_init_if();
+void cmap_parser_block_if(char * cmp_call);
+void cmap_parser_block_else_empty();
+void cmap_parser_block_else_if();
+void cmap_parser_block_else();
 
-  void (*for_)(char * cmp_call, char * iter_call);
-  void (*while_)(char * cmp_call);
+void cmap_parser_block_for(char * cmp_call, char * iter_call);
+void cmap_parser_block_while(char * cmp_call);
 
-  void (*clean)();
-} CMAP_PARSER_BLOCK_PUBLIC;
-
-extern const CMAP_PARSER_BLOCK_PUBLIC cmap_parser_block_public;
+void cmap_parser_block_clean();
 
 #endif

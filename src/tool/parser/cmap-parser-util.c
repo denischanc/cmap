@@ -15,7 +15,7 @@ static const char * DEFINITIONS_VAR_NAME = "cmap_definitions_",
 /*******************************************************************************
 *******************************************************************************/
 
-static void append_instruction_args(const char * txt, ...)
+void cmap_parser_util_append_instruction_args(const char * txt, ...)
 {
   char * instruction = NULL;
 
@@ -24,12 +24,12 @@ static void append_instruction_args(const char * txt, ...)
   cmap_string_vappend_args(&instruction, txt, args);
   va_end(args);
 
-  cmap_part_public.add_instruction(instruction);
+  cmap_part_add_instruction(instruction);
 
   free(instruction);
 }
 
-static void append_variable_args(const char * txt, ...)
+void cmap_parser_util_append_variable_args(const char * txt, ...)
 {
   char * variable = NULL;
 
@@ -38,12 +38,12 @@ static void append_variable_args(const char * txt, ...)
   cmap_string_vappend_args(&variable, txt, args);
   va_end(args);
 
-  cmap_part_public.add_variable(variable);
+  cmap_part_add_variable(variable);
 
   free(variable);
 }
 
-static void prepend_instruction_args(const char * txt, ...)
+void cmap_parser_util_prepend_instruction_args(const char * txt, ...)
 {
   char * instruction = NULL;
 
@@ -52,19 +52,19 @@ static void prepend_instruction_args(const char * txt, ...)
   cmap_string_vappend_args(&instruction, txt, args);
   va_end(args);
 
-  cmap_part_public.prepend_instruction(instruction);
+  cmap_part_prepend_instruction(instruction);
 
   free(instruction);
 }
 
-static void append_instruction(const char * txt)
+void cmap_parser_util_append_instruction(const char * txt)
 {
-  cmap_part_public.add_instruction(txt);
+  cmap_part_add_instruction(txt);
 }
 
-static void append_lf()
+void cmap_parser_util_append_lf()
 {
-  cmap_part_public.add_lf();
+  cmap_part_add_lf();
 }
 
 /*******************************************************************************
@@ -80,7 +80,8 @@ static void add_args(char ** instruction, char * args)
   cmap_string_append(instruction, ", NULL);");
 }
 
-static void append_instruction_args_args(char * args, const char * txt, ...)
+void cmap_parser_util_append_instruction_args_args(char * args,
+  const char * txt, ...)
 {
   char * instruction = NULL;
 
@@ -91,7 +92,7 @@ static void append_instruction_args_args(char * args, const char * txt, ...)
 
   add_args(&instruction, args);
 
-  cmap_part_public.add_instruction(instruction);
+  cmap_part_add_instruction(instruction);
 
   free(instruction);
 }
@@ -99,24 +100,24 @@ static void append_instruction_args_args(char * args, const char * txt, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * add_definitions()
+const char * cmap_parser_util_add_definitions()
 {
-  if(!cmap_part_public.ctx.is_definitions_n_set())
+  if(!cmap_part_is_definitions_n_set())
   {
     CMAP_PART_CTX * ctx_split = cmap_part_ctx_split(cmap_part_ctx_fn_c());
-    append_variable_args(
+    cmap_parser_util_append_variable_args(
       "CMAP_MAP * %s = cmap_definitions(proc_ctx);", DEFINITIONS_VAR_NAME);
     cmap_part_ctx_join(ctx_split);
   }
   return DEFINITIONS_VAR_NAME;
 }
 
-static const char * add_global_env()
+const char * cmap_parser_util_add_global_env()
 {
-  if(!cmap_part_public.ctx.is_global_env_n_set())
+  if(!cmap_part_is_global_env_n_set())
   {
     CMAP_PART_CTX * ctx_split = cmap_part_ctx_split(cmap_part_ctx_fn_c());
-    append_variable_args(
+    cmap_parser_util_append_variable_args(
       "CMAP_MAP * %s = cmap_global_env(proc_ctx);", GLOBAL_ENV_VAR_NAME);
     cmap_part_ctx_join(ctx_split);
   }
@@ -126,31 +127,17 @@ static const char * add_global_env()
 /*******************************************************************************
 *******************************************************************************/
 
-static void prepend_map_var(const char * map_name)
+void cmap_parser_util_prepend_map_var(const char * map_name)
 {
-  append_variable_args("CMAP_MAP * %s = NULL;", map_name);
+  cmap_parser_util_append_variable_args("CMAP_MAP * %s = NULL;", map_name);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * next_name(const char * what)
+char * cmap_parser_util_next_name(const char * what)
 {
   char * name = NULL;
-  cmap_string_append_args(&name, "cmap_gen_%s_id%s", what,
-    cmap_part_public.ctx.uid());
+  cmap_string_append_args(&name, "cmap_gen_%s_id%s", what, cmap_part_uid());
   return name;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PARSER_UTIL_PUBLIC cmap_parser_util_public =
-{
-  append_instruction_args, append_variable_args, prepend_instruction_args,
-  append_instruction, append_lf,
-  append_instruction_args_args,
-  add_definitions, add_global_env,
-  prepend_map_var,
-  next_name
-};

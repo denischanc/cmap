@@ -17,11 +17,13 @@
   macro(inc) \
   macro(dec)
 
-#define CMAP_PARSER_OP_DECL(name) char * (*name)(char * map_l, char * map_r);
+#define CMAP_PARSER_OP_DECL(name) \
+  char * cmap_parser_op_##name(char * map_l, char * map_r);
 
 #define CMAP_PARSER_OP_SELF_DECL(name) \
-  void (*name)(char * map_dst, char * map_src);
+  void cmap_parser_op_##name(char * map_dst, char * map_src);
 
-#define CMAP_PARSER_OP_UNIQUE_DECL(name) void (*name)(char * map);
+#define CMAP_PARSER_OP_UNIQUE_DECL(name) \
+  void cmap_parser_op_##name(char * map);
 
 #endif

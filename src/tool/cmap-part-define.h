@@ -8,8 +8,9 @@
   macro(main) \
   macro(headers)
 
-#define CMAP_PART_DECL(part) char ** (*part)();
+#define CMAP_PART_DECL(part) char ** cmap_part_##part();
 
-#define CMAP_PART_NATURE_DECL(NAME, name, val) void (*nature_ctx_##name)();
+#define CMAP_PART_NATURE_DECL(NAME, name, val) \
+  void cmap_part_nature_ctx_##name();
 
 #endif
