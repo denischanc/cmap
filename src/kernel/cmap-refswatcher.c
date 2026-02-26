@@ -385,8 +385,7 @@ CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
   this -> rm = rm;
   this -> stop = stop;
 
-  if(cmap_kernel_instance() -> state() != CMAP_KERNEL_S_EXITING)
-    loop_init(this);
+  if(cmap_kernel_state() != CMAP_KERNEL_S_EXITING) loop_init(this);
 
   cmap_log_debug("[%p][refswatcher] created", this);
 

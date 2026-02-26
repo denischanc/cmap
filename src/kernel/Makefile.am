@@ -17,6 +17,7 @@ noinst_HEADERS = \
   cmap-global-env.h \
   cmap-kcli-define.h \
   cmap-kcli.h \
+  cmap-kernel-define.h \
   cmap-kernel.h \
   cmap-log-define.h \
   cmap-log.h \

@@ -1,20 +1,14 @@
 #ifndef __CMAP_KERNEL_H__
 #define __CMAP_KERNEL_H__
 
-#define CMAP_KERNEL_S_ALIVE 0
-#define CMAP_KERNEL_S_EXITING 1
+#include "cmap-kernel-define.h"
 
-typedef struct
-{
-  int (*main)();
+void cmap_kernel_exit(int ret);
+void cmap_kernel_fatal();
 
-  void (*exit)(int ret);
-  void (*fatal)();
+int cmap_kernel_main();
 
-  char (*state)();
-} CMAP_KERNEL;
-
-CMAP_KERNEL * cmap_kernel_instance();
+char cmap_kernel_state();
 
 void cmap_kernel_bootstrap(int argc, char ** argv);
 

@@ -1,0 +1,7 @@
+#ifndef __CMAP_KERNEL_DEFINE_H__
+#define __CMAP_KERNEL_DEFINE_H__
+
+#define CMAP_KERNEL_S_ALIVE 0
+#define CMAP_KERNEL_S_EXITING 1
+
+#endif

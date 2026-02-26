@@ -17,12 +17,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct
-{
-  char state;
-} INTERNAL;
-
-static INTERNAL internal = {CMAP_KERNEL_S_ALIVE};
+static char state = CMAP_KERNEL_S_ALIVE;
 
 /*******************************************************************************
 *******************************************************************************/
@@ -58,11 +53,11 @@ static void check_all(int * ret)
 /*******************************************************************************
 *******************************************************************************/
 
-static void exit_(int ret)
+void cmap_kernel_exit(int ret)
 {
-  if(internal.state != CMAP_KERNEL_S_EXITING)
+  if(state != CMAP_KERNEL_S_EXITING)
   {
-    internal.state = CMAP_KERNEL_S_EXITING;
+    state = CMAP_KERNEL_S_EXITING;
 
     cmap_env_delete_all();
 
@@ -76,40 +71,30 @@ static void exit_(int ret)
   }
 }
 
-static void fatal()
+void cmap_kernel_fatal()
 {
-  exit_(EXIT_FAILURE);
+  cmap_kernel_exit(EXIT_FAILURE);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int main_()
+int cmap_kernel_main()
 {
   cmap_log_info("Kernel start loop ...");
   cmap_loop_run();
   cmap_log_info("Loop terminated.");
 
-  exit_(EXIT_SUCCESS);
+  cmap_kernel_exit(EXIT_SUCCESS);
   return EXIT_SUCCESS;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char state()
+char cmap_kernel_state()
 {
-  return internal.state;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_KERNEL kernel = {main_, exit_, fatal, state};
-
-CMAP_KERNEL * cmap_kernel_instance()
-{
-  return &kernel;
+  return state;
 }
 
 /*******************************************************************************

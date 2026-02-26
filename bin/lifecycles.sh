@@ -9,7 +9,8 @@ lifecycle_types() {
 	cd $SRC_DIR && grep -r "$LC_SUPER super;" . | awk -F: '{print $1}' | \
 	while read FILE
 	do
-		local LC_TYPE=$(basename $FILE .h | sed -e 's/-define//' | \
+		local LC_TYPE=$(basename $FILE | \
+			sed -e 's/-define//' -e 's/\.c//' -e 's/\.h//' | \
 			tr '[a-z]-' '[A-Z]_')
 		echo "$LC_TYPE [$FILE]"
 		lifecycle_types $LC_TYPE

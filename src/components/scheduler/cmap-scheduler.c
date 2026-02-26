@@ -35,7 +35,7 @@ static void stop(CMAP_LOOP_TIMER * timer, CMAP_ENV * env, CMAP_MAP * job)
   cmap_loop_timer_stop(timer);
   cmap_mem_free(timer);
   CMAP_DEC_REFS(job);
-  CMAP_CALL_ARGS(env, nb_jobs_add, -1);
+  cmap_env_nb_jobs_add(env, -1);
 }
 
 /*******************************************************************************
@@ -90,7 +90,7 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
     CMAP_SET(map, INTERNAL_NAME, internal_);
   }
 
-  CMAP_CALL_ARGS(env, nb_jobs_add, 1);
+  cmap_env_nb_jobs_add(env, 1);
 
   return map;
 }

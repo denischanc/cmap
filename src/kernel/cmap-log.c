@@ -122,7 +122,7 @@ void cmap_vlog(char lvl, const char * msg, va_list args)
   {
     instance() -> vlog(lvl_val(lvl), msg, args);
 
-    if(lvl == CMAP_LOG_FATAL) cmap_kernel_instance() -> fatal();
+    if(lvl == CMAP_LOG_FATAL) cmap_kernel_fatal();
   }
 }
 

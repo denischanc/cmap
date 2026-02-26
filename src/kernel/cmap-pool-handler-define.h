@@ -10,13 +10,7 @@
   macro(MAP_GHOST, map_ghost, CMAP_MAP *)
 
 #define CMAP_POOL_HANDLER_DECL(NAME, name, type) \
-typedef struct \
-{ \
-  type (*create)(CMAP_PROC_CTX * proc_ctx); \
-  void (*clean)(type this); \
-} CMAP_POOL_HANDLER_##NAME##_PUBLIC; \
- \
-extern const CMAP_POOL_HANDLER_##NAME##_PUBLIC \
-  cmap_pool_handler_##name##_public;
+  type cmap_pool_handler_##name##_create(CMAP_PROC_CTX * proc_ctx); \
+  void cmap_pool_handler_##name##_clean(type e);
 
 #endif
