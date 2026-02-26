@@ -20,7 +20,7 @@ static char op_##name(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r, \
   return (1 == 1); \
 } \
  \
-const CMAP_OP_HANDLER cmap_op_handler_double_##name##_public = {op_##name};
+const CMAP_OP_HANDLER cmap_op_handler_double_##name = {op_##name};
 
 CMAP_OP_LOOP(IMPL)
 
@@ -40,6 +40,6 @@ static char op_##name(CMAP_MAP * map_dst, CMAP_MAP * map_src) \
   return (1 == 1); \
 } \
  \
-const CMAP_OP_HANDLER_SELF cmap_op_handler_double_##name##_public = {op_##name};
+const CMAP_OP_HANDLER_SELF cmap_op_handler_double_##name = {op_##name};
 
 CMAP_OP_SELF_LOOP(SELF_IMPL)

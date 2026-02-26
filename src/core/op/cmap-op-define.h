@@ -21,12 +21,12 @@
   macro(dec, --)
 
 #define CMAP_OP_DECL(name, OP) \
-  CMAP_MAP * (*name)(CMAP_MAP * map_l, CMAP_MAP * map_r, \
+  CMAP_MAP * cmap_op_##name(CMAP_MAP * map_l, CMAP_MAP * map_r, \
     CMAP_PROC_CTX * proc_ctx);
 
 #define CMAP_OP_SELF_DECL(name, OP) \
-  void (*name)(CMAP_MAP * map_dst, CMAP_MAP * map_src);
+  void cmap_op_##name(CMAP_MAP * map_dst, CMAP_MAP * map_src);
 
-#define CMAP_OP_UNIQUE_DECL(name, OP) void (*name)(CMAP_MAP * map);
+#define CMAP_OP_UNIQUE_DECL(name, OP) void cmap_op_##name(CMAP_MAP * map);
 
 #endif

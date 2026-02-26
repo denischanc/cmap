@@ -219,12 +219,12 @@ CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
 
 int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
-  return cmap_cmp_public.cmp(map_l, map_r);
+  return cmap_cmp_run(map_l, map_r);
 }
 
 char cmap_true(CMAP_MAP * map)
 {
-  return cmap_cmp_public.is_true(map);
+  return cmap_cmp_is_true(map);
 }
 
 /*******************************************************************************
@@ -233,25 +233,25 @@ char cmap_true(CMAP_MAP * map)
 CMAP_MAP * cmap_add(CMAP_MAP * map_l, CMAP_MAP * map_r,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_op_public.add(map_l, map_r, proc_ctx);
+  return cmap_op_add(map_l, map_r, proc_ctx);
 }
 
 CMAP_MAP * cmap_sub(CMAP_MAP * map_l, CMAP_MAP * map_r,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_op_public.sub(map_l, map_r, proc_ctx);
+  return cmap_op_sub(map_l, map_r, proc_ctx);
 }
 
 CMAP_MAP * cmap_mul(CMAP_MAP * map_l, CMAP_MAP * map_r,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_op_public.mul(map_l, map_r, proc_ctx);
+  return cmap_op_mul(map_l, map_r, proc_ctx);
 }
 
 CMAP_MAP * cmap_div(CMAP_MAP * map_l, CMAP_MAP * map_r,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_op_public.div(map_l, map_r, proc_ctx);
+  return cmap_op_div(map_l, map_r, proc_ctx);
 }
 
 /*******************************************************************************
@@ -259,22 +259,22 @@ CMAP_MAP * cmap_div(CMAP_MAP * map_l, CMAP_MAP * map_r,
 
 void cmap_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 {
-  cmap_op_public.add_self(map_dst, map_src);
+  cmap_op_add_self(map_dst, map_src);
 }
 
 void cmap_sub_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 {
-  cmap_op_public.sub_self(map_dst, map_src);
+  cmap_op_sub_self(map_dst, map_src);
 }
 
 void cmap_mul_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 {
-  cmap_op_public.mul_self(map_dst, map_src);
+  cmap_op_mul_self(map_dst, map_src);
 }
 
 void cmap_div_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 {
-  cmap_op_public.div_self(map_dst, map_src);
+  cmap_op_div_self(map_dst, map_src);
 }
 
 /*******************************************************************************
@@ -282,12 +282,12 @@ void cmap_div_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
 
 void cmap_inc(CMAP_MAP * map)
 {
-  cmap_op_public.inc(map);
+  cmap_op_inc(map);
 }
 
 void cmap_dec(CMAP_MAP * map)
 {
-  cmap_op_public.dec(map);
+  cmap_op_dec(map);
 }
 
 /*******************************************************************************

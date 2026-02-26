@@ -18,7 +18,7 @@ static void display(FILE * f, CMAP_LIST * args, const char * eol,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+CMAP_MAP * cmap_console_info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   display(stdout, args, "\n", proc_ctx);
@@ -28,7 +28,7 @@ static CMAP_MAP * info(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * print(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+CMAP_MAP * cmap_console_print(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   display(stdout, args, "", proc_ctx);
@@ -38,14 +38,9 @@ static CMAP_MAP * print(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * error(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
+CMAP_MAP * cmap_console_error(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   display(stderr, args, "\n", proc_ctx);
   return map;
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_CONSOLE_PUBLIC cmap_console_public = { info, print, error };

@@ -42,13 +42,13 @@
   macro(int, dec)
 
 #define CMAP_OP_HANDLER_DECL(type, name) \
-  extern const CMAP_OP_HANDLER cmap_op_handler_##type##_##name##_public;
+  extern const CMAP_OP_HANDLER cmap_op_handler_##type##_##name;
 
 #define CMAP_OP_HANDLER_SELF_DECL(type, name) \
-  extern const CMAP_OP_HANDLER_SELF cmap_op_handler_##type##_##name##_public;
+  extern const CMAP_OP_HANDLER_SELF cmap_op_handler_##type##_##name;
 
 #define CMAP_OP_HANDLER_UNIQUE_DECL(type, name) \
-  extern const CMAP_OP_HANDLER_UNIQUE cmap_op_handler_##type##_##name##_public;
+  extern const CMAP_OP_HANDLER_UNIQUE cmap_op_handler_##type##_##name;
 
 #define CMAP_OP_HANDLER_DEFINE(name, OP) \
   CMAP_OP_HANDLER_##name##_LOOP(CMAP_OP_HANDLER_DECL)

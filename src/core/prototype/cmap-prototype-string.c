@@ -18,7 +18,7 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   {
     CMAP_MAP * cur;
     while((cur = CMAP_LIST_SHIFT(args)) != NULL)
-      cmap_op_handler_string_public.append((CMAP_STRING *)map, cur);
+      cmap_op_handler_string_append((CMAP_STRING *)map, cur);
   }
   return map;
 }

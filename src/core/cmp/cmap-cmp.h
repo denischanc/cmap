@@ -4,13 +4,8 @@
 #include <stdint.h>
 #include "cmap-map-type.h"
 
-typedef struct
-{
-  int64_t (*cmp)(CMAP_MAP * map_l, CMAP_MAP * map_r);
+int64_t cmap_cmp_run(CMAP_MAP * map_l, CMAP_MAP * map_r);
 
-  char (*is_true)(CMAP_MAP * map);
-} CMAP_CMP_PUBLIC;
-
-extern const CMAP_CMP_PUBLIC cmap_cmp_public;
+char cmap_cmp_is_true(CMAP_MAP * map);
 
 #endif

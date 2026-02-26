@@ -21,4 +21,4 @@ static char cmp(int64_t * ret, CMAP_MAP * map_l, CMAP_MAP * map_r)
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_CMP_HANDLER cmap_cmp_handler_int_public = {cmp};
+const CMAP_CMP_HANDLER cmap_cmp_handler_int = {cmp};

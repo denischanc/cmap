@@ -14,6 +14,6 @@
   return {
     console: @IMPORT("console/cmap-console.cmap"),
     job: @IMPORT("scheduler/cmap-job.cmap"),
-    prototype: @PROC(cmap_cmap_public.prototype)
+    prototype: @PROC(cmap_cmap_prototype)
   };
 }

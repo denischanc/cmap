@@ -10,7 +10,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static void append(CMAP_STRING * dst, CMAP_MAP * src)
+void cmap_op_handler_string_append(CMAP_STRING * dst, CMAP_MAP * src)
 {
   const char * nature = CMAP_NATURE(src);
   if(nature == CMAP_STRING_NATURE)
@@ -42,7 +42,7 @@ static char op_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
     return (1 == 0);
 
   if(map_src == NULL) CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, "null");
-  else append((CMAP_STRING *)map_dst, map_src);
+  else cmap_op_handler_string_append((CMAP_STRING *)map_dst, map_src);
   return (1 == 1);
 }
 
@@ -56,8 +56,8 @@ static char op_add(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r,
     return (1 == 0);
 
   CMAP_STRING * ret = CMAP_STRING("", 0, proc_ctx);
-  append(ret, map_l);
-  append(ret, map_r);
+  cmap_op_handler_string_append(ret, map_l);
+  cmap_op_handler_string_append(ret, map_r);
   *map_dst = (CMAP_MAP *)ret;
   return (1 == 1);
 }
@@ -65,9 +65,6 @@ static char op_add(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r,
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_OP_HANDLER cmap_op_handler_string_add_public = {op_add};
+const CMAP_OP_HANDLER cmap_op_handler_string_add = {op_add};
 
-const CMAP_OP_HANDLER_SELF cmap_op_handler_string_add_self_public =
-  {op_add_self};
-
-const CMAP_OP_HANDLER_STRING_PUBLIC cmap_op_handler_string_public = {append};
+const CMAP_OP_HANDLER_SELF cmap_op_handler_string_add_self = {op_add_self};

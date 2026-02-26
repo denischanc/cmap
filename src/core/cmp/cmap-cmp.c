@@ -9,9 +9,9 @@
 *******************************************************************************/
 
 #define IMPL(type) \
-  if(cmap_cmp_handler_##type##_public.cmp(&ret, map_l, map_r)) return ret;
+  if(cmap_cmp_handler_##type.cmp(&ret, map_l, map_r)) return ret;
 
-static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
+int64_t cmap_cmp_run(CMAP_MAP * map_l, CMAP_MAP * map_r)
 {
   int64_t ret = (void *)map_l - (void *)map_r;
   if(ret == 0) return 0;
@@ -23,7 +23,7 @@ static int64_t cmp(CMAP_MAP * map_l, CMAP_MAP * map_r)
 /*******************************************************************************
 *******************************************************************************/
 
-static char is_true(CMAP_MAP * map)
+char cmap_cmp_is_true(CMAP_MAP * map)
 {
   if(map == NULL) return (1 == 0);
 
@@ -31,8 +31,3 @@ static char is_true(CMAP_MAP * map)
     return (CMAP_CALL((CMAP_INT *)map, get) != 0);
   return (1 == 1);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_CMP_PUBLIC cmap_cmp_public = {cmp, is_true};

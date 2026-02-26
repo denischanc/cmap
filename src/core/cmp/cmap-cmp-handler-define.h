@@ -7,6 +7,6 @@
   macro(double)
 
 #define CMAP_CMP_HANDLER_DECL(type) \
-  extern const CMAP_CMP_HANDLER cmap_cmp_handler_##type##_public;
+  extern const CMAP_CMP_HANDLER cmap_cmp_handler_##type;
 
 #endif

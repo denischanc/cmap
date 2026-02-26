@@ -10,7 +10,7 @@
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
+CMAP_MAP * cmap_cli_create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_LIST * args = CMAP_LIST(0, proc_ctx);
   int argc = cmap_kcli_argc();
@@ -22,8 +22,3 @@ static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 
   return cmap_to_map(proc_ctx, "args", args, NULL);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_CLI_PUBLIC cmap_cli_public = { create };
