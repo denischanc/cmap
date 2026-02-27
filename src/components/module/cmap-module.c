@@ -36,8 +36,8 @@ CMAP_MAP * cmap_module_load(const char * path_so, CMAP_PROC_CTX * proc_ctx)
     return NULL;
   }
 
-  CMAP_PROC_CTX * new_proc_ctx = CMAP_CALL(proc_ctx, create);
-  return CMAP_CALL_ARGS(new_proc_ctx, delete, fn(new_proc_ctx));
+  CMAP_PROC_CTX * new_proc_ctx = cmap_proc_ctx_new(proc_ctx);
+  return cmap_proc_ctx_delete(new_proc_ctx, fn(new_proc_ctx));
 }
 
 /*******************************************************************************

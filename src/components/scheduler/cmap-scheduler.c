@@ -53,7 +53,7 @@ static void schedule(CMAP_LOOP_TIMER * timer)
 
   if(cmap_loop_timer_is_stopped(timer)) stop(timer, env, job);
 
-  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
+  cmap_proc_ctx_delete(proc_ctx, NULL);
 }
 
 /*******************************************************************************
@@ -75,7 +75,7 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
       repeat_ms = CMAP_CALL((CMAP_INT *)tmp, get);
   }
 
-  CMAP_ENV * env = CMAP_CALL(proc_ctx, env);
+  CMAP_ENV * env = cmap_proc_ctx_env(proc_ctx);
 
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> env = env;

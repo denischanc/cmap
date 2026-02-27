@@ -6,16 +6,12 @@
 
 typedef struct CMAP_REFSWATCHER CMAP_REFSWATCHER;
 
-struct CMAP_REFSWATCHER
-{
-  void (*delete)(CMAP_REFSWATCHER * this);
+void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc);
+void cmap_refswatcher_rm(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc);
 
-  void (*add)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
-  void (*rm)(CMAP_REFSWATCHER * this, CMAP_LIFECYCLE * lc);
+void cmap_refswatcher_stop(CMAP_REFSWATCHER * rw);
 
-  void (*stop)(CMAP_REFSWATCHER * this);
-};
-
+void cmap_refswatcher_delete(CMAP_REFSWATCHER * rw);
 CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env);
 
 #ifdef CONSUMED_TIME

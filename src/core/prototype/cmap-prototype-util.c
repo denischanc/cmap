@@ -44,7 +44,7 @@ char cmap_prototype_util_args_to_map_fn(CMAP_LIST * args,
 void cmap_prototype_util_require_map(CMAP_MAP ** proto,
   CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   CMAP_MAP * proto_map = CMAP_CALL_ARGS(ps, require_map, proc_ctx);
   *proto = CMAP_PROTOTYPE_NEW(proto_map, proc_ctx);
 }

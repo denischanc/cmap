@@ -24,7 +24,7 @@ static char state = CMAP_KERNEL_S_ALIVE;
 
 static void check_mem(int * ret)
 {
-  if(cmap_mem_is_this())
+  if(cmap_mem_is_internal())
   {
     int s = cmap_mem_state() -> size_alloc;
     cmap_log_info("Allocated memory size : [%d].", s);
@@ -39,7 +39,7 @@ static void check_mem(int * ret)
 static void check_refs()
 {
 #ifdef CONSUMED_TIME
-  cmap_refsstore_public.log_consumed_time(CMAP_LOG_INFO);
+  cmap_refsstore_log_consumed_time(CMAP_LOG_INFO);
   cmap_refswatcher_log_consumed_time(CMAP_LOG_INFO);
 #endif
 }

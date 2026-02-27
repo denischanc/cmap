@@ -27,6 +27,7 @@ noinst_HEADERS = \
   cmap-pool.h \
   cmap-pool-handler-define.h \
   cmap-pool-handler.h \
+  cmap-proc-ctx-define.h \
   cmap-proc-ctx.h \
   cmap-refsstore.h \
   cmap-refswatcher.h

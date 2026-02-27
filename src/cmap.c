@@ -302,7 +302,7 @@ CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   va_list args)
 {
-  CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
+  CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
   cmap_util_vfill_list(args_list, args);
 
@@ -335,7 +335,7 @@ CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, va_list args)
 {
-  CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
+  CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
   cmap_util_vfill_list(args_list, args);
 
@@ -377,7 +377,7 @@ CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
 static CMAP_MAP * vproc(CMAP_MAP * map, const char * key,
   CMAP_PROC_CTX * proc_ctx, va_list args)
 {
-  CMAP_POOL_LIST_GHOST * pool = CMAP_CALL(proc_ctx, pool_list_ghost);
+  CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
   cmap_util_vfill_list(args_list, args);
 
@@ -440,12 +440,12 @@ void cmap_env_main(CMAP_ENV * env, CMAP_ENV_MAIN main_)
 
 CMAP_PROC_CTX * cmap_proc_ctx(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_CALL(proc_ctx, create);
+  return cmap_proc_ctx_new(proc_ctx);
 }
 
 CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 {
-  return CMAP_CALL_ARGS(proc_ctx, delete, ret);
+  return cmap_proc_ctx_delete(proc_ctx, ret);
 }
 
 /*******************************************************************************
@@ -453,10 +453,10 @@ CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
 
 CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_CALL(proc_ctx, global_env);
+  return cmap_proc_ctx_global_env(proc_ctx);
 }
 
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
 {
-  return CMAP_CALL(proc_ctx, local_definitions);
+  return cmap_proc_ctx_local_definitions(proc_ctx);
 }

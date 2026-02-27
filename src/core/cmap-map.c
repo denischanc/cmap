@@ -312,7 +312,7 @@ static CMAP_MAP * create_root(CMAP_PROC_CTX * proc_ctx)
 
 static CMAP_MAP * create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   return new(CMAP_CALL_ARGS(ps, map_, proc_ctx), proc_ctx);
 }
 

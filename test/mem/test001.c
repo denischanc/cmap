@@ -18,7 +18,7 @@
 int main(int argc, char * argv[])
 {
   cmap_config_set_mem_chunk_size(1 << 10);
-  CMAP_TEST_ASSERT(cmap_mem_is_this(), "This is cmap mem");
+  CMAP_TEST_ASSERT(cmap_mem_is_internal(), "This is cmap mem");
 
   ASSERT_NB_CHUNK(0);
 

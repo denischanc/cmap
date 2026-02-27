@@ -59,15 +59,15 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
 static CMAP_MAP * process(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  CMAP_PROC_CTX * new_proc_ctx = CMAP_CALL(proc_ctx, create);
+  CMAP_PROC_CTX * new_proc_ctx = cmap_proc_ctx_new(proc_ctx);
 
   INTERNAL * internal = this -> internal;
 
-  CMAP_MAP * definitions = CMAP_CALL(new_proc_ctx, local_definitions);
+  CMAP_MAP * definitions = cmap_proc_ctx_local_definitions(new_proc_ctx);
 
   cmap_util_copy(definitions, internal -> definitions);
 
-  return CMAP_CALL_ARGS(new_proc_ctx, delete,
+  return cmap_proc_ctx_delete(new_proc_ctx,
     CMAP_CALL_ARGS(this, do_process, new_proc_ctx, map, args));
 }
 
@@ -135,7 +135,7 @@ static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
 static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_FN_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, fn_, proc_ctx);
   initargs.allocator = NULL;

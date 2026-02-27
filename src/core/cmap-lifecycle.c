@@ -67,7 +67,7 @@ static inline void set_ref_state(CMAP_LIFECYCLE * this, INTERNAL * internal,
 static inline void do_store(CMAP_LIFECYCLE * this, INTERNAL * internal)
 {
   CMAP_PROC_CTX * proc_ctx = cmap_env_proc_ctx(internal -> env);
-  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_F);
+  cmap_proc_ctx_local_refs_add(proc_ctx, this, CMAP_F);
   set_ref_state(this, internal, REF_STATE_STORED);
 }
 
@@ -187,7 +187,7 @@ static inline void rm_from_refswatcher(CMAP_LIFECYCLE * this)
   if(internal -> watch_time_us > 0)
   {
     CMAP_REFSWATCHER * refswatcher = cmap_env_refswatcher(internal -> env);
-    CMAP_CALL_ARGS(refswatcher, rm, this);
+    cmap_refswatcher_rm(refswatcher, this);
   }
 }
 
@@ -197,7 +197,7 @@ static inline void rm_from_local_refs(CMAP_LIFECYCLE * this)
   if(internal -> ref_state != REF_STATE_FREE)
   {
     CMAP_PROC_CTX * proc_ctx = cmap_env_proc_ctx(internal -> env);
-    CMAP_CALL_ARGS(proc_ctx, local_refs_rm, this);
+    cmap_proc_ctx_local_refs_rm(proc_ctx, this);
   }
 }
 
@@ -227,12 +227,12 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> nature = initargs -> nature;
   internal -> nb_refs = 0;
-  internal -> env = CMAP_CALL(proc_ctx, env);
+  internal -> env = cmap_proc_ctx_env(proc_ctx);
   internal -> allocator = allocator;
   internal -> watch_time_us = 0;
   internal -> ref_state = REF_STATE_STORED;
 
-  CMAP_CALL_ARGS(proc_ctx, local_refs_add, this, CMAP_T);
+  cmap_proc_ctx_local_refs_add(proc_ctx, this, CMAP_T);
 
   this -> internal = internal;
   this -> delete = delete;

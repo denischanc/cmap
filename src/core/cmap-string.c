@@ -142,7 +142,7 @@ static CMAP_STRING * create(const char * val, int size_inc,
   CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_STRING_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, string_, proc_ctx);
   initargs.allocator = NULL;

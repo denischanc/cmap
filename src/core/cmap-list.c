@@ -226,7 +226,7 @@ static CMAP_LIST * init(CMAP_LIST * this, CMAP_INITARGS * initargs,
 static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_LIST_NATURE;
   initargs.prototype = CMAP_CALL_ARGS(ps, list_, proc_ctx);
   initargs.allocator = NULL;

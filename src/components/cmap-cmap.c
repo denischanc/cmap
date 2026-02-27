@@ -13,7 +13,7 @@
 
 CMAP_MAP * cmap_cmap_prototype(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTOTYPESTORE * ps = CMAP_CALL(proc_ctx, prototypestore);
+  CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
 
   return cmap_to_map(proc_ctx,
     "map", CMAP_CALL_ARGS(ps, map_, proc_ctx),

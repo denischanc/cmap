@@ -63,7 +63,7 @@ void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb)
   if(*nb_jobs <= 0)
   {
     CMAP_REFSWATCHER * refswatcher = env -> refswatcher;
-    if(refswatcher != NULL) CMAP_CALL(refswatcher, stop);
+    if(refswatcher != NULL) cmap_refswatcher_stop(refswatcher);
 
     CMAP_LOOP_TIMER * timer = &env -> timer;
     timer -> data = env;
@@ -153,7 +153,7 @@ static void bootstrap(CMAP_LOOP_TIMER * timer)
   CMAP_ENV_MAIN main_ = env -> main;
   if(main_ != NULL) main_(proc_ctx);
 
-  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
+  cmap_proc_ctx_delete(proc_ctx, NULL);
 
   cmap_env_nb_jobs_add(env, 0);
 }
@@ -186,9 +186,9 @@ void cmap_env_delete(CMAP_ENV * env)
   CMAP_POOL_LOOP(POOL_DEC_REFS)
   if(env -> global != NULL) CMAP_DEC_REFS(env -> global);
 
-  CMAP_CALL_ARGS(proc_ctx, delete, NULL);
+  cmap_proc_ctx_delete(proc_ctx, NULL);
 
-  if(env -> refswatcher != NULL) CMAP_DELETE(env -> refswatcher);
+  if(env -> refswatcher != NULL) cmap_refswatcher_delete(env -> refswatcher);
 
   cmap_mem_free(env);
 }
