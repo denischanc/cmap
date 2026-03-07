@@ -8,6 +8,7 @@
 #include "cmap-loop.h"
 #include "cmap-config.h"
 #include "cmap-kcli.h"
+#include "cmap-core.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-refsstore.h"
@@ -81,6 +82,8 @@ void cmap_kernel_fatal()
 
 int cmap_kernel_main()
 {
+  cmap_core_log_sizeof(CMAP_LOG_DEBUG);
+
   cmap_log_info("Kernel start loop ...");
   cmap_loop_run();
   cmap_log_info("Loop terminated.");

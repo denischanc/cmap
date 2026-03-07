@@ -4,51 +4,54 @@ include $(top_srcdir)/src/common.mk
 SUBDIRS = cmp op prototype score
 
 include_cmap_HEADERS = \
-  cmap-map-type.h \
-  cmap-map-ext.h \
-  cmap-list-type.h \
-  cmap-list-ext.h \
-  cmap-fn-type.h \
-  cmap-fn-ext.h \
-  cmap-string-type.h \
-  cmap-string-ext.h \
-  cmap-int-type.h \
-  cmap-int-ext.h \
-  cmap-double-type.h \
   cmap-double-ext.h \
+  cmap-double-type.h \
+  cmap-fn-ext.h \
+  cmap-fn-type.h \
+  cmap-int-ext.h \
+  cmap-int-type.h \
+  cmap-list-ext.h \
+  cmap-list-type.h \
+  cmap-map-ext.h \
+  cmap-map-type.h \
+  cmap-ptr-ext.h \
   cmap-ptr-type.h \
-  cmap-ptr-ext.h
+  cmap-string-ext.h \
+  cmap-string-type.h
 
 noinst_HEADERS = \
-  cmap-initargs.h \
-  cmap-map.h \
-  cmap-map-define.h \
-  cmap-list.h \
-  cmap-list-define.h \
-  cmap-fn.h \
-  cmap-fn-define.h \
-  cmap-string.h \
-  cmap-string-define.h \
-  cmap-int.h \
-  cmap-int-define.h \
-  cmap-double.h \
+  cmap-core-define.h \
+  cmap-core.h \
   cmap-double-define.h \
-  cmap-ptr.h \
-  cmap-lifecycle.h \
+  cmap-double.h \
+  cmap-fn-define.h \
+  cmap-fn.h \
+  cmap-initargs.h \
+  cmap-int-define.h \
+  cmap-int.h \
   cmap-lifecycle-define.h \
-  cmap-lifecycle-type.h
+  cmap-lifecycle.h \
+  cmap-lifecycle-type.h \
+  cmap-list-define.h \
+  cmap-list.h \
+  cmap-map-define.h \
+  cmap-map.h \
+  cmap-ptr.h \
+  cmap-string-define.h \
+  cmap-string.h
 
 noinst_LTLIBRARIES = libcore.la
 
 libcore_la_SOURCES = \
-  cmap-map.c \
-  cmap-list.c \
-  cmap-fn.c \
-  cmap-string.c \
-  cmap-int.c \
+  cmap-core.c \
   cmap-double.c \
+  cmap-fn.c \
+  cmap-int.c \
+  cmap-lifecycle.c \
+  cmap-list.c \
+  cmap-map.c \
   cmap-ptr.c \
-  cmap-lifecycle.c
+  cmap-string.c
 libcore_la_LIBADD = \
   cmp/libcmp.la \
   op/libop.la \
