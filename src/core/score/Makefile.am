@@ -8,13 +8,11 @@ noinst_HEADERS = \
   cmap-sset-define.h \
   cmap-sset.h \
   cmap-stree-define.h \
-  cmap-stree.h \
-  cmap-stree-iterator.h
+  cmap-stree.h
 
 noinst_LTLIBRARIES = libscore.la
 
 libscore_la_SOURCES = \
   cmap-slist.c \
   cmap-sset.c \
-  cmap-stree.c \
-  cmap-stree-iterator.c
+  cmap-stree.c

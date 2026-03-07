@@ -34,7 +34,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {
   INTERNAL * internal = ((CMAP_FN *)this) -> internal;
   if(internal -> definitions != NULL)
-    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&internal -> definitions);
+    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&internal -> definitions);
 
   cmap_map_public.nested(this, list);
 }

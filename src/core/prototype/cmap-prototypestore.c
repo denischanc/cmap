@@ -27,7 +27,7 @@ typedef struct
 
 #define NESTED_PUSH(type) \
   if(internal -> type##_ != NULL) \
-    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&internal -> type##_);
+    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&internal -> type##_);
 
 static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 {

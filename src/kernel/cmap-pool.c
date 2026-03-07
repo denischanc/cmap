@@ -30,7 +30,7 @@ struct CMAP_POOL_##NAME \
 static void name##_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list) \
 { \
   CMAP_POOL_##NAME * pool = (CMAP_POOL_##NAME *)lc; \
-  CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)&pool -> availables); \
+  cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&pool -> availables); \
  \
   cmap_lifecycle_public.nested(lc, list); \
 } \

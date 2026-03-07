@@ -21,53 +21,38 @@
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SLIST_STRUCT_DECL(NAME, type) \
+#define CMAP_SLIST_DECL(NAME, name, type, dft) \
 typedef struct CMAP_SLIST_##NAME CMAP_SLIST_##NAME; \
  \
 typedef void (*CMAP_SLIST_##NAME##_APPLY_FN)(type * v, void * data); \
  \
-struct CMAP_SLIST_##NAME \
-{ \
-  void (*delete)(CMAP_SLIST_##NAME * this); \
+void cmap_slist_##name##_push(CMAP_SLIST_##NAME * list, type v); \
+type cmap_slist_##name##_pop(CMAP_SLIST_##NAME * list); \
  \
-  void (*push)(CMAP_SLIST_##NAME * this, type v); \
-  type (*pop)(CMAP_SLIST_##NAME * this); \
+void cmap_slist_##name##_unshift(CMAP_SLIST_##NAME * list, type v); \
+type cmap_slist_##name##_shift(CMAP_SLIST_##NAME * list); \
  \
-  void (*unshift)(CMAP_SLIST_##NAME * this, type v); \
-  type (*shift)(CMAP_SLIST_##NAME * this); \
+char cmap_slist_##name##_add(CMAP_SLIST_##NAME * list, int i, type v); \
+type cmap_slist_##name##_rm(CMAP_SLIST_##NAME * list, int i); \
  \
-  char (*add)(CMAP_SLIST_##NAME * this, int i, type v); \
-  type (*rm)(CMAP_SLIST_##NAME * this, int i); \
+type * cmap_slist_##name##_get(CMAP_SLIST_##NAME * list, int i); \
+type * cmap_slist_##name##_first(CMAP_SLIST_##NAME * list); \
+type * cmap_slist_##name##_last(CMAP_SLIST_##NAME * list); \
  \
-  type * (*get)(CMAP_SLIST_##NAME * this, int i); \
-  type * (*first)(CMAP_SLIST_##NAME * this); \
-  type * (*last)(CMAP_SLIST_##NAME * this); \
+int cmap_slist_##name##_size(CMAP_SLIST_##NAME * list); \
  \
-  int (*size)(CMAP_SLIST_##NAME * this); \
+void cmap_slist_##name##_apply(CMAP_SLIST_##NAME * list, \
+  CMAP_SLIST_##NAME##_APPLY_FN fn, void * data); \
  \
-  void (*apply)(CMAP_SLIST_##NAME * this, CMAP_SLIST_##NAME##_APPLY_FN fn, \
-    void * data); \
+void cmap_slist_##name##_clean(CMAP_SLIST_##NAME * list); \
  \
-  void (*clean)(CMAP_SLIST_##NAME * this); \
-};
+void cmap_slist_##name##_delete(CMAP_SLIST_##NAME * list); \
+CMAP_SLIST_##NAME * cmap_slist_##name##_create(int chunk_size);
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SLIST_DECL(NAME, name, type, dft) \
-CMAP_SLIST_STRUCT_DECL(NAME, type) \
- \
-typedef struct \
-{ \
-  CMAP_SLIST_##NAME * (*create)(int chunk_size); \
-} CMAP_SLIST_##NAME##_PUBLIC; \
- \
-extern const CMAP_SLIST_##NAME##_PUBLIC cmap_slist_##name##_public;
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define CMAP_SLIST_STATIC_FN_IMPL(NAME, name, type, dft) \
+#define CMAP_SLIST_IMPL(NAME, name, type, dft) \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
@@ -84,12 +69,12 @@ struct NAME##_CHUNK \
   NAME##_CHUNK * next, * prev; \
 }; \
  \
-typedef struct \
+struct CMAP_SLIST_##NAME \
 { \
   NAME##_CHUNK * first, * last; \
   int size, chunk_size; \
   char used; \
-} NAME##_INTERNAL; \
+}; \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
@@ -121,13 +106,13 @@ static inline void name##_rm_w_last(type ** p, int i, NAME##_CHUNK * chunk) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
+static NAME##_CHUNK * name##_create_chunk(CMAP_SLIST_##NAME * list) \
 { \
   NAME##_CHUNK * chunk; \
   type * first; \
-  if(internal -> used) \
+  if(list -> used) \
   { \
-    int chunk_size = internal -> chunk_size; \
+    int chunk_size = list -> chunk_size; \
     chunk = cmap_mem_alloc(sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
     first = (type *)(chunk + 1); \
     chunk -> first = first; \
@@ -135,8 +120,8 @@ static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
   } \
   else \
   { \
-    internal -> used = CMAP_T; \
-    chunk = (NAME##_CHUNK *)(internal + 1); \
+    list -> used = CMAP_T; \
+    chunk = (NAME##_CHUNK *)(list + 1); \
     first = (type *)(chunk + 1); \
   } \
   chunk -> start = first; \
@@ -150,80 +135,78 @@ static NAME##_CHUNK * name##_create_chunk(NAME##_INTERNAL * internal) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_create_first(NAME##_INTERNAL * internal) \
+static void name##_create_first(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_CHUNK * chunk = name##_create_chunk(internal); \
-  chunk -> next = internal -> first; \
-  internal -> first -> prev = chunk; \
-  internal -> first = chunk; \
+  NAME##_CHUNK * chunk = name##_create_chunk(list); \
+  chunk -> next = list -> first; \
+  list -> first -> prev = chunk; \
+  list -> first = chunk; \
 } \
  \
-static void name##_delete_first(NAME##_INTERNAL * internal) \
+static void name##_delete_first(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_CHUNK * chunk = internal -> first; \
-  internal -> first = chunk -> next; \
-  internal -> first -> prev = NULL; \
-  if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
+  NAME##_CHUNK * chunk = list -> first; \
+  list -> first = chunk -> next; \
+  list -> first -> prev = NULL; \
+  if(chunk == (NAME##_CHUNK *)(list + 1)) list -> used = CMAP_F; \
   else cmap_mem_free(chunk); \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_create_last(NAME##_INTERNAL * internal) \
+static void name##_create_last(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_CHUNK * chunk = name##_create_chunk(internal); \
-  chunk -> prev = internal -> last; \
-  internal -> last -> next = chunk; \
-  internal -> last = chunk; \
+  NAME##_CHUNK * chunk = name##_create_chunk(list); \
+  chunk -> prev = list -> last; \
+  list -> last -> next = chunk; \
+  list -> last = chunk; \
 } \
  \
-static void name##_delete_last(NAME##_INTERNAL * internal) \
+static void name##_delete_last(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_CHUNK * chunk = internal -> last; \
-  internal -> last = chunk -> prev; \
-  internal -> last -> next = NULL; \
-  if(chunk == (NAME##_CHUNK *)(internal + 1)) internal -> used = CMAP_F; \
+  NAME##_CHUNK * chunk = list -> last; \
+  list -> last = chunk -> prev; \
+  list -> last -> next = NULL; \
+  if(chunk == (NAME##_CHUNK *)(list + 1)) list -> used = CMAP_F; \
   else cmap_mem_free(chunk); \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_push(CMAP_SLIST_##NAME * this, type v) \
+void cmap_slist_##name##_push(CMAP_SLIST_##NAME * list, type v) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * last = internal -> last; \
-  if(last -> size >= internal -> chunk_size) \
+  NAME##_CHUNK * last = list -> last; \
+  if(last -> size >= list -> chunk_size) \
   { \
-    name##_create_last(internal); \
-    last = internal -> last; \
+    name##_create_last(list); \
+    last = list -> last; \
   } \
  \
   *last -> stop = v; \
  \
   name##_inc_w_last(&last -> stop, last); \
   last -> size++; \
-  internal -> size++; \
+  list -> size++; \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_pop(CMAP_SLIST_##NAME * this) \
+type cmap_slist_##name##_pop(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * last = internal -> last; \
+  NAME##_CHUNK * last = list -> last; \
   if(last -> size <= 0) return dft; \
   else \
   { \
     name##_dec_w_last(&last -> stop, last); \
     type ret = *last -> stop; \
  \
-    if((last -> size <= 1) && (last != internal -> first)) \
-      name##_delete_last(internal); \
+    if((last -> size <= 1) && (last != list -> first)) \
+      name##_delete_last(list); \
     else last -> size--; \
-    internal -> size--; \
+    list -> size--; \
  \
     return ret; \
   } \
@@ -232,19 +215,18 @@ static type name##_pop(CMAP_SLIST_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_unshift(CMAP_SLIST_##NAME * this, type v) \
+void cmap_slist_##name##_unshift(CMAP_SLIST_##NAME * list, type v) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * first = internal -> first; \
-  if(first -> size >= internal -> chunk_size) \
+  NAME##_CHUNK * first = list -> first; \
+  if(first -> size >= list -> chunk_size) \
   { \
-    name##_create_first(internal); \
-    first = internal -> first; \
+    name##_create_first(list); \
+    first = list -> first; \
   } \
  \
   name##_dec_w_last(&first -> start, first); \
   first -> size++; \
-  internal -> size++; \
+  list -> size++; \
  \
   *first -> start = v; \
 } \
@@ -252,23 +234,22 @@ static void name##_unshift(CMAP_SLIST_##NAME * this, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_shift(CMAP_SLIST_##NAME * this) \
+type cmap_slist_##name##_shift(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * first = internal -> first; \
+  NAME##_CHUNK * first = list -> first; \
   if(first -> size <= 0) return dft; \
   else \
   { \
     type ret = *first -> start; \
  \
-    if((first -> size <= 1) && (first != internal -> last)) \
-      name##_delete_first(internal); \
+    if((first -> size <= 1) && (first != list -> last)) \
+      name##_delete_first(list); \
     else \
     { \
       name##_inc_w_last(&first -> start, first); \
       first -> size--; \
     } \
-    internal -> size--; \
+    list -> size--; \
  \
     return ret; \
   } \
@@ -277,18 +258,18 @@ static type name##_shift(CMAP_SLIST_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_add_begin_get_chunk(NAME##_INTERNAL * internal, \
+static NAME##_CHUNK * name##_add_begin_get_chunk(CMAP_SLIST_##NAME * list, \
   int * i) \
 { \
-  NAME##_CHUNK * chunk = internal -> first; \
-  if(chunk -> size >= internal -> chunk_size) \
+  NAME##_CHUNK * chunk = list -> first; \
+  if(chunk -> size >= list -> chunk_size) \
   { \
-    name##_create_first(internal); \
-    chunk = internal -> first; \
+    name##_create_first(list); \
+    chunk = list -> first; \
   } \
  \
   chunk -> size++; \
-  internal -> size++; \
+  list -> size++; \
  \
   while(*i >= chunk -> size) \
   { \
@@ -307,9 +288,9 @@ static NAME##_CHUNK * name##_add_begin_get_chunk(NAME##_INTERNAL * internal, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_add_begin(NAME##_INTERNAL * internal, int i, type v) \
+static void name##_add_begin(CMAP_SLIST_##NAME * list, int i, type v) \
 { \
-  NAME##_CHUNK * chunk = name##_add_begin_get_chunk(internal, &i); \
+  NAME##_CHUNK * chunk = name##_add_begin_get_chunk(list, &i); \
  \
   name##_dec_w_last(&chunk -> start, chunk); \
   type * cur = chunk -> start; \
@@ -327,18 +308,18 @@ static void name##_add_begin(NAME##_INTERNAL * internal, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_add_end_get_chunk(NAME##_INTERNAL * internal, \
+static NAME##_CHUNK * name##_add_end_get_chunk(CMAP_SLIST_##NAME * list, \
   int * i) \
 { \
-  NAME##_CHUNK * chunk = internal -> last; \
-  if(chunk -> size >= internal -> chunk_size) \
+  NAME##_CHUNK * chunk = list -> last; \
+  if(chunk -> size >= list -> chunk_size) \
   { \
-    name##_create_last(internal); \
-    chunk = internal -> last; \
+    name##_create_last(list); \
+    chunk = list -> last; \
   } \
  \
   chunk -> size++; \
-  internal -> size++; \
+  list -> size++; \
  \
   while(*i >= chunk -> size) \
   { \
@@ -357,9 +338,9 @@ static NAME##_CHUNK * name##_add_end_get_chunk(NAME##_INTERNAL * internal, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
+static void name##_add_end(CMAP_SLIST_##NAME * list, int i, type v) \
 { \
-  NAME##_CHUNK * chunk = name##_add_end_get_chunk(internal, &i); \
+  NAME##_CHUNK * chunk = name##_add_end_get_chunk(list, &i); \
  \
   type * cur = chunk -> stop; \
   name##_inc_w_last(&chunk -> stop, chunk); \
@@ -377,13 +358,12 @@ static void name##_add_end(NAME##_INTERNAL * internal, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static char name##_add(CMAP_SLIST_##NAME * this, int i, type v) \
+char cmap_slist_##name##_add(CMAP_SLIST_##NAME * list, int i, type v) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  if((i >= 0) && (i <= internal -> size)) \
+  if((i >= 0) && (i <= list -> size)) \
   { \
-    if(i <= (internal -> size >> 1)) name##_add_begin(internal, i, v); \
-    else name##_add_end(internal, internal -> size - i, v); \
+    if(i <= (list -> size >> 1)) name##_add_begin(list, i, v); \
+    else name##_add_end(list, list -> size - i, v); \
     return CMAP_T; \
   } \
   return CMAP_F; \
@@ -392,10 +372,10 @@ static char name##_add(CMAP_SLIST_##NAME * this, int i, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_rm_begin_upd_chunk(NAME##_INTERNAL * internal, \
+static void name##_rm_begin_upd_chunk(CMAP_SLIST_##NAME * list, \
   NAME##_CHUNK * chunk) \
 { \
-  NAME##_CHUNK * first = internal -> first; \
+  NAME##_CHUNK * first = list -> first; \
   while(chunk != first) \
   { \
     name##_dec_w_last(&chunk -> start, chunk); \
@@ -405,19 +385,19 @@ static void name##_rm_begin_upd_chunk(NAME##_INTERNAL * internal, \
     chunk = prev_chunk; \
   } \
  \
-  if((first -> size <= 1) && (first != internal -> last)) \
-    name##_delete_first(internal); \
+  if((first -> size <= 1) && (first != list -> last)) \
+    name##_delete_first(list); \
   else first -> size--; \
-  internal -> size--; \
+  list -> size--; \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_rm_begin_get_chunk(NAME##_INTERNAL * internal, \
+static NAME##_CHUNK * name##_rm_begin_get_chunk(CMAP_SLIST_##NAME * list, \
   int * i) \
 { \
-  NAME##_CHUNK * chunk = internal -> first; \
+  NAME##_CHUNK * chunk = list -> first; \
   while(*i >= chunk -> size) \
   { \
     (*i) -= chunk -> size; \
@@ -426,9 +406,9 @@ static NAME##_CHUNK * name##_rm_begin_get_chunk(NAME##_INTERNAL * internal, \
   return chunk; \
 } \
  \
-static type name##_rm_begin(NAME##_INTERNAL * internal, int i) \
+static type name##_rm_begin(CMAP_SLIST_##NAME * list, int i) \
 { \
-  NAME##_CHUNK * chunk = name##_rm_begin_get_chunk(internal, &i); \
+  NAME##_CHUNK * chunk = name##_rm_begin_get_chunk(list, &i); \
  \
   type * cur = chunk -> start; \
   name##_inc_w_last(&chunk -> start, chunk); \
@@ -442,7 +422,7 @@ static type name##_rm_begin(NAME##_INTERNAL * internal, int i) \
     cur = next; \
   } \
  \
-  name##_rm_begin_upd_chunk(internal, chunk); \
+  name##_rm_begin_upd_chunk(list, chunk); \
  \
   return v; \
 } \
@@ -450,10 +430,10 @@ static type name##_rm_begin(NAME##_INTERNAL * internal, int i) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_rm_end_upd_chunk(NAME##_INTERNAL * internal, \
+static void name##_rm_end_upd_chunk(CMAP_SLIST_##NAME * list, \
   NAME##_CHUNK * chunk) \
 { \
-  NAME##_CHUNK * last = internal -> last; \
+  NAME##_CHUNK * last = list -> last; \
   while(chunk != last) \
   { \
     NAME##_CHUNK * next_chunk = chunk -> next; \
@@ -463,19 +443,19 @@ static void name##_rm_end_upd_chunk(NAME##_INTERNAL * internal, \
     chunk = next_chunk; \
   } \
  \
-  if((last -> size <= 1) && (last != internal -> first)) \
-    name##_delete_last(internal); \
+  if((last -> size <= 1) && (last != list -> first)) \
+    name##_delete_last(list); \
   else last -> size--; \
-  internal -> size--; \
+  list -> size--; \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_rm_end_get_chunk(NAME##_INTERNAL * internal, \
+static NAME##_CHUNK * name##_rm_end_get_chunk(CMAP_SLIST_##NAME * list, \
   int * i) \
 { \
-  NAME##_CHUNK * chunk = internal -> last; \
+  NAME##_CHUNK * chunk = list -> last; \
   while(*i >= chunk -> size) \
   { \
     (*i) -= chunk -> size; \
@@ -484,9 +464,9 @@ static NAME##_CHUNK * name##_rm_end_get_chunk(NAME##_INTERNAL * internal, \
   return chunk; \
 } \
  \
-static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
+static type name##_rm_end(CMAP_SLIST_##NAME * list, int i) \
 { \
-  NAME##_CHUNK * chunk = name##_rm_end_get_chunk(internal, &i); \
+  NAME##_CHUNK * chunk = name##_rm_end_get_chunk(list, &i); \
  \
   name##_dec_w_last(&chunk -> stop, chunk); \
   type * cur = chunk -> stop; \
@@ -500,7 +480,7 @@ static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
     cur = next; \
   } \
  \
-  name##_rm_end_upd_chunk(internal, chunk); \
+  name##_rm_end_upd_chunk(list, chunk); \
  \
   return v; \
 } \
@@ -508,23 +488,22 @@ static type name##_rm_end(NAME##_INTERNAL * internal, int i) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type name##_rm(CMAP_SLIST_##NAME * this, int i) \
+type cmap_slist_##name##_rm(CMAP_SLIST_##NAME * list, int i) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  if((i < 0) || (i >= internal -> size)) return dft; \
+  if((i < 0) || (i >= list -> size)) return dft; \
   else \
   { \
-    if(i < (internal -> size >> 1)) return name##_rm_begin(internal, i); \
-    else return name##_rm_end(internal, internal -> size - 1 - i); \
+    if(i < (list -> size >> 1)) return name##_rm_begin(list, i); \
+    else return name##_rm_end(list, list -> size - 1 - i); \
   } \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static NAME##_CHUNK * name##_get_chunk(NAME##_INTERNAL * internal, int * i) \
+static NAME##_CHUNK * name##_get_chunk(CMAP_SLIST_##NAME * list, int * i) \
 { \
-  NAME##_CHUNK * chunk = internal -> first; \
+  NAME##_CHUNK * chunk = list -> first; \
  \
   if(chunk -> size == 0) return NULL; \
  \
@@ -536,10 +515,9 @@ static NAME##_CHUNK * name##_get_chunk(NAME##_INTERNAL * internal, int * i) \
   return chunk; \
 } \
  \
-static type * name##_get(CMAP_SLIST_##NAME * this, int i) \
+type * cmap_slist_##name##_get(CMAP_SLIST_##NAME * list, int i) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * chunk = name##_get_chunk(internal, &i); \
+  NAME##_CHUNK * chunk = name##_get_chunk(list, &i); \
   if(chunk == NULL) return NULL; \
   else \
   { \
@@ -552,18 +530,16 @@ static type * name##_get(CMAP_SLIST_##NAME * this, int i) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static type * name##_first(CMAP_SLIST_##NAME * this) \
+type * cmap_slist_##name##_first(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * first = internal -> first; \
+  NAME##_CHUNK * first = list -> first; \
   if(first -> size <= 0) return NULL; \
   else return first -> start; \
 } \
  \
-static type * name##_last(CMAP_SLIST_##NAME * this) \
+type * cmap_slist_##name##_last(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * last = internal -> last; \
+  NAME##_CHUNK * last = list -> last; \
   if(last -> size <= 0) return NULL; \
   else \
   { \
@@ -576,19 +552,18 @@ static type * name##_last(CMAP_SLIST_##NAME * this) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static int name##_size(CMAP_SLIST_##NAME * this) \
+int cmap_slist_##name##_size(CMAP_SLIST_##NAME * list) \
 { \
-  return ((NAME##_INTERNAL *)(this + 1)) -> size; \
+  return list -> size; \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_apply(CMAP_SLIST_##NAME * this, \
+void cmap_slist_##name##_apply(CMAP_SLIST_##NAME * list, \
   CMAP_SLIST_##NAME##_APPLY_FN fn, void * data) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * chunk = internal -> first; \
+  NAME##_CHUNK * chunk = list -> first; \
   while(chunk != NULL) \
   { \
     if(chunk -> size > 0) \
@@ -610,26 +585,24 @@ static void name##_apply(CMAP_SLIST_##NAME * this, \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_clean(CMAP_SLIST_##NAME * this) \
+void cmap_slist_##name##_clean(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  while(internal -> first != internal -> last) name##_delete_last(internal); \
-  NAME##_CHUNK * first = internal -> first; \
+  while(list -> first != list -> last) name##_delete_last(list); \
+  NAME##_CHUNK * first = list -> first; \
   type * first_first = first -> first; \
   first -> start = first_first; \
   first -> stop = first_first; \
   first -> size = 0; \
-  internal -> size = 0; \
+  list -> size = 0; \
 } \
  \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
+static void name##_delete_chunks(CMAP_SLIST_##NAME * list) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * no_free = (NAME##_CHUNK *)(internal + 1), \
-    * chunk = internal -> first; \
+  NAME##_CHUNK * no_free = (NAME##_CHUNK *)(list + 1), \
+    * chunk = list -> first; \
   while(chunk != NULL) \
   { \
     NAME##_CHUNK * tmp = chunk; \
@@ -638,16 +611,15 @@ static void name##_delete_chunks(CMAP_SLIST_##NAME * this) \
   } \
 } \
  \
-static void name##_delete(CMAP_SLIST_##NAME * this) \
+void cmap_slist_##name##_delete(CMAP_SLIST_##NAME * list) \
 { \
-  name##_delete_chunks(this); \
-  cmap_mem_free(this); \
+  name##_delete_chunks(list); \
+  cmap_mem_free(list); \
 } \
  \
-static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
+static void name##_init(CMAP_SLIST_##NAME * list, int chunk_size) \
 { \
-  NAME##_INTERNAL * internal = (NAME##_INTERNAL *)(this + 1); \
-  NAME##_CHUNK * first = (NAME##_CHUNK *)(internal + 1); \
+  NAME##_CHUNK * first = (NAME##_CHUNK *)(list + 1); \
   type * first_first = (type *)(first + 1); \
  \
   first -> first = first_first; \
@@ -658,52 +630,29 @@ static void name##_init(CMAP_SLIST_##NAME * this, int chunk_size) \
   first -> next = NULL; \
   first -> prev = NULL; \
  \
-  internal -> first = first; \
-  internal -> last = first; \
-  internal -> size = 0; \
-  internal -> chunk_size = chunk_size; \
-  internal -> used = CMAP_T; \
- \
-  this -> delete = name##_delete; \
-  this -> push = name##_push; \
-  this -> pop = name##_pop; \
-  this -> unshift = name##_unshift; \
-  this -> shift = name##_shift; \
-  this -> add = name##_add; \
-  this -> rm = name##_rm; \
-  this -> get = name##_get; \
-  this -> first = name##_first; \
-  this -> last = name##_last; \
-  this -> size = name##_size; \
-  this -> clean = name##_clean; \
-  this -> apply = name##_apply; \
+  list -> first = first; \
+  list -> last = first; \
+  list -> size = 0; \
+  list -> chunk_size = chunk_size; \
+  list -> used = CMAP_T; \
 } \
  \
-static CMAP_SLIST_##NAME * name##_create(int chunk_size) \
+CMAP_SLIST_##NAME * cmap_slist_##name##_create(int chunk_size) \
 { \
   if(chunk_size <= 0) chunk_size = cmap_config_core_list_chunk_size(); \
  \
-  CMAP_SLIST_##NAME * this = cmap_mem_alloc( \
-    sizeof(CMAP_SLIST_##NAME) + sizeof(NAME##_INTERNAL) + \
+  CMAP_SLIST_##NAME * list = cmap_mem_alloc(sizeof(CMAP_SLIST_##NAME) + \
     sizeof(NAME##_CHUNK) + chunk_size * sizeof(type)); \
-  name##_init(this, chunk_size); \
-  return this; \
+  name##_init(list, chunk_size); \
+  return list; \
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define CMAP_SLIST_IMPL(NAME, name, type, dft) \
-CMAP_SLIST_STATIC_FN_IMPL(NAME, name, type, dft) \
- \
-const CMAP_SLIST_##NAME##_PUBLIC cmap_slist_##name##_public = { name##_create };
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define CMAP_SLIST_STATIC(NAME, name, type, dft) \
-CMAP_SLIST_STRUCT_DECL(NAME, type) \
-CMAP_SLIST_STATIC_FN_IMPL(NAME, name, type, dft)
+#define CMAP_SLIST(NAME, name, type, dft) \
+  CMAP_SLIST_DECL(NAME, name, type, dft) \
+  CMAP_SLIST_IMPL(NAME, name, type, dft)
 
 /*******************************************************************************
 *******************************************************************************/

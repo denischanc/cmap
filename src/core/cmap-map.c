@@ -58,7 +58,7 @@ static void nested_apply(const char * key, CMAP_MAP ** val, void * data)
   if(*val != NULL)
   {
     CMAP_SLIST_LC_PTR * list = (CMAP_SLIST_LC_PTR *)data;
-    CMAP_CALL_ARGS(list, push, (CMAP_LIFECYCLE **)val);
+    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)val);
   }
 }
 

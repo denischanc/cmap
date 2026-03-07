@@ -75,7 +75,7 @@ static inline char depth_ok(int size)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STREE_NODE * find(CMAP_STREE_RUNNER * runner,
+CMAP_STREE_NODE * cmap_stree_find(CMAP_STREE_RUNNER * runner,
   CMAP_STREE_NODE * stree, void * data)
 {
   CMAP_STREE_NODE * result = NULL;
@@ -337,7 +337,7 @@ static inline void add_eq(CMAP_STREE_NODE * node, CMAP_STREE_NODE * parent)
 /*******************************************************************************
 *******************************************************************************/
 
-static void add(CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE ** stree,
+void cmap_stree_add(CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE ** stree,
   CMAP_STREE_NODE * node, void * data)
 {
   CMAP_STREE_NODE ** parent = NULL, ** cur = stree;
@@ -440,7 +440,7 @@ static inline void rm_not_eq(CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node,
 /*******************************************************************************
 *******************************************************************************/
 
-static void rm(CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node)
+void cmap_stree_rm(CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node)
 {
   CMAP_STREE_NODE * parent = node -> parent;
   if((parent != NULL) && (parent -> eq == node))
@@ -475,7 +475,7 @@ static void do_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY * apply,
   if(apply -> after != NULL) apply -> after(stree, is_eq, data);
 }
 
-static void apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY * apply,
+void cmap_stree_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY * apply,
   char gt_first, char eq_apply, void * data)
 {
   if(stree != NULL) do_apply(stree, apply, gt_first, eq_apply, data, CMAP_F);
@@ -495,43 +495,10 @@ static void do_quick_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY_FN apply,
   apply(stree, is_eq, data);
 }
 
-static void quick_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY_FN apply,
+void cmap_stree_quick_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY_FN apply,
   void * data)
 {
   if(stree != NULL) do_quick_apply(stree, apply, data, CMAP_F);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_STREE_NODE * first(CMAP_STREE_NODE * stree)
-{
-  return (stree == NULL) ? NULL : get_last_gt(stree);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_STREE_NODE * next(CMAP_STREE_NODE * node)
-{
-  CMAP_STREE_NODE * eq = node -> eq;
-  if(eq != NULL) return eq;
-  else
-  {
-    CMAP_STREE_NODE * lt = node -> lt;
-    if(lt != NULL) return get_last_gt(lt);
-    else
-    {
-      CMAP_STREE_NODE * parent = node -> parent;
-      while((parent != NULL) &&
-        ((parent -> eq == node) || (parent -> lt == node)))
-      {
-        node = parent;
-        parent = parent -> parent;
-      }
-      return parent;
-    }
-  }
 }
 
 /*******************************************************************************
@@ -558,17 +525,17 @@ static char * log_cat(char * left, const char * right)
 static void log_push_cat(char * left, CMAP_SLIST_CHAR_PTR * prefix_before,
   CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
-  CMAP_CALL_ARGS(prefix_before, push, log_cat(left, "   "));
-  CMAP_CALL_ARGS(prefix_between, push, log_cat(left, "  +"));
-  CMAP_CALL_ARGS(prefix_after, push, log_cat(left, "  |"));
+  cmap_slist_char_ptr_push(prefix_before, log_cat(left, "   "));
+  cmap_slist_char_ptr_push(prefix_between, log_cat(left, "  +"));
+  cmap_slist_char_ptr_push(prefix_after, log_cat(left, "  |"));
 }
 
 static void log_free(CMAP_SLIST_CHAR_PTR * prefix_before,
   CMAP_SLIST_CHAR_PTR * prefix_between, CMAP_SLIST_CHAR_PTR * prefix_after)
 {
-  cmap_mem_free(CMAP_CALL(prefix_before, pop));
-  cmap_mem_free(CMAP_CALL(prefix_between, pop));
-  cmap_mem_free(CMAP_CALL(prefix_after, pop));
+  cmap_mem_free(cmap_slist_char_ptr_pop(prefix_before));
+  cmap_mem_free(cmap_slist_char_ptr_pop(prefix_between));
+  cmap_mem_free(cmap_slist_char_ptr_pop(prefix_after));
 }
 
 static void log_before_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
@@ -577,7 +544,7 @@ static void log_before_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
   CMAP_SLIST_CHAR_PTR * prefix_before = data_ -> prefix_before,
     * prefix_between = data_ -> prefix_between,
     * prefix_after = data_ -> prefix_after;
-  char * left = *CMAP_CALL(prefix_before, last);
+  char * left = *cmap_slist_char_ptr_last(prefix_before);
   log_push_cat(left, prefix_before, prefix_between, prefix_after);
 }
 
@@ -590,11 +557,11 @@ static void log_between_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 
   log_free(prefix_before, prefix_between, prefix_after);
 
-  char * left = *CMAP_CALL(prefix_between, last);
+  char * left = *cmap_slist_char_ptr_last(prefix_between);
   const char * right = data_ -> runner -> log(node);
   cmap_log(data_ -> log_lvl, "%s%s", left, right);
 
-  left = *CMAP_CALL(prefix_after, last);
+  left = *cmap_slist_char_ptr_last(prefix_after);
   log_push_cat(left, prefix_after, prefix_between, prefix_before);
 }
 
@@ -610,34 +577,144 @@ static void log_after_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 CMAP_STREE_APPLY(log_apply, log_before_apply, log_between_apply,
   log_after_apply);
 
-static void log_(char lvl, CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE * stree)
+void cmap_stree_log(char lvl, CMAP_STREE_RUNNER * runner,
+  CMAP_STREE_NODE * stree)
 {
   LOG_APPLY_DATA data;
-  data.prefix_before = cmap_slist_char_ptr_public.create(0);
-  data.prefix_between = cmap_slist_char_ptr_public.create(0);
-  data.prefix_after = cmap_slist_char_ptr_public.create(0);
+  data.prefix_before = cmap_slist_char_ptr_create(0);
+  data.prefix_between = cmap_slist_char_ptr_create(0);
+  data.prefix_after = cmap_slist_char_ptr_create(0);
   data.log_lvl = lvl;
   data.runner = runner;
 
-  CMAP_CALL_ARGS(data.prefix_before, push, (char *)" ");
-  CMAP_CALL_ARGS(data.prefix_between, push, (char *)"+");
-  CMAP_CALL_ARGS(data.prefix_after, push, (char *)" ");
+  cmap_slist_char_ptr_push(data.prefix_before, (char *)" ");
+  cmap_slist_char_ptr_push(data.prefix_between, (char *)"+");
+  cmap_slist_char_ptr_push(data.prefix_after, (char *)" ");
 
-  apply(stree, &log_apply, CMAP_T, CMAP_F, &data);
+  cmap_stree_apply(stree, &log_apply, CMAP_T, CMAP_F, &data);
 
-  CMAP_CALL(data.prefix_before, delete);
-  CMAP_CALL(data.prefix_between, delete);
-  CMAP_CALL(data.prefix_after, delete);
+  cmap_slist_char_ptr_delete(data.prefix_before);
+  cmap_slist_char_ptr_delete(data.prefix_between);
+  cmap_slist_char_ptr_delete(data.prefix_after);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-const CMAP_STREE_PUBLIC cmap_stree_public =
+struct CMAP_ITERATOR_STREE
 {
-  find,
-  add, rm,
-  apply, quick_apply,
-  first, next,
-  log_
+  CMAP_STREE_NODE ** stree, * cur, * next;
 };
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_STREE_NODE * it_first(CMAP_STREE_NODE * stree)
+{
+  return (stree == NULL) ? NULL : get_last_gt(stree);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+static CMAP_STREE_NODE * it_next(CMAP_STREE_NODE * node)
+{
+  CMAP_STREE_NODE * eq = node -> eq;
+  if(eq != NULL) return eq;
+  else
+  {
+    CMAP_STREE_NODE * lt = node -> lt;
+    if(lt != NULL) return get_last_gt(lt);
+    else
+    {
+      CMAP_STREE_NODE * parent = node -> parent;
+      while((parent != NULL) &&
+        ((parent -> eq == node) || (parent -> lt == node)))
+      {
+        node = parent;
+        parent = parent -> parent;
+      }
+      return parent;
+    }
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+char cmap_iterator_stree_has_next(CMAP_ITERATOR_STREE * it)
+{
+  if(it -> stree == NULL) return CMAP_F;
+  if(it -> next != NULL) return CMAP_T;
+
+  if(it -> cur == NULL)
+  {
+    CMAP_STREE_NODE * stree = *it -> stree;
+    if(stree == NULL)
+    {
+      it -> stree = NULL;
+      return CMAP_F;
+    }
+    it -> next = it_first(stree);
+    return CMAP_T;
+  }
+
+  it -> next = it_next(it -> cur);
+  if(it -> next == NULL)
+  {
+    it -> stree = NULL;
+    return CMAP_F;
+  }
+  return CMAP_T;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_STREE_NODE * cmap_iterator_stree_next(CMAP_ITERATOR_STREE * it)
+{
+  if(!cmap_iterator_stree_has_next(it)) return NULL;
+
+  it -> cur = it -> next;
+  it -> next = NULL;
+  return it -> cur;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+CMAP_STREE_NODE * cmap_iterator_stree_get(CMAP_ITERATOR_STREE * it)
+{
+  return (it -> stree == NULL) ? NULL : it -> cur;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_iterator_stree_rm(CMAP_ITERATOR_STREE * it)
+{
+  CMAP_STREE_NODE ** stree = it -> stree, * cur = it -> cur;
+  if((stree != NULL) && (cur != NULL))
+  {
+    cmap_iterator_stree_has_next(it);
+    cmap_stree_rm(stree, cur);
+    it -> cur = NULL;
+  }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_iterator_stree_delete(CMAP_ITERATOR_STREE * it)
+{
+  cmap_mem_free(it);
+}
+
+CMAP_ITERATOR_STREE * cmap_iterator_stree_create(CMAP_STREE_NODE ** stree)
+{
+  CMAP_MEM_ALLOC_PTR(it, CMAP_ITERATOR_STREE);
+  it -> stree = stree;
+  it -> cur = NULL;
+  it -> next = NULL;
+  return it;
+}

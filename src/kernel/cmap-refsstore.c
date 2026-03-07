@@ -33,7 +33,7 @@ static CMAP_CONSUMEDTIME_US consumed_time = {0};
 
 void cmap_refsstore_add(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc, char created)
 {
-  if(cmap_sset_lc_public.add(&rs -> refs, lc))
+  if(cmap_sset_lc_add(&rs -> refs, lc))
   {
     cmap_log_debug("[%p][refsstore] new ref : [%p]", rs, lc);
     if(created) rs -> nb_created++;
@@ -45,7 +45,7 @@ void cmap_refsstore_add(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc, char created)
 
 void cmap_refsstore_rm(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
 {
-  cmap_sset_lc_public.rm_v(&rs -> refs, lc);
+  cmap_sset_lc_rm_v(&rs -> refs, lc);
 }
 
 /*******************************************************************************
@@ -76,7 +76,7 @@ static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret)
   CMAP_SSET_LC ** refs = &rs -> refs;
   while(*refs != NULL)
   {
-    CMAP_LIFECYCLE * lc = cmap_sset_lc_public.rm(refs);
+    CMAP_LIFECYCLE * lc = cmap_sset_lc_rm(refs);
     char in_refs = CMAP_CALL(lc, in_refs);
 
     if(in_refs && (lc != ret) && delete_ref(rs, lc)) nb_deleted++;
