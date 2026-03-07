@@ -94,7 +94,6 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_PTR_NATURE;
   initargs.prototype = cmap_prototypestore_ptr(ps, proc_ctx);
-  initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
   CMAP_MEM_ALLOC_PTR(this, CMAP_PTR);

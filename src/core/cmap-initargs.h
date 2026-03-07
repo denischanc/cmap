@@ -7,8 +7,6 @@ typedef struct
 
   CMAP_MAP * prototype;
 
-  CMAP_LIFECYCLE * allocator;
-
   CMAP_PROC_CTX * proc_ctx;
 } CMAP_INITARGS;
 

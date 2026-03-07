@@ -145,7 +145,6 @@ static CMAP_STRING * create(const char * val, int size_inc,
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_STRING_NATURE;
   initargs.prototype = cmap_prototypestore_string(ps, proc_ctx);
-  initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
   CMAP_MEM_ALLOC_PTR(this, CMAP_STRING);

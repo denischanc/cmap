@@ -23,8 +23,6 @@ struct CMAP_LIFECYCLE
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
 
-  void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
-
   void (*watched)(CMAP_LIFECYCLE * this, char val);
   char (*is_watched)(CMAP_LIFECYCLE * this);
   uint64_t (*watch_time_us)(CMAP_LIFECYCLE * this);
@@ -44,8 +42,6 @@ typedef struct
   void (*dec_refs)(CMAP_LIFECYCLE * this);
 
   void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
-
-  void (*allocated_deleted)(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc);
 
   void (*watched)(CMAP_LIFECYCLE * this, char val);
   char (*is_watched)(CMAP_LIFECYCLE * this);

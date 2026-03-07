@@ -138,7 +138,6 @@ static CMAP_FN * create(CMAP_FN_TPL process, CMAP_PROC_CTX * proc_ctx)
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_FN_NATURE;
   initargs.prototype = cmap_prototypestore_fn(ps, proc_ctx);
-  initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
   CMAP_MEM_ALLOC_PTR(this, CMAP_FN);

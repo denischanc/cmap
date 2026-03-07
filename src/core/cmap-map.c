@@ -129,7 +129,6 @@ static CMAP_MAP * new(CMAP_MAP * this, CMAP_PROC_CTX * proc_ctx)
   CMAP_INITARGS initargs;
   initargs.nature = CMAP_MAP_NATURE;
   initargs.prototype = this;
-  initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
   return init(map, &initargs);
 }

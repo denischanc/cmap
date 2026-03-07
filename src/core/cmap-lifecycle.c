@@ -27,8 +27,6 @@ typedef struct
 
   CMAP_ENV * env;
 
-  CMAP_LIFECYCLE * allocator;
-
   uint64_t watch_time_us;
   const char * ref_state;
 } INTERNAL;
@@ -120,13 +118,6 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
 /*******************************************************************************
 *******************************************************************************/
 
-static void allocated_deleted(CMAP_LIFECYCLE * this, CMAP_LIFECYCLE * lc)
-{
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static void watched(CMAP_LIFECYCLE * this, char val)
 {
   INTERNAL * internal = this -> internal;
@@ -212,23 +203,18 @@ static void delete(CMAP_LIFECYCLE * this)
   rm_from_local_refs(this);
 
   INTERNAL * internal = (INTERNAL *)this -> internal;
-  CMAP_LIFECYCLE * allocator = internal -> allocator;
-
   cmap_mem_free(internal);
-  if(allocator == NULL) cmap_mem_free(this);
-  else CMAP_CALL_ARGS(allocator, allocated_deleted, this);
+  cmap_mem_free(this);
 }
 
 static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
 {
   CMAP_PROC_CTX * proc_ctx = initargs -> proc_ctx;
-  CMAP_LIFECYCLE * allocator = initargs -> allocator;
 
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> nature = initargs -> nature;
   internal -> nb_refs = 0;
   internal -> env = cmap_proc_ctx_env(proc_ctx);
-  internal -> allocator = allocator;
   internal -> watch_time_us = 0;
   internal -> ref_state = REF_STATE_STORED;
 
@@ -241,7 +227,6 @@ static CMAP_LIFECYCLE * init(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs)
   this -> nb_refs = nb_refs;
   this -> dec_refs = dec_refs;
   this -> nested = nested;
-  this -> allocated_deleted = allocated_deleted;
   this -> watched = watched;
   this -> is_watched = is_watched;
   this -> watch_time_us = watch_time_us;
@@ -261,7 +246,6 @@ const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public =
   init, delete,
   inc_refs, nb_refs, dec_refs,
   nested,
-  allocated_deleted,
   watched, is_watched, watch_time_us,
   store,
   in_refs

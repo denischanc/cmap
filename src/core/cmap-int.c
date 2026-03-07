@@ -70,7 +70,6 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_INT_NATURE;
   initargs.prototype = cmap_prototypestore_int(ps, proc_ctx);
-  initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 
   CMAP_MEM_ALLOC_PTR(this, CMAP_INT);
