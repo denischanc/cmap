@@ -2,17 +2,12 @@
 #define __CMAP_PROTOTYPESTORE_H__
 
 #include "cmap-prototypestore-define.h"
-#include "cmap-lifecycle.h"
 
 typedef struct CMAP_PROTOTYPESTORE CMAP_PROTOTYPESTORE;
 
-struct CMAP_PROTOTYPESTORE
-{
-  CMAP_LIFECYCLE super;
+CMAP_PROTOTYPESTORE_LOOP(CMAP_PROTOTYPESTORE_DECL)
 
-  CMAP_PROTOTYPESTORE_LOOP(CMAP_PROTOTYPESTORE_DECL)
-};
-
+void cmap_prototypestore_delete(CMAP_PROTOTYPESTORE * ps);
 CMAP_PROTOTYPESTORE * cmap_prototypestore_create(CMAP_PROC_CTX * proc_ctx);
 
 #endif

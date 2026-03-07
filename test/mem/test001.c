@@ -4,7 +4,6 @@
 
 #include <stdlib.h>
 #include "test-assert.h"
-#include "cmap.h"
 #include "cmap-mem.h"
 #include "cmap-config.h"
 

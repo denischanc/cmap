@@ -1,6 +1,7 @@
 
 #include "cmap-loop-timer.h"
 
+#include <stddef.h>
 #include "cmap-util.h"
 
 /*******************************************************************************
@@ -14,7 +15,7 @@ static char fired(CMAP_LOOP_EVENT * event, uint64_t time_us)
 /*******************************************************************************
 *******************************************************************************/
 
-static void run(CMAP_LOOP_EVENT * event)
+static void run(CMAP_LOOP_EVENT * event, uint64_t time_us)
 {
   CMAP_LOOP_TIMER * timer = (CMAP_LOOP_TIMER *)event;
 
@@ -22,22 +23,32 @@ static void run(CMAP_LOOP_EVENT * event)
   if(repeat_us == 0) cmap_loop_timer_stop(timer);
   else
   {
-    uint64_t * next_time_us = &timer -> internal.next_time_us,
-      time_us = cmap_util_time_us();
-    *next_time_us += repeat_us;
+    uint64_t * next_time_us = &timer -> internal.next_time_us;
     while(*next_time_us <= time_us) *next_time_us += repeat_us;
   }
 
-  timer -> internal.cb(timer);
+  timer -> internal.run(timer);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB cb,
-  uint64_t timeout_ms, uint64_t repeat_ms)
+static void delete(CMAP_LOOP_EVENT * event, uint64_t time_us)
 {
-  timer -> internal.cb = cb;
+  cmap_loop_rm(event);
+
+  CMAP_LOOP_TIMER * timer = (CMAP_LOOP_TIMER *)event;
+  timer -> internal.delete(timer);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB run_,
+  uint64_t timeout_ms, uint64_t repeat_ms, CMAP_LOOP_TIMER_CB delete_)
+{
+  timer -> internal.run = run_;
+  timer -> internal.delete = delete_;
   timer -> internal.next_time_us = cmap_util_time_us() + timeout_ms * 1000;
   timer -> internal.repeat_us = repeat_ms * 1000;
 
@@ -49,18 +60,10 @@ void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB cb,
 
 void cmap_loop_timer_stop(CMAP_LOOP_TIMER * timer)
 {
-  if(timer -> internal.next_time_us != 0)
+  if(timer -> internal.delete == NULL) cmap_loop_rm((CMAP_LOOP_EVENT *)timer);
+  else
   {
-    timer -> internal.next_time_us = 0;
-
-    cmap_loop_rm(&timer -> super);
+    timer -> super.fired = cmap_loop_fired_true;
+    timer -> super.run = delete;
   }
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-char cmap_loop_timer_is_stopped(CMAP_LOOP_TIMER * timer)
-{
-  return (timer -> internal.next_time_us == 0);
 }

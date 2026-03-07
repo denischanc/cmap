@@ -9,13 +9,15 @@ struct CMAP_LOOP_EVENT
 {
   CMAP_LOOP_EVENT_INTERNAL internal;
 
-  char (*fired)(CMAP_LOOP_EVENT * this, uint64_t time_us);
-  void (*run)(CMAP_LOOP_EVENT * this);
+  char (*fired)(CMAP_LOOP_EVENT * event, uint64_t time_us);
+  void (*run)(CMAP_LOOP_EVENT * event, uint64_t time_us);
 };
 
 void cmap_loop_add(CMAP_LOOP_EVENT * event);
 void cmap_loop_rm(CMAP_LOOP_EVENT * event);
 
 void cmap_loop_run();
+
+char cmap_loop_fired_true(CMAP_LOOP_EVENT * event, uint64_t time_us);
 
 #endif

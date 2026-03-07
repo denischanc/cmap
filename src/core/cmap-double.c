@@ -70,7 +70,7 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_DOUBLE_NATURE;
-  initargs.prototype = CMAP_CALL_ARGS(ps, double_, proc_ctx);
+  initargs.prototype = cmap_prototypestore_double(ps, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 

@@ -10,6 +10,7 @@
 #include "cmap-scheduler.h"
 #include "cmap-loop-timer.h"
 #include "cmap-module.h"
+#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -67,7 +68,7 @@ void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb)
 
     CMAP_LOOP_TIMER * timer = &env -> timer;
     timer -> data = env;
-    cmap_loop_timer_start(timer, delete_cb, 0, 0);
+    cmap_loop_timer_start(timer, delete_cb, 0, 0, NULL);
   }
 }
 
@@ -93,10 +94,7 @@ CMAP_PROC_CTX * cmap_env_proc_ctx(CMAP_ENV * env)
 CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env)
 {
   if(env -> prototypestore == NULL)
-  {
     env -> prototypestore = cmap_prototypestore_create(env -> proc_ctx);
-    CMAP_INC_REFS(env -> prototypestore);
-  }
   return env -> prototypestore;
 }
 
@@ -107,10 +105,7 @@ CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env)
 CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env) \
 { \
   if(env -> pool_##name == NULL) \
-  { \
     env -> pool_##name = cmap_pool_##name##_create(0, env -> proc_ctx); \
-    CMAP_INC_REFS(env -> pool_##name); \
-  } \
   return env -> pool_##name; \
 }
 
@@ -162,14 +157,14 @@ static inline void loop_init(CMAP_ENV * env)
 {
   CMAP_LOOP_TIMER * timer = &env -> timer;
   timer -> data = env;
-  cmap_loop_timer_start(timer, bootstrap, 0, 0);
+  cmap_loop_timer_start(timer, bootstrap, 0, 0, NULL);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define POOL_DEC_REFS(NAME, name, type) \
-  if(env -> pool_##name != NULL) CMAP_DEC_REFS(env -> pool_##name);
+#define POOL_DELETE(NAME, name, type) \
+  if(env -> pool_##name != NULL) cmap_pool_##name##_delete(env -> pool_##name);
 
 #define POOL_SET(NAME, name, type) env -> pool_##name = NULL;
 
@@ -182,8 +177,9 @@ void cmap_env_delete(CMAP_ENV * env)
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
 
-  if(env -> prototypestore != NULL) CMAP_DEC_REFS(env -> prototypestore);
-  CMAP_POOL_LOOP(POOL_DEC_REFS)
+  if(env -> prototypestore != NULL)
+    cmap_prototypestore_delete(env -> prototypestore);
+  CMAP_POOL_LOOP(POOL_DELETE)
   if(env -> global != NULL) CMAP_DEC_REFS(env -> global);
 
   cmap_proc_ctx_delete(proc_ctx, NULL);

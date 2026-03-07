@@ -346,7 +346,7 @@ static inline void loop_init(CMAP_REFSWATCHER * rw)
   uint64_t time_ms = cmap_config_refs_check_zombie_time_us() / 1000;
 
   rw -> timer.data = rw;
-  cmap_loop_timer_start(&rw -> timer, watch_loop, time_ms, time_ms);
+  cmap_loop_timer_start(&rw -> timer, watch_loop, time_ms, time_ms, NULL);
 }
 
 void cmap_refswatcher_stop(CMAP_REFSWATCHER * rw)

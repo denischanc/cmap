@@ -228,7 +228,7 @@ static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
   initargs.nature = CMAP_LIST_NATURE;
-  initargs.prototype = CMAP_CALL_ARGS(ps, list_, proc_ctx);
+  initargs.prototype = cmap_prototypestore_list(ps, proc_ctx);
   initargs.allocator = NULL;
   initargs.proc_ctx = proc_ctx;
 

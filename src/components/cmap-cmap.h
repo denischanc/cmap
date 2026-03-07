@@ -4,6 +4,8 @@
 #include "cmap-map-type.h"
 #include "cmap-proc-ctx-type.h"
 
+extern const char * CMAP_INTERNAL_NAME;
+
 CMAP_MAP * cmap_cmap_prototype(CMAP_PROC_CTX * proc_ctx);
 
 CMAP_MAP * cmap_cmap_create(CMAP_PROC_CTX * proc_ctx);

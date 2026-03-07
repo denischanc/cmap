@@ -5,6 +5,7 @@
 #include "cmap-proc-ctx-define.h"
 #include "cmap-env-type.h"
 #include "cmap-map-type.h"
+#include "cmap-lifecycle-type.h"
 #include "cmap-prototypestore.h"
 
 CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx);

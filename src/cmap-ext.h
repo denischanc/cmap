@@ -91,8 +91,6 @@ CMAP_MAP * cmap_proc(CMAP_MAP * map, const char * key,
 CMAP_LIST * cmap_to_list(CMAP_PROC_CTX * proc_ctx, ...);
 CMAP_MAP * cmap_to_map(CMAP_PROC_CTX * proc_ctx, ...);
 
-CMAP_MEM_STATE * cmap_mem_state();
-
 CMAP_ENV * cmap_env();
 void cmap_env_main(CMAP_ENV * env, CMAP_ENV_MAIN main_);
 

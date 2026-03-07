@@ -48,8 +48,16 @@ void cmap_loop_run()
     while(cur != NULL)
     {
       next_run = cur -> internal.next;
-      if(CMAP_CALL_ARGS(cur, fired, time_us)) CMAP_CALL(cur, run);
+      if(CMAP_CALL_ARGS(cur, fired, time_us)) CMAP_CALL_ARGS(cur, run, time_us);
       cur = next_run;
     }
   }
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+char cmap_loop_fired_true(CMAP_LOOP_EVENT * event, uint64_t time_us)
+{
+  return CMAP_T;
 }

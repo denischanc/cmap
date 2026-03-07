@@ -14,8 +14,9 @@
   macro(ptr)
 
 #define CMAP_PROTOTYPESTORE_DECL(type) \
-  CMAP_MAP * (*require_##type)(CMAP_PROTOTYPESTORE * this, \
+  CMAP_MAP * cmap_prototypestore_require_##type(CMAP_PROTOTYPESTORE * ps, \
     CMAP_PROC_CTX * proc_ctx); \
-  CMAP_MAP * (*type##_)(CMAP_PROTOTYPESTORE * this, CMAP_PROC_CTX * proc_ctx);
+  CMAP_MAP * cmap_prototypestore_##type(CMAP_PROTOTYPESTORE * ps, \
+    CMAP_PROC_CTX * proc_ctx);
 
 #endif

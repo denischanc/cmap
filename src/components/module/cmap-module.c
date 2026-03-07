@@ -48,7 +48,7 @@ void cmap_module_load_from_config(CMAP_PROC_CTX * proc_ctx)
   char * modules = cmap_config_modules();
   if(modules == NULL) return;
 
-  CMAP_LIST * modules_ = cmap_util_split(proc_ctx, modules, ' ');
+  CMAP_LIST * modules_ = cmap_util_split(proc_ctx, modules, ':');
   CMAP_STRING * module;
   while((module = (CMAP_STRING *)CMAP_LIST_SHIFT(modules_)) != NULL)
   {

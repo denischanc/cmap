@@ -15,10 +15,8 @@ struct CMAP_LOOP_TIMER
   void * data;
 };
 
-void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB cb,
-  uint64_t timeout_ms, uint64_t repeat_ms);
+void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB run,
+  uint64_t timeout_ms, uint64_t repeat_ms, CMAP_LOOP_TIMER_CB delete);
 void cmap_loop_timer_stop(CMAP_LOOP_TIMER * timer);
-
-char cmap_loop_timer_is_stopped(CMAP_LOOP_TIMER * timer);
 
 #endif

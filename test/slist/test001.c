@@ -6,7 +6,6 @@
 #include <stdio.h>
 #include "test-assert.h"
 #include "cmap-slist.h"
-#include "cmap.h"
 #include "cmap-mem.h"
 
 typedef struct

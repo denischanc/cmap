@@ -1,6 +1,7 @@
 
 #include "cmap-prototypestore.h"
 
+#include <stddef.h>
 #include "cmap-mem.h"
 #include "cmap-prototype-map.h"
 #include "cmap-prototype-list.h"
@@ -9,63 +10,46 @@
 #include "cmap-prototype-int.h"
 #include "cmap-prototype-double.h"
 #include "cmap-prototype-ptr.h"
+#include "cmap-lifecycle.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-#define STRUCT_INTERNAL(type) \
+#define STRUCT(type) \
   CMAP_MAP * type##_; \
   char type##_ok;
 
-typedef struct
+struct CMAP_PROTOTYPESTORE
 {
-  CMAP_PROTOTYPESTORE_LOOP(STRUCT_INTERNAL)
-} INTERNAL;
-
-/*******************************************************************************
-*******************************************************************************/
-
-#define NESTED_PUSH(type) \
-  if(internal -> type##_ != NULL) \
-    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&internal -> type##_);
-
-static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
-{
-  CMAP_PROTOTYPESTORE * this_ = (CMAP_PROTOTYPESTORE *)this;
-  INTERNAL * internal = (INTERNAL *)(this_ + 1);
-  CMAP_PROTOTYPESTORE_LOOP(NESTED_PUSH)
-
-  cmap_lifecycle_public.nested(this, list);
-}
+  CMAP_PROTOTYPESTORE_LOOP(STRUCT)
+};
 
 /*******************************************************************************
 *******************************************************************************/
 
 #define IMPL(type) \
-static CMAP_MAP * require_##type(CMAP_PROTOTYPESTORE * this, \
+CMAP_MAP * cmap_prototypestore_require_##type(CMAP_PROTOTYPESTORE * ps, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)(this + 1); \
-  if(internal -> type##_ == NULL) \
+  if(ps -> type##_ == NULL) \
   { \
-    cmap_prototype_##type##_require(&internal -> type##_, proc_ctx); \
-    CMAP_INC_REFS(internal -> type##_); \
+    cmap_prototype_##type##_require(&ps -> type##_, proc_ctx); \
+    CMAP_INC_REFS(ps -> type##_); \
   } \
-  return internal -> type##_; \
+  return ps -> type##_; \
 } \
  \
-static CMAP_MAP * type##_(CMAP_PROTOTYPESTORE * this, \
+CMAP_MAP * cmap_prototypestore_##type(CMAP_PROTOTYPESTORE * ps, \
   CMAP_PROC_CTX * proc_ctx) \
 { \
-  INTERNAL * internal = (INTERNAL *)(this + 1); \
-  if((internal -> type##_ == NULL) || !internal -> type##_ok) \
+  if((ps -> type##_ == NULL) || !ps -> type##_ok) \
   { \
-    require_##type(this, proc_ctx); \
+    cmap_prototypestore_require_##type(ps, proc_ctx); \
  \
-    internal -> type##_ok = CMAP_T; \
-    cmap_prototype_##type##_init(internal -> type##_, proc_ctx); \
+    ps -> type##_ok = CMAP_T; \
+    cmap_prototype_##type##_init(ps -> type##_, proc_ctx); \
   } \
-  return internal -> type##_; \
+  return ps -> type##_; \
 }
 
 CMAP_PROTOTYPESTORE_LOOP(IMPL)
@@ -74,42 +58,22 @@ CMAP_PROTOTYPESTORE_LOOP(IMPL)
 *******************************************************************************/
 
 #define DEC_REFS(type) \
-  if(internal -> type##_ != NULL) CMAP_DEC_REFS(internal -> type##_);
+  if(ps -> type##_ != NULL) CMAP_DEC_REFS(ps -> type##_);
 
-static void delete(CMAP_LIFECYCLE * lc)
+void cmap_prototypestore_delete(CMAP_PROTOTYPESTORE * ps)
 {
-  INTERNAL * internal = (INTERNAL *)(((CMAP_PROTOTYPESTORE *)lc) + 1);
   CMAP_PROTOTYPESTORE_LOOP(DEC_REFS)
 
-  cmap_lifecycle_public.delete(lc);
+  cmap_mem_free(ps);
 }
 
-#define INIT_INTERNAL(type) \
-  internal -> type##_ = NULL; \
-  internal -> type##_ok = CMAP_F;
-
-#define INIT_THIS(type) \
-  this -> require_##type = require_##type; \
-  this -> type##_ = type##_;
+#define INIT(type) \
+  ps -> type##_ = NULL; \
+  ps -> type##_ok = CMAP_F;
 
 CMAP_PROTOTYPESTORE * cmap_prototypestore_create(CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROTOTYPESTORE * this = cmap_mem_alloc(
-    sizeof(CMAP_PROTOTYPESTORE) + sizeof(INTERNAL));
-
-  CMAP_INITARGS initargs;
-  initargs.nature = "prototypestore";
-  initargs.allocator = NULL;
-  initargs.proc_ctx = proc_ctx;
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  cmap_lifecycle_public.init(lc, &initargs);
-  lc -> delete = delete;
-  lc -> nested = nested;
-
-  INTERNAL * internal = (INTERNAL *)(this + 1);
-  CMAP_PROTOTYPESTORE_LOOP(INIT_INTERNAL)
-
-  CMAP_PROTOTYPESTORE_LOOP(INIT_THIS)
-
-  return this;
+  CMAP_MEM_ALLOC_PTR(ps, CMAP_PROTOTYPESTORE);
+  CMAP_PROTOTYPESTORE_LOOP(INIT)
+  return ps;
 }

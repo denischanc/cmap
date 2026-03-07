@@ -8,6 +8,7 @@ include_cmap_HEADERS = \
   cmap-log-define-ext.h \
   cmap-log-ext.h \
   cmap-log-type.h \
+  cmap-mem-ext.h \
   cmap-mem-type.h \
   cmap-proc-ctx-type.h
 

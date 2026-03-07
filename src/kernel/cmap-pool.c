@@ -17,23 +17,10 @@
  \
 struct CMAP_POOL_##NAME \
 { \
-  CMAP_LIFECYCLE super; \
- \
   int size; \
  \
   CMAP_LIST * availables; \
 }; \
- \
-/****************************************************************************/ \
-/****************************************************************************/ \
- \
-static void name##_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list) \
-{ \
-  CMAP_POOL_##NAME * pool = (CMAP_POOL_##NAME *)lc; \
-  cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&pool -> availables); \
- \
-  cmap_lifecycle_public.nested(lc, list); \
-} \
  \
 /****************************************************************************/ \
 /****************************************************************************/ \
@@ -58,13 +45,11 @@ void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e) \
 /****************************************************************************/ \
 /****************************************************************************/ \
  \
-static void name##_delete(CMAP_LIFECYCLE * lc) \
+void cmap_pool_##name##_delete(CMAP_POOL_##NAME * pool) \
 { \
-  CMAP_POOL_##NAME * pool = (CMAP_POOL_##NAME *)lc; \
- \
   CMAP_DEC_REFS(pool -> availables); \
  \
-  cmap_lifecycle_public.delete(lc); \
+  cmap_mem_free(pool); \
 } \
  \
 CMAP_POOL_##NAME * cmap_pool_##name##_create(int size, \
@@ -73,20 +58,9 @@ CMAP_POOL_##NAME * cmap_pool_##name##_create(int size, \
   if(size <= 0) size = cmap_config_pool_size(); \
  \
   CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##NAME); \
- \
-  CMAP_INITARGS initargs; \
-  initargs.nature = #name "_pool"; \
-  initargs.allocator = NULL; \
-  initargs.proc_ctx = proc_ctx; \
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)pool; \
-  cmap_lifecycle_public.init(lc, &initargs); \
-  lc -> delete = name##_delete; \
-  lc -> nested = name##_nested; \
- \
   pool -> size = size; \
   pool -> availables = CMAP_LIST(size, proc_ctx); \
   CMAP_INC_REFS(pool -> availables); \
- \
   return pool; \
 }
 

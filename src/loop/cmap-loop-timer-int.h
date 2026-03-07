@@ -3,7 +3,7 @@
 
 typedef struct
 {
-  CMAP_LOOP_TIMER_CB cb;
+  CMAP_LOOP_TIMER_CB run, delete;
 
   uint64_t next_time_us, repeat_us;
 } CMAP_LOOP_TIMER_INTERNAL;
