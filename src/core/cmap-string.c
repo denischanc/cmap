@@ -12,133 +12,113 @@
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct
-{
-  char * val;
-  int size, size_inc, size_max;
-} INTERNAL;
-
-/*******************************************************************************
-*******************************************************************************/
-
 const char * CMAP_STRING_NATURE = "string";
 
 /*******************************************************************************
 *******************************************************************************/
 
-static char * val(CMAP_STRING * this)
+char * cmap_string_val(CMAP_STRING * string)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  return internal -> val;
+  return string -> internal.val;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static inline int adjusted_size_max(INTERNAL * internal, int size)
+static inline int adjusted_size_max(CMAP_STRING * string, int size)
 {
-  int size_inc = internal -> size_inc, new_size = (internal -> size + size),
-    remainder = (new_size % size_inc);
+  int size_inc = string -> internal.size_inc,
+    new_size = string -> internal.size + size,
+    remainder = new_size % size_inc;
   if(remainder == 0) return new_size;
-  else return (new_size + size_inc - remainder);
+  else return new_size + size_inc - remainder;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void append_(INTERNAL * internal, const char * val, int size_append)
+static void append(CMAP_STRING * string, const char * val, int size_append)
 {
-  int off = internal -> size - 1,
-    new_size_max = adjusted_size_max(internal, size_append);
+  int off = string -> internal.size - 1,
+    new_size_max = adjusted_size_max(string, size_append);
 
-  if(new_size_max > internal -> size_max)
+  if(new_size_max > string -> internal.size_max)
   {
-    char * new_val = cmap_mem_alloc(new_size_max), * old_val = internal -> val;
+    char * new_val = cmap_mem_alloc(new_size_max),
+      * old_val = string -> internal.val;
     memcpy(new_val, old_val, off);
     cmap_mem_free(old_val);
 
-    internal -> val = new_val;
-    internal -> size_max = new_size_max;
+    string -> internal.val = new_val;
+    string -> internal.size_max = new_size_max;
   }
 
-  int new_size = (internal -> size + size_append);
-  char * int_val = internal -> val;
+  int new_size = string -> internal.size + size_append;
+  char * int_val = string -> internal.val;
   memcpy(int_val + off, val, size_append);
   int_val[new_size - 1] = 0;
 
-  internal -> size = new_size;
+  string -> internal.size = new_size;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void append(CMAP_STRING * this, const char * val)
+void cmap_string_append(CMAP_STRING * string, const char * val)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  append_(internal, val, strlen(val));
+  append(string, val, strlen(val));
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void append_sub(CMAP_STRING * this, const char * val,
+void cmap_string_append_sub(CMAP_STRING * string, const char * val,
   int off_start, int off_stop)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  append_(internal, val + off_start, off_stop - off_start);
+  append(string, val + off_start, off_stop - off_start);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void clean(CMAP_STRING * this)
+void cmap_string_clean(CMAP_STRING * string)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  internal -> val[0] = 0;
-  internal -> size = 1;
+  string -> internal.val[0] = 0;
+  string -> internal.size = 1;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_LIFECYCLE * this)
+void cmap_string_delete(CMAP_LIFECYCLE * lc)
 {
-  INTERNAL * internal = (INTERNAL *)((CMAP_STRING *)this) -> internal;
-  cmap_mem_free(internal -> val);
-  cmap_mem_free(internal);
+  cmap_mem_free(((CMAP_STRING *)lc) -> internal.val);
 
-  cmap_map_delete(this);
+  cmap_map_delete(lc);
 }
 
-static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
-  const char * val_, int size_inc)
+CMAP_STRING * cmap_string_init(CMAP_STRING * string, CMAP_INITARGS * initargs,
+  const char * val, int size_inc)
 {
-  cmap_map_init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)string, initargs);
 
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  lc -> delete = delete;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)string;
+  lc -> delete = cmap_string_delete;
 
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   if(size_inc < cmap_config_core_string_size_inc_min())
     size_inc = cmap_config_core_string_size_inc();
-  internal -> size_inc = size_inc;
-  internal -> size = (strlen(val_) + 1);
-  internal -> size_max = adjusted_size_max(internal, 0);
-  internal -> val = cmap_mem_alloc(internal -> size_max);
-  memcpy(internal -> val, val_, internal -> size);
+  string -> internal.size_inc = size_inc;
+  string -> internal.size = strlen(val) + 1;
+  string -> internal.size_max = adjusted_size_max(string, 0);
+  string -> internal.val = cmap_mem_alloc(string -> internal.size_max);
+  memcpy(string -> internal.val, val, string -> internal.size);
 
-  this -> internal = internal;
-  this -> val = val;
-  this -> append = append;
-  this -> append_sub = append_sub;
-  this -> clean = clean;
+  cmap_log_debug("[%p][%s] => [%.60s]", string, CMAP_STRING_NATURE, val);
 
-  cmap_log_debug("[%p][%s] => [%.60s]", this, CMAP_STRING_NATURE, val_);
-
-  return this;
+  return string;
 }
 
-static CMAP_STRING * create(const char * val, int size_inc,
+CMAP_STRING * cmap_string_create(const char * val, int size_inc,
   CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
@@ -147,17 +127,6 @@ static CMAP_STRING * create(const char * val, int size_inc,
   initargs.prototype = cmap_prototypestore_string(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(this, CMAP_STRING);
-  return init(this, &initargs, val, size_inc);
+  return cmap_string_init(CMAP_MEM_ALLOC(CMAP_STRING), &initargs, val,
+    size_inc);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_STRING_PUBLIC cmap_string_public =
-{
-  create, init, delete,
-  val,
-  append, append_sub,
-  clean
-};

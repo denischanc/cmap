@@ -15,21 +15,21 @@ void cmap_op_handler_string_append(CMAP_STRING * dst, CMAP_MAP * src)
   const char * nature = CMAP_NATURE(src);
   if(nature == CMAP_STRING_NATURE)
   {
-    char * val = CMAP_CALL((CMAP_STRING *)src, val);
-    CMAP_CALL_ARGS(dst, append, val);
+    char * val = cmap_string_val((CMAP_STRING *)src);
+    cmap_string_append(dst, val);
   }
   else if(nature == CMAP_INT_NATURE)
   {
     char buffer[22]; /* 64 bits => 70 / 10 * 3 + 1 ("\n") = 22 */
     int64_t i = cmap_int_get((CMAP_INT *)src);
     snprintf(buffer, sizeof(buffer), "%ld", i);
-    CMAP_CALL_ARGS(dst, append, buffer);
+    cmap_string_append(dst, buffer);
   }
   else
   {
     char buffer[19]; /* 64 bits => 64 / 8 * 2 + 2 ("0x") + 1 ("\n") = 19 */
     snprintf(buffer, sizeof(buffer), "%p", src);
-    CMAP_CALL_ARGS(dst, append, buffer);
+    cmap_string_append(dst, buffer);
   }
 }
 
@@ -41,7 +41,7 @@ static char op_add_self(CMAP_MAP * map_dst, CMAP_MAP * map_src)
   if((map_dst == NULL) || (CMAP_NATURE(map_dst) != CMAP_STRING_NATURE))
     return (1 == 0);
 
-  if(map_src == NULL) CMAP_CALL_ARGS((CMAP_STRING *)map_dst, append, "null");
+  if(map_src == NULL) cmap_string_append((CMAP_STRING *)map_dst, "null");
   else cmap_op_handler_string_append((CMAP_STRING *)map_dst, map_src);
   return (1 == 1);
 }

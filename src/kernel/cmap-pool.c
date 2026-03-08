@@ -28,14 +28,14 @@ struct CMAP_POOL_##NAME \
 type cmap_pool_##name##_take(CMAP_POOL_##NAME * pool, CMAP_PROC_CTX * proc_ctx) \
 { \
   CMAP_LIST * availables = pool -> availables; \
-  if(CMAP_CALL(availables, size) > 0) return (type)CMAP_LIST_POP(availables); \
+  if(cmap_list_size(availables) > 0) return (type)CMAP_LIST_POP(availables); \
   else return cmap_pool_handler_##name##_create(proc_ctx); \
 } \
  \
 void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e) \
 { \
   CMAP_LIST * availables = pool -> availables; \
-  if(CMAP_CALL(availables, size) < pool -> size) \
+  if(cmap_list_size(availables) < pool -> size) \
   { \
     cmap_pool_handler_##name##_clean(e); \
     CMAP_LIST_PUSH(availables, e); \

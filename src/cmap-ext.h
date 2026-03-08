@@ -1,17 +1,17 @@
 #ifndef __CMAP_EXT_H__
 #define __CMAP_EXT_H__
 
+#include "cmap-define-ext.h"
 #include <stdint.h>
 #include "cmap-proc-ctx-type.h"
-#include "cmap-map-type.h"
-#include "cmap-fn-type.h"
-#include "cmap-string-type.h"
+#include "cmap-env-type.h"
+#include "cmap-map-ext.h"
+#include "cmap-list-ext.h"
+#include "cmap-fn-ext.h"
+#include "cmap-string-ext.h"
 #include "cmap-int-ext.h"
 #include "cmap-double-ext.h"
 #include "cmap-ptr-ext.h"
-#include "cmap-env-type.h"
-#include "cmap-define-ext.h"
-#include "cmap-mem-type.h"
 
 void cmap_bootstrap(int argc, char ** argv);
 int cmap_main();
@@ -32,13 +32,6 @@ const char * cmap_nature(CMAP_MAP * map);
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
 char cmap_has(CMAP_MAP * map, const char * key);
-
-void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val);
-CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);
-
-const char * cmap_string_val(CMAP_STRING * string);
-
-CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx);
 
 void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val);
 CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what);
@@ -90,5 +83,8 @@ CMAP_MAP * cmap_delete_proc_ctx(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
 
 CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx);
+
+void * cmap_alloc(int size);
+void cmap_free(void * ptr);
 
 #endif

@@ -27,6 +27,7 @@ noinst_HEADERS = \
   cmap-double-int.h \
   cmap-fn-define.h \
   cmap-fn.h \
+  cmap-fn-int.h \
   cmap-initargs.h \
   cmap-int-define.h \
   cmap-int.h \
@@ -37,13 +38,15 @@ noinst_HEADERS = \
   cmap-lifecycle-type.h \
   cmap-list-define.h \
   cmap-list.h \
+  cmap-list-int.h \
   cmap-map-define.h \
   cmap-map.h \
   cmap-map-int.h \
   cmap-ptr.h \
   cmap-ptr-int.h \
   cmap-string-define.h \
-  cmap-string.h
+  cmap-string.h \
+  cmap-string-int.h
 
 noinst_LTLIBRARIES = libcore.la
 

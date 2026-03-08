@@ -1,9 +1,9 @@
 #ifndef __CMAP_LIST_H__
 #define __CMAP_LIST_H__
 
-#include "cmap-list-type.h"
 #include "cmap-list-define.h"
 #include "cmap-list-ext.h"
+#include "cmap-list-int.h"
 #include "cmap-map.h"
 
 typedef void (*CMAP_LIST_VAL_FN)(CMAP_MAP ** val, void * data);
@@ -12,55 +12,29 @@ struct CMAP_LIST
 {
   CMAP_MAP super;
 
-  void * internal;
-
-  int (*size)(CMAP_LIST * this);
-
-  CMAP_LIST * (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
-  CMAP_MAP * (*get)(CMAP_LIST * this, int i);
-
-  CMAP_LIST * (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
-  CMAP_MAP * (*rm)(CMAP_LIST * this, int i);
-
-  CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*pop)(CMAP_LIST * this);
-
-  CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*shift)(CMAP_LIST * this);
-
-  void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
-
-  void (*clean)(CMAP_LIST * this);
+  CMAP_LIST_INTERNAL internal;
 };
 
-typedef struct
-{
-  CMAP_LIST * (*create)(int size_inc, CMAP_PROC_CTX * proc_ctx);
-  CMAP_LIST * (*init)(CMAP_LIST * list, CMAP_INITARGS * initargs,
-    int size_inc);
-  void (*delete)(CMAP_LIFECYCLE * this);
+void cmap_list_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
+int cmap_list_size(CMAP_LIST * list);
 
-  int (*size)(CMAP_LIST * this);
+CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val);
+CMAP_MAP * cmap_list_rm(CMAP_LIST * list, int i);
 
-  CMAP_LIST * (*set)(CMAP_LIST * this, int i, CMAP_MAP * val);
-  CMAP_MAP * (*get)(CMAP_LIST * this, int i);
+CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val);
+CMAP_MAP * cmap_list_pop(CMAP_LIST * list);
 
-  CMAP_LIST * (*add)(CMAP_LIST * this, int i, CMAP_MAP * val);
-  CMAP_MAP * (*rm)(CMAP_LIST * this, int i);
+CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val);
+CMAP_MAP * cmap_list_shift(CMAP_LIST * list);
 
-  CMAP_LIST * (*push)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*pop)(CMAP_LIST * this);
+void cmap_list_apply(CMAP_LIST * list, CMAP_LIST_VAL_FN fn, void * data);
 
-  CMAP_LIST * (*unshift)(CMAP_LIST * this, CMAP_MAP * val);
-  CMAP_MAP * (*shift)(CMAP_LIST * this);
+void cmap_list_clean(CMAP_LIST * list);
 
-  void (*apply)(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data);
-
-  void (*clean)(CMAP_LIST * this);
-} CMAP_LIST_PUBLIC;
-
-extern const CMAP_LIST_PUBLIC cmap_list_public;
+void cmap_list_delete(CMAP_LIFECYCLE * lc);
+CMAP_LIST * cmap_list_init(CMAP_LIST * list, CMAP_INITARGS * initargs,
+  int size_inc);
+CMAP_LIST * cmap_list_create(int size_inc, CMAP_PROC_CTX * proc_ctx);
 
 #endif

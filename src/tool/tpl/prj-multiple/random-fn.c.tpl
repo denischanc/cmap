@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 #include <time.h>
-#include <cmap/cmap-ext.h>
-#include <cmap/cmap-int-ext.h>
 
 static char srand_ok = CMAP_F;
 

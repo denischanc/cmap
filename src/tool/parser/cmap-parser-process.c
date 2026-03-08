@@ -17,11 +17,11 @@
 static char * process_append(char * map_fn, char * map, char * args,
   char do_return)
 {
-  char * map_name = do_return ? NEXT_NAME_VAR() : NULL;
+  char * map_name = NULL, * instruction = strdup("");
 
-  char * instruction = strdup("");
-  if(map_name != NULL)
+  if(do_return)
   {
+    map_name = NEXT_NAME_VAR();
     PREPEND_MAP_VAR(map_name);
     cmap_string_append_args(&instruction, "%s = ", map_name);
   }

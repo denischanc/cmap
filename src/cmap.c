@@ -1,7 +1,7 @@
 
 #include "cmap.h"
 
-#include <stdlib.h>
+#include <stddef.h>
 #include "cmap-map.h"
 #include "cmap-list.h"
 #include "cmap-fn.h"
@@ -107,35 +107,6 @@ char cmap_has(CMAP_MAP * map, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val)
-{
-  CMAP_LIST_SET(list, i, val);
-}
-
-CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
-{
-  return CMAP_LIST_GET(list, i);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-const char * cmap_string_val(CMAP_STRING * string)
-{
-  return CMAP_CALL(string, val);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx)
-{
-  return CMAP_CALL_ARGS(fn, require_definitions, proc_ctx);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val)
 {
   const char * what_nature = CMAP_NATURE(what);
@@ -146,7 +117,7 @@ void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val)
   }
   else if(what_nature == CMAP_STRING_NATURE)
   {
-    const char * key = CMAP_CALL((CMAP_STRING *)what, val);
+    const char * key = cmap_string_val((CMAP_STRING *)what);
     CMAP_SET(map, key, val);
   }
 }
@@ -161,7 +132,7 @@ CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
   }
   else if(what_nature == CMAP_STRING_NATURE)
   {
-    const char * key = CMAP_CALL((CMAP_STRING *)what, val);
+    const char * key = cmap_string_val((CMAP_STRING *)what);
     return CMAP_GET(map, key);
   }
   return NULL;
@@ -257,7 +228,7 @@ void cmap_dec(CMAP_MAP * map)
 CMAP_MAP * cmap_lnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
   CMAP_LIST * args)
 {
-  return CMAP_CALL_ARGS(prototype, new, args, proc_ctx);
+  return cmap_fn_new(prototype, args, proc_ctx);
 }
 
 static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
@@ -289,8 +260,7 @@ CMAP_MAP * cmap_new(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx, ...)
 CMAP_MAP * cmap_lfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args)
 {
-  if(fn != NULL) return CMAP_CALL_ARGS(fn, process, proc_ctx, map, args);
-  else return map;
+  return cmap_fn_process(fn, proc_ctx, map, args);
 }
 
 static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
@@ -323,16 +293,10 @@ CMAP_MAP * cmap_fn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 CMAP_MAP * cmap_lproc(CMAP_MAP * map, const char * key,
   CMAP_PROC_CTX * proc_ctx, CMAP_LIST * args)
 {
-  CMAP_MAP * ret = NULL;
-
-  CMAP_MAP * fn_tmp = CMAP_GET(map, key);
-  if((fn_tmp != NULL) && (CMAP_NATURE(fn_tmp) == CMAP_FN_NATURE))
-  {
-    CMAP_FN * fn = (CMAP_FN *)fn_tmp;
-    ret = cmap_lfn_proc(fn, proc_ctx, map, args);
-  }
-
-  return ret;
+  CMAP_MAP * fn = CMAP_GET(map, key);
+  if((fn != NULL) && (CMAP_NATURE(fn) == CMAP_FN_NATURE))
+    return cmap_lfn_proc((CMAP_FN *)fn, proc_ctx, map, args);
+  else return map;
 }
 
 static CMAP_MAP * vproc(CMAP_MAP * map, const char * key,
@@ -420,4 +384,17 @@ CMAP_MAP * cmap_global_env(CMAP_PROC_CTX * proc_ctx)
 CMAP_MAP * cmap_definitions(CMAP_PROC_CTX * proc_ctx)
 {
   return cmap_proc_ctx_local_definitions(proc_ctx);
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
+void * cmap_alloc(int size)
+{
+  return cmap_mem_alloc(size);
+}
+
+void cmap_free(void * ptr)
+{
+  cmap_mem_free(ptr);
 }

@@ -24,105 +24,99 @@ static void nested_apply(CMAP_MAP ** val, void * data)
   }
 }
 
-static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
+void cmap_list_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list)
 {
-  if(!CMAP_IS_GHOST(this))
+  if(!CMAP_IS_GHOST(lc))
   {
-    CMAP_LIST * this_ = (CMAP_LIST *)this;
-    CMAP_SLIST_MAP * this_list = this_ -> internal;
-    cmap_slist_map_apply(this_list, nested_apply, list);
+    CMAP_LIST * list_ = (CMAP_LIST *)lc;
+    cmap_slist_map_apply(list_ -> internal.list, nested_apply, list);
   }
 
-  cmap_map_nested(this, list);
+  cmap_map_nested(lc, list);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int size(CMAP_LIST * this)
+int cmap_list_size(CMAP_LIST * list)
 {
-  CMAP_SLIST_MAP * this_list = (CMAP_SLIST_MAP *)this -> internal;
-  return cmap_slist_map_size(this_list);
+  return cmap_slist_map_size(list -> internal.list);
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * set(CMAP_LIST * this, int i, CMAP_MAP * val)
+CMAP_LIST * cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val)
 {
-  CMAP_MAP ** val_ptr =
-    cmap_slist_map_get((CMAP_SLIST_MAP *)this -> internal, i);
+  CMAP_MAP ** val_ptr = cmap_slist_map_get(list -> internal.list, i);
   if(val_ptr != NULL)
   {
     CMAP_MAP * old_val = *val_ptr;
     *val_ptr = val;
 
-    if(!CMAP_IS_GHOST(this) && (val != old_val))
+    if(!CMAP_IS_GHOST(list) && (val != old_val))
     {
       if(val != NULL) CMAP_INC_REFS(val);
       if(old_val != NULL) CMAP_DEC_REFS(old_val);
     }
   }
-  return this;
+  return list;
 }
 
-static CMAP_MAP * get(CMAP_LIST * this, int i)
+CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 {
-  CMAP_MAP ** ret = cmap_slist_map_get((CMAP_SLIST_MAP *)this -> internal, i);
+  CMAP_MAP ** ret = cmap_slist_map_get(list -> internal.list, i);
   return (ret == NULL) ? NULL : *ret;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * add(CMAP_LIST * this, int i, CMAP_MAP * val)
+CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val)
 {
-  if(cmap_slist_map_add((CMAP_SLIST_MAP *)this -> internal, i, val) &&
-    !CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
-  return this;
+  if(cmap_slist_map_add(list -> internal.list, i, val) &&
+    !CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+  return list;
 }
 
-/*******************************************************************************
-*******************************************************************************/
-
-static CMAP_MAP * rm(CMAP_LIST * this, int i)
+CMAP_MAP * cmap_list_rm(CMAP_LIST * list, int i)
 {
-  CMAP_MAP * ret = cmap_slist_map_rm((CMAP_SLIST_MAP *)this -> internal, i);
-  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
+  CMAP_MAP * ret = cmap_slist_map_rm(list -> internal.list, i);
+  if(!CMAP_IS_GHOST(list) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * push(CMAP_LIST * this, CMAP_MAP * val)
+CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val)
 {
-  cmap_slist_map_push((CMAP_SLIST_MAP *)this -> internal, val);
-  if(!CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
-  return this;
+  cmap_slist_map_push(list -> internal.list, val);
+  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+  return list;
 }
 
-static CMAP_MAP * pop(CMAP_LIST * this)
+CMAP_MAP * cmap_list_pop(CMAP_LIST * list)
 {
-  CMAP_MAP * ret = cmap_slist_map_pop((CMAP_SLIST_MAP *)this -> internal);
-  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
+  CMAP_MAP * ret = cmap_slist_map_pop(list -> internal.list);
+  if(!CMAP_IS_GHOST(list) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_LIST * unshift(CMAP_LIST * this, CMAP_MAP * val)
+CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val)
 {
-  cmap_slist_map_unshift((CMAP_SLIST_MAP *)this -> internal, val);
-  if(!CMAP_IS_GHOST(this) && (val != NULL)) CMAP_INC_REFS(val);
-  return this;
+  cmap_slist_map_unshift(list -> internal.list, val);
+  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+  return list;
 }
 
-static CMAP_MAP * shift(CMAP_LIST * this)
+CMAP_MAP * cmap_list_shift(CMAP_LIST * list)
 {
-  CMAP_MAP * ret = cmap_slist_map_shift((CMAP_SLIST_MAP *)this -> internal);
-  if(!CMAP_IS_GHOST(this) && (ret != NULL)) CMAP_DEC_REFS(ret);
+  CMAP_MAP * ret = cmap_slist_map_shift(list -> internal.list);
+  if(!CMAP_IS_GHOST(list) && (ret != NULL)) CMAP_DEC_REFS(ret);
   return ret;
 }
 
@@ -154,11 +148,10 @@ static void apply_apply(CMAP_MAP ** val, void * data)
   }
 }
 
-static void apply(CMAP_LIST * this, CMAP_LIST_VAL_FN fn, void * data)
+void cmap_list_apply(CMAP_LIST * list, CMAP_LIST_VAL_FN fn, void * data)
 {
-  APPLY_APPLY_DATA data_ = {fn, data, CMAP_IS_GHOST(this)};
-  CMAP_SLIST_MAP * this_list = this -> internal;
-  cmap_slist_map_apply(this_list, apply_apply, &data_);
+  APPLY_APPLY_DATA data_ = {fn, data, CMAP_IS_GHOST(list)};
+  cmap_slist_map_apply(list -> internal.list, apply_apply, &data_);
 }
 
 /*******************************************************************************
@@ -169,11 +162,11 @@ static void clean_apply(CMAP_MAP ** val, void * data)
   if(*val != NULL) CMAP_DEC_REFS(*val);
 }
 
-static void clean(CMAP_LIST * this)
+void cmap_list_clean(CMAP_LIST * list)
 {
-  CMAP_SLIST_MAP * this_list = this -> internal;
-  if(!CMAP_IS_GHOST(this)) cmap_slist_map_apply(this_list, clean_apply, NULL);
-  cmap_slist_map_clean(this_list);
+  CMAP_SLIST_MAP * list_ = list -> internal.list;
+  if(!CMAP_IS_GHOST(list)) cmap_slist_map_apply(list_, clean_apply, NULL);
+  cmap_slist_map_clean(list_);
 }
 
 /*******************************************************************************
@@ -189,41 +182,30 @@ static void delete_apply(CMAP_MAP ** val, void * data)
   }
 }
 
-static void delete(CMAP_LIFECYCLE * this)
+void cmap_list_delete(CMAP_LIFECYCLE * lc)
 {
-  CMAP_SLIST_MAP * this_list = ((CMAP_LIST *)this) -> internal;
-  if(!CMAP_IS_GHOST(this)) cmap_slist_map_apply(this_list, delete_apply, this);
-  cmap_slist_map_delete(this_list);
+  CMAP_SLIST_MAP * list = ((CMAP_LIST *)lc) -> internal.list;
+  if(!CMAP_IS_GHOST(lc)) cmap_slist_map_apply(list, delete_apply, lc);
+  cmap_slist_map_delete(list);
 
-  cmap_map_delete(this);
+  cmap_map_delete(lc);
 }
 
-static CMAP_LIST * init(CMAP_LIST * this, CMAP_INITARGS * initargs,
+CMAP_LIST * cmap_list_init(CMAP_LIST * list, CMAP_INITARGS * initargs,
   int chunk_size)
 {
-  cmap_map_init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)list, initargs);
 
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  lc -> delete = delete;
-  lc -> nested = nested;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)list;
+  lc -> delete = cmap_list_delete;
+  lc -> nested = cmap_list_nested;
 
-  this -> internal = cmap_slist_map_create(chunk_size);
-  this -> size = size;
-  this -> set = set;
-  this -> get = get;
-  this -> add = add;
-  this -> rm = rm;
-  this -> push = push;
-  this -> pop = pop;
-  this -> unshift = unshift;
-  this -> shift = shift;
-  this -> apply = apply;
-  this -> clean = clean;
+  list -> internal.list = cmap_slist_map_create(chunk_size);
 
-  return this;
+  return list;
 }
 
-static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
+CMAP_LIST * cmap_list_create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
@@ -231,22 +213,5 @@ static CMAP_LIST * create(int chunk_size, CMAP_PROC_CTX * proc_ctx)
   initargs.prototype = cmap_prototypestore_list(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(this, CMAP_LIST);
-  return init(this, &initargs, chunk_size);
+  return cmap_list_init(CMAP_MEM_ALLOC(CMAP_LIST), &initargs, chunk_size);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_LIST_PUBLIC cmap_list_public =
-{
-  create, init, delete,
-  nested,
-  size,
-  set, get,
-  add,  rm,
-  push, pop,
-  unshift, shift,
-  apply,
-  clean
-};

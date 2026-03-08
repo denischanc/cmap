@@ -47,6 +47,5 @@ CMAP_INT * cmap_int_create(int64_t val, CMAP_PROC_CTX * proc_ctx)
   initargs.prototype = cmap_prototypestore_int(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(i, CMAP_INT);
-  return cmap_int_init(i, &initargs, val);
+  return cmap_int_init(CMAP_MEM_ALLOC(CMAP_INT), &initargs, val);
 }

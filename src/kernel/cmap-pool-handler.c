@@ -17,7 +17,7 @@ CMAP_LIST * cmap_pool_handler_list_ghost_create(CMAP_PROC_CTX * proc_ctx)
 
 void cmap_pool_handler_list_ghost_clean(CMAP_LIST * e)
 {
-  CMAP_CALL(e, clean);
+  cmap_list_clean(e);
 }
 
 /*******************************************************************************

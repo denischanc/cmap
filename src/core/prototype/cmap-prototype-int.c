@@ -22,7 +22,7 @@ static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     const char * nature = CMAP_NATURE(arg);
     if(nature == CMAP_STRING_NATURE)
     {
-      long v = atol(CMAP_CALL((CMAP_STRING *)arg, val));
+      long v = atol(cmap_string_val((CMAP_STRING *)arg));
       cmap_int_set((CMAP_INT *)map, v);
     }
     else if(nature == CMAP_INT_NATURE)
@@ -48,7 +48,6 @@ static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   cmap_int_set((CMAP_INT *)map, cmap_util_time_us());
-
   return map;
 }
 

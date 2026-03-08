@@ -13,8 +13,8 @@ static char cmp(int64_t * ret, CMAP_MAP * map_l, CMAP_MAP * map_r)
     (CMAP_NATURE(map_l) != CMAP_STRING_NATURE) ||
     (CMAP_NATURE(map_r) != CMAP_STRING_NATURE)) return (1 == 0);
 
-  const char * string_l = CMAP_CALL((CMAP_STRING *)map_l, val),
-    * string_r = CMAP_CALL((CMAP_STRING *)map_r, val);
+  const char * string_l = cmap_string_val((CMAP_STRING *)map_l),
+    * string_r = cmap_string_val((CMAP_STRING *)map_r);
   *ret = strcmp(string_l, string_r);
   return (1 == 1);
 }

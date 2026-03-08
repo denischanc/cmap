@@ -13,13 +13,9 @@
 static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if((map != NULL) && (args != NULL) &&
-    (CMAP_NATURE(map) == CMAP_STRING_NATURE))
-  {
-    CMAP_MAP * cur;
-    while((cur = CMAP_LIST_SHIFT(args)) != NULL)
-      cmap_op_handler_string_append((CMAP_STRING *)map, cur);
-  }
+  CMAP_MAP * cur;
+  while((cur = CMAP_LIST_SHIFT(args)) != NULL)
+    cmap_op_handler_string_append((CMAP_STRING *)map, cur);
   return map;
 }
 
@@ -29,8 +25,7 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * clean_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  if((map != NULL) && (CMAP_NATURE(map) == CMAP_STRING_NATURE))
-    CMAP_CALL((CMAP_STRING *)map, clean);
+  cmap_string_clean((CMAP_STRING *)map);
   return map;
 }
 
@@ -40,7 +35,7 @@ static CMAP_MAP * clean_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * clone_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  const char * val = CMAP_CALL((CMAP_STRING *)map, val);
+  const char * val = cmap_string_val((CMAP_STRING *)map);
   return (CMAP_MAP *)CMAP_STRING(val, 0, proc_ctx);
 }
 

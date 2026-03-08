@@ -48,6 +48,5 @@ CMAP_DOUBLE * cmap_double_create(double val, CMAP_PROC_CTX * proc_ctx)
   initargs.prototype = cmap_prototypestore_double(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(d, CMAP_DOUBLE);
-  return cmap_double_init(d, &initargs, val);
+  return cmap_double_init(CMAP_MEM_ALLOC(CMAP_DOUBLE), &initargs, val);
 }

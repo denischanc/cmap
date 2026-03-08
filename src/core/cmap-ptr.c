@@ -76,6 +76,5 @@ CMAP_PTR * cmap_ptr_create(int size, CMAP_PTR_DELETE delete_ptr,
   initargs.prototype = cmap_prototypestore_ptr(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(ptr, CMAP_PTR);
-  return cmap_ptr_init(ptr, &initargs, size, delete_ptr);
+  return cmap_ptr_init(CMAP_MEM_ALLOC(CMAP_PTR), &initargs, size, delete_ptr);
 }
