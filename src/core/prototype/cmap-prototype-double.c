@@ -11,7 +11,7 @@
 static CMAP_MAP * clone_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  double d = CMAP_CALL((CMAP_DOUBLE *)map, get);
+  double d = cmap_double_get((CMAP_DOUBLE *)map);
   return (CMAP_MAP *)CMAP_DOUBLE(d, proc_ctx);
 }
 

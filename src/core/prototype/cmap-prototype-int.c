@@ -23,10 +23,10 @@ static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     if(nature == CMAP_STRING_NATURE)
     {
       long v = atol(CMAP_CALL((CMAP_STRING *)arg, val));
-      CMAP_CALL_ARGS((CMAP_INT *)map, set, v);
+      cmap_int_set((CMAP_INT *)map, v);
     }
     else if(nature == CMAP_INT_NATURE)
-      CMAP_CALL_ARGS((CMAP_INT *)map, set, CMAP_CALL((CMAP_INT *)arg, get));
+      cmap_int_set((CMAP_INT *)map, cmap_int_get((CMAP_INT *)arg));
   }
   return map;
 }
@@ -37,7 +37,7 @@ static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * time_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_CALL_ARGS((CMAP_INT *)map, set, time(NULL));
+  cmap_int_set((CMAP_INT *)map, time(NULL));
   return map;
 }
 
@@ -47,7 +47,7 @@ static CMAP_MAP * time_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_CALL_ARGS((CMAP_INT *)map, set, cmap_util_time_us());
+  cmap_int_set((CMAP_INT *)map, cmap_util_time_us());
 
   return map;
 }
@@ -58,7 +58,7 @@ static CMAP_MAP * time_us_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * clone_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  int64_t i = CMAP_CALL((CMAP_INT *)map, get);
+  int64_t i = cmap_int_get((CMAP_INT *)map);
   return (CMAP_MAP *)CMAP_INT(i, proc_ctx);
 }
 

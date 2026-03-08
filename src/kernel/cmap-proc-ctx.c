@@ -100,7 +100,7 @@ CMAP_MAP * cmap_proc_ctx_delete(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
   cmap_env_set_proc_ctx(proc_ctx -> env, proc_ctx -> prev);
   cmap_mem_free(proc_ctx);
 
-  if(ret != NULL) CMAP_CALL((CMAP_LIFECYCLE *)ret, store);
+  if(ret != NULL) cmap_lifecycle_store((CMAP_LIFECYCLE *)ret);
 
   return ret;
 }

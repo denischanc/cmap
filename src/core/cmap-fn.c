@@ -36,7 +36,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
   if(internal -> definitions != NULL)
     cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)&internal -> definitions);
 
-  cmap_map_public.nested(this, list);
+  cmap_map_nested(this, list);
 }
 
 /*******************************************************************************
@@ -47,7 +47,7 @@ static CMAP_MAP * require_definitions(CMAP_FN * this, CMAP_PROC_CTX * proc_ctx)
   INTERNAL * internal = this -> internal;
   if(internal -> definitions == NULL)
   {
-    internal -> definitions = cmap_map_public.create_root(proc_ctx);
+    internal -> definitions = cmap_map_create_root(proc_ctx);
     CMAP_INC_REFS(internal -> definitions);
   }
   return internal -> definitions;
@@ -107,13 +107,13 @@ static void delete(CMAP_LIFECYCLE * this)
   if(internal -> definitions != NULL) CMAP_DEC_REFS(internal -> definitions);
   cmap_mem_free(internal);
 
-  cmap_map_public.delete(this);
+  cmap_map_delete(this);
 }
 
 static CMAP_FN * init(CMAP_FN * this, CMAP_INITARGS * initargs,
   CMAP_FN_TPL process_)
 {
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)this, initargs);
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;

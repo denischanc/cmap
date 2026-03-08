@@ -47,7 +47,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     data.key = key;
     data.args = args_map_kv;
     data.proc_ctx = proc_ctx;
-    CMAP_CALL_ARGS(map, apply, map_entry_apply, &data);
+    cmap_map_apply(map, map_entry_apply, &data);
   }
   return map;
 }
@@ -57,7 +57,7 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
 void cmap_prototype_map_require(CMAP_MAP **proto, CMAP_PROC_CTX * proc_ctx)
 {
-  *proto = cmap_map_public.create_root(proc_ctx);
+  *proto = cmap_map_create_root(proc_ctx);
 }
 
 /*******************************************************************************

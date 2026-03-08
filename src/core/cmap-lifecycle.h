@@ -3,7 +3,7 @@
 
 #include "cmap-lifecycle-type.h"
 #include "cmap-lifecycle-define.h"
-#include <stdint.h>
+#include "cmap-lifecycle-int.h"
 #include "cmap-proc-ctx-type.h"
 #include "cmap-slist.h"
 #include "cmap-initargs.h"
@@ -11,47 +11,31 @@
 
 struct CMAP_LIFECYCLE
 {
-  void * internal;
+  CMAP_LIFECYCLE_INTERNAL internal;
 
-  void (*delete)(CMAP_LIFECYCLE * this);
+  void (*delete)(CMAP_LIFECYCLE * lc);
 
-  const char * (*nature)(CMAP_LIFECYCLE * this);
-
-  void (*inc_refs)(CMAP_LIFECYCLE * this);
-  int (*nb_refs)(CMAP_LIFECYCLE * this);
-  void (*dec_refs)(CMAP_LIFECYCLE * this);
-
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
-
-  void (*watched)(CMAP_LIFECYCLE * this, char val);
-  char (*is_watched)(CMAP_LIFECYCLE * this);
-  uint64_t (*watch_time_us)(CMAP_LIFECYCLE * this);
-
-  void (*store)(CMAP_LIFECYCLE * this);
-
-  char (*in_refs)(CMAP_LIFECYCLE * this);
+  void (*nested)(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list);
 };
 
-typedef struct
-{
-  CMAP_LIFECYCLE * (*init)(CMAP_LIFECYCLE * this, CMAP_INITARGS * initargs);
-  void (*delete)(CMAP_LIFECYCLE * this);
+const char * cmap_lifecycle_nature(CMAP_LIFECYCLE * lc);
 
-  void (*inc_refs)(CMAP_LIFECYCLE * this);
-  int (*nb_refs)(CMAP_LIFECYCLE * this);
-  void (*dec_refs)(CMAP_LIFECYCLE * this);
+void cmap_lifecycle_inc_refs(CMAP_LIFECYCLE * lc);
+int cmap_lifecycle_nb_refs(CMAP_LIFECYCLE * lc);
+void cmap_lifecycle_dec_refs(CMAP_LIFECYCLE * lc);
 
-  void (*nested)(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list);
+void cmap_lifecycle_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list);
 
-  void (*watched)(CMAP_LIFECYCLE * this, char val);
-  char (*is_watched)(CMAP_LIFECYCLE * this);
-  uint64_t (*watch_time_us)(CMAP_LIFECYCLE * this);
+void cmap_lifecycle_watched(CMAP_LIFECYCLE * lc, char val);
+char cmap_lifecycle_is_watched(CMAP_LIFECYCLE * lc);
+uint64_t cmap_lifecycle_watch_time_us(CMAP_LIFECYCLE * lc);
 
-  void (*store)(CMAP_LIFECYCLE * this);
+void cmap_lifecycle_store(CMAP_LIFECYCLE * lc);
 
-  char (*in_refs)(CMAP_LIFECYCLE * this);
-} CMAP_LIFECYCLE_PUBLIC;
+char cmap_lifecycle_in_refs(CMAP_LIFECYCLE * lc);
 
-extern const CMAP_LIFECYCLE_PUBLIC cmap_lifecycle_public;
+void cmap_lifecycle_delete(CMAP_LIFECYCLE * lc);
+CMAP_LIFECYCLE * cmap_lifecycle_init(CMAP_LIFECYCLE * lc,
+  CMAP_INITARGS * initargs);
 
 #endif

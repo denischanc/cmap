@@ -28,6 +28,6 @@ char cmap_cmp_is_true(CMAP_MAP * map)
   if(map == NULL) return (1 == 0);
 
   if(CMAP_NATURE(map) == CMAP_INT_NATURE)
-    return (CMAP_CALL((CMAP_INT *)map, get) != 0);
+    return (cmap_int_get((CMAP_INT *)map) != 0);
   return (1 == 1);
 }

@@ -107,13 +107,13 @@ static void delete(CMAP_LIFECYCLE * this)
   cmap_mem_free(internal -> val);
   cmap_mem_free(internal);
 
-  cmap_map_public.delete(this);
+  cmap_map_delete(this);
 }
 
 static CMAP_STRING * init(CMAP_STRING * this, CMAP_INITARGS * initargs,
   const char * val_, int size_inc)
 {
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)this, initargs);
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;

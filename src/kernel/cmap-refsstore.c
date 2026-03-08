@@ -53,7 +53,7 @@ void cmap_refsstore_rm(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
 
 static char delete_ref(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
 {
-  int nb_refs = CMAP_CALL(lc, nb_refs);
+  int nb_refs = cmap_lifecycle_nb_refs(lc);
   if(nb_refs <= 0)
   {
     CMAP_DELETE(lc);
@@ -77,7 +77,7 @@ static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret)
   while(*refs != NULL)
   {
     CMAP_LIFECYCLE * lc = cmap_sset_lc_rm(refs);
-    char in_refs = CMAP_CALL(lc, in_refs);
+    char in_refs = cmap_lifecycle_in_refs(lc);
 
     if(in_refs && (lc != ret) && delete_ref(rs, lc)) nb_deleted++;
   }

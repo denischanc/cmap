@@ -14,8 +14,8 @@ static char op_##name(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r, \
     (CMAP_NATURE(map_l) != CMAP_DOUBLE_NATURE) || \
     (CMAP_NATURE(map_r) != CMAP_DOUBLE_NATURE)) return (1 == 0); \
  \
-  double d = CMAP_CALL((CMAP_DOUBLE *)map_l, get) OP \
-    CMAP_CALL((CMAP_DOUBLE *)map_r, get); \
+  double d = cmap_double_get((CMAP_DOUBLE *)map_l) OP \
+    cmap_double_get((CMAP_DOUBLE *)map_r); \
   *map_dst = (CMAP_MAP *)CMAP_DOUBLE(d, proc_ctx); \
   return (1 == 1); \
 } \
@@ -34,9 +34,9 @@ static char op_##name(CMAP_MAP * map_dst, CMAP_MAP * map_src) \
     (CMAP_NATURE(map_dst) != CMAP_DOUBLE_NATURE) || \
     (CMAP_NATURE(map_src) != CMAP_DOUBLE_NATURE)) return (1 == 0); \
  \
-  double d = CMAP_CALL((CMAP_DOUBLE *)map_dst, get); \
-  d OP CMAP_CALL((CMAP_DOUBLE *)map_src, get); \
-  CMAP_CALL_ARGS((CMAP_DOUBLE *)map_dst, set, d); \
+  double d = cmap_double_get((CMAP_DOUBLE *)map_dst); \
+  d OP cmap_double_get((CMAP_DOUBLE *)map_src); \
+  cmap_double_set((CMAP_DOUBLE *)map_dst, d); \
   return (1 == 1); \
 } \
  \

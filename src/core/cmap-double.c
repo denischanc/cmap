@@ -8,64 +8,39 @@
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct
-{
-  double val;
-} INTERNAL;
-
-/*******************************************************************************
-*******************************************************************************/
-
 const char * CMAP_DOUBLE_NATURE = "double";
 
 /*******************************************************************************
 *******************************************************************************/
 
-static double get(CMAP_DOUBLE * this)
+double cmap_double_get(CMAP_DOUBLE * d)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  return internal -> val;
+  return d -> internal.val;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_DOUBLE * set(CMAP_DOUBLE * this, double val)
+CMAP_DOUBLE * cmap_double_set(CMAP_DOUBLE * d, double val)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  internal -> val = val;
-  return this;
+  d -> internal.val = val;
+  return d;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_LIFECYCLE * this)
-{
-  cmap_mem_free(((CMAP_DOUBLE *)this) -> internal);
-
-  cmap_map_public.delete(this);
-}
-
-static CMAP_DOUBLE * init(CMAP_DOUBLE * this, CMAP_INITARGS * initargs,
+CMAP_DOUBLE * cmap_double_init(CMAP_DOUBLE * d, CMAP_INITARGS * initargs,
   double val)
 {
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)d, initargs);
 
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  lc -> delete = delete;
+  d -> internal.val = val;
 
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
-  internal -> val = val;
-
-  this -> internal = internal;
-  this -> get = get;
-  this -> set = set;
-
-  return this;
+  return d;
 }
 
-static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
+CMAP_DOUBLE * cmap_double_create(double val, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
@@ -73,16 +48,6 @@ static CMAP_DOUBLE * create(double val, CMAP_PROC_CTX * proc_ctx)
   initargs.prototype = cmap_prototypestore_double(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(this, CMAP_DOUBLE);
-  return init(this, &initargs, val);
+  CMAP_MEM_ALLOC_PTR(d, CMAP_DOUBLE);
+  return cmap_double_init(d, &initargs, val);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_DOUBLE_PUBLIC cmap_double_public =
-{
-  create, init, delete,
-  get,
-  set
-};

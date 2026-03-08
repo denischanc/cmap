@@ -70,11 +70,11 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
   if(tmp != NULL)
   {
     if(CMAP_NATURE(tmp) == CMAP_INT_NATURE)
-      timeout_ms = CMAP_CALL((CMAP_INT *)tmp, get);
+      timeout_ms = cmap_int_get((CMAP_INT *)tmp);
 
     tmp = CMAP_LIST_SHIFT(args);
     if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_INT_NATURE))
-      repeat_ms = CMAP_CALL((CMAP_INT *)tmp, get);
+      repeat_ms = cmap_int_get((CMAP_INT *)tmp);
   }
 
   CMAP_ENV * env = cmap_proc_ctx_env(proc_ctx);
@@ -88,8 +88,8 @@ CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
 
   if(repeat_ms > 0)
   {
-    CMAP_PTR * internal_ = cmap_ptr_public.create(0, NULL, proc_ctx);
-    *(CMAP_CALL(internal_, ref)) = internal;
+    CMAP_PTR * internal_ = cmap_ptr_create(0, NULL, proc_ctx);
+    *cmap_ptr_ref(internal_) = internal;
     CMAP_SET(map, CMAP_INTERNAL_NAME, internal_);
   }
 
@@ -109,7 +109,7 @@ CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   {
     CMAP_SET(map, CMAP_INTERNAL_NAME, NULL);
 
-    cmap_loop_timer_stop(CMAP_CALL(internal, get));
+    cmap_loop_timer_stop(cmap_ptr_get(internal));
   }
 
   return map;

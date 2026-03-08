@@ -33,7 +33,7 @@ static void nested(CMAP_LIFECYCLE * this, CMAP_SLIST_LC_PTR * list)
     cmap_slist_map_apply(this_list, nested_apply, list);
   }
 
-  cmap_map_public.nested(this, list);
+  cmap_map_nested(this, list);
 }
 
 /*******************************************************************************
@@ -195,13 +195,13 @@ static void delete(CMAP_LIFECYCLE * this)
   if(!CMAP_IS_GHOST(this)) cmap_slist_map_apply(this_list, delete_apply, this);
   cmap_slist_map_delete(this_list);
 
-  cmap_map_public.delete(this);
+  cmap_map_delete(this);
 }
 
 static CMAP_LIST * init(CMAP_LIST * this, CMAP_INITARGS * initargs,
   int chunk_size)
 {
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)this, initargs);
 
   CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
   lc -> delete = delete;

@@ -14,8 +14,8 @@ static char op_##name(CMAP_MAP ** map_dst, CMAP_MAP * map_l, CMAP_MAP * map_r, \
     (CMAP_NATURE(map_l) != CMAP_INT_NATURE) || \
     (CMAP_NATURE(map_r) != CMAP_INT_NATURE)) return (1 == 0); \
  \
-  int64_t i = CMAP_CALL((CMAP_INT *)map_l, get) OP \
-    CMAP_CALL((CMAP_INT *)map_r, get); \
+  int64_t i = cmap_int_get((CMAP_INT *)map_l) OP \
+    cmap_int_get((CMAP_INT *)map_r); \
   *map_dst = (CMAP_MAP *)CMAP_INT(i, proc_ctx); \
   return (1 == 1); \
 } \
@@ -34,9 +34,9 @@ static char op_##name(CMAP_MAP * map_dst, CMAP_MAP * map_src) \
     (CMAP_NATURE(map_dst) != CMAP_INT_NATURE) || \
     (CMAP_NATURE(map_src) != CMAP_INT_NATURE)) return (1 == 0); \
  \
-  int64_t i = CMAP_CALL((CMAP_INT *)map_dst, get); \
-  i OP CMAP_CALL((CMAP_INT *)map_src, get); \
-  CMAP_CALL_ARGS((CMAP_INT *)map_dst, set, i); \
+  int64_t i = cmap_int_get((CMAP_INT *)map_dst); \
+  i OP cmap_int_get((CMAP_INT *)map_src); \
+  cmap_int_set((CMAP_INT *)map_dst, i); \
   return (1 == 1); \
 } \
  \
@@ -52,9 +52,9 @@ static char op_##name(CMAP_MAP * map) \
 { \
   if((map == NULL) || (CMAP_NATURE(map) != CMAP_INT_NATURE)) return (1 == 0); \
  \
-  int64_t i = CMAP_CALL((CMAP_INT *)map, get); \
+  int64_t i = cmap_int_get((CMAP_INT *)map); \
   i OP; \
-  CMAP_CALL_ARGS((CMAP_INT *)map, set, i); \
+  cmap_int_set((CMAP_INT *)map, i); \
   return (1 == 1); \
 } \
  \

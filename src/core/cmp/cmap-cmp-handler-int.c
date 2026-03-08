@@ -12,8 +12,8 @@ static char cmp(int64_t * ret, CMAP_MAP * map_l, CMAP_MAP * map_r)
     (CMAP_NATURE(map_l) != CMAP_INT_NATURE) ||
     (CMAP_NATURE(map_r) != CMAP_INT_NATURE)) return (1 == 0);
 
-  int64_t int_l = CMAP_CALL((CMAP_INT *)map_l, get),
-    int_r = CMAP_CALL((CMAP_INT *)map_r, get);
+  int64_t int_l = cmap_int_get((CMAP_INT *)map_l),
+    int_r = cmap_int_get((CMAP_INT *)map_r);
   *ret = int_l - int_r;
   return (1 == 1);
 }

@@ -8,63 +8,38 @@
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct
-{
-  int64_t val;
-} INTERNAL;
-
-/*******************************************************************************
-*******************************************************************************/
-
 const char * CMAP_INT_NATURE = "int";
 
 /*******************************************************************************
 *******************************************************************************/
 
-static int64_t get(CMAP_INT * this)
+int64_t cmap_int_get(CMAP_INT * i)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  return internal -> val;
+  return i -> internal.val;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_INT * set(CMAP_INT * this, int64_t val)
+CMAP_INT * cmap_int_set(CMAP_INT * i, int64_t val)
 {
-  INTERNAL * internal = this -> internal;
-  internal -> val = val;
-  return this;
+  i -> internal.val = val;
+  return i;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_LIFECYCLE * this)
+CMAP_INT * cmap_int_init(CMAP_INT * i, CMAP_INITARGS * initargs, int64_t val)
 {
-  cmap_mem_free(((CMAP_INT *)this) -> internal);
+  cmap_map_init((CMAP_MAP *)i, initargs);
 
-  cmap_map_public.delete(this);
+  i -> internal.val = val;
+
+  return i;
 }
 
-static CMAP_INT * init(CMAP_INT * this, CMAP_INITARGS * initargs, int64_t val)
-{
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
-
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  lc -> delete = delete;
-
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
-  internal -> val = val;
-
-  this -> internal = internal;
-  this -> get = get;
-  this -> set = set;
-
-  return this;
-}
-
-static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
+CMAP_INT * cmap_int_create(int64_t val, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
   CMAP_PROTOTYPESTORE * ps = cmap_proc_ctx_prototypestore(proc_ctx);
@@ -72,15 +47,6 @@ static CMAP_INT * create(int64_t val, CMAP_PROC_CTX * proc_ctx)
   initargs.prototype = cmap_prototypestore_int(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(this, CMAP_INT);
-  return init(this, &initargs, val);
+  CMAP_MEM_ALLOC_PTR(i, CMAP_INT);
+  return cmap_int_init(i, &initargs, val);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_INT_PUBLIC cmap_int_public =
-{
-  create, init, delete,
-  get, set
-};

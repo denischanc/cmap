@@ -24,19 +24,24 @@ noinst_HEADERS = \
   cmap-core.h \
   cmap-double-define.h \
   cmap-double.h \
+  cmap-double-int.h \
   cmap-fn-define.h \
   cmap-fn.h \
   cmap-initargs.h \
   cmap-int-define.h \
   cmap-int.h \
+  cmap-int-int.h \
   cmap-lifecycle-define.h \
   cmap-lifecycle.h \
+  cmap-lifecycle-int.h \
   cmap-lifecycle-type.h \
   cmap-list-define.h \
   cmap-list.h \
   cmap-map-define.h \
   cmap-map.h \
+  cmap-map-int.h \
   cmap-ptr.h \
+  cmap-ptr-int.h \
   cmap-string-define.h \
   cmap-string.h
 

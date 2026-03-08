@@ -21,7 +21,7 @@ void cmap_op_handler_string_append(CMAP_STRING * dst, CMAP_MAP * src)
   else if(nature == CMAP_INT_NATURE)
   {
     char buffer[22]; /* 64 bits => 70 / 10 * 3 + 1 ("\n") = 22 */
-    int64_t i = CMAP_CALL((CMAP_INT *)src, get);
+    int64_t i = cmap_int_get((CMAP_INT *)src);
     snprintf(buffer, sizeof(buffer), "%ld", i);
     CMAP_CALL_ARGS(dst, append, buffer);
   }

@@ -108,8 +108,7 @@ static void copy_apply(const char * key, CMAP_MAP ** val, void * data)
 
 CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src)
 {
-  if((dst != NULL) && (src != NULL))
-    CMAP_CALL_ARGS(src, apply, copy_apply, dst);
+  if((dst != NULL) && (src != NULL)) cmap_map_apply(src, copy_apply, dst);
   return dst;
 }
 

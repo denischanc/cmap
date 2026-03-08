@@ -9,85 +9,65 @@
 /*******************************************************************************
 *******************************************************************************/
 
-typedef struct
-{
-  void * ptr;
-  char allocated_by_this;
-
-  CMAP_PTR_DELETE delete_ptr;
-} INTERNAL;
-
-/*******************************************************************************
-*******************************************************************************/
-
 const char * CMAP_PTR_NATURE = "ptr";
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void * get(CMAP_PTR * this)
+void * cmap_ptr_get(CMAP_PTR * ptr)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  return internal -> ptr;
+  return ptr -> internal.ptr;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void ** ref(CMAP_PTR * this)
+void ** cmap_ptr_ref(CMAP_PTR * ptr)
 {
-  INTERNAL * internal = (INTERNAL *)this -> internal;
-  return &internal -> ptr;
+  return &ptr -> internal.ptr;
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete(CMAP_LIFECYCLE * this)
+void cmap_ptr_delete(CMAP_LIFECYCLE * lc)
 {
-  INTERNAL * internal = ((CMAP_PTR *)this) -> internal;
+  CMAP_PTR * ptr = (CMAP_PTR *)lc;
 
-  void * ptr = internal -> ptr;
-  if(ptr != NULL)
+  void * ptr_ = ptr -> internal.ptr;
+  if(ptr_ != NULL)
   {
-    if(internal -> delete_ptr != NULL) internal -> delete_ptr(ptr);
-    if(internal -> allocated_by_this) cmap_mem_free(ptr);
+    if(ptr -> internal.delete_ptr != NULL) ptr -> internal.delete_ptr(ptr_);
+    if(ptr -> internal.allocated_by_this) cmap_mem_free(ptr_);
   }
 
-  cmap_mem_free(internal);
-
-  cmap_map_public.delete(this);
+  cmap_map_delete(lc);
 }
 
-static CMAP_PTR * init(CMAP_PTR * this, CMAP_INITARGS * initargs, int size,
+CMAP_PTR * cmap_ptr_init(CMAP_PTR * ptr, CMAP_INITARGS * initargs, int size,
   CMAP_PTR_DELETE delete_ptr)
 {
-  cmap_map_public.init((CMAP_MAP *)this, initargs);
+  cmap_map_init((CMAP_MAP *)ptr, initargs);
 
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)this;
-  lc -> delete = delete;
+  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)ptr;
+  lc -> delete = cmap_ptr_delete;
 
-  CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   if(size == 0)
   {
-    internal -> allocated_by_this = CMAP_F;
-    internal -> ptr = NULL;
+    ptr -> internal.allocated_by_this = CMAP_F;
+    ptr -> internal.ptr = NULL;
   }
   else
   {
-    internal -> allocated_by_this = CMAP_T;
-    internal -> ptr = cmap_mem_alloc(size);
+    ptr -> internal.allocated_by_this = CMAP_T;
+    ptr -> internal.ptr = cmap_mem_alloc(size);
   }
-  internal -> delete_ptr = delete_ptr;
+  ptr -> internal.delete_ptr = delete_ptr;
 
-  this -> internal = internal;
-  this -> get = get;
-  this -> ref = ref;
-
-  return this;
+  return ptr;
 }
 
-static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
+CMAP_PTR * cmap_ptr_create(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_INITARGS initargs;
@@ -96,16 +76,6 @@ static CMAP_PTR * create(int size, CMAP_PTR_DELETE delete_ptr,
   initargs.prototype = cmap_prototypestore_ptr(ps, proc_ctx);
   initargs.proc_ctx = proc_ctx;
 
-  CMAP_MEM_ALLOC_PTR(this, CMAP_PTR);
-  return init(this, &initargs, size, delete_ptr);
+  CMAP_MEM_ALLOC_PTR(ptr, CMAP_PTR);
+  return cmap_ptr_init(ptr, &initargs, size, delete_ptr);
 }
-
-/*******************************************************************************
-*******************************************************************************/
-
-const CMAP_PTR_PUBLIC cmap_ptr_public =
-{
-  create, init, delete,
-  get,
-  ref
-};

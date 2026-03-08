@@ -6,9 +6,9 @@
 #include "cmap-map-type.h"
 #include "cmap-fn-type.h"
 #include "cmap-string-type.h"
-#include "cmap-int-type.h"
-#include "cmap-double-type.h"
-#include "cmap-ptr-type.h"
+#include "cmap-int-ext.h"
+#include "cmap-double-ext.h"
+#include "cmap-ptr-ext.h"
 #include "cmap-env-type.h"
 #include "cmap-define-ext.h"
 #include "cmap-mem-type.h"
@@ -31,19 +31,10 @@ CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
 const char * cmap_nature(CMAP_MAP * map);
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
-char cmap_is_key(CMAP_MAP * map, const char * key);
+char cmap_has(CMAP_MAP * map, const char * key);
 
 void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val);
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i);
-
-void cmap_int_set(CMAP_INT * i, int64_t val);
-int64_t cmap_int_get(CMAP_INT * i);
-
-void cmap_double_set(CMAP_DOUBLE * d, double val);
-double cmap_double_get(CMAP_DOUBLE * d);
-
-void * cmap_ptr_get(CMAP_PTR * ptr);
-void ** cmap_ptr_ref(CMAP_PTR * ptr);
 
 const char * cmap_string_val(CMAP_STRING * string);
 

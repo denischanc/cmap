@@ -100,8 +100,8 @@ void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
   if(rw -> deletion) delete_if_zombie(rw, lc);
   else
   {
-    if(!CMAP_CALL(lc, is_watched)) cmap_sset_lc_add_force(&rw -> refs, lc);
-    CMAP_CALL_ARGS(lc, watched, CMAP_T);
+    if(!cmap_lifecycle_is_watched(lc)) cmap_sset_lc_add_force(&rw -> refs, lc);
+    cmap_lifecycle_watched(lc, CMAP_T);
   }
 }
 
@@ -151,10 +151,10 @@ static REF_EXT * upd_all_ref_exts(ZOMBIE_DATA * data)
   if(data -> ret) return ref_ext_cur;
   else
   {
-    if((data -> cur != data -> org) && CMAP_CALL(data -> cur, is_watched))
+    if((data -> cur != data -> org) && cmap_lifecycle_is_watched(data -> cur))
     {
       cmap_refswatcher_rm(data -> rw, data -> cur);
-      CMAP_CALL_ARGS(data -> cur, watched, CMAP_F);
+      cmap_lifecycle_watched(data -> cur, CMAP_F);
     }
     return NULL;
   }
@@ -196,7 +196,7 @@ static void check_way_ref_exts_apply(REF_EXT ** ref_ext, void * data)
   {
     CMAP_LIFECYCLE * lc = (*ref_ext) -> lc;
     CMAP_SLIST_LC * wrappers = (*ref_ext) -> wrappers;
-    int nb_refs = CMAP_CALL(lc, nb_refs),
+    int nb_refs = cmap_lifecycle_nb_refs(lc),
       nb_wrappers = cmap_slist_lc_size(wrappers);
 
     if(nb_refs > nb_wrappers) *ret = CMAP_F;
@@ -297,9 +297,9 @@ static char watch_ref(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE ** ref,
   CMAP_LIFECYCLE * ref_ = *ref;
 
   uint64_t now = cmap_util_time_us();
-  if((CMAP_CALL(ref_, watch_time_us) < now) || deletion)
+  if((cmap_lifecycle_watch_time_us(ref_) < now) || deletion)
   {
-    CMAP_CALL_ARGS(ref_, watched, CMAP_F);
+    cmap_lifecycle_watched(ref_, CMAP_F);
     delete_if_zombie(rw, ref_);
     return CMAP_T;
   }

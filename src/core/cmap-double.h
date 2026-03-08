@@ -1,32 +1,20 @@
 #ifndef __CMAP_DOUBLE_H__
 #define __CMAP_DOUBLE_H__
 
-#include "cmap-double-type.h"
 #include "cmap-double-define.h"
 #include "cmap-double-ext.h"
+#include "cmap-double-int.h"
 #include "cmap-map.h"
 
 struct CMAP_DOUBLE
 {
   CMAP_MAP super;
 
-  void * internal;
-
-  double (*get)(CMAP_DOUBLE * this);
-  CMAP_DOUBLE * (*set)(CMAP_DOUBLE * this, double val);
+  CMAP_DOUBLE_INTERNAL internal;
 };
 
-typedef struct
-{
-  CMAP_DOUBLE * (*create)(double val, CMAP_PROC_CTX * proc_ctx);
-  CMAP_DOUBLE * (*init)(CMAP_DOUBLE * double_, CMAP_INITARGS * initargs,
-    double val);
-  void (*delete)(CMAP_LIFECYCLE * this);
-
-  double (*get)(CMAP_DOUBLE * this);
-  CMAP_DOUBLE * (*set)(CMAP_DOUBLE * this, double val);
-} CMAP_DOUBLE_PUBLIC;
-
-extern const CMAP_DOUBLE_PUBLIC cmap_double_public;
+CMAP_DOUBLE * cmap_double_init(CMAP_DOUBLE * d, CMAP_INITARGS * initargs,
+  double val);
+CMAP_DOUBLE * cmap_double_create(double val, CMAP_PROC_CTX * proc_ctx);
 
 #endif

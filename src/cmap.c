@@ -77,7 +77,7 @@ CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx)
 CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_ptr_public.create(size, delete_ptr, proc_ctx);
+  return cmap_ptr_create(size, delete_ptr, proc_ctx);
 }
 
 /*******************************************************************************
@@ -99,9 +99,9 @@ CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key)
   return CMAP_GET(map, key);
 }
 
-char cmap_is_key(CMAP_MAP * map, const char * key)
+char cmap_has(CMAP_MAP * map, const char * key)
 {
-  return CMAP_CALL_ARGS(map, is_key, key);
+  return cmap_map_has(map, key);
 }
 
 /*******************************************************************************
@@ -115,45 +115,6 @@ void cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val)
 CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 {
   return CMAP_LIST_GET(list, i);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-void cmap_int_set(CMAP_INT * i, int64_t val)
-{
-  CMAP_CALL_ARGS(i, set, val);
-}
-
-int64_t cmap_int_get(CMAP_INT * i)
-{
-  return CMAP_CALL(i, get);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-void cmap_double_set(CMAP_DOUBLE * d, double val)
-{
-  CMAP_CALL_ARGS(d, set, val);
-}
-
-double cmap_double_get(CMAP_DOUBLE * d)
-{
-  return CMAP_CALL(d, get);
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-void * cmap_ptr_get(CMAP_PTR * ptr)
-{
-  return CMAP_CALL(ptr, get);
-}
-
-void ** cmap_ptr_ref(CMAP_PTR * ptr)
-{
-  return CMAP_CALL(ptr, ref);
 }
 
 /*******************************************************************************
@@ -180,7 +141,7 @@ void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val)
   const char * what_nature = CMAP_NATURE(what);
   if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
   {
-    int64_t i = CMAP_CALL((CMAP_INT *)what, get);
+    int64_t i = cmap_int_get((CMAP_INT *)what);
     CMAP_LIST_SET((CMAP_LIST *)map, i, val);
   }
   else if(what_nature == CMAP_STRING_NATURE)
@@ -195,7 +156,7 @@ CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
   const char * what_nature = CMAP_NATURE(what);
   if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
   {
-    int64_t i = CMAP_CALL((CMAP_INT *)what, get);
+    int64_t i = cmap_int_get((CMAP_INT *)what);
     return CMAP_LIST_GET((CMAP_LIST *)map, i);
   }
   else if(what_nature == CMAP_STRING_NATURE)

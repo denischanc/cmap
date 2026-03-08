@@ -146,7 +146,7 @@ static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   {
     CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args);
     CMAP_MAP * e = CMAP_LIST_SHIFT(args);
-    CMAP_LIST_ADD((CMAP_LIST *)map, CMAP_CALL(i, get), e);
+    CMAP_LIST_ADD((CMAP_LIST *)map, cmap_int_get(i), e);
   }
   return map;
 }
@@ -160,7 +160,7 @@ static CMAP_MAP * rm_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   if(CMAP_NATURE(map) == CMAP_LIST_NATURE)
   {
     CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args);
-    return CMAP_LIST_RM((CMAP_LIST *)map, CMAP_CALL(i, get));
+    return CMAP_LIST_RM((CMAP_LIST *)map, cmap_int_get(i));
   }
   return NULL;
 }
