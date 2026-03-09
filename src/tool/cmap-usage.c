@@ -100,15 +100,19 @@ int cmap_usage(const char * desc, int * config_ids)
   cmap_console_error("%susage%s: %s ",
     CMAP_ESC_BBLUE, CMAP_ESC_RST, cmap_tool_name);
 
-  cmap_console_error(desc, "(options)");
-  cmap_console_error("\n%soptions%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
-
-  int id = CMAP_CLI_ID_HELP;
-  CMAP_CLI_LOOP(NO_ARG_USAGE, ARG_USAGE, ARG_USAGE)
-  while((id = *config_ids) != 0)
+  if(strstr(desc, "%s") == NULL) cmap_console_error("%s\n", desc);
+  else
   {
+    cmap_console_error(desc, "(options)");
+    cmap_console_error("\n%soptions%s:\n", CMAP_ESC_BBLUE, CMAP_ESC_RST);
+
+    int id = CMAP_CLI_ID_HELP;
     CMAP_CLI_LOOP(NO_ARG_USAGE, ARG_USAGE, ARG_USAGE)
-    config_ids++;
+    while((id = *config_ids) != 0)
+    {
+      CMAP_CLI_LOOP(NO_ARG_USAGE, ARG_USAGE, ARG_USAGE)
+      config_ids++;
+    }
   }
 
   return EXIT_FAILURE;

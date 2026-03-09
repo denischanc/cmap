@@ -26,7 +26,9 @@ const char * cmap_tool_name;
   macro(BUILD, build, "Build c/h file from cmap file") \
   macro(BUILD_MAIN, build_main, \
     "Build c file with main function to call kernel") \
-  macro(PRJ, prj, "Create examples projects") \
+  macro(PRJ_SIMPLE, prj, "Create simple example project") \
+  macro(PRJ_MULTIPLE, prj, "Create multiple example project") \
+  macro(PRJ_MODULE, prj, "Create module example project") \
   macro(COMPILE, compile, "Compile cmap file(s) to produce binary") \
   macro(COMPILE_MODULE, compile, "Compile cmap file(s) to produce module") \
   macro(EXEC, exec, "Execute cmap file(s)")

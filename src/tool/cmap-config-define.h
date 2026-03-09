@@ -11,7 +11,6 @@
   macro_bool(add_main, ADD_MAIN) \
   macro_bool(quiet, QUIET) \
   macro_string(include, INCLUDE, NULL) \
-  macro_bool(multiple, MULTIPLE) \
   macro_string(work_dir, WORK_DIR, ".cmap") \
   macro_strings(dependance, DEPENDANCE) \
   macro_bool(help, HELP) \

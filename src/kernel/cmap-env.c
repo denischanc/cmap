@@ -21,7 +21,8 @@ struct CMAP_ENV
 {
   CMAP_ENV_MAIN main;
 
-  int nb_jobs;
+  int nb_jobs, nb_daemons;
+  char state;
 
   CMAP_PROC_CTX * proc_ctx;
 
@@ -56,12 +57,9 @@ static void delete_cb(CMAP_LOOP_TIMER * timer)
   cmap_env_delete(timer -> data);
 }
 
-void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb)
+static void check_jobs_n_daemons(CMAP_ENV * env)
 {
-  int * nb_jobs = &env -> nb_jobs;
-  *nb_jobs += nb;
-
-  if(*nb_jobs <= 0)
+  if((env -> nb_jobs <= 0) && (env -> nb_daemons <= 0))
   {
     CMAP_REFSWATCHER * refswatcher = env -> refswatcher;
     if(refswatcher != NULL) cmap_refswatcher_stop(refswatcher);
@@ -70,6 +68,26 @@ void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb)
     timer -> data = env;
     cmap_loop_timer_start(timer, delete_cb, 0, 0, NULL);
   }
+}
+
+void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb)
+{
+  env -> nb_jobs += nb;
+  if(env -> nb_jobs <= 0) env -> state = CMAP_ENV_S_CLOSING;
+
+  check_jobs_n_daemons(env);
+}
+
+void cmap_env_nb_daemons_add(CMAP_ENV * env, int nb)
+{
+  env -> nb_daemons += nb;
+
+  check_jobs_n_daemons(env);
+}
+
+char cmap_env_state(CMAP_ENV * env)
+{
+  return env -> state;
 }
 
 /*******************************************************************************
@@ -194,6 +212,8 @@ CMAP_ENV * cmap_env_create()
   CMAP_MEM_ALLOC_PTR(env, CMAP_ENV);
   env -> main = NULL;
   env -> nb_jobs = 0;
+  env -> nb_daemons = 0;
+  env -> state = CMAP_ENV_S_ALIVE;
   env -> proc_ctx = NULL;
   env -> prototypestore = NULL;
   CMAP_POOL_LOOP(POOL_SET)

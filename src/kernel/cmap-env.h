@@ -8,12 +8,17 @@
 #include "cmap-prototypestore.h"
 #include "cmap-refswatcher.h"
 
+#define CMAP_ENV_S_ALIVE 0
+#define CMAP_ENV_S_CLOSING 1
+
 #define CMAP_ENV_POOL_DECL(NAME, name, type) \
   CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env);
 
 void cmap_env_set_main(CMAP_ENV * env, CMAP_ENV_MAIN main_);
 
 void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb);
+void cmap_env_nb_daemons_add(CMAP_ENV * env, int nb);
+char cmap_env_state(CMAP_ENV * env);
 
 void cmap_env_set_proc_ctx(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx);
 CMAP_PROC_CTX * cmap_env_proc_ctx(CMAP_ENV * env);

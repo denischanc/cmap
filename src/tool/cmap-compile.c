@@ -2,6 +2,7 @@
 #include "cmap-compile.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
@@ -70,7 +71,7 @@ typedef struct
 } BUILD_BUP;
 
 static BUILD_BUP build_bup(const char * cmap_path, char is_main,
-  char is_binary)
+  char is_exe)
 {
   BUILD_BUP ret;
   ret.add_main = cmap_config_is_add_main();
@@ -78,11 +79,11 @@ static BUILD_BUP build_bup(const char * cmap_path, char is_main,
   const char * fn_name_cur = cmap_config_fn();
   ret.fn_name = (fn_name_cur == NULL) ? NULL : strdup(fn_name_cur);
 
-  cmap_config_set_add_main(is_main && is_binary);
-  cmap_config_set_only_c(is_main && is_binary);
+  cmap_config_set_add_main(is_main && is_exe);
+  cmap_config_set_only_c(is_main && is_exe);
 
   if(is_main)
-    cmap_config_set_fn(is_binary ? "cmap_tool_main" : "cmap_module");
+    cmap_config_set_fn(is_exe ? "cmap_tool_main" : "cmap_module");
   else cmap_fn_name_to_config(cmap_path);
 
   return ret;
@@ -100,9 +101,9 @@ static void build_restore(BUILD_BUP bup)
 *******************************************************************************/
 
 static char build(char * cmap_path, char * root_path, char is_main,
-  char is_binary)
+  char is_exe)
 {
-  BUILD_BUP bup = build_bup(cmap_path, is_main, is_binary);
+  BUILD_BUP bup = build_bup(cmap_path, is_main, is_exe);
 
   char * argv[] = {CMAP_BUILD_MODULE_NAME, cmap_path, root_path};
   char ret = (cmap_build_main(3, argv) == EXIT_SUCCESS);
@@ -113,7 +114,7 @@ static char build(char * cmap_path, char * root_path, char is_main,
 }
 
 static char build_all(int argc, char ** argv, const char * work_dir,
-  char is_binary)
+  char is_exe)
 {
   char ret = (1 == 1);
 
@@ -127,7 +128,7 @@ static char build_all(int argc, char ** argv, const char * work_dir,
     cmap_config_add_dependance(c_path);
     build_add_dep_cflag(cmap_path);
 
-    ret = build(cmap_path, root_path, j == 0, is_binary);
+    ret = build(cmap_path, root_path, j == 0, is_exe);
 
     free(root_path);
     free(c_path);
@@ -166,7 +167,7 @@ static void ldflags_lib_apply(const char * lib, void * ldflags)
   cmap_string_append_args(ldflags, " -l%s", lib);
 }
 
-static char create_mk(const char * tgt, const char * work_dir, char is_binary)
+static char create_mk(const char * tgt, const char * work_dir, char is_exe)
 {
   char * deps = NULL, * cflags = strdup(""), * ldflags = strdup("");
   cmap_strings_apply(cmap_config_dependance(), deps_apply, &deps);
@@ -177,7 +178,7 @@ static char create_mk(const char * tgt, const char * work_dir, char is_binary)
   char * path_mk = NULL;
   cmap_string_append_args(&path_mk, "%s/%s.mk", work_dir, tgt);
 
-  const char * txt = is_binary ? CMAP_COMPILE_BIN_MK : CMAP_COMPILE_MODULE_MK;
+  const char * txt = is_exe ? CMAP_COMPILE_BIN_MK : CMAP_COMPILE_MODULE_MK;
   char ret = cmap_file_util_to_file(path_mk, txt, cflags, ldflags, tgt, deps);
 
   free(deps);
@@ -212,18 +213,15 @@ static char system_make(const char * tgt, const char * work_dir)
 /*******************************************************************************
 *******************************************************************************/
 
-#define DESC " [main cmap file] ([cmap file]...) %s"
-
 int cmap_compile_main(int argc, char * argv[])
 {
-  char is_binary = !strcmp(argv[0], CMAP_COMPILE_MODULE_NAME);
-
   if((argc < 2) || cmap_config_is_help())
   {
     int ids[] = {CMAP_CLI_ID_DEPENDANCE, CMAP_CLI_ID_HEADER_DIR,
       CMAP_CLI_ID_LIB_DIR, CMAP_CLI_ID_LIB, CMAP_CLI_ID_WORK_DIR, 0};
-    const char * desc = is_binary ? CMAP_COMPILE_MODULE_NAME DESC :
-      CMAP_COMPILE_MODULE_MODULE_NAME DESC;
+    char desc[100];
+    snprintf(desc, sizeof(desc), "%s [main cmap file] ([cmap file]...) %%s",
+      argv[0]);
     return cmap_usage(desc, ids);
   }
 
@@ -234,13 +232,15 @@ int cmap_compile_main(int argc, char * argv[])
     return EXIT_FAILURE;
   }
 
-  if(!build_all(argc - 1, argv + 1, work_dir, is_binary)) return EXIT_FAILURE;
+  char is_exe = !strcmp(argv[0], CMAP_COMPILE_MODULE_NAME);
+
+  if(!build_all(argc - 1, argv + 1, work_dir, is_exe)) return EXIT_FAILURE;
 
   char ret = (1 == 1);
 
   char * tgt = cmap_file_util_basename_no_ext(argv[1]);
-  if(!is_binary) cmap_string_append(&tgt, ".so");
-  if(!create_mk(tgt, work_dir, is_binary)) ret = (1 == 0);
+  if(!is_exe) cmap_string_append(&tgt, ".so");
+  if(!create_mk(tgt, work_dir, is_exe)) ret = (1 == 0);
   if(ret && !system_make(tgt, work_dir)) ret = (1 == 0);
   free(tgt);
 

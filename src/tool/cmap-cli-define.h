@@ -28,7 +28,6 @@
   macro_bool(ADD_MAIN, add_main, add-main, 'm', "Add main") \
   macro_bool(QUIET, quiet, quiet, 'q', "Be quiet") \
   macro_string(INCLUDE, include, include, 'n', "Include to add") \
-  macro_bool(MULTIPLE, multiple, multiple, 'p', "Multiple") \
   macro_string(WORK_DIR, work_dir, work-dir, 'W', "Working directory") \
   macro_strings(DEPENDANCE, dependance, dependance, 'd', "Add dependance") \
   macro_bool(HELP, help, help, 'h', "Display usage") \

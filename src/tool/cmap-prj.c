@@ -2,6 +2,7 @@
 #include "cmap-prj.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/stat.h>
 #include <string.h>
 #include <errno.h>
@@ -17,6 +18,10 @@
 #include "cmap-prj-multiple-random-fn.h.h"
 #include "cmap-prj-multiple-screen.cmap.h"
 #include "cmap-prj-multiple-snake.cmap.h"
+#include "cmap-prj-module-Makefile.h"
+#include "cmap-prj-module-watch-mem.cmap.h"
+#include "cmap-prj-module-watch-mem-fn.c.h"
+#include "cmap-prj-module-watch-mem-fn.h.h"
 #include "cmap-config.h"
 #include "cmap-cli.h"
 #include "cmap-usage.h"
@@ -77,15 +82,37 @@ static char build_files_multiple(const char * dir)
     NULL);
 }
 
+static char build_files_module(const char * dir)
+{
+  return build_files(dir,
+    "Makefile", CMAP_PRJ_MODULE_MAKEFILE,
+    "watch-mem.cmap", CMAP_PRJ_MODULE_WATCH_MEM_CMAP,
+    "watch-mem-fn.c", CMAP_PRJ_MODULE_WATCH_MEM_FN_C,
+    "watch-mem-fn.h", CMAP_PRJ_MODULE_WATCH_MEM_FN_H,
+    NULL);
+}
+
 /*******************************************************************************
 *******************************************************************************/
+
+#define PRJ_LOOP(macro) \
+  macro(SIMPLE, simple) \
+  macro(MULTIPLE, multiple) \
+  macro(MODULE, module)
+
+#define PRJ_BUILD(NAME, name) \
+  if(!strcmp(argv[0], CMAP_PRJ_##NAME##_MODULE_NAME)) \
+  { \
+    if(!build_files_##name(dir)) return EXIT_FAILURE; \
+  }
 
 int cmap_prj_main(int argc, char * argv[])
 {
   if((argc < 2) || cmap_config_is_help())
   {
-    int ids[] = {CMAP_CLI_ID_MULTIPLE, 0};
-    return cmap_usage(CMAP_PRJ_MODULE_NAME " [project directory] %s", ids);
+    char desc[50];
+    snprintf(desc, sizeof(desc), "%s [project directory]", argv[0]);
+    return cmap_usage(desc, NULL);
   }
 
   char * dir = argv[1];
@@ -95,13 +122,7 @@ int cmap_prj_main(int argc, char * argv[])
     return EXIT_FAILURE;
   }
 
-  if(cmap_config_is_multiple())
-  {
-    if(!build_files_multiple(dir)) return EXIT_FAILURE;
-  }
-  else
-  {
-    if(!build_files_simple(dir)) return EXIT_FAILURE;
-  }
+  PRJ_LOOP(PRJ_BUILD)
+
   return EXIT_SUCCESS;
 }

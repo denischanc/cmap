@@ -6,12 +6,14 @@
 
 }
 
-local job = function(run) {
+local job = function(run, onStop) {
   this.run = run;
+  if(onStop) { this.onStop = onStop; }
 };
 
 job.prototype = {
   scheduleMs: function()(cmap_scheduler_schedule_ms_fn),
+  daemonizeMs: function()(cmap_scheduler_daemonize_ms_fn),
   stop: function()(cmap_scheduler_stop_fn)
 };
 

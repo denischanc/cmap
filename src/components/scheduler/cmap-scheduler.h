@@ -7,6 +7,8 @@
 
 CMAP_MAP * cmap_scheduler_schedule_ms_fn(CMAP_PROC_CTX * proc_ctx,
   CMAP_MAP * map, CMAP_LIST * args);
+CMAP_MAP * cmap_scheduler_daemonize_ms_fn(CMAP_PROC_CTX * proc_ctx,
+  CMAP_MAP * map, CMAP_LIST * args);
 CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args);
 
