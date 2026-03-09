@@ -89,9 +89,10 @@ const char * cmap_nature(CMAP_MAP * map)
   else return CMAP_NATURE(map);
 }
 
-void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val)
+void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_SET(map, key, val);
+  CMAP_SET(map, key, val, proc_ctx);
 }
 
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key)
@@ -107,18 +108,19 @@ char cmap_has(CMAP_MAP * map, const char * key)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val)
+void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx)
 {
   const char * what_nature = CMAP_NATURE(what);
   if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
   {
     int64_t i = cmap_int_get((CMAP_INT *)what);
-    CMAP_LIST_SET((CMAP_LIST *)map, i, val);
+    CMAP_LIST_SET((CMAP_LIST *)map, i, val, proc_ctx);
   }
   else if(what_nature == CMAP_STRING_NATURE)
   {
     const char * key = cmap_string_val((CMAP_STRING *)what);
-    CMAP_SET(map, key, val);
+    CMAP_SET(map, key, val, proc_ctx);
   }
 }
 
@@ -141,9 +143,10 @@ CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src)
+CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_util_copy(dst, src);
+  return cmap_util_copy(dst, src, proc_ctx);
 }
 
 /*******************************************************************************
@@ -240,7 +243,7 @@ static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * ret = cmap_lnew(prototype, proc_ctx, args_list);
 
-  cmap_pool_list_ghost_release(pool, args_list);
+  cmap_pool_list_ghost_release(pool, args_list, proc_ctx);
 
   return ret;
 }
@@ -272,7 +275,7 @@ static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * ret = cmap_lfn_proc(fn, proc_ctx, map, args_list);
 
-  cmap_pool_list_ghost_release(pool, args_list);
+  cmap_pool_list_ghost_release(pool, args_list, proc_ctx);
 
   return ret;
 }
@@ -308,7 +311,7 @@ static CMAP_MAP * vproc(CMAP_MAP * map, const char * key,
 
   CMAP_MAP * ret = cmap_lproc(map, key, proc_ctx, args_list);
 
-  cmap_pool_list_ghost_release(pool, args_list);
+  cmap_pool_list_ghost_release(pool, args_list, proc_ctx);
 
   return ret;
 }

@@ -14,7 +14,7 @@ static CMAP_MAP * append_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
   CMAP_MAP * cur;
-  while((cur = CMAP_LIST_SHIFT(args)) != NULL)
+  while((cur = CMAP_LIST_SHIFT(args, proc_ctx)) != NULL)
     cmap_op_handler_string_append((CMAP_STRING *)map, cur);
   return map;
 }

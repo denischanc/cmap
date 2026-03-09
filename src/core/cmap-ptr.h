@@ -12,7 +12,7 @@ struct CMAP_PTR
   CMAP_PTR_INTERNAL internal;
 };
 
-void cmap_ptr_delete(CMAP_LIFECYCLE * lc);
+void cmap_ptr_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx);
 CMAP_PTR * cmap_ptr_init(CMAP_PTR * ptr, CMAP_INITARGS * initargs, int size,
   CMAP_PTR_DELETE delete_ptr);
 CMAP_PTR * cmap_ptr_create(int size, CMAP_PTR_DELETE delete_ptr,

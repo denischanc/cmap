@@ -6,7 +6,8 @@
 
 typedef struct CMAP_REFSWATCHER CMAP_REFSWATCHER;
 
-void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc);
+void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx);
 void cmap_refswatcher_rm(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc);
 
 void cmap_refswatcher_stop(CMAP_REFSWATCHER * rw);

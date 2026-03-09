@@ -20,13 +20,14 @@ const char * CMAP_PROTOTYPE_NAME = "prototype";
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_fn_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list)
+void cmap_fn_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP ** definitions = &((CMAP_FN *)lc) -> internal.definitions;
   if(*definitions != NULL)
     cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)definitions);
 
-  cmap_map_nested(lc, list);
+  cmap_map_nested(lc, list, proc_ctx);
 }
 
 /*******************************************************************************
@@ -52,7 +53,7 @@ CMAP_MAP * cmap_fn_process(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 
   CMAP_MAP * definitions = cmap_proc_ctx_local_definitions(new_proc_ctx);
 
-  cmap_util_copy(definitions, fn -> internal.definitions);
+  cmap_util_copy(definitions, fn -> internal.definitions, proc_ctx);
 
   return cmap_proc_ctx_delete(new_proc_ctx,
     fn -> internal.process(new_proc_ctx, map, args));
@@ -78,12 +79,12 @@ CMAP_MAP * cmap_fn_new(CMAP_FN * fn, CMAP_LIST * args,
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_fn_delete(CMAP_LIFECYCLE * lc)
+void cmap_fn_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * definitions = ((CMAP_FN *)lc) -> internal.definitions;
-  if(definitions != NULL) CMAP_DEC_REFS(definitions);
+  if(definitions != NULL) CMAP_DEC_REFS(definitions, proc_ctx);
 
-  cmap_map_delete(lc);
+  cmap_map_delete(lc, proc_ctx);
 }
 
 CMAP_FN * cmap_fn_init(CMAP_FN * fn, CMAP_INITARGS * initargs,

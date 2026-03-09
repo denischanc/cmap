@@ -13,7 +13,7 @@
 static void test(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * tmp = cmap_map(proc_ctx);
-  CMAP_DELETE((CMAP_LIFECYCLE *)tmp);
+  CMAP_CALL_ARGS((CMAP_LIFECYCLE *)tmp, delete, proc_ctx);
   cmap_mem_free(tmp);
 }
 

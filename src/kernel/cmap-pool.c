@@ -25,19 +25,22 @@ struct CMAP_POOL_##NAME \
 /****************************************************************************/ \
 /****************************************************************************/ \
  \
-type cmap_pool_##name##_take(CMAP_POOL_##NAME * pool, CMAP_PROC_CTX * proc_ctx) \
+type cmap_pool_##name##_take(CMAP_POOL_##NAME * pool, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
   CMAP_LIST * availables = pool -> availables; \
-  if(cmap_list_size(availables) > 0) return (type)CMAP_LIST_POP(availables); \
+  if(cmap_list_size(availables) > 0) \
+    return (type)CMAP_LIST_POP(availables, proc_ctx); \
   else return cmap_pool_handler_##name##_create(proc_ctx); \
 } \
  \
-void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e) \
+void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
   CMAP_LIST * availables = pool -> availables; \
   if(cmap_list_size(availables) < pool -> size) \
   { \
-    cmap_pool_handler_##name##_clean(e); \
+    cmap_pool_handler_##name##_clean(e, proc_ctx); \
     CMAP_LIST_PUSH(availables, e); \
   } \
 } \
@@ -45,9 +48,10 @@ void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e) \
 /****************************************************************************/ \
 /****************************************************************************/ \
  \
-void cmap_pool_##name##_delete(CMAP_POOL_##NAME * pool) \
+void cmap_pool_##name##_delete(CMAP_POOL_##NAME * pool, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
-  CMAP_DEC_REFS(pool -> availables); \
+  CMAP_DEC_REFS(pool -> availables, proc_ctx); \
  \
   cmap_mem_free(pool); \
 } \

@@ -50,7 +50,7 @@ void cmap_module_load_from_config(CMAP_PROC_CTX * proc_ctx)
 
   CMAP_LIST * modules_ = cmap_util_split(proc_ctx, modules, ':');
   CMAP_STRING * module;
-  while((module = (CMAP_STRING *)CMAP_LIST_SHIFT(modules_)) != NULL)
+  while((module = (CMAP_STRING *)CMAP_LIST_SHIFT(modules_, proc_ctx)) != NULL)
   {
     char * path_so = cmap_string_val(module);
     if(path_so[0] != 0) cmap_module_load(path_so, proc_ctx);

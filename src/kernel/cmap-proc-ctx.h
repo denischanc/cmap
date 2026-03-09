@@ -22,6 +22,6 @@ void cmap_proc_ctx_local_refs_rm(CMAP_PROC_CTX * proc_ctx, CMAP_LIFECYCLE * lc);
 CMAP_PROC_CTX * cmap_proc_ctx_new(CMAP_PROC_CTX * proc_ctx);
 
 CMAP_MAP * cmap_proc_ctx_delete(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret);
-CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env);
+CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env, CMAP_PROC_CTX * cur);
 
 #endif

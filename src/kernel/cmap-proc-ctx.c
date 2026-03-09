@@ -31,20 +31,20 @@ CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx)
 
 CMAP_PROTOTYPESTORE * cmap_proc_ctx_prototypestore(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_env_prototypestore(cmap_proc_ctx_env(proc_ctx));
+  return cmap_env_prototypestore(proc_ctx -> env, proc_ctx);
 }
 
 #define POOL_IMPL(NAME, name, type) \
 CMAP_POOL_##NAME * cmap_proc_ctx_pool_##name(CMAP_PROC_CTX * proc_ctx) \
 { \
-  return cmap_env_pool_##name(cmap_proc_ctx_env(proc_ctx)); \
+  return cmap_env_pool_##name(proc_ctx -> env, proc_ctx); \
 }
 
 CMAP_POOL_LOOP(POOL_IMPL)
 
 CMAP_MAP * cmap_proc_ctx_global_env(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_env_global(cmap_proc_ctx_env(proc_ctx));
+  return cmap_env_global(proc_ctx -> env, proc_ctx);
 }
 
 /*******************************************************************************
@@ -79,7 +79,7 @@ void cmap_proc_ctx_local_refs_rm(CMAP_PROC_CTX * proc_ctx, CMAP_LIFECYCLE * lc)
 
 CMAP_PROC_CTX * cmap_proc_ctx_new(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_proc_ctx_create(cmap_proc_ctx_env(proc_ctx));
+  return cmap_proc_ctx_create(cmap_proc_ctx_env(proc_ctx), proc_ctx);
 }
 
 /*******************************************************************************
@@ -92,31 +92,26 @@ CMAP_MAP * cmap_proc_ctx_delete(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * ret)
   if(proc_ctx -> definitions != NULL)
   {
     CMAP_POOL_MAP_GHOST * pool = cmap_proc_ctx_pool_map_ghost(proc_ctx);
-    cmap_pool_map_ghost_release(pool, proc_ctx -> definitions);
+    cmap_pool_map_ghost_release(pool, proc_ctx -> definitions, proc_ctx);
   }
 
-  cmap_refsstore_delete(proc_ctx -> refs, ret);
+  cmap_refsstore_delete(proc_ctx -> refs, ret, proc_ctx);
 
-  cmap_env_set_proc_ctx(proc_ctx -> env, proc_ctx -> prev);
+  if(ret != NULL) cmap_lifecycle_store((CMAP_LIFECYCLE *)ret, proc_ctx -> prev);
+
   cmap_mem_free(proc_ctx);
-
-  if(ret != NULL) cmap_lifecycle_store((CMAP_LIFECYCLE *)ret);
 
   return ret;
 }
 
-CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env)
+CMAP_PROC_CTX * cmap_proc_ctx_create(CMAP_ENV * env, CMAP_PROC_CTX * cur)
 {
   CMAP_MEM_ALLOC_PTR(proc_ctx, CMAP_PROC_CTX);
-  CMAP_PROC_CTX * prev = cmap_env_proc_ctx(env);
-
   proc_ctx -> env = env;
   proc_ctx -> refs = cmap_refsstore_create(cmap_env_refswatcher(env));
   proc_ctx -> definitions = NULL;
-  proc_ctx -> level = (prev == NULL) ? 1 : 1 + prev -> level;
-  proc_ctx -> prev = prev;
-
-  cmap_env_set_proc_ctx(env, proc_ctx);
+  proc_ctx -> level = (cur == NULL) ? 1 : 1 + cur -> level;
+  proc_ctx -> prev = cur;
 
   cmap_log_debug("[%p][proc-ctx][%d] created", proc_ctx, proc_ctx -> level);
 

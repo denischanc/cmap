@@ -51,17 +51,18 @@ void cmap_refsstore_rm(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static char delete_ref(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
+static char delete_ref(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx)
 {
   int nb_refs = cmap_lifecycle_nb_refs(lc);
   if(nb_refs <= 0)
   {
-    CMAP_DELETE(lc);
+    CMAP_CALL_ARGS(lc, delete, proc_ctx);
     return CMAP_T;
   }
   else
   {
-    cmap_refswatcher_add(rs -> refswatcher, lc);
+    cmap_refswatcher_add(rs -> refswatcher, lc, proc_ctx);
     return CMAP_F;
   }
 }
@@ -69,7 +70,8 @@ static char delete_ref(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret)
+static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret,
+  CMAP_PROC_CTX * proc_ctx)
 {
   int nb_deleted = 0;
 
@@ -79,7 +81,7 @@ static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret)
     CMAP_LIFECYCLE * lc = cmap_sset_lc_rm(refs);
     char in_refs = cmap_lifecycle_in_refs(lc);
 
-    if(in_refs && (lc != ret) && delete_ref(rs, lc)) nb_deleted++;
+    if(in_refs && (lc != ret) && delete_ref(rs, lc, proc_ctx)) nb_deleted++;
   }
 
   cmap_log_debug("[%p][refsstore] deleted %d", rs, nb_deleted);
@@ -88,14 +90,15 @@ static void delete_refs(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * ret)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_refsstore_delete(CMAP_REFSSTORE * rs, CMAP_MAP * ret)
+void cmap_refsstore_delete(CMAP_REFSSTORE * rs, CMAP_MAP * ret,
+  CMAP_PROC_CTX * proc_ctx)
 {
   cmap_log_debug("[%p][refsstore] created %d", rs, rs -> nb_created);
 
 #ifdef CONSUMED_TIME
   cmap_consumedtime_start(&consumed_time);
 #endif
-  delete_refs(rs, (CMAP_LIFECYCLE *)ret);
+  delete_refs(rs, (CMAP_LIFECYCLE *)ret, proc_ctx);
 #ifdef CONSUMED_TIME
   cmap_consumedtime_stop(&consumed_time);
 #endif

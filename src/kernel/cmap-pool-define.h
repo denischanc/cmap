@@ -11,9 +11,11 @@ typedef struct CMAP_POOL_##NAME CMAP_POOL_##NAME; \
  \
 type cmap_pool_##name##_take(CMAP_POOL_##NAME * pool, \
   CMAP_PROC_CTX * proc_ctx); \
-void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e); \
+void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e, \
+  CMAP_PROC_CTX * proc_ctx); \
  \
-void cmap_pool_##name##_delete(CMAP_POOL_##NAME * pool); \
+void cmap_pool_##name##_delete(CMAP_POOL_##NAME * pool, \
+  CMAP_PROC_CTX * proc_ctx); \
 CMAP_POOL_##NAME * cmap_pool_##name##_create(int size, \
   CMAP_PROC_CTX * proc_ctx);
 

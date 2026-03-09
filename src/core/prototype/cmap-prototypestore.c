@@ -58,9 +58,10 @@ CMAP_PROTOTYPESTORE_LOOP(IMPL)
 *******************************************************************************/
 
 #define DEC_REFS(type) \
-  if(ps -> type##_ != NULL) CMAP_DEC_REFS(ps -> type##_);
+  if(ps -> type##_ != NULL) CMAP_DEC_REFS(ps -> type##_, proc_ctx);
 
-void cmap_prototypestore_delete(CMAP_PROTOTYPESTORE * ps)
+void cmap_prototypestore_delete(CMAP_PROTOTYPESTORE * ps,
+  CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PROTOTYPESTORE_LOOP(DEC_REFS)
 

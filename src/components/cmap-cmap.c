@@ -48,7 +48,7 @@ static CMAP_MAP * fatal_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 CMAP_MAP * cmap_cmap_create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * cmap = cmap_cmap_blt_create(proc_ctx);
-  CMAP_SET(cmap, "cli", cmap_cli_create(proc_ctx));
-  CMAP_SET(cmap, "fatal", cmap_fn(fatal_fn, proc_ctx));
+  CMAP_SET(cmap, "cli", cmap_cli_create(proc_ctx), proc_ctx);
+  CMAP_SET(cmap, "fatal", cmap_fn(fatal_fn, proc_ctx), proc_ctx);
   return cmap;
 }

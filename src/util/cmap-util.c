@@ -83,7 +83,7 @@ CMAP_MAP * cmap_util_vto_map(CMAP_PROC_CTX * proc_ctx, va_list key_maps)
   while((key = va_arg(key_maps, char *)) != NULL)
   {
     CMAP_MAP * map = va_arg(key_maps, CMAP_MAP *);
-    CMAP_SET(ret, key, map);
+    CMAP_SET(ret, key, map, proc_ctx);
   }
 
   return ret;
@@ -101,14 +101,17 @@ CMAP_MAP * cmap_util_to_map(CMAP_PROC_CTX * proc_ctx, ...)
 /*******************************************************************************
 *******************************************************************************/
 
-static void copy_apply(const char * key, CMAP_MAP ** val, void * data)
+static void copy_apply(const char * key, CMAP_MAP ** val, void * data,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_SET(data, key, *val);
+  CMAP_SET(data, key, *val, proc_ctx);
 }
 
-CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src)
+CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  if((dst != NULL) && (src != NULL)) cmap_map_apply(src, copy_apply, dst);
+  if((dst != NULL) && (src != NULL))
+    cmap_map_apply(src, copy_apply, dst, proc_ctx);
   return dst;
 }
 

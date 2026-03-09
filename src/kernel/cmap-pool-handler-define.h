@@ -11,6 +11,6 @@
 
 #define CMAP_POOL_HANDLER_DECL(NAME, name, type) \
   type cmap_pool_handler_##name##_create(CMAP_PROC_CTX * proc_ctx); \
-  void cmap_pool_handler_##name##_clean(type e);
+  void cmap_pool_handler_##name##_clean(type e, CMAP_PROC_CTX * proc_ctx);
 
 #endif

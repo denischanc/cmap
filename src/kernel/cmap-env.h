@@ -12,7 +12,8 @@
 #define CMAP_ENV_S_CLOSING 1
 
 #define CMAP_ENV_POOL_DECL(NAME, name, type) \
-  CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env);
+  CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env, \
+    CMAP_PROC_CTX * proc_ctx);
 
 void cmap_env_set_main(CMAP_ENV * env, CMAP_ENV_MAIN main_);
 
@@ -20,14 +21,12 @@ void cmap_env_nb_jobs_add(CMAP_ENV * env, int nb);
 void cmap_env_nb_daemons_add(CMAP_ENV * env, int nb);
 char cmap_env_state(CMAP_ENV * env);
 
-void cmap_env_set_proc_ctx(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx);
-CMAP_PROC_CTX * cmap_env_proc_ctx(CMAP_ENV * env);
-
-CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env);
+CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env,
+  CMAP_PROC_CTX * proc_ctx);
 
 CMAP_POOL_LOOP(CMAP_ENV_POOL_DECL)
 
-CMAP_MAP * cmap_env_global(CMAP_ENV * env);
+CMAP_MAP * cmap_env_global(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx);
 
 CMAP_REFSWATCHER * cmap_env_refswatcher(CMAP_ENV * env);
 

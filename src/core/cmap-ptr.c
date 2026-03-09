@@ -30,7 +30,7 @@ void ** cmap_ptr_ref(CMAP_PTR * ptr)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_ptr_delete(CMAP_LIFECYCLE * lc)
+void cmap_ptr_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_PTR * ptr = (CMAP_PTR *)lc;
 
@@ -41,7 +41,7 @@ void cmap_ptr_delete(CMAP_LIFECYCLE * lc)
     if(ptr -> internal.allocated_by_this) cmap_mem_free(ptr_);
   }
 
-  cmap_map_delete(lc);
+  cmap_map_delete(lc, proc_ctx);
 }
 
 CMAP_PTR * cmap_ptr_init(CMAP_PTR * ptr, CMAP_INITARGS * initargs, int size,

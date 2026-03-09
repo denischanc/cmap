@@ -31,8 +31,8 @@ typedef struct
 
 static void delete(INTERNAL * internal)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env);
-  CMAP_DEC_REFS(internal -> job);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env, NULL);
+  CMAP_DEC_REFS(internal -> job, proc_ctx);
   cmap_proc_ctx_delete(proc_ctx, NULL);
 
   cmap_mem_free(internal);
@@ -57,7 +57,7 @@ static void delete_daemon(CMAP_LOOP_TIMER * timer)
 
 static void do_proc(INTERNAL * internal, const char * name)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(internal -> env, NULL);
   cmap_proc(internal -> job, name, proc_ctx, NULL);
   cmap_proc_ctx_delete(proc_ctx, NULL);
 }
@@ -89,13 +89,13 @@ static CMAP_MAP * do_start(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
   uint64_t timeout_ms = 0, repeat_ms = 0;
 
-  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
+  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args, proc_ctx);
   if(tmp != NULL)
   {
     if(CMAP_NATURE(tmp) == CMAP_INT_NATURE)
       timeout_ms = cmap_int_get((CMAP_INT *)tmp);
 
-    tmp = CMAP_LIST_SHIFT(args);
+    tmp = CMAP_LIST_SHIFT(args, proc_ctx);
     if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_INT_NATURE))
       repeat_ms = cmap_int_get((CMAP_INT *)tmp);
   }
@@ -119,7 +119,7 @@ static CMAP_MAP * do_start(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
     {
       CMAP_PTR * internal_ = cmap_ptr_create(0, NULL, proc_ctx);
       *cmap_ptr_ref(internal_) = internal;
-      CMAP_SET(map, CMAP_INTERNAL_NAME, internal_);
+      CMAP_SET(map, CMAP_INTERNAL_NAME, internal_, proc_ctx);
     }
   }
 
@@ -153,7 +153,7 @@ CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_PTR * internal = (CMAP_PTR *)CMAP_GET(map, CMAP_INTERNAL_NAME);
   if(internal != NULL)
   {
-    CMAP_SET(map, CMAP_INTERNAL_NAME, NULL);
+    CMAP_SET(map, CMAP_INTERNAL_NAME, NULL, proc_ctx);
 
     cmap_loop_timer_stop(cmap_ptr_get(internal));
   }

@@ -17,14 +17,14 @@ static CMAP_MAP * apply_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * list = (CMAP_LIST *)map;
 
   CMAP_PROTOTYPE_UTIL_MAP_FN map_fn = {};
-  if(cmap_prototype_util_args_to_map_fn(args, &map_fn))
+  if(cmap_prototype_util_args_to_map_fn(args, &map_fn, proc_ctx))
   {
     CMAP_LIST * args_list_i = CMAP_LIST(0, proc_ctx);
 
     int size = cmap_list_size(list), i;
     for(i = 0; i < size; i++)
     {
-      cmap_list_clean(args_list_i);
+      cmap_list_clean(args_list_i, proc_ctx);
       CMAP_LIST_PUSH(args_list_i, CMAP_LIST_GET(list, i));
       CMAP_FN_PROC(map_fn.fn, proc_ctx, map_fn.map, args_list_i);
     }
@@ -41,7 +41,7 @@ static CMAP_MAP * add_all_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 {
   CMAP_LIST * list = (CMAP_LIST *)map;
 
-  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
+  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args, proc_ctx);
   if((tmp != NULL) && (CMAP_NATURE(tmp) == CMAP_LIST_NATURE))
   {
     CMAP_LIST * list2 = (CMAP_LIST *)tmp;
@@ -72,7 +72,7 @@ static CMAP_MAP * push_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * list = (CMAP_LIST *)map;
 
   CMAP_MAP * e;
-  while((e = CMAP_LIST_SHIFT(args)) != NULL) CMAP_LIST_PUSH(list, e);
+  while((e = CMAP_LIST_SHIFT(args, proc_ctx)) != NULL) CMAP_LIST_PUSH(list, e);
 
   return map;
 }
@@ -83,7 +83,7 @@ static CMAP_MAP * push_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * pop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  return CMAP_LIST_POP((CMAP_LIST *)map);
+  return CMAP_LIST_POP((CMAP_LIST *)map, proc_ctx);
 }
 
 /*******************************************************************************
@@ -95,7 +95,8 @@ static CMAP_MAP * unshift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * list = (CMAP_LIST *)map;
 
   CMAP_MAP * e;
-  while((e = CMAP_LIST_SHIFT(args)) != NULL) CMAP_LIST_UNSHIFT(list, e);
+  while((e = CMAP_LIST_SHIFT(args, proc_ctx)) != NULL)
+    CMAP_LIST_UNSHIFT(list, e);
 
   return map;
 }
@@ -106,7 +107,7 @@ static CMAP_MAP * unshift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * shift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  return CMAP_LIST_SHIFT((CMAP_LIST *)map);
+  return CMAP_LIST_SHIFT((CMAP_LIST *)map, proc_ctx);
 }
 
 /*******************************************************************************
@@ -115,8 +116,8 @@ static CMAP_MAP * shift_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args);
-  CMAP_MAP * e = CMAP_LIST_SHIFT(args);
+  CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args, proc_ctx);
+  CMAP_MAP * e = CMAP_LIST_SHIFT(args, proc_ctx);
   CMAP_LIST_ADD((CMAP_LIST *)map, cmap_int_get(i), e);
 
   return map;
@@ -128,8 +129,8 @@ static CMAP_MAP * add_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 static CMAP_MAP * rm_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args);
-  return CMAP_LIST_RM((CMAP_LIST *)map, cmap_int_get(i));
+  CMAP_INT * i = (CMAP_INT *)CMAP_LIST_SHIFT(args, proc_ctx);
+  return CMAP_LIST_RM((CMAP_LIST *)map, cmap_int_get(i), proc_ctx);
 }
 
 /*******************************************************************************

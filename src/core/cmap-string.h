@@ -19,7 +19,7 @@ void cmap_string_append_sub(CMAP_STRING * string, const char * val,
 
 void cmap_string_clean(CMAP_STRING * string);
 
-void cmap_string_delete(CMAP_LIFECYCLE * lc);
+void cmap_string_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx);
 CMAP_STRING * cmap_string_init(CMAP_STRING * string, CMAP_INITARGS * initargs,
   const char * val, int size_inc);
 CMAP_STRING * cmap_string_create(const char * val, int size_inc,

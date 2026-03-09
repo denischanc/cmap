@@ -90,11 +90,11 @@ void cmap_string_clean(CMAP_STRING * string)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_string_delete(CMAP_LIFECYCLE * lc)
+void cmap_string_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   cmap_mem_free(((CMAP_STRING *)lc) -> internal.val);
 
-  cmap_map_delete(lc);
+  cmap_map_delete(lc, proc_ctx);
 }
 
 CMAP_STRING * cmap_string_init(CMAP_STRING * string, CMAP_INITARGS * initargs,

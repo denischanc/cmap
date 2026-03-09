@@ -13,11 +13,11 @@
 *******************************************************************************/
 
 char cmap_prototype_util_args_to_map_fn(CMAP_LIST * args,
-  CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn)
+  CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn, CMAP_PROC_CTX * proc_ctx)
 {
   if(cmap_list_size(args) < 1) return CMAP_F;
 
-  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args);
+  CMAP_MAP * tmp = CMAP_LIST_SHIFT(args, proc_ctx);
   if(CMAP_NATURE(tmp) == CMAP_FN_NATURE)
   {
     map_fn -> fn = (CMAP_FN *)tmp;

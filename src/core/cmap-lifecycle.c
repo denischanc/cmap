@@ -46,9 +46,8 @@ static inline void set_ref_state(CMAP_LIFECYCLE * lc, const char * ref_state)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void do_store(CMAP_LIFECYCLE * lc)
+static inline void do_store(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_PROC_CTX * proc_ctx = cmap_env_proc_ctx(lc -> internal.env);
   cmap_proc_ctx_local_refs_add(proc_ctx, lc, CMAP_F);
   set_ref_state(lc, REF_STATE_STORED);
 }
@@ -78,11 +77,11 @@ int cmap_lifecycle_nb_refs(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_lifecycle_dec_refs(CMAP_LIFECYCLE * lc)
+void cmap_lifecycle_dec_refs(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   lc -> internal.nb_refs--;
 
-  if(lc -> internal.ref_state == REF_STATE_FREE) do_store(lc);
+  if(lc -> internal.ref_state == REF_STATE_FREE) do_store(lc, proc_ctx);
   else if(lc -> internal.ref_state == REF_STATE_HOOKED)
     set_ref_state(lc, REF_STATE_STORED);
 }
@@ -90,7 +89,8 @@ void cmap_lifecycle_dec_refs(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_lifecycle_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list)
+void cmap_lifecycle_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
+  CMAP_PROC_CTX * proc_ctx)
 {
 }
 
@@ -127,9 +127,9 @@ uint64_t cmap_lifecycle_watch_time_us(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_lifecycle_store(CMAP_LIFECYCLE * lc)
+void cmap_lifecycle_store(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  if(lc -> internal.ref_state == REF_STATE_FREE) do_store(lc);
+  if(lc -> internal.ref_state == REF_STATE_FREE) do_store(lc, proc_ctx);
 }
 
 /*******************************************************************************
@@ -147,33 +147,31 @@ char cmap_lifecycle_in_refs(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void rm_from_refswatcher(CMAP_LIFECYCLE * lc)
+static inline void rm_from_refswatcher(CMAP_LIFECYCLE * lc, CMAP_ENV * env)
 {
   if(lc -> internal.watch_time_us > 0)
   {
-    CMAP_REFSWATCHER * refswatcher = cmap_env_refswatcher(lc -> internal.env);
+    CMAP_REFSWATCHER * refswatcher = cmap_env_refswatcher(env);
     cmap_refswatcher_rm(refswatcher, lc);
   }
 }
 
-static inline void rm_from_local_refs(CMAP_LIFECYCLE * lc)
+static inline void rm_from_local_refs(CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx)
 {
   if(lc -> internal.ref_state != REF_STATE_FREE)
-  {
-    CMAP_PROC_CTX * proc_ctx = cmap_env_proc_ctx(lc -> internal.env);
     cmap_proc_ctx_local_refs_rm(proc_ctx, lc);
-  }
 }
 
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_lifecycle_delete(CMAP_LIFECYCLE * lc)
+void cmap_lifecycle_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
   cmap_log_debug("[%p][%s] deletion", lc, lc -> internal.nature);
 
-  rm_from_refswatcher(lc);
-  rm_from_local_refs(lc);
+  rm_from_refswatcher(lc, cmap_proc_ctx_env(proc_ctx));
+  rm_from_local_refs(lc, proc_ctx);
 
   cmap_mem_free(lc);
 }
@@ -185,7 +183,6 @@ CMAP_LIFECYCLE * cmap_lifecycle_init(CMAP_LIFECYCLE * lc,
 
   lc -> internal.nature = initargs -> nature;
   lc -> internal.nb_refs = 0;
-  lc -> internal.env = cmap_proc_ctx_env(proc_ctx);
   lc -> internal.watch_time_us = 0;
   lc -> internal.ref_state = REF_STATE_STORED;
 

@@ -107,7 +107,7 @@ static void function_def_apply(const char * string, void * data)
   char * var_name = cmap_parser_var_name(strdup(string));
 
   APPEND_INSTRUCTION_ARGS(
-    "cmap_set(%s, \"%s\", %s);", map_def, string, var_name);
+    "cmap_set(%s, \"%s\", %s, proc_ctx);", map_def, string, var_name);
 
   free(var_name);
 }

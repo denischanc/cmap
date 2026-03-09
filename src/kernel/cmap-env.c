@@ -24,8 +24,6 @@ struct CMAP_ENV
   int nb_jobs, nb_daemons;
   char state;
 
-  CMAP_PROC_CTX * proc_ctx;
-
   CMAP_PROTOTYPESTORE * prototypestore;
 
   CMAP_POOL_LOOP(POOL_VAR)
@@ -93,26 +91,11 @@ char cmap_env_state(CMAP_ENV * env)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_env_set_proc_ctx(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx)
-{
-  env -> proc_ctx = proc_ctx;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_PROC_CTX * cmap_env_proc_ctx(CMAP_ENV * env)
-{
-  return env -> proc_ctx;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env)
+CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env,
+  CMAP_PROC_CTX * proc_ctx)
 {
   if(env -> prototypestore == NULL)
-    env -> prototypestore = cmap_prototypestore_create(env -> proc_ctx);
+    env -> prototypestore = cmap_prototypestore_create(proc_ctx);
   return env -> prototypestore;
 }
 
@@ -120,10 +103,11 @@ CMAP_PROTOTYPESTORE * cmap_env_prototypestore(CMAP_ENV * env)
 *******************************************************************************/
 
 #define POOL_IMPL(NAME, name, type) \
-CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env) \
+CMAP_POOL_##NAME * cmap_env_pool_##name(CMAP_ENV * env, \
+  CMAP_PROC_CTX * proc_ctx) \
 { \
   if(env -> pool_##name == NULL) \
-    env -> pool_##name = cmap_pool_##name##_create(0, env -> proc_ctx); \
+    env -> pool_##name = cmap_pool_##name##_create(0, proc_ctx); \
   return env -> pool_##name; \
 }
 
@@ -132,11 +116,11 @@ CMAP_POOL_LOOP(POOL_IMPL)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_MAP * cmap_env_global(CMAP_ENV * env)
+CMAP_MAP * cmap_env_global(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx)
 {
   if(env -> global == NULL)
   {
-    env -> global = cmap_global_env_create(env -> proc_ctx);
+    env -> global = cmap_global_env_create(proc_ctx);
     CMAP_INC_REFS(env -> global);
   }
   return env -> global;
@@ -159,7 +143,7 @@ static void bootstrap(CMAP_LOOP_TIMER * timer)
 {
   CMAP_ENV * env = timer -> data;
 
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env, NULL);
 
   cmap_module_load_from_config(proc_ctx);
 
@@ -182,7 +166,8 @@ static inline void loop_init(CMAP_ENV * env)
 *******************************************************************************/
 
 #define POOL_DELETE(NAME, name, type) \
-  if(env -> pool_##name != NULL) cmap_pool_##name##_delete(env -> pool_##name);
+  if(env -> pool_##name != NULL) \
+    cmap_pool_##name##_delete(env -> pool_##name, proc_ctx);
 
 #define POOL_SET(NAME, name, type) env -> pool_##name = NULL;
 
@@ -193,12 +178,12 @@ void cmap_env_delete(CMAP_ENV * env)
   if(prev != NULL) prev -> next = next;
   else envs = next;
 
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(env, NULL);
 
   if(env -> prototypestore != NULL)
-    cmap_prototypestore_delete(env -> prototypestore);
+    cmap_prototypestore_delete(env -> prototypestore, proc_ctx);
   CMAP_POOL_LOOP(POOL_DELETE)
-  if(env -> global != NULL) CMAP_DEC_REFS(env -> global);
+  if(env -> global != NULL) CMAP_DEC_REFS(env -> global, proc_ctx);
 
   cmap_proc_ctx_delete(proc_ctx, NULL);
 
@@ -214,7 +199,6 @@ CMAP_ENV * cmap_env_create()
   env -> nb_jobs = 0;
   env -> nb_daemons = 0;
   env -> state = CMAP_ENV_S_ALIVE;
-  env -> proc_ctx = NULL;
   env -> prototypestore = NULL;
   CMAP_POOL_LOOP(POOL_SET)
   env -> global = NULL;

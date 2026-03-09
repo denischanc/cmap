@@ -61,7 +61,7 @@ void cmap_parser_var_set_local(char * name, char * map)
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
   APPEND_INSTRUCTION_ARGS(
-    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
+    "cmap_set(%s, \"%s\", %s, proc_ctx);", ADD_DEFINITIONS(), name, map_name);
   APPEND_LF();
 
   free(name);
@@ -77,7 +77,7 @@ char * cmap_parser_var_set_fn_arg_name(const char * name, int off)
   APPEND_VARIABLE_ARGS("CMAP_MAP * %s = cmap_list_get(%s, %d);",
     map_name, cmap_parser_this_args_args_map(), off);
   PREPEND_INSTRUCTION_ARGS(
-    "cmap_set(%s, \"%s\", %s);", ADD_DEFINITIONS(), name, map_name);
+    "cmap_set(%s, \"%s\", %s, proc_ctx);", ADD_DEFINITIONS(), name, map_name);
 
   return map_name;
 }
@@ -95,7 +95,8 @@ void cmap_parser_var_set_path(char * src, char * name, char * map)
 
   PREPEND_MAP_VAR(map_name);
   APPEND_INSTRUCTION_ARGS("%s = %s;", map_name, map);
-  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", dst, name, map_name);
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s, proc_ctx);",
+    dst, name, map_name);
   APPEND_LF();
 
   free(src);
@@ -115,7 +116,7 @@ void cmap_parser_var_set_global(char * name, char * map)
 void cmap_parser_var_set_sb_int(char * map, char * i, char * map_src)
 {
   APPEND_INSTRUCTION_ARGS(
-    "cmap_list_set((CMAP_LIST *)%s, %s, %s);", map, i, map_src);
+    "cmap_list_set((CMAP_LIST *)%s, %s, %s, proc_ctx);", map, i, map_src);
   APPEND_LF();
 
   free(map);
@@ -125,7 +126,8 @@ void cmap_parser_var_set_sb_int(char * map, char * i, char * map_src)
 
 void cmap_parser_var_set_sb_string(char * map, char * string, char * map_src)
 {
-  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s);", map, string, map_src);
+  APPEND_INSTRUCTION_ARGS("cmap_set(%s, \"%s\", %s, proc_ctx);",
+    map, string, map_src);
   APPEND_LF();
 
   free(map);
@@ -135,7 +137,8 @@ void cmap_parser_var_set_sb_string(char * map, char * string, char * map_src)
 
 void cmap_parser_var_set_sb_map(char * map, char * map_i, char * map_src)
 {
-  APPEND_INSTRUCTION_ARGS("cmap_set_w_map(%s, %s, %s);", map, map_i, map_src);
+  APPEND_INSTRUCTION_ARGS("cmap_set_w_map(%s, %s, %s, proc_ctx);",
+    map, map_i, map_src);
   APPEND_LF();
 
   free(map);

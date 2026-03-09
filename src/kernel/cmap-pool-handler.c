@@ -15,9 +15,9 @@ CMAP_LIST * cmap_pool_handler_list_ghost_create(CMAP_PROC_CTX * proc_ctx)
   return list;
 }
 
-void cmap_pool_handler_list_ghost_clean(CMAP_LIST * e)
+void cmap_pool_handler_list_ghost_clean(CMAP_LIST * e, CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_list_clean(e);
+  cmap_list_clean(e, proc_ctx);
 }
 
 /*******************************************************************************
@@ -30,7 +30,7 @@ CMAP_MAP * cmap_pool_handler_map_ghost_create(CMAP_PROC_CTX * proc_ctx)
   return map;
 }
 
-void cmap_pool_handler_map_ghost_clean(CMAP_MAP * e)
+void cmap_pool_handler_map_ghost_clean(CMAP_MAP * e, CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_map_clean(e);
+  cmap_map_clean(e, proc_ctx);
 }

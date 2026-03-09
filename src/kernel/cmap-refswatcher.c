@@ -83,6 +83,7 @@ typedef struct
   REF_EXT * ref_ext;
   CMAP_SSET_REF_EXT ** all_ref_exts, ** way_ref_exts;
   char ret;
+  CMAP_PROC_CTX * proc_ctx;
 } ZOMBIE_DATA;
 
 #ifdef CONSUMED_TIME
@@ -93,11 +94,13 @@ static CMAP_CONSUMEDTIME_US consumed_time_watch = {0};
 /*******************************************************************************
 *******************************************************************************/
 
-static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc);
+static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx);
 
-void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
+void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  if(rw -> deletion) delete_if_zombie(rw, lc);
+  if(rw -> deletion) delete_if_zombie(rw, lc, proc_ctx);
   else
   {
     if(!cmap_lifecycle_is_watched(lc)) cmap_sset_lc_add_force(&rw -> refs, lc);
@@ -142,7 +145,7 @@ static REF_EXT * upd_all_ref_exts(ZOMBIE_DATA * data)
 
   REF_EXT * ref_ext_cur = ref_ext_create(data -> cur);
   CMAP_SLIST_LC_PTR * nesteds = ref_ext_cur -> nesteds;
-  CMAP_CALL_ARGS(data -> cur, nested, nesteds);
+  CMAP_CALL_ARGS(data -> cur, nested, nesteds, data -> proc_ctx);
   cmap_sset_ref_ext_add_force(data -> all_ref_exts, ref_ext_cur);
 
   data -> ret = CMAP_F;
@@ -236,20 +239,29 @@ static void delete_zombie_apply_apply(CMAP_LIFECYCLE *** nested, void * data)
   if(cmap_sset_ref_ext_is(way_ref_exts, &ref_ext_nested)) *nested_ = NULL;
 }
 
+typedef struct
+{
+  CMAP_SSET_REF_EXT * way_ref_exts;
+  CMAP_PROC_CTX * proc_ctx;
+} DELETE_ZOMBIE_APPLY_DATA;
+
 static void delete_zombie_apply(REF_EXT ** ref_ext, void * data)
 {
-  CMAP_SSET_REF_EXT * way_ref_exts = data;
+  DELETE_ZOMBIE_APPLY_DATA * data_ = data;
 
   CMAP_SLIST_LC_PTR * nesteds = (*ref_ext) -> nesteds;
-  cmap_slist_lc_ptr_apply(nesteds, delete_zombie_apply_apply, way_ref_exts);
+  cmap_slist_lc_ptr_apply(nesteds, delete_zombie_apply_apply,
+    data_ -> way_ref_exts);
 
   CMAP_LIFECYCLE * lc = (*ref_ext) -> lc;
-  CMAP_DELETE(lc);
+  CMAP_CALL_ARGS(lc, delete, data_ -> proc_ctx);
 }
 
-static void delete_zombie(CMAP_SSET_REF_EXT * way_ref_exts)
+static void delete_zombie(CMAP_SSET_REF_EXT * way_ref_exts,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_sset_ref_ext_apply(way_ref_exts, delete_zombie_apply, way_ref_exts);
+  DELETE_ZOMBIE_APPLY_DATA data = {way_ref_exts, proc_ctx};
+  cmap_sset_ref_ext_apply(way_ref_exts, delete_zombie_apply, &data);
 }
 
 /*******************************************************************************
@@ -261,7 +273,8 @@ static void delete_all_ref_exts(CMAP_SSET_REF_EXT ** all_ref_exts)
     ref_ext_delete(cmap_sset_ref_ext_rm(all_ref_exts));
 }
 
-static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
+static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx)
 {
 #ifdef CONSUMED_TIME
   cmap_consumedtime_start(&consumed_time_delete);
@@ -269,12 +282,13 @@ static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
 
   CMAP_SSET_REF_EXT * all_ref_exts = NULL, * way_ref_exts = NULL;
 
-  ZOMBIE_DATA data = {rw, lc, lc, NULL, &all_ref_exts, &way_ref_exts, 0};
+  ZOMBIE_DATA data = {rw, lc, lc, NULL, &all_ref_exts, &way_ref_exts, 0,
+    proc_ctx};
   if(is_zombie_w_ref_exts(&data))
   {
     cmap_log_debug("[%p][%s] zombie deletion", lc, CMAP_NATURE(lc));
 
-    delete_zombie(way_ref_exts);
+    delete_zombie(way_ref_exts, proc_ctx);
 
     cmap_log_debug("[%p][refswatcher] %d zombie(s) deleted", rw,
       cmap_sset_ref_ext_size(way_ref_exts));
@@ -292,7 +306,7 @@ static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
 *******************************************************************************/
 
 static char watch_ref(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE ** ref,
-  char deletion)
+  char deletion, CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_LIFECYCLE * ref_ = *ref;
 
@@ -300,7 +314,7 @@ static char watch_ref(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE ** ref,
   if((cmap_lifecycle_watch_time_us(ref_) < now) || deletion)
   {
     cmap_lifecycle_watched(ref_, CMAP_F);
-    delete_if_zombie(rw, ref_);
+    delete_if_zombie(rw, ref_, proc_ctx);
     return CMAP_T;
   }
   return CMAP_F;
@@ -316,11 +330,11 @@ static void watch(CMAP_REFSWATCHER * rw)
   cmap_consumedtime_start(&consumed_time_watch);
 #endif
 
-  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(rw -> env);
+  CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(rw -> env, NULL);
 
   CMAP_ITERATOR_SSET_LC * it = cmap_iterator_sset_lc_create(&rw -> refs);
   while(cmap_iterator_sset_lc_has_next(it))
-    if(watch_ref(rw, cmap_iterator_sset_lc_next(it), rw -> deletion))
+    if(watch_ref(rw, cmap_iterator_sset_lc_next(it), rw -> deletion, proc_ctx))
       cmap_iterator_sset_lc_rm(it);
   cmap_iterator_sset_lc_delete(it);
 

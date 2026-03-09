@@ -19,7 +19,8 @@ CMAP_LIST * cmap_util_split(CMAP_PROC_CTX * proc_ctx, char * string, char sep);
 CMAP_MAP * cmap_util_vto_map(CMAP_PROC_CTX * proc_ctx, va_list key_maps);
 CMAP_MAP * cmap_util_to_map(CMAP_PROC_CTX * proc_ctx, ...);
 
-CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src);
+CMAP_MAP * cmap_util_copy(CMAP_MAP * dst, CMAP_MAP * src,
+  CMAP_PROC_CTX * proc_ctx);
 
 char * cmap_util_strdup(const char * src);
 

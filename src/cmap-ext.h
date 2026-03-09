@@ -29,14 +29,17 @@ CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx);
 
 const char * cmap_nature(CMAP_MAP * map);
-void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val);
+void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);
 char cmap_has(CMAP_MAP * map, const char * key);
 
-void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val);
+void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what);
 
-CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src);
+CMAP_MAP * cmap_copy_map(CMAP_MAP * dst, CMAP_MAP * src,
+  CMAP_PROC_CTX * proc_ctx);
 
 int64_t cmap_cmp(CMAP_MAP * map_l, CMAP_MAP * map_r);
 char cmap_true(CMAP_MAP * map);

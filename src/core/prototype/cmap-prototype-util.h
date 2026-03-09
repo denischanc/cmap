@@ -13,7 +13,7 @@ typedef struct
 } CMAP_PROTOTYPE_UTIL_MAP_FN;
 
 char cmap_prototype_util_args_to_map_fn(CMAP_LIST * args,
-  CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn);
+  CMAP_PROTOTYPE_UTIL_MAP_FN * map_fn, CMAP_PROC_CTX * proc_ctx);
 void cmap_prototype_util_require_map(CMAP_MAP ** proto,
   CMAP_PROC_CTX * proc_ctx);
 

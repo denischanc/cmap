@@ -16,7 +16,7 @@
 static CMAP_MAP * value_of_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_MAP * arg = CMAP_LIST_SHIFT(args);
+  CMAP_MAP * arg = CMAP_LIST_SHIFT(args, proc_ctx);
   if(arg != NULL)
   {
     const char * nature = CMAP_NATURE(arg);
