@@ -7,6 +7,7 @@
 #include "cmap-slist.h"
 #include "cmap-log.h"
 #include "cmap-lifecycle.h"
+#include "cmap-core.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-consumedtime.h"
@@ -57,7 +58,7 @@ static char delete_ref(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc,
   int nb_refs = cmap_lifecycle_nb_refs(lc);
   if(nb_refs <= 0)
   {
-    CMAP_CALL_ARGS(lc, delete, proc_ctx);
+    cmap_core_delete(lc, proc_ctx);
     return CMAP_T;
   }
   else

@@ -8,11 +8,7 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
 #include "cmap-config.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-const char * CMAP_STRING_NATURE = "string";
+#include "cmap-core.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -102,9 +98,6 @@ CMAP_STRING * cmap_string_init(CMAP_STRING * string, CMAP_INITARGS * initargs,
 {
   cmap_map_init((CMAP_MAP *)string, initargs);
 
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)string;
-  lc -> delete = cmap_string_delete;
-
   if(size_inc < cmap_config_core_string_size_inc_min())
     size_inc = cmap_config_core_string_size_inc();
   string -> internal.size_inc = size_inc;
@@ -113,7 +106,7 @@ CMAP_STRING * cmap_string_init(CMAP_STRING * string, CMAP_INITARGS * initargs,
   string -> internal.val = cmap_mem_alloc(string -> internal.size_max);
   memcpy(string -> internal.val, val, string -> internal.size);
 
-  cmap_log_debug("[%p][%s] => [%.60s]", string, CMAP_STRING_NATURE, val);
+  cmap_log_debug("[%p][%s] => [%.60s]", string, CMAP_STRING_NATURE_CHAR, val);
 
   return string;
 }

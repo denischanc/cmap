@@ -6,11 +6,7 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-mem.h"
 #include "cmap-log.h"
-
-/*******************************************************************************
-*******************************************************************************/
-
-const char * CMAP_LIST_NATURE = "list";
+#include "cmap-core.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -189,7 +185,7 @@ static void delete_apply(CMAP_MAP ** val, void * data)
     DELETE_APPLY_DATA * data_ = data;
     CMAP_LIFECYCLE * lc = data_ -> lc;
     cmap_log_debug("[%p][%s]-nested->[[%p]==>refs--]",
-      lc, CMAP_NATURE(lc), *val);
+      lc, CMAP_NATURE_CHAR(lc), *val);
     CMAP_DEC_REFS(*val, data_ -> proc_ctx);
   }
 }
@@ -211,10 +207,6 @@ CMAP_LIST * cmap_list_init(CMAP_LIST * list, CMAP_INITARGS * initargs,
   int chunk_size)
 {
   cmap_map_init((CMAP_MAP *)list, initargs);
-
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)list;
-  lc -> delete = cmap_list_delete;
-  lc -> nested = cmap_list_nested;
 
   list -> internal.list = cmap_slist_map_create(chunk_size);
 

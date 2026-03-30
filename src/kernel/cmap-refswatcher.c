@@ -13,6 +13,7 @@
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
 #include "cmap-loop-timer.h"
+#include "cmap-core.h"
 
 #ifdef CONSUMED_TIME
 #include "cmap-consumedtime.h"
@@ -145,7 +146,7 @@ static REF_EXT * upd_all_ref_exts(ZOMBIE_DATA * data)
 
   REF_EXT * ref_ext_cur = ref_ext_create(data -> cur);
   CMAP_SLIST_LC_PTR * nesteds = ref_ext_cur -> nesteds;
-  CMAP_CALL_ARGS(data -> cur, nested, nesteds, data -> proc_ctx);
+  cmap_core_nested(data -> cur, nesteds, data -> proc_ctx);
   cmap_sset_ref_ext_add_force(data -> all_ref_exts, ref_ext_cur);
 
   data -> ret = CMAP_F;
@@ -254,7 +255,7 @@ static void delete_zombie_apply(REF_EXT ** ref_ext, void * data)
     data_ -> way_ref_exts);
 
   CMAP_LIFECYCLE * lc = (*ref_ext) -> lc;
-  CMAP_CALL_ARGS(lc, delete, data_ -> proc_ctx);
+  cmap_core_delete(lc, data_ -> proc_ctx);
 }
 
 static void delete_zombie(CMAP_SSET_REF_EXT * way_ref_exts,
@@ -286,7 +287,7 @@ static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
     proc_ctx};
   if(is_zombie_w_ref_exts(&data))
   {
-    cmap_log_debug("[%p][%s] zombie deletion", lc, CMAP_NATURE(lc));
+    cmap_log_debug("[%p][%s] zombie deletion", lc, CMAP_NATURE_CHAR(lc));
 
     delete_zombie(way_ref_exts, proc_ctx);
 

@@ -83,9 +83,9 @@ CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
 /*******************************************************************************
 *******************************************************************************/
 
-const char * cmap_nature(CMAP_MAP * map)
+char cmap_nature(CMAP_MAP * map)
 {
-  if(map == NULL) return NULL;
+  if(map == NULL) return -1;
   else return CMAP_NATURE(map);
 }
 
@@ -111,7 +111,7 @@ char cmap_has(CMAP_MAP * map, const char * key)
 void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val,
   CMAP_PROC_CTX * proc_ctx)
 {
-  const char * what_nature = CMAP_NATURE(what);
+  unsigned char what_nature = CMAP_NATURE(what);
   if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
   {
     int64_t i = cmap_int_get((CMAP_INT *)what);
@@ -126,7 +126,7 @@ void cmap_set_w_map(CMAP_MAP * map, CMAP_MAP * what, CMAP_MAP * val,
 
 CMAP_MAP * cmap_get_w_map(CMAP_MAP * map, CMAP_MAP * what)
 {
-  const char * what_nature = CMAP_NATURE(what);
+  unsigned char what_nature = CMAP_NATURE(what);
   if((CMAP_NATURE(map) == CMAP_LIST_NATURE) && (what_nature == CMAP_INT_NATURE))
   {
     int64_t i = cmap_int_get((CMAP_INT *)what);

@@ -5,6 +5,4 @@
 
 char * cmap_string_val(CMAP_STRING * string);
 
-extern const char * CMAP_STRING_NATURE;
-
 #endif

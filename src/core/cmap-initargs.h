@@ -3,7 +3,7 @@
 
 typedef struct
 {
-  const char * nature;
+  unsigned char nature;
 
   CMAP_MAP * prototype;
 

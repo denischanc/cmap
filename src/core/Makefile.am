@@ -4,6 +4,8 @@ include $(top_srcdir)/src/common.mk
 SUBDIRS = cmp op prototype score
 
 include_cmap_HEADERS = \
+  cmap-core-define-ext.h \
+  cmap-core-ext.h \
   cmap-double-ext.h \
   cmap-double-type.h \
   cmap-fn-ext.h \
@@ -12,7 +14,6 @@ include_cmap_HEADERS = \
   cmap-int-type.h \
   cmap-list-ext.h \
   cmap-list-type.h \
-  cmap-map-ext.h \
   cmap-map-type.h \
   cmap-ptr-ext.h \
   cmap-ptr-type.h \

@@ -6,6 +6,4 @@
 double cmap_double_get(CMAP_DOUBLE * d);
 CMAP_DOUBLE * cmap_double_set(CMAP_DOUBLE * d, double val);
 
-extern const char * CMAP_DOUBLE_NATURE;
-
 #endif

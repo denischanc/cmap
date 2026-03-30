@@ -12,7 +12,7 @@
 
 void cmap_op_handler_string_append(CMAP_STRING * dst, CMAP_MAP * src)
 {
-  const char * nature = CMAP_NATURE(src);
+  unsigned char nature = CMAP_NATURE(src);
   if(nature == CMAP_STRING_NATURE)
   {
     char * val = cmap_string_val((CMAP_STRING *)src);

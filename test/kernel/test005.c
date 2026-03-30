@@ -6,6 +6,7 @@
 #include "cmap-ext.h"
 #include "cmap-mem.h"
 #include "cmap-lifecycle.h"
+#include "cmap-core.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -13,7 +14,7 @@
 static void test(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * tmp = cmap_map(proc_ctx);
-  CMAP_CALL_ARGS((CMAP_LIFECYCLE *)tmp, delete, proc_ctx);
+  cmap_core_delete((CMAP_LIFECYCLE *)tmp, proc_ctx);
   cmap_mem_free(tmp);
 }
 

@@ -7,11 +7,13 @@
 #include "cmap-map-type.h"
 #include "cmap-lifecycle-type.h"
 #include "cmap-prototypestore.h"
+#include "cmap-refswatcher.h"
 
 CMAP_ENV * cmap_proc_ctx_env(CMAP_PROC_CTX * proc_ctx);
 CMAP_PROTOTYPESTORE * cmap_proc_ctx_prototypestore(CMAP_PROC_CTX * proc_ctx);
 CMAP_POOL_LOOP(CMAP_PROC_CTX_POOL_DECL)
 CMAP_MAP * cmap_proc_ctx_global_env(CMAP_PROC_CTX * proc_ctx);
+CMAP_REFSWATCHER * cmap_proc_ctx_refswatcher(CMAP_PROC_CTX * proc_ctx);
 
 CMAP_MAP * cmap_proc_ctx_local_definitions(CMAP_PROC_CTX * proc_ctx);
 

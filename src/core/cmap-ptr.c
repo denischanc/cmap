@@ -9,11 +9,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_PTR_NATURE = "ptr";
-
-/*******************************************************************************
-*******************************************************************************/
-
 void * cmap_ptr_get(CMAP_PTR * ptr)
 {
   return ptr -> internal.ptr;
@@ -48,9 +43,6 @@ CMAP_PTR * cmap_ptr_init(CMAP_PTR * ptr, CMAP_INITARGS * initargs, int size,
   CMAP_PTR_DELETE delete_ptr)
 {
   cmap_map_init((CMAP_MAP *)ptr, initargs);
-
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)ptr;
-  lc -> delete = cmap_ptr_delete;
 
   if(size == 0)
   {

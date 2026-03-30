@@ -8,18 +8,21 @@
 #include "cmap-log.h"
 #include "cmap-util.h"
 #include "cmap-config.h"
+#include "cmap-core.h"
 
 /*******************************************************************************
 *******************************************************************************/
 
-static const char * REF_STATE_FREE = "free";
-static const char * REF_STATE_STORED = "stored";
-static const char * REF_STATE_HOOKED = "hooked";
+#define REF_STATE_FREE 0
+#define REF_STATE_STORED 1
+#define REF_STATE_HOOKED 2
+
+static const char * REF_STATES[] = {"free", "stored", "hooked"};
 
 /*******************************************************************************
 *******************************************************************************/
 
-const char * cmap_lifecycle_nature(CMAP_LIFECYCLE * lc)
+unsigned char cmap_lifecycle_nature(CMAP_LIFECYCLE * lc)
 {
   return lc -> internal.nature;
 }
@@ -35,12 +38,12 @@ static inline uint64_t next_watch_time_us()
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void set_ref_state(CMAP_LIFECYCLE * lc, const char * ref_state)
+static inline void set_ref_state(CMAP_LIFECYCLE * lc, unsigned char ref_state)
 {
   lc -> internal.ref_state = ref_state;
 
   cmap_log_debug("[%p][%s] ref_state = [%s], nb_refs = [%d]", lc,
-    lc -> internal.nature, ref_state, lc -> internal.nb_refs);
+    CMAP_NATURE_CHAR(lc), REF_STATES[ref_state], lc -> internal.nb_refs);
 }
 
 /*******************************************************************************
@@ -102,13 +105,13 @@ void cmap_lifecycle_watched(CMAP_LIFECYCLE * lc, char val)
   if(val)
   {
     if(lc -> internal.watch_time_us <= 0)
-      cmap_log_debug("[%p][%s] is watched", lc, lc -> internal.nature);
+      cmap_log_debug("[%p][%s] is watched", lc, CMAP_NATURE_CHAR(lc));
 
     lc -> internal.watch_time_us = next_watch_time_us();
   }
   else
   {
-    cmap_log_debug("[%p][%s] not watched", lc, lc -> internal.nature);
+    cmap_log_debug("[%p][%s] not watched", lc, CMAP_NATURE_CHAR(lc));
 
     lc -> internal.watch_time_us = 0;
   }
@@ -137,7 +140,7 @@ void cmap_lifecycle_store(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 
 char cmap_lifecycle_in_refs(CMAP_LIFECYCLE * lc)
 {
-  const char * ref_state = lc -> internal.ref_state;
+  unsigned char ref_state = lc -> internal.ref_state;
 
   set_ref_state(lc, REF_STATE_FREE);
 
@@ -147,11 +150,12 @@ char cmap_lifecycle_in_refs(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline void rm_from_refswatcher(CMAP_LIFECYCLE * lc, CMAP_ENV * env)
+static inline void rm_from_refswatcher(CMAP_LIFECYCLE * lc,
+  CMAP_PROC_CTX * proc_ctx)
 {
   if(lc -> internal.watch_time_us > 0)
   {
-    CMAP_REFSWATCHER * refswatcher = cmap_env_refswatcher(env);
+    CMAP_REFSWATCHER * refswatcher = cmap_proc_ctx_refswatcher(proc_ctx);
     cmap_refswatcher_rm(refswatcher, lc);
   }
 }
@@ -168,9 +172,9 @@ static inline void rm_from_local_refs(CMAP_LIFECYCLE * lc,
 
 void cmap_lifecycle_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  cmap_log_debug("[%p][%s] deletion", lc, lc -> internal.nature);
+  cmap_log_debug("[%p][%s] deletion", lc, CMAP_NATURE_CHAR(lc));
 
-  rm_from_refswatcher(lc, cmap_proc_ctx_env(proc_ctx));
+  rm_from_refswatcher(lc, proc_ctx);
   rm_from_local_refs(lc, proc_ctx);
 
   cmap_mem_free(lc);
@@ -188,10 +192,7 @@ CMAP_LIFECYCLE * cmap_lifecycle_init(CMAP_LIFECYCLE * lc,
 
   cmap_proc_ctx_local_refs_add(proc_ctx, lc, CMAP_T);
 
-  lc -> delete = cmap_lifecycle_delete;
-  lc -> nested = cmap_lifecycle_nested;
-
-  cmap_log_debug("[%p][%s] creation", lc, lc -> internal.nature);
+  cmap_log_debug("[%p][%s] creation", lc, CMAP_NATURE_CHAR(lc));
 
   return lc;
 }

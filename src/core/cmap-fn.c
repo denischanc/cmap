@@ -13,8 +13,6 @@
 /*******************************************************************************
 *******************************************************************************/
 
-const char * CMAP_FN_NATURE = "fn";
-
 const char * CMAP_PROTOTYPE_NAME = "prototype";
 
 /*******************************************************************************
@@ -91,10 +89,6 @@ CMAP_FN * cmap_fn_init(CMAP_FN * fn, CMAP_INITARGS * initargs,
   CMAP_FN_TPL process)
 {
   cmap_map_init((CMAP_MAP *)fn, initargs);
-
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)fn;
-  lc -> delete = cmap_fn_delete;
-  lc -> nested = cmap_fn_nested;
 
   fn -> internal.process = process;
   fn -> internal.definitions = NULL;

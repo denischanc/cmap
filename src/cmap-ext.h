@@ -5,7 +5,8 @@
 #include <stdint.h>
 #include "cmap-proc-ctx-type.h"
 #include "cmap-env-type.h"
-#include "cmap-map-ext.h"
+#include "cmap-core-ext.h"
+#include "cmap-map-type.h"
 #include "cmap-list-ext.h"
 #include "cmap-fn-ext.h"
 #include "cmap-string-ext.h"
@@ -28,7 +29,7 @@ CMAP_DOUBLE * cmap_double(double val, CMAP_PROC_CTX * proc_ctx);
 CMAP_PTR * cmap_ptr(int size, CMAP_PTR_DELETE delete_ptr,
   CMAP_PROC_CTX * proc_ctx);
 
-const char * cmap_nature(CMAP_MAP * map);
+char cmap_nature(CMAP_MAP * map);
 void cmap_set(CMAP_MAP * map, const char * key, CMAP_MAP * val,
   CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_get(CMAP_MAP * map, const char * key);

@@ -11,6 +11,7 @@
 #include "cmap-prototypestore.h"
 #include "cmap-proc-ctx.h"
 #include "cmap-log.h"
+#include "cmap-core.h"
 
 /*******************************************************************************
 *******************************************************************************/
@@ -22,11 +23,6 @@ struct CMAP_MAP_ENTRY
   char * key;
   CMAP_MAP * val;
 };
-
-/*******************************************************************************
-*******************************************************************************/
-
-const char * CMAP_MAP_NATURE = "map";
 
 /*******************************************************************************
 *******************************************************************************/
@@ -249,7 +245,7 @@ static void delete_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
   {
     CMAP_LIFECYCLE * lc = data_ -> lc;
     cmap_log_debug("[%p][%s]-nested->[[%p]==>refs--]",
-      lc, CMAP_NATURE(lc), val);
+      lc, CMAP_NATURE_CHAR(lc), val);
     CMAP_DEC_REFS(val, data_ -> proc_ctx);
   }
 
@@ -268,10 +264,7 @@ void cmap_map_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 
 CMAP_MAP * cmap_map_init(CMAP_MAP * map, CMAP_INITARGS * initargs)
 {
-  CMAP_LIFECYCLE * lc = (CMAP_LIFECYCLE *)map;
-  cmap_lifecycle_init(lc, initargs);
-  lc -> delete = cmap_map_delete;
-  lc -> nested = cmap_map_nested;
+  cmap_lifecycle_init((CMAP_LIFECYCLE *)map, initargs);
 
   map -> internal.entry_stree = NULL;
   map -> internal.prototype = initargs -> prototype;

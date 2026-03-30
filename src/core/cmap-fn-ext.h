@@ -5,7 +5,6 @@
 
 CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx);
 
-extern const char * CMAP_FN_NATURE;
 extern const char * CMAP_PROTOTYPE_NAME;
 
 #endif

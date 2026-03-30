@@ -2,7 +2,7 @@
 #define __CMAP_MAP_H__
 
 #include "cmap-map-define.h"
-#include "cmap-map-ext.h"
+#include "cmap-map-type.h"
 #include "cmap-map-int.h"
 #include "cmap-lifecycle.h"
 

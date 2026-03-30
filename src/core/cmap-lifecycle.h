@@ -12,14 +12,9 @@
 struct CMAP_LIFECYCLE
 {
   CMAP_LIFECYCLE_INTERNAL internal;
-
-  void (*delete)(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx);
-
-  void (*nested)(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
-    CMAP_PROC_CTX * proc_ctx);
 };
 
-const char * cmap_lifecycle_nature(CMAP_LIFECYCLE * lc);
+unsigned char cmap_lifecycle_nature(CMAP_LIFECYCLE * lc);
 
 void cmap_lifecycle_inc_refs(CMAP_LIFECYCLE * lc);
 int cmap_lifecycle_nb_refs(CMAP_LIFECYCLE * lc);

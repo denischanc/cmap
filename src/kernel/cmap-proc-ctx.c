@@ -47,6 +47,11 @@ CMAP_MAP * cmap_proc_ctx_global_env(CMAP_PROC_CTX * proc_ctx)
   return cmap_env_global(proc_ctx -> env, proc_ctx);
 }
 
+CMAP_REFSWATCHER * cmap_proc_ctx_refswatcher(CMAP_PROC_CTX * proc_ctx)
+{
+  return cmap_env_refswatcher(proc_ctx -> env);
+}
+
 /*******************************************************************************
 *******************************************************************************/
 
@@ -79,7 +84,7 @@ void cmap_proc_ctx_local_refs_rm(CMAP_PROC_CTX * proc_ctx, CMAP_LIFECYCLE * lc)
 
 CMAP_PROC_CTX * cmap_proc_ctx_new(CMAP_PROC_CTX * proc_ctx)
 {
-  return cmap_proc_ctx_create(cmap_proc_ctx_env(proc_ctx), proc_ctx);
+  return cmap_proc_ctx_create(proc_ctx -> env, proc_ctx);
 }
 
 /*******************************************************************************

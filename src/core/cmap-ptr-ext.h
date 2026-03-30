@@ -7,6 +7,4 @@ void * cmap_ptr_get(CMAP_PTR * ptr);
 
 void ** cmap_ptr_ref(CMAP_PTR * ptr);
 
-extern const char * CMAP_PTR_NATURE;
-
 #endif
