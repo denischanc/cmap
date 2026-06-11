@@ -64,7 +64,7 @@ static void check_jobs_n_daemons(CMAP_ENV * env)
 
     CMAP_LOOP_TIMER * timer = &env -> timer;
     timer -> data = env;
-    cmap_loop_timer_start(timer, delete_cb, 0, 0, NULL);
+    cmap_loop_timer_start(timer, NULL, 0, 0, delete_cb);
   }
 }
 

@@ -22,13 +22,12 @@ typedef struct CMAP_SSET_##NAME CMAP_SSET_##NAME; \
  \
 typedef void (*CMAP_SSET_##NAME##_APPLY_FN)(type * v, void * data); \
  \
-char cmap_sset_##name##_is(CMAP_SSET_##NAME * set, type v); \
-type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type v); \
+char cmap_sset_##name##_is(CMAP_SSET_##NAME * set, type * v); \
+type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type * v); \
   \
-void cmap_sset_##name##_add_force(CMAP_SSET_##NAME ** set, type v); \
-char cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type v); \
+type * cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v); \
 type cmap_sset_##name##_rm(CMAP_SSET_##NAME ** set); \
-char cmap_sset_##name##_rm_v(CMAP_SSET_##NAME ** set, type v); \
+char cmap_sset_##name##_rm_v(CMAP_SSET_##NAME ** set, type * v); \
  \
 int cmap_sset_##name##_size(CMAP_SSET_##NAME * set); \
  \
@@ -59,18 +58,18 @@ struct CMAP_SSET_##NAME \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static inline int64_t eval_fn(type v_l, type v_r); \
+static inline int64_t eval_fn(type * v_l, type * v_r); \
  \
 static int64_t name##_stree_eval(CMAP_STREE_NODE * node, void * data) \
 { \
-  return eval_fn(((CMAP_SSET_##NAME *)node) -> v, *(type *)data); \
+  return eval_fn(&((CMAP_SSET_##NAME *)node) -> v, (type *)data); \
 } \
  \
-static inline const char * log_fn(type v); \
+static inline const char * log_fn(type * v); \
  \
 static const char * name##_stree_log(CMAP_STREE_NODE * node) \
 { \
-  return log_fn(((CMAP_SSET_##NAME *)node) -> v); \
+  return log_fn(&((CMAP_SSET_##NAME *)node) -> v); \
 } \
  \
 CMAP_STREE_RUNNER(name, name##_stree_eval, name##_stree_log, CMAP_F, CMAP_F); \
@@ -78,17 +77,17 @@ CMAP_STREE_RUNNER(name, name##_stree_eval, name##_stree_log, CMAP_F, CMAP_F); \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-static CMAP_SSET_##NAME * name##_find(CMAP_SSET_##NAME * set, type v) \
+static CMAP_SSET_##NAME * name##_find(CMAP_SSET_##NAME * set, type * v) \
 { \
-  return (CMAP_SSET_##NAME *)CMAP_STREE_FINDFN(name, set, &v); \
+  return (CMAP_SSET_##NAME *)CMAP_STREE_FINDFN(name, set, v); \
 } \
  \
-char cmap_sset_##name##_is(CMAP_SSET_##NAME * set, type v) \
+char cmap_sset_##name##_is(CMAP_SSET_##NAME * set, type * v) \
 { \
   return (name##_find(set, v) != NULL); \
 } \
  \
-type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type v) \
+type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type * v) \
 { \
   CMAP_SSET_##NAME * node = name##_find(set, v); \
   return (node == NULL) ? NULL : &node -> v; \
@@ -97,21 +96,18 @@ type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type v) \
 /***************************************************************************** \
 *****************************************************************************/ \
  \
-void cmap_sset_##name##_add_force(CMAP_SSET_##NAME ** set, type v) \
+static CMAP_STREE_NODE * name##_create_node(void * data) \
 { \
   CMAP_MEM_ALLOC_PTR(node, CMAP_SSET_##NAME); \
-  node -> v = v; \
-  CMAP_STREE_ADDFN(name, set, node, &v); \
+  node -> v = *(type *)data; \
+  return &node -> node; \
 } \
  \
-char cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type v) \
+type * cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v) \
 { \
-  if(!cmap_sset_##name##_is(*set, v)) \
-  { \
-    cmap_sset_##name##_add_force(set, v); \
-    return CMAP_T; \
-  } \
-  return CMAP_F; \
+  CMAP_SSET_##NAME * node = (CMAP_SSET_##NAME *) \
+    CMAP_STREE_ADDNEQFN(name, set, name##_create_node, v); \
+  return (node == NULL) ? NULL : &node -> v; \
 } \
  \
 type cmap_sset_##name##_rm(CMAP_SSET_##NAME ** set) \
@@ -124,7 +120,7 @@ type cmap_sset_##name##_rm(CMAP_SSET_##NAME ** set) \
   return ret; \
 } \
  \
-char cmap_sset_##name##_rm_v(CMAP_SSET_##NAME ** set, type v) \
+char cmap_sset_##name##_rm_v(CMAP_SSET_##NAME ** set, type * v) \
 { \
   CMAP_SSET_##NAME * to_rm = name##_find(*set, v); \
   if(to_rm == NULL) return CMAP_F; \

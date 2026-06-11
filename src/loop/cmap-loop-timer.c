@@ -44,26 +44,49 @@ static void delete(CMAP_LOOP_EVENT * event, uint64_t time_us)
 /*******************************************************************************
 *******************************************************************************/
 
+static inline void do_run(CMAP_LOOP_EVENT * event)
+{
+  event -> fired = fired;
+  event -> run = run;
+}
+
+static inline void do_delete(CMAP_LOOP_EVENT * event)
+{
+  event -> fired = cmap_loop_fired_true;
+  event -> run = delete;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 void cmap_loop_timer_start(CMAP_LOOP_TIMER * timer, CMAP_LOOP_TIMER_CB run_,
   uint64_t timeout_ms, uint64_t repeat_ms, CMAP_LOOP_TIMER_CB delete_)
 {
-  timer -> internal.run = run_;
-  timer -> internal.delete = delete_;
-  timer -> internal.next_time_us = cmap_util_time_us() + timeout_ms * 1000;
-  timer -> internal.repeat_us = repeat_ms * 1000;
-
   CMAP_LOOP_EVENT * event = &timer -> super;
-  event -> fired = fired;
-  event -> run = run;
+
+  if(run_ != NULL)
+  {
+    timer -> internal.run = run_;
+    timer -> internal.delete = delete_;
+    timer -> internal.next_time_us = cmap_util_time_us() + timeout_ms * 1000;
+    timer -> internal.repeat_us = repeat_ms * 1000;
+
+    do_run(event);
+  }
+  else
+  {
+    timer -> internal.delete = delete_;
+
+    do_delete(event);
+  }
+
   cmap_loop_add(event);
 }
 
 void cmap_loop_timer_stop(CMAP_LOOP_TIMER * timer)
 {
-  if(timer -> internal.delete == NULL) cmap_loop_rm((CMAP_LOOP_EVENT *)timer);
-  else
-  {
-    timer -> super.fired = cmap_loop_fired_true;
-    timer -> super.run = delete;
-  }
+  CMAP_LOOP_EVENT * event = &timer -> super;
+
+  if(timer -> internal.delete == NULL) cmap_loop_rm(event);
+  else do_delete(event);
 }

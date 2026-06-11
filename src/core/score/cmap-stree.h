@@ -30,11 +30,15 @@ typedef struct
   CMAP_STREE_APPLY_FN before, between, after;
 } CMAP_STREE_APPLY;
 
+typedef CMAP_STREE_NODE * (*CMAP_STREE_CREATE_NODE)(void * data);
+
 CMAP_STREE_NODE * cmap_stree_find(CMAP_STREE_RUNNER * runner,
   CMAP_STREE_NODE * stree, void * data);
 
 void cmap_stree_add(CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE ** stree,
   CMAP_STREE_NODE * node, void * data);
+CMAP_STREE_NODE * cmap_stree_add_neq(CMAP_STREE_RUNNER * runner,
+  CMAP_STREE_NODE ** stree, CMAP_STREE_CREATE_NODE create_node, void * data);
 void cmap_stree_rm(CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node);
 
 void cmap_stree_apply(CMAP_STREE_NODE * stree, CMAP_STREE_APPLY * apply,

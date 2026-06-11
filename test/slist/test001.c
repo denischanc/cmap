@@ -27,18 +27,19 @@ static void test_push_pop_unshift_shift()
 {
   CMAP_SLIST_LC * list = cmap_slist_lc_create(0);
 
-  cmap_slist_lc_push(list, (CMAP_LIFECYCLE *)3);
-  cmap_slist_lc_push(list, (CMAP_LIFECYCLE *)4);
+  CMAP_LIFECYCLE * lc;
+  lc = (CMAP_LIFECYCLE *)3; cmap_slist_lc_push(list, &lc);
+  lc = (CMAP_LIFECYCLE *)4; cmap_slist_lc_push(list, &lc);
   CMAP_TEST_ASSERT_NOMSG(cmap_slist_lc_size(list) == 2);
 
-  cmap_slist_lc_unshift(list, (CMAP_LIFECYCLE *)2);
-  cmap_slist_lc_unshift(list, (CMAP_LIFECYCLE *)1);
+  lc = (CMAP_LIFECYCLE *)2; cmap_slist_lc_unshift(list, &lc);
+  lc = (CMAP_LIFECYCLE *)1; cmap_slist_lc_unshift(list, &lc);
   CMAP_TEST_ASSERT_NOMSG(cmap_slist_lc_size(list) == 4);
 
   APPLY_DATA data = { (CMAP_LIFECYCLE *)1, 1 };
   cmap_slist_lc_apply(list, apply, &data);
 
-  for(int i = 0; i < 1024; i++) cmap_slist_lc_unshift(list, NULL);
+  lc = NULL; for(int i = 0; i < 1024; i++) cmap_slist_lc_unshift(list, &lc);
   for(int i = 0; i < 1024; i++) cmap_slist_lc_pop(list);
   CMAP_TEST_ASSERT_NOMSG(cmap_slist_lc_size(list) == 4);
 
@@ -55,15 +56,16 @@ static void test_add_rm()
 {
   CMAP_SLIST_LC * list = cmap_slist_lc_create(3);
 
-  cmap_slist_lc_add(list, 0, (CMAP_LIFECYCLE *)3); // 3
-  cmap_slist_lc_add(list, 0, (CMAP_LIFECYCLE *)1); // 13
-  cmap_slist_lc_add(list, 2, (CMAP_LIFECYCLE *)9); // 139
-  cmap_slist_lc_add(list, 2, (CMAP_LIFECYCLE *)7); // 1379
-  cmap_slist_lc_add(list, 2, (CMAP_LIFECYCLE *)5); // 13579
-  cmap_slist_lc_add(list, 1, (CMAP_LIFECYCLE *)2); // 123579
-  cmap_slist_lc_add(list, 3, (CMAP_LIFECYCLE *)4); // 1234579
-  cmap_slist_lc_add(list, 6, (CMAP_LIFECYCLE *)8); // 12345789
-  cmap_slist_lc_add(list, 5, (CMAP_LIFECYCLE *)6); // 123456789
+  CMAP_LIFECYCLE * lc;
+  lc = (CMAP_LIFECYCLE *)3; cmap_slist_lc_add(list, 0, &lc); // 3
+  lc = (CMAP_LIFECYCLE *)1; cmap_slist_lc_add(list, 0, &lc); // 13
+  lc = (CMAP_LIFECYCLE *)9; cmap_slist_lc_add(list, 2, &lc); // 139
+  lc = (CMAP_LIFECYCLE *)7; cmap_slist_lc_add(list, 2, &lc); // 1379
+  lc = (CMAP_LIFECYCLE *)5; cmap_slist_lc_add(list, 2, &lc); // 13579
+  lc = (CMAP_LIFECYCLE *)2; cmap_slist_lc_add(list, 1, &lc); // 123579
+  lc = (CMAP_LIFECYCLE *)4; cmap_slist_lc_add(list, 3, &lc); // 1234579
+  lc = (CMAP_LIFECYCLE *)8; cmap_slist_lc_add(list, 6, &lc); // 12345789
+  lc = (CMAP_LIFECYCLE *)6; cmap_slist_lc_add(list, 5, &lc); // 123456789
   APPLY_DATA data = { (CMAP_LIFECYCLE *)1, 1 };
   cmap_slist_lc_apply(list, apply, &data);
 

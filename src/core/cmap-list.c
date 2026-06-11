@@ -16,7 +16,7 @@ static void nested_apply(CMAP_MAP ** val, void * data)
   if(*val != NULL)
   {
     CMAP_SLIST_LC_PTR * list = (CMAP_SLIST_LC_PTR *)data;
-    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)val);
+    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE ***)&val);
   }
 }
 
@@ -72,7 +72,7 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 
 CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val)
 {
-  if(cmap_slist_map_add(list -> internal.list, i, val) &&
+  if(cmap_slist_map_add(list -> internal.list, i, &val) &&
     !CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
   return list;
 }
@@ -89,7 +89,7 @@ CMAP_MAP * cmap_list_rm(CMAP_LIST * list, int i, CMAP_PROC_CTX * proc_ctx)
 
 CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val)
 {
-  cmap_slist_map_push(list -> internal.list, val);
+  cmap_slist_map_push(list -> internal.list, &val);
   if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
   return list;
 }
@@ -106,7 +106,7 @@ CMAP_MAP * cmap_list_pop(CMAP_LIST * list, CMAP_PROC_CTX * proc_ctx)
 
 CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val)
 {
-  cmap_slist_map_unshift(list -> internal.list, val);
+  cmap_slist_map_unshift(list -> internal.list, &val);
   if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
   return list;
 }

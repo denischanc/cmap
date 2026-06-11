@@ -23,7 +23,7 @@ void cmap_fn_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
 {
   CMAP_MAP ** definitions = &((CMAP_FN *)lc) -> internal.definitions;
   if(*definitions != NULL)
-    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE **)definitions);
+    cmap_slist_lc_ptr_push(list, (CMAP_LIFECYCLE ***)&definitions);
 
   cmap_map_nested(lc, list, proc_ctx);
 }
