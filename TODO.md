@@ -16,6 +16,7 @@ TODO
 * add define for references debug as CONSUMED_TIME
 * CMAP_POOL_TIMER pool
 * AM_CFLAGS
+* map: delete key
 
 ## Parser
 

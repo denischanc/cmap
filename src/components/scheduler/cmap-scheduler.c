@@ -81,6 +81,11 @@ static void schedule_daemon(CMAP_LOOP_TIMER * timer)
 /*******************************************************************************
 *******************************************************************************/
 
+static void do_stop(void * internal)
+{
+  cmap_loop_timer_stop(internal);
+}
+
 static CMAP_MAP * do_start(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args, char daemon)
 {
@@ -117,7 +122,7 @@ static CMAP_MAP * do_start(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
 
     if(repeat_ms > 0)
     {
-      CMAP_PTR * internal_ = cmap_ptr_create(0, NULL, proc_ctx);
+      CMAP_PTR * internal_ = cmap_ptr_create(0, do_stop, proc_ctx);
       *cmap_ptr_ref(internal_) = internal;
       CMAP_SET(map, CMAP_INTERNAL_NAME, internal_, proc_ctx);
     }
@@ -150,13 +155,6 @@ CMAP_MAP * cmap_scheduler_daemonize_ms_fn(CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
-  CMAP_PTR * internal = (CMAP_PTR *)CMAP_GET(map, CMAP_INTERNAL_NAME);
-  if(internal != NULL)
-  {
-    CMAP_SET(map, CMAP_INTERNAL_NAME, NULL, proc_ctx);
-
-    cmap_loop_timer_stop(cmap_ptr_get(internal));
-  }
-
+  CMAP_SET(map, CMAP_INTERNAL_NAME, NULL, proc_ctx);
   return map;
 }
