@@ -6,10 +6,9 @@
 typedef struct
 {
   unsigned char nature, ref_state;
+  char watched, ghost;
 
   int nb_refs;
-
-  uint64_t watch_time_us;
 } CMAP_LIFECYCLE_INTERNAL;
 
 #endif

@@ -239,7 +239,7 @@ static CMAP_MAP * cmap_vnew(CMAP_FN * prototype, CMAP_PROC_CTX * proc_ctx,
 {
   CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
-  cmap_util_vfill_list(args_list, args);
+  cmap_util_vfill_list(proc_ctx, args_list, args);
 
   CMAP_MAP * ret = cmap_lnew(prototype, proc_ctx, args_list);
 
@@ -271,7 +271,7 @@ static CMAP_MAP * cmap_vfn_proc(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx,
 {
   CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
-  cmap_util_vfill_list(args_list, args);
+  cmap_util_vfill_list(proc_ctx, args_list, args);
 
   CMAP_MAP * ret = cmap_lfn_proc(fn, proc_ctx, map, args_list);
 
@@ -307,7 +307,7 @@ static CMAP_MAP * vproc(CMAP_MAP * map, const char * key,
 {
   CMAP_POOL_LIST_GHOST * pool = cmap_proc_ctx_pool_list_ghost(proc_ctx);
   CMAP_LIST * args_list = cmap_pool_list_ghost_take(pool, proc_ctx);
-  cmap_util_vfill_list(args_list, args);
+  cmap_util_vfill_list(proc_ctx, args_list, args);
 
   CMAP_MAP * ret = cmap_lproc(map, key, proc_ctx, args_list);
 

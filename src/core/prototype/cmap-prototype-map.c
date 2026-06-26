@@ -28,8 +28,8 @@ static void map_entry_apply(const char * key, CMAP_MAP ** val, void * data,
 
   CMAP_LIST * args = data_ -> args;
   cmap_list_clean(args, proc_ctx);
-  CMAP_LIST_PUSH(args, key_);
-  CMAP_LIST_PUSH(args, *val);
+  CMAP_LIST_PUSH(args, key_, proc_ctx);
+  CMAP_LIST_PUSH(args, *val, proc_ctx);
 
   CMAP_FN * fn = data_ -> map_fn.fn;
   CMAP_FN_PROC(fn, proc_ctx, data_ -> map_fn.map, args);

@@ -21,13 +21,16 @@ void cmap_list_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
 
 int cmap_list_size(CMAP_LIST * list);
 
-CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val);
+CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_list_rm(CMAP_LIST * list, int i, CMAP_PROC_CTX * proc_ctx);
 
-CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val);
+CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_list_pop(CMAP_LIST * list, CMAP_PROC_CTX * proc_ctx);
 
-CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val);
+CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_list_shift(CMAP_LIST * list, CMAP_PROC_CTX * proc_ctx);
 
 void cmap_list_apply(CMAP_LIST * list, CMAP_LIST_VAL_FN fn, void * data,

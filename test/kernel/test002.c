@@ -42,7 +42,7 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   for(; i < size; i++) elmts[i] = cmap_map(proc_ctx);
 
   /********** push/unshift */
-  for(i = 0; i < size; i++) CMAP_LIST_PUSH(list, elmts[i]);
+  for(i = 0; i < size; i++) CMAP_LIST_PUSH(list, elmts[i], proc_ctx);
   CMAP_TEST_ASSERT_NOMSG(cmap_list_size(list) == size);
   for(i = 0; i < size; i++)
     CMAP_TEST_ASSERT_NOMSG(CMAP_LIST_SHIFT(list, proc_ctx) == elmts[i]);
@@ -50,7 +50,7 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(CMAP_LIST_SHIFT(list, proc_ctx) == NULL);
 
   /********** shift/pop */
-  for(i = 0; i < size; i++) CMAP_LIST_UNSHIFT(list, elmts[i]);
+  for(i = 0; i < size; i++) CMAP_LIST_UNSHIFT(list, elmts[i], proc_ctx);
   CMAP_TEST_ASSERT_NOMSG(cmap_list_size(list) == size);
   for(i = 0; i < size; i++)
     CMAP_TEST_ASSERT_NOMSG(CMAP_LIST_POP(list, proc_ctx) == elmts[i]);
@@ -58,11 +58,11 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(CMAP_LIST_POP(list, proc_ctx) == NULL);
 
   /********** add/rm */
-  for(i = 0; i < size; i++) CMAP_LIST_ADD(list, i, elmts[i]);
+  for(i = 0; i < size; i++) CMAP_LIST_ADD(list, i, elmts[i], proc_ctx);
   display_list_ptr(list);
   for(i = 0; i < size; i++)
   {
-    CMAP_LIST_ADD(list, 1, elmts[i]);
+    CMAP_LIST_ADD(list, 1, elmts[i], proc_ctx);
     display_list_ptr(list);
   }
   CMAP_TEST_ASSERT_NOMSG(cmap_list_size(list) == (2 * size));
@@ -86,7 +86,8 @@ static void test_list(int size, CMAP_PROC_CTX * proc_ctx)
   CMAP_TEST_ASSERT_NOMSG(cmap_list_size(list) == 0);
 
   /********** push/pop until max size */
-  for(i = 0; i < (3 * size); i++) CMAP_LIST_PUSH(list, elmts[i % size]);
+  for(i = 0; i < (3 * size); i++)
+    CMAP_LIST_PUSH(list, elmts[i % size], proc_ctx);
   CMAP_TEST_ASSERT_NOMSG(cmap_list_size(list) == (3 * size));
   for(i = ((3 * size) - 1); i >= 0; i--)
     CMAP_TEST_ASSERT_NOMSG(CMAP_LIST_POP(list, proc_ctx) == elmts[i % size]);

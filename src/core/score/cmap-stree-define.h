@@ -13,9 +13,9 @@ static CMAP_STREE_RUNNER CMAP_STREE_RUNNER_NAME(prefix) = \
 #define CMAP_STREE_ADDFN(prefix, stree, node, data) cmap_stree_add( \
   &CMAP_STREE_RUNNER_NAME(prefix), (CMAP_STREE_NODE **)stree, \
   (CMAP_STREE_NODE *)node, (void *)data)
-#define CMAP_STREE_ADDNEQFN(prefix, stree, create_node, data) \
+#define CMAP_STREE_ADDNEQFN(prefix, stree, create_node, node, data) \
   cmap_stree_add_neq(&CMAP_STREE_RUNNER_NAME(prefix), \
-    (CMAP_STREE_NODE **)stree, create_node, (void *)data)
+    (CMAP_STREE_NODE **)stree, create_node, node, (void *)data)
 #define CMAP_STREE_RMFN(stree, node) cmap_stree_rm( \
   (CMAP_STREE_NODE **)stree, (CMAP_STREE_NODE *)node)
 

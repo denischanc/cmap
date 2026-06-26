@@ -17,7 +17,7 @@ CMAP_MAP * cmap_cli_create(CMAP_PROC_CTX * proc_ctx)
   for(int i = 0; i < argc; i++)
   {
     const char * arg = cmap_kcli_argv()[i];
-    CMAP_LIST_PUSH(args, CMAP_STRING(arg, 0, proc_ctx));
+    CMAP_LIST_PUSH(args, CMAP_STRING(arg, 0, proc_ctx), proc_ctx);
   }
 
   return cmap_to_map(proc_ctx, "args", args, NULL);

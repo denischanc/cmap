@@ -12,7 +12,7 @@
 *******************************************************************************/
 
 #define CMAP_SSET_LOOP(macro) \
-  macro(LC, lc, CMAP_LIFECYCLE *, lc_eval, lc_log_v)
+  macro(LC, lc, CMAP_LIFECYCLE *, lc_eval, lc_log)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -25,7 +25,7 @@ typedef void (*CMAP_SSET_##NAME##_APPLY_FN)(type * v, void * data); \
 char cmap_sset_##name##_is(CMAP_SSET_##NAME * set, type * v); \
 type * cmap_sset_##name##_get(CMAP_SSET_##NAME * set, type * v); \
   \
-type * cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v); \
+char cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v, type ** out); \
 type cmap_sset_##name##_rm(CMAP_SSET_##NAME ** set); \
 char cmap_sset_##name##_rm_v(CMAP_SSET_##NAME ** set, type * v); \
  \
@@ -103,11 +103,12 @@ static CMAP_STREE_NODE * name##_create_node(void * data) \
   return &node -> node; \
 } \
  \
-type * cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v) \
+char cmap_sset_##name##_add(CMAP_SSET_##NAME ** set, type * v, type ** out) \
 { \
-  CMAP_SSET_##NAME * node = (CMAP_SSET_##NAME *) \
-    CMAP_STREE_ADDNEQFN(name, set, name##_create_node, v); \
-  return (node == NULL) ? NULL : &node -> v; \
+  CMAP_STREE_NODE * node_out; \
+  char ret = CMAP_STREE_ADDNEQFN(name, set, name##_create_node, &node_out, v); \
+  if(out != NULL) *out = &((CMAP_SSET_##NAME *)node_out) -> v; \
+  return ret; \
 } \
  \
 type cmap_sset_##name##_rm(CMAP_SSET_##NAME ** set) \

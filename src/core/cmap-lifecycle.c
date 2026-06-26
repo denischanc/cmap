@@ -30,14 +30,6 @@ unsigned char cmap_lifecycle_nature(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
-static inline uint64_t next_watch_time_us()
-{
-  return cmap_util_time_us() + cmap_config_refs_check_zombie_time_us();
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
 static inline void set_ref_state(CMAP_LIFECYCLE * lc, unsigned char ref_state)
 {
   lc -> internal.ref_state = ref_state;
@@ -58,14 +50,20 @@ static inline void do_store(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-void cmap_lifecycle_inc_refs(CMAP_LIFECYCLE * lc)
+void cmap_lifecycle_inc_refs(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  lc -> internal.nb_refs++;
+  CMAP_LIFECYCLE_INTERNAL * internal = &lc -> internal;
 
-  if(lc -> internal.watch_time_us > 0)
-    lc -> internal.watch_time_us = next_watch_time_us();
+  internal -> nb_refs++;
 
-  if(lc -> internal.ref_state == REF_STATE_STORED)
+  if(internal -> watched)
+  {
+    CMAP_REFSWATCHER * refswatcher = cmap_proc_ctx_refswatcher(proc_ctx);
+    cmap_refswatcher_rm(refswatcher, lc);
+    internal -> watched = CMAP_F;
+  }
+
+  if(internal -> ref_state == REF_STATE_STORED)
     set_ref_state(lc, REF_STATE_HOOKED);
 }
 
@@ -82,11 +80,13 @@ int cmap_lifecycle_nb_refs(CMAP_LIFECYCLE * lc)
 
 void cmap_lifecycle_dec_refs(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  lc -> internal.nb_refs--;
+  CMAP_LIFECYCLE_INTERNAL * internal = &lc -> internal;
 
-  if(lc -> internal.ref_state == REF_STATE_FREE) do_store(lc, proc_ctx);
-  else if(lc -> internal.ref_state == REF_STATE_HOOKED)
-    set_ref_state(lc, REF_STATE_STORED);
+  internal -> nb_refs--;
+
+  unsigned char state = internal -> ref_state;
+  if(state == REF_STATE_FREE) do_store(lc, proc_ctx);
+  else if(state == REF_STATE_HOOKED) set_ref_state(lc, REF_STATE_STORED);
 }
 
 /*******************************************************************************
@@ -102,29 +102,15 @@ void cmap_lifecycle_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
 
 void cmap_lifecycle_watched(CMAP_LIFECYCLE * lc, char val)
 {
-  if(val)
-  {
-    if(lc -> internal.watch_time_us <= 0)
-      cmap_log_debug("[%p][%s] is watched", lc, CMAP_NATURE_CHAR(lc));
+  cmap_log_debug("[%p][%s] %s watched", lc, CMAP_NATURE_CHAR(lc),
+    val ? "is" : "not");
 
-    lc -> internal.watch_time_us = next_watch_time_us();
-  }
-  else
-  {
-    cmap_log_debug("[%p][%s] not watched", lc, CMAP_NATURE_CHAR(lc));
-
-    lc -> internal.watch_time_us = 0;
-  }
+  lc -> internal.watched = val;
 }
 
 char cmap_lifecycle_is_watched(CMAP_LIFECYCLE * lc)
 {
-  return (lc -> internal.watch_time_us > 0);
-}
-
-uint64_t cmap_lifecycle_watch_time_us(CMAP_LIFECYCLE * lc)
-{
-  return lc -> internal.watch_time_us;
+  return lc -> internal.watched;
 }
 
 /*******************************************************************************
@@ -150,10 +136,23 @@ char cmap_lifecycle_in_refs(CMAP_LIFECYCLE * lc)
 /*******************************************************************************
 *******************************************************************************/
 
+void cmap_lifecycle_ghost(CMAP_LIFECYCLE * lc)
+{
+  lc -> internal.ghost = CMAP_T;
+}
+
+char cmap_lifecycle_is_ghost(CMAP_LIFECYCLE * lc)
+{
+  return lc -> internal.ghost;
+}
+
+/*******************************************************************************
+*******************************************************************************/
+
 static inline void rm_from_refswatcher(CMAP_LIFECYCLE * lc,
   CMAP_PROC_CTX * proc_ctx)
 {
-  if(lc -> internal.watch_time_us > 0)
+  if(lc -> internal.watched)
   {
     CMAP_REFSWATCHER * refswatcher = cmap_proc_ctx_refswatcher(proc_ctx);
     cmap_refswatcher_rm(refswatcher, lc);
@@ -186,9 +185,10 @@ CMAP_LIFECYCLE * cmap_lifecycle_init(CMAP_LIFECYCLE * lc,
   CMAP_PROC_CTX * proc_ctx = initargs -> proc_ctx;
 
   lc -> internal.nature = initargs -> nature;
-  lc -> internal.nb_refs = 0;
-  lc -> internal.watch_time_us = 0;
   lc -> internal.ref_state = REF_STATE_STORED;
+  lc -> internal.watched = CMAP_F;
+  lc -> internal.ghost = CMAP_F;
+  lc -> internal.nb_refs = 0;
 
   cmap_proc_ctx_local_refs_add(proc_ctx, lc, CMAP_T);
 

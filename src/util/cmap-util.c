@@ -13,18 +13,21 @@
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_util_vfill_list(CMAP_LIST * list, va_list maps)
+CMAP_LIST * cmap_util_vfill_list(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * list,
+  va_list maps)
 {
   CMAP_MAP * map;
-  while((map = va_arg(maps, CMAP_MAP *)) != NULL) CMAP_LIST_PUSH(list, map);
+  while((map = va_arg(maps, CMAP_MAP *)) != NULL)
+    CMAP_LIST_PUSH(list, map, proc_ctx);
   return list;
 }
 
-CMAP_LIST * cmap_util_fill_list(CMAP_LIST * list, ...)
+CMAP_LIST * cmap_util_fill_list(CMAP_PROC_CTX * proc_ctx, CMAP_LIST * list,
+  ...)
 {
   va_list maps;
   va_start(maps, list);
-  cmap_util_vfill_list(list, maps);
+  cmap_util_vfill_list(proc_ctx, list, maps);
   va_end(maps);
   return list;
 }
@@ -34,7 +37,7 @@ CMAP_LIST * cmap_util_fill_list(CMAP_LIST * list, ...)
 
 CMAP_LIST * cmap_util_vto_list(CMAP_PROC_CTX * proc_ctx, va_list maps)
 {
-  return cmap_util_vfill_list(CMAP_LIST(0, proc_ctx), maps);
+  return cmap_util_vfill_list(proc_ctx, CMAP_LIST(0, proc_ctx), maps);
 }
 
 CMAP_LIST * cmap_util_to_list(CMAP_PROC_CTX * proc_ctx, ...)
@@ -60,7 +63,7 @@ CMAP_LIST * cmap_util_split(CMAP_PROC_CTX * proc_ctx, char * string, char sep)
     if((c == sep) || (c == 0))
     {
       *cur = 0;
-      CMAP_LIST_PUSH(ret, CMAP_STRING(string, 0, proc_ctx));
+      CMAP_LIST_PUSH(ret, CMAP_STRING(string, 0, proc_ctx), proc_ctx);
 
       if(c == 0) return ret;
       *cur = sep;

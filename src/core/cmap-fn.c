@@ -36,7 +36,7 @@ CMAP_MAP * cmap_fn_require_definitions(CMAP_FN * fn, CMAP_PROC_CTX * proc_ctx)
   if(fn -> internal.definitions == NULL)
   {
     fn -> internal.definitions = cmap_map_create_root(proc_ctx);
-    CMAP_INC_REFS(fn -> internal.definitions);
+    CMAP_INC_REFS(fn -> internal.definitions, proc_ctx);
   }
   return fn -> internal.definitions;
 }

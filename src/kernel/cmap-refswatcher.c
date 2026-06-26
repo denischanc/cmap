@@ -2,6 +2,7 @@
 #include "cmap-refswatcher.h"
 
 #include <stdio.h>
+#include <stdint.h>
 #include "cmap.h"
 #include "cmap-kernel.h"
 #include "cmap-mem.h"
@@ -25,16 +26,39 @@
 typedef struct
 {
   CMAP_LIFECYCLE * lc;
+  uint64_t watch_time_us;
+} REF;
+
+static int64_t ref_eval(REF * v_l, REF * v_r)
+{
+  return (void *)v_l -> lc - (void *)v_r -> lc;
+}
+
+static const char * ref_log(REF * v)
+{
+  static char buffer[20];
+  snprintf(buffer, sizeof(buffer), "%p", v -> lc);
+  return buffer;
+}
+
+CMAP_SSET(REF, ref, REF, ref_eval, ref_log)
+
+/*******************************************************************************
+*******************************************************************************/
+
+typedef struct
+{
+  CMAP_LIFECYCLE * lc;
 
   CMAP_SLIST_LC * wrappers;
 
   CMAP_SLIST_LC_PTR * nesteds;
 } REF_EXT;
 
-static inline REF_EXT ref_ext_create(CMAP_LIFECYCLE * lc)
+static inline void ref_ext_init(REF_EXT * ref_ext)
 {
-  REF_EXT ref_ext = {lc, cmap_slist_lc_create(0), cmap_slist_lc_ptr_create(0)};
-  return ref_ext;
+  ref_ext -> wrappers = cmap_slist_lc_create(0);
+  ref_ext -> nesteds = cmap_slist_lc_ptr_create(0);
 }
 
 static inline void ref_ext_delete(REF_EXT ref_ext)
@@ -48,14 +72,14 @@ static int64_t ref_ext_eval(REF_EXT * v_l, REF_EXT * v_r)
   return (void *)v_l -> lc - (void *)v_r -> lc;
 }
 
-static const char * ref_ext_log_v(REF_EXT * v)
+static const char * ref_ext_log(REF_EXT * v)
 {
   static char buffer[20];
   snprintf(buffer, sizeof(buffer), "%p", v -> lc);
   return buffer;
 }
 
-CMAP_SSET(REF_EXT, ref_ext, REF_EXT, ref_ext_eval, ref_ext_log_v)
+CMAP_SSET(REF_EXT, ref_ext, REF_EXT, ref_ext_eval, ref_ext_log)
 
 /*******************************************************************************
 *******************************************************************************/
@@ -63,8 +87,9 @@ CMAP_SSET(REF_EXT, ref_ext, REF_EXT, ref_ext_eval, ref_ext_log_v)
 struct CMAP_REFSWATCHER
 {
   CMAP_ENV * env;
+  uint64_t check_zombie_time_us;
 
-  CMAP_SSET_LC * refs;
+  CMAP_SSET_REF * refs;
 
   CMAP_LOOP_TIMER timer;
 
@@ -98,8 +123,10 @@ void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
   if(rw -> deletion) delete_if_zombie(rw, lc, proc_ctx);
   else
   {
-    if(!cmap_lifecycle_is_watched(lc)) cmap_sset_lc_add(&rw -> refs, &lc);
-    cmap_lifecycle_watched(lc, CMAP_T);
+    REF ref = {lc, cmap_util_time_us() + rw -> check_zombie_time_us}, * ref_ptr;
+    if(cmap_sset_ref_add(&rw -> refs, &ref, &ref_ptr))
+      cmap_lifecycle_watched(lc, CMAP_T);
+    else ref_ptr -> watch_time_us = ref.watch_time_us;
   }
 }
 
@@ -108,7 +135,8 @@ void cmap_refswatcher_add(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
 
 void cmap_refswatcher_rm(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc)
 {
-  cmap_sset_lc_rm_v(&rw -> refs, &lc);
+  REF ref = {lc, 0};
+  cmap_sset_ref_rm_v(&rw -> refs, &ref);
 }
 
 /*******************************************************************************
@@ -134,19 +162,18 @@ static REF_EXT * upd_all_ref_exts(ZOMBIE_DATA * data)
 {
   REF_EXT ref_ext_tmp;
   ref_ext_tmp.lc = data -> cur;
-  REF_EXT * ref_ext_cur_ptr =
-    cmap_sset_ref_ext_get(*data -> all_ref_exts, &ref_ext_tmp);
-  if(ref_ext_cur_ptr != NULL) return ref_ext_cur_ptr;
+  REF_EXT * ref_ext_cur;
+  if(!cmap_sset_ref_ext_add(data -> all_ref_exts, &ref_ext_tmp, &ref_ext_cur))
+    return ref_ext_cur;
 
-  REF_EXT ref_ext_cur = ref_ext_create(data -> cur);
-  CMAP_SLIST_LC_PTR * nesteds = ref_ext_cur.nesteds;
+  ref_ext_init(ref_ext_cur);
+  CMAP_SLIST_LC_PTR * nesteds = ref_ext_cur -> nesteds;
   cmap_core_nested(data -> cur, nesteds, data -> proc_ctx);
-  ref_ext_cur_ptr = cmap_sset_ref_ext_add(data -> all_ref_exts, &ref_ext_cur);
 
   data -> ret = CMAP_F;
   cmap_slist_lc_ptr_apply(nesteds, upd_all_ref_exts_apply, data);
 
-  if(data -> ret) return ref_ext_cur_ptr;
+  if(data -> ret) return ref_ext_cur;
   else
   {
     if((data -> cur != data -> org) && cmap_lifecycle_is_watched(data -> cur))
@@ -177,7 +204,7 @@ static void upd_way_ref_exts_apply(CMAP_LIFECYCLE ** wrapper, void * data)
 static void upd_way_ref_exts(ZOMBIE_DATA * data)
 {
   REF_EXT * ref_ext = data -> ref_ext;
-  if(cmap_sset_ref_ext_add(data -> way_ref_exts, ref_ext) != NULL)
+  if(cmap_sset_ref_ext_add(data -> way_ref_exts, ref_ext, NULL))
   {
     CMAP_SLIST_LC * wrappers = ref_ext -> wrappers;
     cmap_slist_lc_apply(wrappers, upd_way_ref_exts_apply, data);
@@ -300,16 +327,15 @@ static void delete_if_zombie(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE * lc,
 /*******************************************************************************
 *******************************************************************************/
 
-static char watch_ref(CMAP_REFSWATCHER * rw, CMAP_LIFECYCLE ** ref,
-  char deletion, CMAP_PROC_CTX * proc_ctx)
+static char watch_ref(CMAP_REFSWATCHER * rw, REF * ref, char deletion,
+  CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_LIFECYCLE * ref_ = *ref;
-
   uint64_t now = cmap_util_time_us();
-  if((cmap_lifecycle_watch_time_us(ref_) < now) || deletion)
+  if((ref -> watch_time_us < now) || deletion)
   {
-    cmap_lifecycle_watched(ref_, CMAP_F);
-    delete_if_zombie(rw, ref_, proc_ctx);
+    CMAP_LIFECYCLE * lc = ref -> lc;
+    cmap_lifecycle_watched(lc, CMAP_F);
+    delete_if_zombie(rw, lc, proc_ctx);
     return CMAP_T;
   }
   return CMAP_F;
@@ -327,11 +353,11 @@ static void watch(CMAP_REFSWATCHER * rw)
 
   CMAP_PROC_CTX * proc_ctx = cmap_proc_ctx_create(rw -> env, NULL);
 
-  CMAP_ITERATOR_SSET_LC * it = cmap_iterator_sset_lc_create(&rw -> refs);
-  while(cmap_iterator_sset_lc_has_next(it))
-    if(watch_ref(rw, cmap_iterator_sset_lc_next(it), rw -> deletion, proc_ctx))
-      cmap_iterator_sset_lc_rm(it);
-  cmap_iterator_sset_lc_delete(it);
+  CMAP_ITERATOR_SSET_REF * it = cmap_iterator_sset_ref_create(&rw -> refs);
+  while(cmap_iterator_sset_ref_has_next(it))
+    if(watch_ref(rw, cmap_iterator_sset_ref_next(it), rw -> deletion, proc_ctx))
+      cmap_iterator_sset_ref_rm(it);
+  cmap_iterator_sset_ref_delete(it);
 
   cmap_proc_ctx_delete(proc_ctx, NULL);
 
@@ -352,7 +378,7 @@ static void watch_loop(CMAP_LOOP_TIMER * timer)
 
 static inline void loop_init(CMAP_REFSWATCHER * rw)
 {
-  uint64_t time_ms = cmap_config_refs_check_zombie_time_us() / 1000;
+  uint64_t time_ms = rw -> check_zombie_time_us / 1000;
 
   rw -> timer.data = rw;
   cmap_loop_timer_start(&rw -> timer, watch_loop, time_ms, time_ms, NULL);
@@ -381,6 +407,7 @@ CMAP_REFSWATCHER * cmap_refswatcher_create(CMAP_ENV * env)
   CMAP_MEM_ALLOC_PTR(rw, CMAP_REFSWATCHER);
 
   rw -> env = env;
+  rw -> check_zombie_time_us = cmap_config_refs_check_zombie_time_us();
   rw -> refs = NULL;
   rw -> deletion = CMAP_F;
 

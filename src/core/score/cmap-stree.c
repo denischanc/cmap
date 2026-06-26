@@ -337,9 +337,9 @@ static inline void add_eq(CMAP_STREE_NODE * node, CMAP_STREE_NODE * parent)
 /*******************************************************************************
 *******************************************************************************/
 
-static CMAP_STREE_NODE * cmap_stree_add_(CMAP_STREE_RUNNER * runner,
-  CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node,
-  CMAP_STREE_CREATE_NODE create_node, void * data)
+static char cmap_stree_add_(CMAP_STREE_RUNNER * runner,
+  CMAP_STREE_NODE ** stree, CMAP_STREE_NODE * node_in,
+  CMAP_STREE_CREATE_NODE create_node, CMAP_STREE_NODE ** node_out, void * data)
 {
   CMAP_STREE_NODE ** parent = NULL, ** cur = stree;
   while(*cur != NULL)
@@ -351,18 +351,23 @@ static CMAP_STREE_NODE * cmap_stree_add_(CMAP_STREE_RUNNER * runner,
     else if(v < 0) cur = &(*cur) -> gt;
     else
     {
-      if(node != NULL)
+      if(node_in != NULL)
       {
-        add_eq(node, *cur);
-        return node;
+        add_eq(node_in, *cur);
+        return CMAP_T;
       }
-      return NULL;
+      if(node_out != NULL) *node_out = *cur;
+      return CMAP_F;
     }
   }
 
-  if(node == NULL) node = create_node(data);
-  init_node(node, (parent == NULL) ? NULL : *parent);
-  *cur = node;
+  if(node_in == NULL)
+  {
+    node_in = create_node(data);
+    if(node_out != NULL) *node_out = node_in;
+  }
+  init_node(node_in, (parent == NULL) ? NULL : *parent);
+  *cur = node_in;
 
   if(parent != NULL)
   {
@@ -373,19 +378,19 @@ static CMAP_STREE_NODE * cmap_stree_add_(CMAP_STREE_RUNNER * runner,
     if(stree_ -> depth > depth) pack(stree, stree_, depth);
   }
 
-  return node;
+  return CMAP_T;
 }
 
 void cmap_stree_add(CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE ** stree,
   CMAP_STREE_NODE * node, void * data)
 {
-  cmap_stree_add_(runner, stree, node, NULL, data);
+  cmap_stree_add_(runner, stree, node, NULL, NULL, data);
 }
 
-CMAP_STREE_NODE * cmap_stree_add_neq(CMAP_STREE_RUNNER * runner,
-  CMAP_STREE_NODE ** stree, CMAP_STREE_CREATE_NODE create_node, void * data)
+char cmap_stree_add_neq(CMAP_STREE_RUNNER * runner, CMAP_STREE_NODE ** stree,
+  CMAP_STREE_CREATE_NODE create_node, CMAP_STREE_NODE ** node, void * data)
 {
-  return cmap_stree_add_(runner, stree, NULL, create_node, data);
+  return cmap_stree_add_(runner, stree, NULL, create_node, node, data);
 }
 
 /*******************************************************************************

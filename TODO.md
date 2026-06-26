@@ -17,6 +17,7 @@ TODO
 * CMAP_POOL_TIMER pool
 * AM_CFLAGS
 * map: delete key
+* config: string, list sizes not embedded; pool size embedded ?
 
 ## Parser
 
@@ -25,3 +26,4 @@ TODO
 ## Doc
 
 * stree
+* review contexts in tool

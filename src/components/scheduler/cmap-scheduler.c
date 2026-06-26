@@ -108,7 +108,7 @@ static CMAP_MAP * do_start(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_MEM_ALLOC_PTR(internal, INTERNAL);
   internal -> env = env;
   internal -> job = map;
-  CMAP_INC_REFS(map);
+  CMAP_INC_REFS(map, proc_ctx);
 
   daemon = daemon && (repeat_ms > 0);
   cmap_loop_timer_start(&internal -> timer,
@@ -155,6 +155,7 @@ CMAP_MAP * cmap_scheduler_daemonize_ms_fn(CMAP_PROC_CTX * proc_ctx,
 CMAP_MAP * cmap_scheduler_stop_fn(CMAP_PROC_CTX * proc_ctx, CMAP_MAP * map,
   CMAP_LIST * args)
 {
+  /* TODO : remove key when map.delete_key() is implemented. */
   CMAP_SET(map, CMAP_INTERNAL_NAME, NULL, proc_ctx);
   return map;
 }

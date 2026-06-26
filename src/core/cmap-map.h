@@ -33,9 +33,6 @@ void cmap_map_apply(CMAP_MAP * map, CMAP_MAP_ENTRY_FN fn, void * data,
 
 void cmap_map_clean(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx);
 
-void cmap_map_ghost(CMAP_MAP * map);
-char cmap_map_is_ghost(CMAP_MAP * map);
-
 void cmap_map_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx);
 CMAP_MAP * cmap_map_init(CMAP_MAP * map, CMAP_INITARGS * initargs);
 CMAP_MAP * cmap_map_create_root(CMAP_PROC_CTX * proc_ctx);

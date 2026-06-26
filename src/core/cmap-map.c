@@ -51,8 +51,8 @@ static void nested_apply(const char * key, CMAP_MAP ** val, void * data,
 void cmap_map_nested(CMAP_LIFECYCLE * lc, CMAP_SLIST_LC_PTR * list,
   CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP * map = (CMAP_MAP *)lc;
-  if(!map -> internal.ghost) cmap_map_apply(map, nested_apply, list, proc_ctx);
+  if(!CMAP_IS_GHOST(lc))
+    cmap_map_apply((CMAP_MAP *)lc, nested_apply, list, proc_ctx);
 
   cmap_lifecycle_nested(lc, list, proc_ctx);
 }
@@ -75,10 +75,10 @@ CMAP_MAP * cmap_map_set(CMAP_MAP * map, const char * key, CMAP_MAP * val,
     CMAP_STREE_ADDFN(entry, entry_stree, entry, key);
   }
 
-  if(!map -> internal.ghost && (entry -> val != NULL))
+  if(!CMAP_IS_GHOST(map) && (entry -> val != NULL))
     CMAP_DEC_REFS(entry -> val, proc_ctx);
   entry -> val = val;
-  if(!map -> internal.ghost && (val != NULL)) CMAP_INC_REFS(val);
+  if(!CMAP_IS_GHOST(map) && (val != NULL)) CMAP_INC_REFS(val, proc_ctx);
 
   return val;
 }
@@ -135,7 +135,8 @@ static void keys_apply(const char * key, CMAP_MAP ** val, void * data,
   CMAP_PROC_CTX * proc_ctx)
 {
   KEYS_APPLY_DATA * data_ = data;
-  CMAP_LIST_PUSH(data_ -> keys, CMAP_STRING(key, 0, data_ -> proc_ctx));
+  CMAP_LIST_PUSH(data_ -> keys, CMAP_STRING(key, 0, data_ -> proc_ctx),
+    data_ -> proc_ctx);
 }
 
 CMAP_LIST * cmap_map_keys(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx)
@@ -170,14 +171,14 @@ static void apply_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
   if(!data_ -> ghost && (prev_val != entry -> val))
   {
     if(prev_val != NULL) CMAP_DEC_REFS(prev_val, data_ -> proc_ctx);
-    if(entry -> val != NULL) CMAP_INC_REFS(entry -> val);
+    if(entry -> val != NULL) CMAP_INC_REFS(entry -> val, data_ -> proc_ctx);
   }
 }
 
 void cmap_map_apply(CMAP_MAP * map, CMAP_MAP_ENTRY_FN fn, void * data,
   CMAP_PROC_CTX * proc_ctx)
 {
-  APPLY_APPLY_DATA data_ = {fn, data, map -> internal.ghost, proc_ctx};
+  APPLY_APPLY_DATA data_ = {fn, data, CMAP_IS_GHOST(map), proc_ctx};
   CMAP_STREE_QUICKAPPLYFN(map -> internal.entry_stree, apply_apply, &data_);
 }
 
@@ -205,22 +206,9 @@ static void clean_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 
 void cmap_map_clean(CMAP_MAP * map, CMAP_PROC_CTX * proc_ctx)
 {
-  CLEAN_APPLY_DATA data = {map -> internal.ghost, proc_ctx};
+  CLEAN_APPLY_DATA data = {CMAP_IS_GHOST(map), proc_ctx};
   CMAP_STREE_QUICKAPPLYFN(map -> internal.entry_stree, clean_apply, &data);
   map -> internal.entry_stree = NULL;
-}
-
-/*******************************************************************************
-*******************************************************************************/
-
-void cmap_map_ghost(CMAP_MAP * map)
-{
-  map -> internal.ghost = CMAP_T;
-}
-
-char cmap_map_is_ghost(CMAP_MAP * map)
-{
-  return map -> internal.ghost;
 }
 
 /*******************************************************************************
@@ -254,10 +242,9 @@ static void delete_apply(CMAP_STREE_NODE * node, char is_eq, void * data)
 
 void cmap_map_delete(CMAP_LIFECYCLE * lc, CMAP_PROC_CTX * proc_ctx)
 {
-  CMAP_MAP_INTERNAL * internal = &((CMAP_MAP *)lc) -> internal;
-
-  DELETE_APPLY_DATA data = {lc, internal -> ghost, proc_ctx};
-  CMAP_STREE_QUICKAPPLYFN(internal -> entry_stree, delete_apply, &data);
+  DELETE_APPLY_DATA data = {lc, CMAP_IS_GHOST(lc), proc_ctx};
+  CMAP_STREE_QUICKAPPLYFN(((CMAP_MAP *)lc) -> internal.entry_stree,
+    delete_apply, &data);
 
   cmap_lifecycle_delete(lc, proc_ctx);
 }
@@ -268,7 +255,6 @@ CMAP_MAP * cmap_map_init(CMAP_MAP * map, CMAP_INITARGS * initargs)
 
   map -> internal.entry_stree = NULL;
   map -> internal.prototype = initargs -> prototype;
-  map -> internal.ghost = CMAP_F;
 
   return map;
 }

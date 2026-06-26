@@ -34,7 +34,7 @@ CMAP_MAP * cmap_prototypestore_require_##type(CMAP_PROTOTYPESTORE * ps, \
   if(ps -> type##_ == NULL) \
   { \
     cmap_prototype_##type##_require(&ps -> type##_, proc_ctx); \
-    CMAP_INC_REFS(ps -> type##_); \
+    CMAP_INC_REFS(ps -> type##_, proc_ctx); \
   } \
   return ps -> type##_; \
 } \

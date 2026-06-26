@@ -11,6 +11,4 @@
 
 #define CMAP_PROTOTYPE_NEW(proto, proc_ctx) cmap_map_new(proto, proc_ctx)
 
-#define CMAP_IS_GHOST(map) cmap_map_is_ghost((CMAP_MAP *)map)
-
 #endif

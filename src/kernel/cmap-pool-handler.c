@@ -11,7 +11,7 @@
 CMAP_LIST * cmap_pool_handler_list_ghost_create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_LIST * list = CMAP_LIST(0, proc_ctx);
-  cmap_map_ghost((CMAP_MAP *)list);
+  cmap_lifecycle_ghost((CMAP_LIFECYCLE *)list);
   return list;
 }
 
@@ -26,7 +26,7 @@ void cmap_pool_handler_list_ghost_clean(CMAP_LIST * e, CMAP_PROC_CTX * proc_ctx)
 CMAP_MAP * cmap_pool_handler_map_ghost_create(CMAP_PROC_CTX * proc_ctx)
 {
   CMAP_MAP * map = CMAP_MAP(proc_ctx);
-  cmap_map_ghost(map);
+  cmap_lifecycle_ghost((CMAP_LIFECYCLE *)map);
   return map;
 }
 

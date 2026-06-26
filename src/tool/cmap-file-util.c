@@ -39,7 +39,7 @@ char * cmap_file_util_dirname(const char * path)
   if(path == NULL) return strdup(".");
   if(!strcmp(path, "/")) return strdup("/");
 
-  char * tmp = strrchr(path, '/');
+  const char * tmp = strrchr(path, '/');
   if(tmp == NULL) return strdup(".");
 
   int size = tmp - path;
@@ -73,6 +73,6 @@ char * cmap_file_util_basename_no_ext(const char * path)
 
 const char * cmap_file_util_extension(const char * path)
 {
-  char * tmp = strrchr(path, '.');
+  const char * tmp = strrchr(path, '.');
   return (tmp != NULL) ? tmp + 1 : path + strlen(path);
 }

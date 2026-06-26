@@ -34,7 +34,7 @@ static CMAP_CONSUMEDTIME_US consumed_time = {0};
 
 void cmap_refsstore_add(CMAP_REFSSTORE * rs, CMAP_LIFECYCLE * lc, char created)
 {
-  if(cmap_sset_lc_add(&rs -> refs, &lc) != NULL)
+  if(cmap_sset_lc_add(&rs -> refs, &lc, NULL))
   {
     cmap_log_debug("[%p][refsstore] new ref : [%p]", rs, lc);
     if(created) rs -> nb_created++;

@@ -8,8 +8,6 @@ typedef struct
   CMAP_MAP_ENTRY * entry_stree;
 
   CMAP_MAP * prototype;
-
-  char ghost;
 } CMAP_MAP_INTERNAL;
 
 #endif

@@ -54,7 +54,7 @@ CMAP_LIST * cmap_list_set(CMAP_LIST * list, int i, CMAP_MAP * val,
 
     if(!CMAP_IS_GHOST(list) && (val != old_val))
     {
-      if(val != NULL) CMAP_INC_REFS(val);
+      if(val != NULL) CMAP_INC_REFS(val, proc_ctx);
       if(old_val != NULL) CMAP_DEC_REFS(old_val, proc_ctx);
     }
   }
@@ -70,10 +70,11 @@ CMAP_MAP * cmap_list_get(CMAP_LIST * list, int i)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val)
+CMAP_LIST * cmap_list_add(CMAP_LIST * list, int i, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx)
 {
   if(cmap_slist_map_add(list -> internal.list, i, &val) &&
-    !CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+    !CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val, proc_ctx);
   return list;
 }
 
@@ -87,10 +88,11 @@ CMAP_MAP * cmap_list_rm(CMAP_LIST * list, int i, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val)
+CMAP_LIST * cmap_list_push(CMAP_LIST * list, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx)
 {
   cmap_slist_map_push(list -> internal.list, &val);
-  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val, proc_ctx);
   return list;
 }
 
@@ -104,10 +106,11 @@ CMAP_MAP * cmap_list_pop(CMAP_LIST * list, CMAP_PROC_CTX * proc_ctx)
 /*******************************************************************************
 *******************************************************************************/
 
-CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val)
+CMAP_LIST * cmap_list_unshift(CMAP_LIST * list, CMAP_MAP * val,
+  CMAP_PROC_CTX * proc_ctx)
 {
   cmap_slist_map_unshift(list -> internal.list, &val);
-  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val);
+  if(!CMAP_IS_GHOST(list) && (val != NULL)) CMAP_INC_REFS(val, proc_ctx);
   return list;
 }
 
@@ -142,7 +145,7 @@ static void apply_apply(CMAP_MAP ** val, void * data)
     if(new_val != old_val)
     {
       if(old_val != NULL) CMAP_DEC_REFS(old_val, data_ -> proc_ctx);
-      if(new_val != NULL) CMAP_INC_REFS(new_val);
+      if(new_val != NULL) CMAP_INC_REFS(new_val, data_ -> proc_ctx);
     }
   }
 }

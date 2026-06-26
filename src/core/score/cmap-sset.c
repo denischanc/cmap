@@ -22,7 +22,7 @@ static inline int64_t name##_eval(type * v_l, type * v_r) \
 *******************************************************************************/
 
 #define PTR_LOGFN_IMPL(NAME, name, type) \
-static inline const char * name##_log_v(type * v) \
+static inline const char * name##_log(type * v) \
 { \
   static char buffer[20]; \
   snprintf(buffer, sizeof(buffer), "%p", *v); \

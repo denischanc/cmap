@@ -121,7 +121,7 @@ CMAP_MAP * cmap_env_global(CMAP_ENV * env, CMAP_PROC_CTX * proc_ctx)
   if(env -> global == NULL)
   {
     env -> global = cmap_global_env_create(proc_ctx);
-    CMAP_INC_REFS(env -> global);
+    CMAP_INC_REFS(env -> global, proc_ctx);
   }
   return env -> global;
 }

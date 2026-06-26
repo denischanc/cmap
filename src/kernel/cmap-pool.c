@@ -41,7 +41,7 @@ void cmap_pool_##name##_release(CMAP_POOL_##NAME * pool, type e, \
   if(cmap_list_size(availables) < pool -> size) \
   { \
     cmap_pool_handler_##name##_clean(e, proc_ctx); \
-    CMAP_LIST_PUSH(availables, e); \
+    CMAP_LIST_PUSH(availables, e, proc_ctx); \
   } \
 } \
  \
@@ -64,7 +64,7 @@ CMAP_POOL_##NAME * cmap_pool_##name##_create(int size, \
   CMAP_MEM_ALLOC_PTR(pool, CMAP_POOL_##NAME); \
   pool -> size = size; \
   pool -> availables = CMAP_LIST(size, proc_ctx); \
-  CMAP_INC_REFS(pool -> availables); \
+  CMAP_INC_REFS(pool -> availables, proc_ctx); \
   return pool; \
 }
 
